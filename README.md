@@ -1,10 +1,21 @@
 # Q-Rust
 
-A learning-oriented quantum transpiler written in Rust.
+A **quantum transpiler** written in Rust for learning purposes.
 
-## Purpose
+[![Crates.io](https://img.shields.io/crates/v/q-rust.svg)](https://crates.io/crates/q-rust)
 
-This project aims to help users explore translation techniques of quantum circuits between different representations.
+## Description
 
-## License
-MIT OR Apache-2.0
+Q-Rust is a small educational project to explore:
+
+- Parsing quantum circuits (OpenQASM or custom DSL)
+- Mapping circuits to a target backend
+- Optimizing quantum gates
+
+## Installation
+
+Add to your `Cargo.toml`:
+
+```toml
+[dependencies]
+q-rust = "0.1"
