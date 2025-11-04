@@ -1,0 +1,11 @@
+[package]
+name = "q-rust"                # crate name
+version = "0.1.0"
+edition = "2024"
+authors = ["Arturo Acuaviva <arturoacuaviva@gmail.com>"]
+description = "A quantum transpiler written in Rust"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Arturacu/Q-Rust"
+readme = "README.md"
+keywords = ["quantum", "transpiler", "quantum-computing", "rust"]
+categories = ["science", "education"]
