@@ -7,7 +7,6 @@ mod tests {
     fn test_simple_circuit() {
         let qasm = r#"
             OPENQASM 2.0;
-            include "qelib1.inc";
             qreg q[2];
             creg c[2];
             h q[0];
@@ -36,6 +35,34 @@ mod tests {
                 assert_eq!(*qubits, vec![0, 1]);
             }
             _ => panic!("Expected CX gate"),
+        }
+    }
+
+    #[test]
+    fn test_custom_gate_expansion() {
+        let qasm = r#"
+OPENQASM 2.0;
+
+gate my_rotation(theta) q { U(theta, 0, pi/2) q; }
+
+qreg q[1];
+my_rotation(1.57) q[0];
+"#;
+
+        let circuit = parse_qasm(qasm).expect("Failed to parse");
+        assert_eq!(circuit.num_qubits, 1);
+        assert_eq!(circuit.operations.len(), 1);
+
+        match &circuit.operations[0] {
+            Operation::Gate { name, qubits, params } => {
+                assert!(matches!(name, GateType::U(_, _, _)));
+                assert_eq!(*qubits, vec![0]);
+                assert_eq!(params.len(), 3);
+                assert!((params[0] - 1.57).abs() < 1e-10);
+                assert!((params[1] - 0.0).abs() < 1e-10);
+                assert!((params[2] - std::f64::consts::PI / 2.0).abs() < 1e-10);
+            }
+            _ => panic!("Expected U gate"),
         }
     }
 }
