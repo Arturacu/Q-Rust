@@ -11,6 +11,14 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 - **Modular Intermediate Representation (IR)**: A flexible, type-safe IR built for easy analysis and transformation.
 - **Graph-Based Backend Topology**: Define custom hardware backends with arbitrary connectivity using efficient graph structures (`petgraph`).
 
+## Error Handling
+
+Q-Rust enforces strict **OpenQASM 2.0** compliance. It will explicitly reject:
+
+- **OpenQASM 3.0**: Files starting with `OPENQASM 3.0;` will trigger an `Unsupported OpenQASM version` error.
+- **Missing Headers**: Files must start with a valid `OPENQASM 2.0;` header.
+- **Missing Measurements**: The `Circuit::validate()` method warns if a circuit has no measurements, as it will not produce output on real hardware.
+
 ## Installation
 
 Add to your `Cargo.toml`:
@@ -62,6 +70,13 @@ fn main() {
     println!("Backend {} has {} qubits.", backend.name, backend.num_qubits);
 }
 ```
+
+## References
+
+This project adheres to the **OpenQASM 2.0** specification:
+
+- **Specification**: [OpenQASM 2.0 on GitHub](https://github.com/openqasm/openqasm/tree/OpenQASM2.x)
+- **Paper**: Andrew W. Cross, Lev S. Bishop, John A. Smolin, Jay M. Gambetta, *"Open Quantum Assembly Language"*, [arXiv:1707.03429](https://arxiv.org/abs/1707.03429)
 
 ## License
 
