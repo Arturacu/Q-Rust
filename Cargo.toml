@@ -9,3 +9,8 @@ repository = "https://github.com/Arturacu/Q-Rust"
 readme = "README.md"
 keywords = ["quantum", "transpiler", "quantum-computing", "rust"]
 categories = ["science", "mathematics", "algorithms"]
+
+[dependencies]
+nom = "7.1.3"
+petgraph = "0.6.5"
+
