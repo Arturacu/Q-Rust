@@ -33,6 +33,24 @@ impl Circuit {
     pub fn add_op(&mut self, op: Operation) {
         self.operations.push(op);
     }
+
+    /// Validates the circuit and returns a list of warnings.
+    ///
+    /// Checks:
+    /// - Presence of at least one measurement.
+    pub fn validate(&self) -> Vec<String> {
+        let mut warnings = Vec::new();
+        let has_measurement = self
+            .operations
+            .iter()
+            .any(|op| matches!(op, Operation::Measure { .. }));
+
+        if !has_measurement {
+            warnings.push("Warning: No measurements found. The circuit will not produce classical output on hardware.".to_string());
+        }
+
+        warnings
+    }
 }
 
 #[cfg(test)]
@@ -59,5 +77,26 @@ mod tests {
         circuit.add_op(op.clone());
         assert_eq!(circuit.operations.len(), 1);
         assert_eq!(circuit.operations[0], op);
+    }
+
+    #[test]
+    fn test_validation_no_measurements() {
+        let mut circuit = Circuit::new(1, 0);
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        let warnings = circuit.validate();
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("No measurements found"));
+    }
+
+    #[test]
+    fn test_validation_with_measurements() {
+        let mut circuit = Circuit::new(1, 1);
+        circuit.add_op(Operation::Measure { qubit: 0, cbit: 0 });
+        let warnings = circuit.validate();
+        assert!(warnings.is_empty());
     }
 }

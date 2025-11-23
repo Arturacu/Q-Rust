@@ -29,6 +29,22 @@ pub enum GateType {
     RY(f64),
     /// Rotation around Z-axis with angle theta
     RZ(f64),
+    /// General unitary gate U(theta, phi, lambda)
+    U(f64, f64, f64),
+    /// Identity gate (wait)
+    ID,
+    /// S gate (sqrt(Z))
+    S,
+    /// S-dagger gate (inverse of S)
+    Sdg,
+    /// T gate (sqrt(S))
+    T,
+    /// T-dagger gate (inverse of T)
+    Tdg,
+    /// Swap gate
+    SWAP,
+    /// Toffoli gate (CCX)
+    CCX,
     // Add more as needed
     /// Custom user-defined gate
     Custom(String),
