@@ -54,8 +54,12 @@ my_rotation(1.57) q[0];
         assert_eq!(circuit.operations.len(), 1);
 
         match &circuit.operations[0] {
-            Operation::Gate { name, qubits, params } => {
-                assert!(matches!(name, GateType::U(_, _, _)));
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } => {
+                assert_eq!(*name, GateType::U);
                 assert_eq!(*qubits, vec![0]);
                 assert_eq!(params.len(), 3);
                 assert!((params[0] - 1.57).abs() < 1e-10);
@@ -64,5 +68,46 @@ my_rotation(1.57) q[0];
             }
             _ => panic!("Expected U gate"),
         }
+    }
+
+    #[test]
+    fn test_decomposition_integration() {
+        use q_rust::transpiler::decomposition::decompose_basis;
+
+        // Circuit with various gates: H, CX, X, Y, Z, RX
+        let qasm = r#"
+            OPENQASM 2.0;
+            qreg q[2];
+            h q[0];
+            x q[1];
+            cx q[0], q[1];
+            y q[0];
+            z q[1];
+            rx(1.57) q[0];
+        "#;
+
+        let circuit = parse_qasm(qasm).expect("Failed to parse");
+        let decomposed = decompose_basis(&circuit);
+
+        // Verify all gates are in basis set (U or CX)
+        for op in &decomposed.operations {
+            match op {
+                Operation::Gate { name, .. } => match name {
+                    GateType::U | GateType::CX => {} // OK
+                    _ => panic!("Found non-basis gate in CCX decomposition: {:?}", name),
+                },
+                _ => {} // Ignore non-gate ops
+            }
+        }
+
+        // Verify count:
+        // H -> 1 U
+        // X -> 1 U
+        // CX -> 1 CX
+        // Y -> 1 U
+        // Z -> 1 U
+        // RX -> 1 U
+        // Total: 6 gates
+        assert_eq!(decomposed.operations.len(), 6);
     }
 }
