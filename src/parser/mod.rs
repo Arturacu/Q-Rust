@@ -9,27 +9,19 @@ use std::collections::HashMap;
 
 // --- Resolution & Mapping ---
 
-fn map_gate_type(name: &str, params: &[f64]) -> GateType {
+fn map_gate_type(name: &str) -> GateType {
     match name {
         "h" => GateType::H,
         "x" => GateType::X,
         "y" => GateType::Y,
         "z" => GateType::Z,
         "cx" => GateType::CX,
-        "rx" => GateType::RX(params.first().cloned().unwrap_or(0.0)),
-        "ry" => GateType::RY(params.first().cloned().unwrap_or(0.0)),
-        "rz" => GateType::RZ(params.first().cloned().unwrap_or(0.0)),
-        "u1" => GateType::RZ(params.first().cloned().unwrap_or(0.0)), // u1(lambda) = RZ(lambda)
-        "u2" => GateType::U(
-            std::f64::consts::FRAC_PI_2,
-            params.first().cloned().unwrap_or(0.0),
-            params.get(1).cloned().unwrap_or(0.0),
-        ), // u2(phi, lambda) = U(pi/2, phi, lambda)
-        "u3" | "U" => GateType::U(
-            params.first().cloned().unwrap_or(0.0),
-            params.get(1).cloned().unwrap_or(0.0),
-            params.get(2).cloned().unwrap_or(0.0),
-        ),
+        "rx" => GateType::RX,
+        "ry" => GateType::RY,
+        "rz" => GateType::RZ,
+        "u1" => GateType::RZ, // u1(lambda) = RZ(lambda)
+        "u2" => GateType::U,  // u2(phi, lambda) = U(pi/2, phi, lambda)
+        "u3" | "U" => GateType::U,
         "id" => GateType::ID,
         "s" => GateType::S,
         "sdg" => GateType::Sdg,
@@ -288,13 +280,32 @@ fn expand_gate(
     }
 
     // 2. Check standard gate
-    let gate_type = map_gate_type(name, &eval_params);
+    let gate_type = map_gate_type(name);
     if !matches!(gate_type, GateType::Custom(_)) {
-        circuit.add_op(Operation::Gate {
+        // Handle special cases for U1, U2, U3 parameter mapping
+        let final_params = match name {
+            "u2" => {
+                // U2(phi, lambda) -> U(pi/2, phi, lambda)
+                if eval_params.len() == 2 {
+                    vec![std::f64::consts::PI / 2.0, eval_params[0], eval_params[1]]
+                } else {
+                    eval_params
+                }
+            }
+            "u1" => eval_params, // Already mapped to RZ
+            "u3" | "U" => eval_params, // Direct mapping
+            _ => eval_params,
+        };
+
+        // Construct the operation
+        // For standard gates, we use the GateType enum
+        // For custom gates, we would need to look up the definition (not handled fully here yet)
+        let op = Operation::Gate       {
             name: gate_type,
             qubits: qubits.to_vec(),
-            params: eval_params,
-        });
+            params: final_params,
+        };
+        circuit.add_op(op);
         return Ok(());
     }
 
@@ -381,7 +392,7 @@ mod tests {
         assert_eq!(circuit.operations.len(), 7);
         // Check first gate is U
         if let Operation::Gate { name, .. } = &circuit.operations[0] {
-            assert!(matches!(name, GateType::U(..)));
+            assert!(matches!(name, GateType::U));
         } else {
             panic!("Expected U gate");
         }

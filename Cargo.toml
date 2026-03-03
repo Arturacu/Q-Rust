@@ -11,6 +11,8 @@ keywords = ["quantum", "transpiler", "qasm", "parser", "rust"]
 categories = ["science", "mathematics", "algorithms"]
 
 [dependencies]
+nalgebra = "0.34.1"
 nom = "7.1.3"
+num-complex = "0.4.6"
 petgraph = "0.6.5"
 

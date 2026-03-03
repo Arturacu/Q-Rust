@@ -1,6 +1,6 @@
 # Q-Rust
 
-A **quantum transpiler** written in Rust, designed to parse, analyze, and optimize quantum circuits with full OpenQASM 2.0 support.
+A **quantum transpiler** written in Rust, designed to parse, analyze, and optimize quantum circuits with OpenQASM 2.0 support.
 
 [![Crates.io](https://img.shields.io/crates/v/q-rust.svg)](https://crates.io/crates/q-rust)
 [![Build Status](https://github.com/Arturacu/Q-Rust/workflows/Rust/badge.svg)](https://github.com/Arturacu/Q-Rust/actions)
@@ -9,10 +9,10 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 
 ### QASM 2.0 Parser
 - ✅ **Custom Gate Definitions**: Define parameterized gates with expressions
-- ✅ **Mathematical Expressions**: Full support for `pi`, arithmetic operations (`+`, `-`, `*`, `/`)
+- ✅ **Mathematical Expressions**: upport for `pi`, arithmetic operations (`+`, `-`, `*`, `/`)
 - ✅ **Register Broadcasting**: Apply gates to entire registers (e.g., `h q;`)
 - ✅ **Parameterized Gates**: Rotation gates with variable angles
-- ✅ **Measurements & Barriers**: Full measurement and barrier support
+- ✅ **Measurements & Barriers**: Measurement and barrier support
 - ✅ **Comments**: Single-line comments with `//`
 
 ### Intermediate Representation (IR)
@@ -22,7 +22,7 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 
 ### Backend System
 - ✅ **Custom Topologies**: Define arbitrary qubit connectivity
-- ✅ **Graph-Based**: Efficient coupling maps using `petgraph`
+- ✅ **Graph-Based**: Coupling maps using `petgraph`
 
 ## Supported Gates
 
@@ -48,7 +48,7 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 
 The following OpenQASM 2.0 features are **not yet supported**:
 
-- ❌ **Include Statements**: `include "qelib1.inc";` will error (inline gate definitions instead)
+- ❌ **Include Statements**: For example, `include "qelib.inc";` will error (inline gate definitions instead)
 - ❌ **Conditional Operations**: `if(c==1) x q[0];` not supported
 - ❌ **OpenQASM 3.0**: Only version 2.0 is supported
 

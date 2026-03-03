@@ -9,7 +9,7 @@
 /// ```
 /// use q_rust::ir::GateType;
 /// let h_gate = GateType::H;
-/// let rx_gate = GateType::RX(1.57);
+/// let rx_gate = GateType::RX; // Parameters are now stored in Operation::params
 /// ```
 #[derive(Debug, Clone, PartialEq)]
 pub enum GateType {
@@ -24,13 +24,13 @@ pub enum GateType {
     /// Controlled-NOT gate
     CX,
     /// Rotation around X-axis with angle theta
-    RX(f64),
+    RX,
     /// Rotation around Y-axis with angle theta
-    RY(f64),
+    RY,
     /// Rotation around Z-axis with angle theta
-    RZ(f64),
+    RZ,
     /// General unitary gate U(theta, phi, lambda)
-    U(f64, f64, f64),
+    U,
     /// Identity gate (wait)
     ID,
     /// S gate (sqrt(Z))
