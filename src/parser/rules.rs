@@ -232,6 +232,8 @@ fn gate_body_stmt(input: &str) -> IResult<&str, ParsedStatement> {
     alt((barrier, gate_call))(input)
 }
 
+// TODO: Support multi-qubit custom gate definitions (e.g., `gate rxx(theta) a, b { ... }`)
+//       Currently only single-qubit custom gates are parsed correctly.
 pub fn gate_def(input: &str) -> IResult<&str, ParsedStatement> {
     let (input, _) = tag("gate")(input)?;
     let (input, _) = space1(input)?;
