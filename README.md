@@ -15,14 +15,20 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 - ✅ **Measurements & Barriers**: Measurement and barrier support
 - ✅ **Comments**: Single-line comments with `//`
 
-### Intermediate Representation (IR)
-- ✅ **Type-Safe Operations**: Enum-based gate types with compile-time safety
-- ✅ **Circuit Validation**: Automatic validation for measurements and qubit bounds
-- ✅ **Flexible Operations**: Gate, Measure, Reset, Barrier operations
+### Transpilation & Optimization
+- ✅ **Basis Decomposition**: automatic conversion to `{U, CX}` universal basis
+- ✅ **Single-Qubit Synthesis**: ZYZ decomposition into Euler angles
+- ✅ **Two-Qubit Synthesis**: KAK decomposition using the magic basis
+- ✅ **Optimization Passes**: 
+  - Gate Fusion (merging consecutive single-qubit gates)
+  - CX/SWAP Cancellation (removing redundant pairs)
+  - Parameter Simplification (modulo 2π, negligible rotations)
+  - Peephole Optimization (self-inverse cancellation)
 
-### Backend System
-- ✅ **Custom Topologies**: Define arbitrary qubit connectivity
-- ✅ **Graph-Based**: Coupling maps using `petgraph`
+### Verifying Correctness
+- ✅ **Unitary Simulator**: computes the full 2ⁿ × 2ⁿ unitary matrix for a circuit
+- ✅ **Equivalence Testing**: verifies transpilation by comparing unitaries up to a global phase
+- ✅ **Fixture-Driven Tests**: a suite of 21 tests running various QASM circuits through different transpiler configurations
 
 ## Supported Gates
 
@@ -42,15 +48,7 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 - **Toffoli**: `ccx` (3-qubit controlled-NOT)
 
 ### Custom Gates
-- User-defined gates via `gate` definitions with parameters and expressions
-
-## Limitations
-
-The following OpenQASM 2.0 features are **not yet supported**:
-
-- ❌ **Include Statements**: For example, `include "qelib.inc";` will error (inline gate definitions instead)
-- ❌ **Conditional Operations**: `if(c==1) x q[0];` not supported
-- ❌ **OpenQASM 3.0**: Only version 2.0 is supported
+- User-defined gates via `gate` definitions with parameters and expressions (single-qubit supported)
 
 ## Installation
 
@@ -58,79 +56,71 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-q-rust = "0.1"
+q-rust = "0.1.1"
 ```
 
 ## Usage Examples
 
-### Basic Circuit with Standard Gates
+### Transpiling to a Basis Set
 
 ```rust
 use q_rust::parser::parse_qasm;
+use q_rust::transpiler::{transpile, TranspilerConfig};
 
 fn main() {
     let qasm = r#"
         OPENQASM 2.0;
-        qreg q[2];
-        creg c[2];
-        h q[0];
-        cx q[0], q[1];
-        measure q -> c;
-    "#;
-
-    let circuit = parse_qasm(qasm).expect("Failed to parse");
-    println!("Circuit: {} qubits, {} operations", 
-             circuit.num_qubits, circuit.operations.len());
-}
-```
-
-### Custom Gate Definitions with Expressions
-
-```rust
-use q_rust::parser::parse_qasm;
-
-fn main() {
-    let qasm = r#"
-        OPENQASM 2.0;
-        
-        // Define custom gate with parameters
-        gate my_rotation(theta) q {
-            rx(theta) q;
-            rz(pi/2) q;
-        }
-        
         qreg q[1];
-        my_rotation(1.57) q[0];
+        h q[0];
     "#;
 
-    let circuit = parse_qasm(qasm).expect("Failed to parse");
-    println!("Custom gate expanded successfully!");
+    let circuit = parse_qasm(qasm).unwrap();
+    let config = TranspilerConfig {
+        decompose_basis: true,
+        optimization_level: 1,
+    };
+
+    let transpiled = transpile(&circuit, Some(config));
+    // H gate is now decomposed into U(pi/2, 0, pi)
 }
 ```
 
-### Defining a Backend
+### Verifying Unitary Equivalence
 
 ```rust
-use q_rust::backend::Backend;
+use q_rust::simulator::{circuit_to_unitary, unitary_fidelity};
+// ... after transpilation ...
+let u_orig = circuit_to_unitary(&circuit);
+let u_trans = circuit_to_unitary(&transpiled);
 
-fn main() {
-    let mut backend = Backend::new("MyQuantumMachine".to_string(), 5);
-    
-    // Linear topology: 0 -> 1 -> 2 -> 3 -> 4
-    backend.set_coupling_map(vec![(0, 1), (1, 2), (2, 3), (3, 4)]);
-    
-    println!("Backend '{}' with {} qubits", backend.name, backend.num_qubits);
-}
+let fidelity = unitary_fidelity(&u_orig, &u_trans);
+assert!(fidelity > 0.99999999); // Equivalent up to global phase
 ```
 
-## Error Handling
+## Testing Infrastructure
 
-Q-Rust enforces strict **OpenQASM 2.0** compliance:
+The project includes a robust test suite that uses QASM files as fixtures.
 
-- **Version Check**: Only `OPENQASM 2.0;` is accepted (3.0 will error)
-- **Required Header**: Files must start with `OPENQASM 2.0;`
-- **Validation**: `Circuit::validate()` warns about missing measurements
-- **Bounds Checking**: Qubit and classical bit indices are validated
+To run the full suite:
+```sh
+cargo test
+```
+
+To run the transpiler fixture suite specifically:
+```sh
+cargo test --test transpiler_suite
+```
+
+Fixtures are located in `tests/fixtures/`. Each fixture is run through multiple transpiler configurations (Default, No Decomposition, Decompose Only) to ensure universal invariants like qubit count preservation and unitary fidelity.
+
+## Limitations
+
+The following OpenQASM 2.0 features are **not yet supported**:
+
+- ❌ **Include Statements**: e.g., `include "qelib.inc";` (inline gate definitions instead)
+- ❌ **Conditional Operations**: `if(c==1) x q[0];`
+- ❌ **Multi-qubit Custom Gates**: Only single-qubit definitions are currently supported
+- ❌ **OpenQASM 3.0**: Only version 2.0 is supported
 
 ## References
 
@@ -142,3 +132,4 @@ This project adheres to the **OpenQASM 2.0** specification:
 ## License
 
 MIT or Apache-2.0
+
