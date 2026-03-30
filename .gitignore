@@ -22,3 +22,6 @@ target
 
 
 .DS_Store
+
+# Internal specifications (not tracked)
+.specifications/
