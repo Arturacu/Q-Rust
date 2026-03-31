@@ -2,8 +2,10 @@
 //!
 //! This module provides the `GateDefinition` trait and its implementation on
 //! `GateType`, consolidating gate semantics into a single source of truth.
-//! Both the simulator and the decomposition pass consume this trait, eliminating
-//! the risk of drift between the mathematical and logical definitions of a gate.
+//!
+//! **Key invariant**: only basis gates (`U`, `CX`) have explicit unitary matrices.
+//! All other gates derive their unitary by composing their decomposition through
+//! a mini-simulator, making correctness forced by construction.
 
 use crate::ir::{GateType, Operation};
 use nalgebra::DMatrix;
@@ -15,6 +17,141 @@ type C = Complex<f64>;
 fn c(re: f64, im: f64) -> C {
     Complex::new(re, im)
 }
+
+// ─── Matrix construction utilities ──────────────────────────────────────────
+
+/// Builds a 4×4 controlled-U matrix from a 2×2 unitary.
+///
+/// Result = |0⟩⟨0| ⊗ I + |1⟩⟨1| ⊗ U
+///
+/// This is a general utility; any controlled gate can be expressed as
+/// `controlled(sub_gate.unitary(params))`.
+pub fn controlled(u: &DMatrix<C>) -> DMatrix<C> {
+    let mut m = DMatrix::<C>::zeros(4, 4);
+    m[(0, 0)] = c(1.0, 0.0);
+    m[(1, 1)] = c(1.0, 0.0);
+    m[(2, 2)] = u[(0, 0)];
+    m[(3, 2)] = u[(1, 0)];
+    m[(2, 3)] = u[(0, 1)];
+    m[(3, 3)] = u[(1, 1)];
+    m
+}
+
+// ─── Mini-simulator for composing basis operations ──────────────────────────
+//
+// These functions exist so that `unitary()` can derive the matrix from
+// `decompose()` without depending on the full simulator (which would
+// create a circular dependency).
+
+/// Embeds a 2×2 unitary acting on `target` into the local n-qubit space.
+///
+/// Uses the same convention as the full simulator's `embed_2q`/`embed_3q`:
+/// qubit 0 is the most-significant bit of the local index.
+/// `local_index = bit(q0) * 2^(n-1) + bit(q1) * 2^(n-2) + ...`
+fn embed_u_local(u: &DMatrix<C>, target: usize, n_qubits: usize) -> DMatrix<C> {
+    let dim = 1 << n_qubits;
+    let mut full = DMatrix::<C>::zeros(dim, dim);
+    let bit_pos = n_qubits - 1 - target; // qubit 0 → MSB (bit n-1)
+
+    for col in 0..dim {
+        for row in 0..dim {
+            let mask = !(1usize << bit_pos);
+            if (row & mask) != (col & mask) {
+                continue;
+            }
+            let r_bit = (row >> bit_pos) & 1;
+            let c_bit = (col >> bit_pos) & 1;
+            full[(row, col)] = u[(r_bit, c_bit)];
+        }
+    }
+    full
+}
+
+/// Embeds a CX gate on (control, target) into the local n-qubit space.
+///
+/// Uses the same qubit-to-bit-position convention as `embed_u_local`.
+fn embed_cx_local(control: usize, target: usize, n_qubits: usize) -> DMatrix<C> {
+    let dim = 1 << n_qubits;
+    let mut full = DMatrix::<C>::zeros(dim, dim);
+    let ctrl_pos = n_qubits - 1 - control; // qubit 0 → MSB
+    let tgt_pos = n_qubits - 1 - target;
+
+    for basis in 0..dim {
+        let ctrl_bit = (basis >> ctrl_pos) & 1;
+        if ctrl_bit == 1 {
+            let flipped = basis ^ (1 << tgt_pos);
+            full[(flipped, basis)] = c(1.0, 0.0);
+        } else {
+            full[(basis, basis)] = c(1.0, 0.0);
+        }
+    }
+    full
+}
+
+/// Composes a sequence of basis operations (U and CX only) into a single unitary.
+///
+/// This is a self-contained mini-simulator used by `GateDefinition::unitary()`
+/// to derive the matrix from the decomposition, ensuring consistency by construction.
+fn compose_basis_ops(ops: &[Operation], n_qubits: usize) -> DMatrix<C> {
+    let dim = 1 << n_qubits;
+    let mut result = DMatrix::<C>::identity(dim, dim);
+
+    for op in ops {
+        if let Operation::Gate {
+            name,
+            qubits,
+            params,
+        } = op
+        {
+            let gate_u = match name {
+                GateType::U => {
+                    let u = basis_u_matrix(params);
+                    embed_u_local(&u, qubits[0], n_qubits)
+                }
+                GateType::CX => embed_cx_local(qubits[0], qubits[1], n_qubits),
+                other => panic!(
+                    "compose_basis_ops: expected only U/CX, got {:?}. \
+                     Decomposition must produce fully-expanded basis ops.",
+                    other
+                ),
+            };
+            result = gate_u * result;
+        }
+    }
+    result
+}
+
+/// Returns the 2×2 U(θ,φ,λ) matrix — the axiomatic definition of the U gate.
+fn basis_u_matrix(params: &[f64]) -> DMatrix<C> {
+    let (theta, phi, lambda) = (params[0], params[1], params[2]);
+    let cos = (theta / 2.0).cos();
+    let sin = (theta / 2.0).sin();
+    let e_phi = Complex::from_polar(1.0, phi);
+    let e_lambda = Complex::from_polar(1.0, lambda);
+    let e_phi_lambda = Complex::from_polar(1.0, phi + lambda);
+    DMatrix::from_row_slice(
+        2,
+        2,
+        &[
+            c(cos, 0.0),
+            -e_lambda * sin,
+            e_phi * sin,
+            e_phi_lambda * cos,
+        ],
+    )
+}
+
+/// Returns the 4×4 CX matrix — the axiomatic definition of the CX gate.
+fn basis_cx_matrix() -> DMatrix<C> {
+    let mut m = DMatrix::<C>::zeros(4, 4);
+    m[(0, 0)] = c(1.0, 0.0);
+    m[(1, 1)] = c(1.0, 0.0);
+    m[(3, 2)] = c(1.0, 0.0);
+    m[(2, 3)] = c(1.0, 0.0);
+    m
+}
+
+// ─── GateDefinition trait ───────────────────────────────────────────────────
 
 /// Unified gate definition trait.
 ///
@@ -31,8 +168,11 @@ pub trait GateDefinition {
     ///
     /// - Single-qubit gates return a 2×2 matrix.
     /// - Two-qubit gates return a 4×4 matrix (in computational basis order).
+    /// - Three-qubit gates return an 8×8 matrix.
     ///
-    /// The caller (simulator) handles embedding into the full 2^n Hilbert space.
+    /// For basis gates (`U`, `CX`), the matrix is defined axiomatically.
+    /// For all other gates, the matrix is **derived from the decomposition**,
+    /// guaranteeing consistency by construction.
     ///
     /// # Panics
     /// Panics for `Custom` gates (no definition available).
@@ -41,8 +181,8 @@ pub trait GateDefinition {
     /// Returns the decomposition of this gate into `{U, CX}` basis operations.
     ///
     /// Returns `None` if the gate is already a basis gate.
-    /// The returned operations use **placeholder qubit indices** (0, 1, 2, …)
-    /// that must be remapped by the caller to the actual circuit qubits.
+    /// The returned operations use the actual qubit indices passed in via the
+    /// `qubits` argument — the caller provides the physical qubit mapping.
     ///
     /// Returns `None` for `Custom` gates (cannot decompose without definition).
     fn decompose(&self, qubits: &[usize], params: &[f64]) -> Option<Vec<Operation>>;
@@ -90,239 +230,21 @@ impl GateDefinition for GateType {
 
     fn unitary(&self, params: &[f64]) -> DMatrix<C> {
         match self {
-            // ── Single-qubit fixed gates ─────────────────────────────────
-            GateType::H => {
-                let s = 1.0 / 2.0_f64.sqrt();
-                DMatrix::from_row_slice(2, 2, &[c(s, 0.0), c(s, 0.0), c(s, 0.0), c(-s, 0.0)])
-            }
-            GateType::X => {
-                DMatrix::from_row_slice(2, 2, &[c(0.0, 0.0), c(1.0, 0.0), c(1.0, 0.0), c(0.0, 0.0)])
-            }
-            GateType::Y => DMatrix::from_row_slice(
-                2,
-                2,
-                &[c(0.0, 0.0), c(0.0, -1.0), c(0.0, 1.0), c(0.0, 0.0)],
-            ),
-            GateType::Z => DMatrix::from_row_slice(
-                2,
-                2,
-                &[c(1.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(-1.0, 0.0)],
-            ),
-            GateType::S => {
-                DMatrix::from_row_slice(2, 2, &[c(1.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, 1.0)])
-            }
-            GateType::Sdg => DMatrix::from_row_slice(
-                2,
-                2,
-                &[c(1.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), c(0.0, -1.0)],
-            ),
-            GateType::T => {
-                let phase = Complex::from_polar(1.0, PI / 4.0);
-                DMatrix::from_row_slice(2, 2, &[c(1.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), phase])
-            }
-            GateType::Tdg => {
-                let phase = Complex::from_polar(1.0, -PI / 4.0);
-                DMatrix::from_row_slice(2, 2, &[c(1.0, 0.0), c(0.0, 0.0), c(0.0, 0.0), phase])
-            }
-            GateType::ID => DMatrix::<C>::identity(2, 2),
+            // ── Axiomatic basis gates ────────────────────────────────────
+            GateType::U => basis_u_matrix(params),
+            GateType::CX => basis_cx_matrix(),
 
-            // ── Single-qubit parametric gates ────────────────────────────
-            GateType::RX => {
-                let theta = params[0];
-                let cos = c((theta / 2.0).cos(), 0.0);
-                let isin = c(0.0, -(theta / 2.0).sin());
-                DMatrix::from_row_slice(2, 2, &[cos, isin, isin, cos])
-            }
-            GateType::RY => {
-                let theta = params[0];
-                let cos = c((theta / 2.0).cos(), 0.0);
-                let sin = c((theta / 2.0).sin(), 0.0);
-                DMatrix::from_row_slice(2, 2, &[cos, -sin, sin, cos])
-            }
-            GateType::RZ => {
-                let theta = params[0];
-                let em = Complex::from_polar(1.0, -theta / 2.0);
-                let ep = Complex::from_polar(1.0, theta / 2.0);
-                DMatrix::from_row_slice(2, 2, &[em, c(0.0, 0.0), c(0.0, 0.0), ep])
-            }
-            GateType::U => {
-                let (theta, phi, lambda) = (params[0], params[1], params[2]);
-                let cos = (theta / 2.0).cos();
-                let sin = (theta / 2.0).sin();
-                let e_phi = Complex::from_polar(1.0, phi);
-                let e_lambda = Complex::from_polar(1.0, lambda);
-                let e_phi_lambda = Complex::from_polar(1.0, phi + lambda);
-                DMatrix::from_row_slice(
-                    2,
-                    2,
-                    &[
-                        c(cos, 0.0),
-                        -e_lambda * sin,
-                        e_phi * sin,
-                        e_phi_lambda * cos,
-                    ],
-                )
-            }
-
-            // ── Two-qubit fixed gates (4×4) ──────────────────────────────
-            GateType::CX => {
-                // |00⟩→|00⟩, |01⟩→|01⟩, |10⟩→|11⟩, |11⟩→|10⟩
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = c(1.0, 0.0);
-                m[(1, 1)] = c(1.0, 0.0);
-                m[(3, 2)] = c(1.0, 0.0);
-                m[(2, 3)] = c(1.0, 0.0);
-                m
-            }
-            GateType::CZ => {
-                // diag(1, 1, 1, -1)
-                let mut m = DMatrix::<C>::identity(4, 4);
-                m[(3, 3)] = c(-1.0, 0.0);
-                m
-            }
-            GateType::CY => {
-                // |0⟩⟨0| ⊗ I + |1⟩⟨1| ⊗ Y
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = c(1.0, 0.0);
-                m[(1, 1)] = c(1.0, 0.0);
-                m[(3, 2)] = c(0.0, 1.0);
-                m[(2, 3)] = c(0.0, -1.0);
-                m
-            }
-            GateType::CH => {
-                // |0⟩⟨0| ⊗ I + |1⟩⟨1| ⊗ H
-                let s = 1.0 / 2.0_f64.sqrt();
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = c(1.0, 0.0);
-                m[(1, 1)] = c(1.0, 0.0);
-                m[(2, 2)] = c(s, 0.0);
-                m[(3, 2)] = c(s, 0.0);
-                m[(2, 3)] = c(s, 0.0);
-                m[(3, 3)] = c(-s, 0.0);
-                m
-            }
-            GateType::CSX => {
-                // |0⟩⟨0| ⊗ I + |1⟩⟨1| ⊗ SX
-                // SX = 1/2 * [[1+i, 1-i], [1-i, 1+i]]
-                let half = 0.5;
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = c(1.0, 0.0);
-                m[(1, 1)] = c(1.0, 0.0);
-                m[(2, 2)] = c(half, half);
-                m[(3, 2)] = c(half, -half);
-                m[(2, 3)] = c(half, -half);
-                m[(3, 3)] = c(half, half);
-                m
-            }
-            GateType::SWAP => {
-                // Permutation: |01⟩↔|10⟩
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = c(1.0, 0.0);
-                m[(2, 1)] = c(1.0, 0.0);
-                m[(1, 2)] = c(1.0, 0.0);
-                m[(3, 3)] = c(1.0, 0.0);
-                m
-            }
-
-            // ── Two-qubit parametric gates (4×4) ─────────────────────────
-            GateType::CRX => {
-                // |0⟩⟨0| ⊗ I + |1⟩⟨1| ⊗ RX(θ)
-                let rx = GateType::RX.unitary(params);
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = c(1.0, 0.0);
-                m[(1, 1)] = c(1.0, 0.0);
-                m[(2, 2)] = rx[(0, 0)];
-                m[(3, 2)] = rx[(1, 0)];
-                m[(2, 3)] = rx[(0, 1)];
-                m[(3, 3)] = rx[(1, 1)];
-                m
-            }
-            GateType::CRY => {
-                let ry = GateType::RY.unitary(params);
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = c(1.0, 0.0);
-                m[(1, 1)] = c(1.0, 0.0);
-                m[(2, 2)] = ry[(0, 0)];
-                m[(3, 2)] = ry[(1, 0)];
-                m[(2, 3)] = ry[(0, 1)];
-                m[(3, 3)] = ry[(1, 1)];
-                m
-            }
-            GateType::CRZ => {
-                let rz = GateType::RZ.unitary(params);
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = c(1.0, 0.0);
-                m[(1, 1)] = c(1.0, 0.0);
-                m[(2, 2)] = rz[(0, 0)];
-                m[(3, 2)] = rz[(1, 0)];
-                m[(2, 3)] = rz[(0, 1)];
-                m[(3, 3)] = rz[(1, 1)];
-                m
-            }
-
-            // ── Ising interaction gates (4×4) ────────────────────────────
-            // exp(-iθ/2 P⊗P) = cos(θ/2) I₄ - i sin(θ/2) P⊗P
-            GateType::RXX => {
-                let theta = params[0];
-                let cos = c((theta / 2.0).cos(), 0.0);
-                let isin = c(0.0, -(theta / 2.0).sin());
-                // X⊗X = [[0,0,0,1],[0,0,1,0],[0,1,0,0],[1,0,0,0]]
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = cos;
-                m[(1, 1)] = cos;
-                m[(2, 2)] = cos;
-                m[(3, 3)] = cos;
-                m[(0, 3)] = isin;
-                m[(1, 2)] = isin;
-                m[(2, 1)] = isin;
-                m[(3, 0)] = isin;
-                m
-            }
-            GateType::RYY => {
-                let theta = params[0];
-                let cos = c((theta / 2.0).cos(), 0.0);
-                let isin = c(0.0, -(theta / 2.0).sin());
-                // Y⊗Y = [[0,0,0,-1],[0,0,1,0],[0,1,0,0],[-1,0,0,0]]
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = cos;
-                m[(1, 1)] = cos;
-                m[(2, 2)] = cos;
-                m[(3, 3)] = cos;
-                m[(0, 3)] = -isin; // -i·sin · (-1) = i·sin
-                m[(1, 2)] = isin;
-                m[(2, 1)] = isin;
-                m[(3, 0)] = -isin;
-                m
-            }
-            GateType::RZZ => {
-                let theta = params[0];
-                // Z⊗Z = diag(1, -1, -1, 1)
-                // exp(-iθ/2 Z⊗Z) = diag(e^{-iθ/2}, e^{iθ/2}, e^{iθ/2}, e^{-iθ/2})
-                let em = Complex::from_polar(1.0, -theta / 2.0);
-                let ep = Complex::from_polar(1.0, theta / 2.0);
-                let mut m = DMatrix::<C>::zeros(4, 4);
-                m[(0, 0)] = em;
-                m[(1, 1)] = ep;
-                m[(2, 2)] = ep;
-                m[(3, 3)] = em;
-                m
-            }
-
-            // ── Three-qubit gates (8×8) ──────────────────────────────────
-            GateType::CCX => {
-                // Toffoli: flip target iff both controls are |1⟩
-                // Standard ordering: [ctrl0, ctrl1, target]
-                let mut m = DMatrix::<C>::identity(8, 8);
-                // Swap |110⟩ ↔ |111⟩ (indices 6 and 7)
-                m[(6, 6)] = c(0.0, 0.0);
-                m[(7, 7)] = c(0.0, 0.0);
-                m[(6, 7)] = c(1.0, 0.0);
-                m[(7, 6)] = c(1.0, 0.0);
-                m
-            }
-
+            // ── All other gates: derived from decomposition ─────────────
             GateType::Custom(_) => {
                 panic!("Cannot compute unitary for custom gate without definition")
+            }
+            other => {
+                let n = other.num_qubits();
+                let qubits: Vec<usize> = (0..n).collect();
+                let ops = other
+                    .decompose(&qubits, params)
+                    .expect("Non-basis, non-custom gate must have a decomposition");
+                compose_basis_ops(&ops, n)
             }
         }
     }
@@ -452,55 +374,40 @@ impl GateDefinition for GateType {
                 let a = qubits[0];
                 let b = qubits[1];
                 let tgt = qubits[2];
-                // h tgt
                 ops.extend(GateType::H.decompose(&[tgt], &[]).unwrap());
-                // cx b,tgt
                 ops.push(Operation::Gate {
                     name: GateType::CX,
                     qubits: vec![b, tgt],
                     params: vec![],
                 });
-                // tdg tgt
                 ops.extend(GateType::Tdg.decompose(&[tgt], &[]).unwrap());
-                // cx a,tgt
                 ops.push(Operation::Gate {
                     name: GateType::CX,
                     qubits: vec![a, tgt],
                     params: vec![],
                 });
-                // t tgt
                 ops.extend(GateType::T.decompose(&[tgt], &[]).unwrap());
-                // cx b,tgt
                 ops.push(Operation::Gate {
                     name: GateType::CX,
                     qubits: vec![b, tgt],
                     params: vec![],
                 });
-                // tdg tgt
                 ops.extend(GateType::Tdg.decompose(&[tgt], &[]).unwrap());
-                // cx a,tgt
                 ops.push(Operation::Gate {
                     name: GateType::CX,
                     qubits: vec![a, tgt],
                     params: vec![],
                 });
-                // t b
                 ops.extend(GateType::T.decompose(&[b], &[]).unwrap());
-                // t tgt
                 ops.extend(GateType::T.decompose(&[tgt], &[]).unwrap());
-                // h tgt
                 ops.extend(GateType::H.decompose(&[tgt], &[]).unwrap());
-                // cx a,b
                 ops.push(Operation::Gate {
                     name: GateType::CX,
                     qubits: vec![a, b],
                     params: vec![],
                 });
-                // t a
                 ops.extend(GateType::T.decompose(&[a], &[]).unwrap());
-                // tdg b
                 ops.extend(GateType::Tdg.decompose(&[b], &[]).unwrap());
-                // cx a,b
                 ops.push(Operation::Gate {
                     name: GateType::CX,
                     qubits: vec![a, b],
