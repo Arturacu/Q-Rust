@@ -109,15 +109,17 @@ fn embed_single_qubit(gate_2x2: &DMatrix<C>, target: usize, n_qubits: usize) -> 
 /// Returns the 4×4 CX matrix with the given control and target in the full n-qubit space.
 fn embed_cx(control: usize, target: usize, n_qubits: usize) -> DMatrix<C> {
     let dim = 1 << n_qubits;
-    let mut full = DMatrix::<C>::identity(dim, dim);
+    let mut full = DMatrix::<C>::zeros(dim, dim);
 
     for basis in 0..dim {
         let ctrl_bit = (basis >> control) & 1;
         if ctrl_bit == 1 {
             // Flip the target bit
             let flipped = basis ^ (1 << target);
-            full[(basis, basis)] = c(0.0, 0.0);
             full[(flipped, basis)] = c(1.0, 0.0);
+        } else {
+            // Identity on this column: control is 0
+            full[(basis, basis)] = c(1.0, 0.0);
         }
     }
     full
@@ -145,15 +147,16 @@ fn embed_swap(q0: usize, q1: usize, n_qubits: usize) -> DMatrix<C> {
 /// Returns the CCX (Toffoli) matrix for the given control/target qubits.
 fn embed_ccx(ctrl0: usize, ctrl1: usize, target: usize, n_qubits: usize) -> DMatrix<C> {
     let dim = 1 << n_qubits;
-    let mut full = DMatrix::<C>::identity(dim, dim);
+    let mut full = DMatrix::<C>::zeros(dim, dim);
 
     for basis in 0..dim {
         let c0 = (basis >> ctrl0) & 1;
         let c1 = (basis >> ctrl1) & 1;
         if c0 == 1 && c1 == 1 {
             let flipped = basis ^ (1 << target);
-            full[(basis, basis)] = c(0.0, 0.0);
             full[(flipped, basis)] = c(1.0, 0.0);
+        } else {
+            full[(basis, basis)] = c(1.0, 0.0);
         }
     }
     full
@@ -167,7 +170,7 @@ fn embed_controlled_unitary(
     n_qubits: usize,
 ) -> DMatrix<C> {
     let dim = 1 << n_qubits;
-    let mut full = DMatrix::<C>::identity(dim, dim);
+    let mut full = DMatrix::<C>::zeros(dim, dim);
 
     for basis in 0..dim {
         let ctrl_bit = (basis >> control) & 1;
@@ -178,6 +181,9 @@ fn embed_controlled_unitary(
                 let out_basis = (basis & !(1 << target)) | (out_t << target);
                 full[(out_basis, basis)] = u_2x2[(out_t, t_bit)];
             }
+        } else {
+            // Control is 0: Identity on the whole Hilbert subspace
+            full[(basis, basis)] = c(1.0, 0.0);
         }
     }
     full
