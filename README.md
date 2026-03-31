@@ -28,7 +28,10 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 ### Verifying Correctness
 - ✅ **Unitary Simulator**: computes the full 2ⁿ × 2ⁿ unitary matrix for a circuit
 - ✅ **Equivalence Testing**: verifies transpilation by comparing unitaries up to a global phase
-- ✅ **Fixture-Driven Tests**: a suite of 21 tests running various QASM circuits through different transpiler configurations
+- ✅ **Fixture-Driven Tests**: 103 tests running various QASM circuits through different transpiler configurations
+
+### Architecture
+- ✅ **GateDefinition Trait**: single source of truth for gate unitary matrices and decomposition rules, eliminating drift between simulator and transpiler
 
 ## Supported Gates
 
@@ -46,6 +49,13 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 - **CNOT**: `cx`
 - **Swap**: `swap`
 - **Toffoli**: `ccx` (3-qubit controlled-NOT)
+
+### Controlled Gates
+- **Controlled Pauli**: `cz`, `cy`, `ch`, `csx`
+- **Controlled Rotations**: `crx(θ)`, `cry(θ)`, `crz(θ)`
+
+### Ising Interaction Gates
+- **Two-Qubit Rotations**: `rxx(θ)`, `ryy(θ)`, `rzz(θ)`
 
 ### Custom Gates
 - User-defined gates via `gate` definitions with parameters and expressions (single-qubit supported)
