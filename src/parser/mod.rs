@@ -29,6 +29,16 @@ fn map_gate_type(name: &str) -> GateType {
         "tdg" => GateType::Tdg,
         "swap" => GateType::SWAP,
         "ccx" => GateType::CCX,
+        "cz" => GateType::CZ,
+        "cy" => GateType::CY,
+        "crx" => GateType::CRX,
+        "cry" => GateType::CRY,
+        "crz" => GateType::CRZ,
+        "ch" => GateType::CH,
+        "csx" => GateType::CSX,
+        "rxx" => GateType::RXX,
+        "ryy" => GateType::RYY,
+        "rzz" => GateType::RZZ,
         _ => GateType::Custom(name.to_string()),
     }
 }
@@ -292,7 +302,7 @@ fn expand_gate(
                     eval_params
                 }
             }
-            "u1" => eval_params, // Already mapped to RZ
+            "u1" => eval_params,       // Already mapped to RZ
             "u3" | "U" => eval_params, // Direct mapping
             _ => eval_params,
         };
@@ -300,7 +310,7 @@ fn expand_gate(
         // Construct the operation
         // For standard gates, we use the GateType enum
         // For custom gates, we would need to look up the definition (not handled fully here yet)
-        let op = Operation::Gate       {
+        let op = Operation::Gate {
             name: gate_type,
             qubits: qubits.to_vec(),
             params: final_params,

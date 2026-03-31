@@ -252,6 +252,205 @@ fn expand_gate(circuit: &mut Circuit, name: &GateType, qubits: &[usize], params:
                 params: params.to_vec(),
             });
         }
+
+        // --- Controlled gates ---
+        GateType::CZ => {
+            // CZ a,b = H b; CX a,b; H b
+            let a = qubits[0];
+            let b = qubits[1];
+            expand_gate(circuit, &GateType::H, &[b], &[]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            expand_gate(circuit, &GateType::H, &[b], &[]);
+        }
+
+        GateType::CY => {
+            // CY a,b = Sdg b; CX a,b; S b
+            let a = qubits[0];
+            let b = qubits[1];
+            expand_gate(circuit, &GateType::Sdg, &[b], &[]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            expand_gate(circuit, &GateType::S, &[b], &[]);
+        }
+
+        GateType::CH => {
+            // CH a,b = S b; H b; T b; CX a,b; Tdg b; H b; Sdg b
+            let a = qubits[0];
+            let b = qubits[1];
+            expand_gate(circuit, &GateType::S, &[b], &[]);
+            expand_gate(circuit, &GateType::H, &[b], &[]);
+            expand_gate(circuit, &GateType::T, &[b], &[]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            expand_gate(circuit, &GateType::Tdg, &[b], &[]);
+            expand_gate(circuit, &GateType::H, &[b], &[]);
+            expand_gate(circuit, &GateType::Sdg, &[b], &[]);
+        }
+
+        GateType::CSX => {
+            // CSX = |0><0| ⊗ I + |1><1| ⊗ SX
+            // SX = e^{iπ/4} · RX(π/2), so CSX = diag(1, e^{iπ/4}) ⊗ I · CRX(π/2)
+            // Phase on control + CRX(π/2) decomposition
+            let a = qubits[0];
+            let b = qubits[1];
+            // Phase gate on control: U(0, 0, pi/4) a
+            circuit.add_op(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![a],
+                params: vec![0.0, 0.0, PI / 4.0],
+            });
+            // Then apply CRX(pi/2)
+            expand_gate(circuit, &GateType::CRX, &[a, b], &[PI / 2.0]);
+        }
+
+        // --- Controlled rotations ---
+        // CRX(θ) a,b = RZ(π/2) b; CX a,b; U(−θ/2, 0, 0) b; CX a,b; U(θ/2, −π/2, 0) b
+        GateType::CRX => {
+            let theta = params[0];
+            let a = qubits[0];
+            let b = qubits[1];
+            expand_gate(circuit, &GateType::RZ, &[b], &[PI / 2.0]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            circuit.add_op(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![b],
+                params: vec![-theta / 2.0, 0.0, 0.0],
+            });
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            circuit.add_op(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![b],
+                params: vec![theta / 2.0, -PI / 2.0, 0.0],
+            });
+        }
+
+        // CRY(θ) a,b = U(θ/2, 0, 0) b; CX a,b; U(−θ/2, 0, 0) b; CX a,b
+        GateType::CRY => {
+            let theta = params[0];
+            let a = qubits[0];
+            let b = qubits[1];
+            circuit.add_op(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![b],
+                params: vec![theta / 2.0, 0.0, 0.0],
+            });
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            circuit.add_op(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![b],
+                params: vec![-theta / 2.0, 0.0, 0.0],
+            });
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+        }
+
+        // CRZ(θ) a,b = RZ(θ/2) b; CX a,b; RZ(−θ/2) b; CX a,b
+        GateType::CRZ => {
+            let theta = params[0];
+            let a = qubits[0];
+            let b = qubits[1];
+            expand_gate(circuit, &GateType::RZ, &[b], &[theta / 2.0]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            expand_gate(circuit, &GateType::RZ, &[b], &[-theta / 2.0]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+        }
+
+        // --- Ising interaction gates ---
+
+        // RXX(θ) a,b = H a; H b; CX a,b; RZ(θ) b; CX a,b; H a; H b
+        GateType::RXX => {
+            let theta = params[0];
+            let a = qubits[0];
+            let b = qubits[1];
+            expand_gate(circuit, &GateType::H, &[a], &[]);
+            expand_gate(circuit, &GateType::H, &[b], &[]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            expand_gate(circuit, &GateType::RZ, &[b], &[theta]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            expand_gate(circuit, &GateType::H, &[a], &[]);
+            expand_gate(circuit, &GateType::H, &[b], &[]);
+        }
+
+        // RYY(θ) a,b = RX(π/2) a; RX(π/2) b; CX a,b; RZ(θ) b; CX a,b; RX(−π/2) a; RX(−π/2) b
+        GateType::RYY => {
+            let theta = params[0];
+            let a = qubits[0];
+            let b = qubits[1];
+            expand_gate(circuit, &GateType::RX, &[a], &[PI / 2.0]);
+            expand_gate(circuit, &GateType::RX, &[b], &[PI / 2.0]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            expand_gate(circuit, &GateType::RZ, &[b], &[theta]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            expand_gate(circuit, &GateType::RX, &[a], &[-PI / 2.0]);
+            expand_gate(circuit, &GateType::RX, &[b], &[-PI / 2.0]);
+        }
+
+        // RZZ(θ) a,b = CX a,b; RZ(θ) b; CX a,b
+        GateType::RZZ => {
+            let theta = params[0];
+            let a = qubits[0];
+            let b = qubits[1];
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            expand_gate(circuit, &GateType::RZ, &[b], &[theta]);
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+        }
     }
 }
 

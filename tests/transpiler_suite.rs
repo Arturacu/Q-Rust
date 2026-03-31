@@ -263,3 +263,41 @@ fixture_test!(
     "fixtures/identity_only.qasm",
     config_decompose_only
 );
+
+// ---------------------------------------------------------------------------
+// Controlled gates (CZ, CY, CH, CRX, CRY, CRZ, RXX, RYY, RZZ)
+// ---------------------------------------------------------------------------
+fixture_test!(
+    test_controlled_gates_default,
+    "fixtures/controlled_gates.qasm",
+    config_default
+);
+fixture_test!(
+    test_controlled_gates_no_decompose,
+    "fixtures/controlled_gates.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_controlled_gates_decompose_only,
+    "fixtures/controlled_gates.qasm",
+    config_decompose_only
+);
+
+// ---------------------------------------------------------------------------
+// CSX gate
+// ---------------------------------------------------------------------------
+fixture_test!(
+    test_csx_gate_default,
+    "fixtures/csx_gate.qasm",
+    config_default
+);
+fixture_test!(
+    test_csx_gate_no_decompose,
+    "fixtures/csx_gate.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_csx_gate_decompose_only,
+    "fixtures/csx_gate.qasm",
+    config_decompose_only
+);

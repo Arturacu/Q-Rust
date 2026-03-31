@@ -45,7 +45,26 @@ pub enum GateType {
     SWAP,
     /// Toffoli gate (CCX)
     CCX,
-    // Add more as needed
+    /// Controlled-Z gate
+    CZ,
+    /// Controlled-Y gate
+    CY,
+    /// Controlled-RX gate
+    CRX,
+    /// Controlled-RY gate
+    CRY,
+    /// Controlled-RZ gate
+    CRZ,
+    /// Controlled-Hadamard gate
+    CH,
+    /// Controlled-√X gate
+    CSX,
+    /// Ising XX interaction gate
+    RXX,
+    /// Ising YY interaction gate
+    RYY,
+    /// Ising ZZ interaction gate
+    RZZ,
     /// Custom user-defined gate
     Custom(String),
 }
