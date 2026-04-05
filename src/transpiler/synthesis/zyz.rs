@@ -1,3 +1,6 @@
+use crate::ir::{Circuit, GateType, Operation};
+use crate::transpiler::synthesis::Synthesizer;
+use nalgebra::DMatrix;
 use num_complex::Complex;
 use std::f64::consts::PI;
 
@@ -136,6 +139,31 @@ pub fn u_to_matrix(theta: f64, phi: f64, lambda: f64) -> Unitary2x2 {
     let u11 = e_phi_lambda * cos;
 
     [[u00, u01], [u10, u11]]
+}
+
+pub struct ZyzSynthesizer;
+
+impl Synthesizer for ZyzSynthesizer {
+    fn synthesize(&self, unitary: &DMatrix<Complex<f64>>, _basis: &[GateType]) -> Option<Circuit> {
+        if unitary.nrows() != 2 || unitary.ncols() != 2 {
+            return None;
+        }
+
+        let u_arr = [
+            [unitary[(0, 0)], unitary[(0, 1)]],
+            [unitary[(1, 0)], unitary[(1, 1)]],
+        ];
+
+        let (theta, phi, lambda, _gamma) = zyz_decomposition(u_arr);
+
+        let mut circuit = Circuit::new(1, 0);
+        circuit.add_op(Operation::Gate {
+            name: GateType::U,
+            qubits: vec![0],
+            params: vec![theta, phi, lambda],
+        });
+        Some(circuit)
+    }
 }
 
 #[cfg(test)]

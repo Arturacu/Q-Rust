@@ -323,7 +323,11 @@ impl crate::transpiler::pass::Pass for BasisDecompositionPass {
         "BasisDecompositionPass"
     }
 
-    fn run(&self, circuit: &Circuit) -> Circuit {
+    fn run(
+        &self,
+        circuit: &Circuit,
+        _property_set: &mut crate::transpiler::property_set::PropertySet,
+    ) -> Circuit {
         decompose_basis(circuit)
     }
 }
