@@ -7,7 +7,7 @@
 //! All other gates derive their unitary by composing their decomposition through
 //! a mini-simulator, making correctness forced by construction.
 
-use crate::ir::{GateType, Operation};
+use crate::ir::{CommutationSignature, GateType, Operation, PauliBasis};
 use nalgebra::DMatrix;
 use num_complex::Complex;
 use std::f64::consts::PI;
@@ -186,6 +186,9 @@ pub trait GateDefinition {
     ///
     /// Returns `None` for `Custom` gates (cannot decompose without definition).
     fn decompose(&self, qubits: &[usize], params: &[f64]) -> Option<Vec<Operation>>;
+
+    /// Derives the strict algebraic commutation signature for the given gate topology.
+    fn commutation_signature(&self) -> CommutationSignature;
 }
 
 impl GateDefinition for GateType {
@@ -588,5 +591,35 @@ impl GateDefinition for GateType {
         }
 
         Some(ops)
+    }
+
+    fn commutation_signature(&self) -> CommutationSignature {
+        match self {
+            // Pure Z-Diagonal
+            GateType::Z
+            | GateType::RZ
+            | GateType::S
+            | GateType::Sdg
+            | GateType::T
+            | GateType::Tdg
+            | GateType::CZ => CommutationSignature::Diagonal(PauliBasis::Z),
+            // Pure X-Diagonal
+            GateType::X | GateType::RX => CommutationSignature::Diagonal(PauliBasis::X),
+            // Pure Y-Diagonal
+            GateType::Y | GateType::RY => CommutationSignature::Diagonal(PauliBasis::Y),
+            // Composite Diagonals (e.g. CX is Z on control, X on target)
+            GateType::CX => CommutationSignature::CompositeDiagonal(vec![
+                (0, PauliBasis::Z),
+                (1, PauliBasis::X),
+            ]),
+            GateType::CY => CommutationSignature::CompositeDiagonal(vec![
+                (0, PauliBasis::Z),
+                (1, PauliBasis::Y),
+            ]),
+            // Pure Cliffords that are not diagonal
+            GateType::H | GateType::SWAP => CommutationSignature::Clifford,
+            // Everything else acts completely generalized
+            _ => CommutationSignature::Generic,
+        }
     }
 }

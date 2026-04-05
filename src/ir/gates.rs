@@ -13,7 +13,7 @@
 /// ```
 use std::str::FromStr;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum GateType {
     /// Hadamard gate
     H,
