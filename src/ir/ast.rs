@@ -11,28 +11,43 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub fn evaluate(&self) -> Result<f64, String> {
+    pub fn evaluate_with_scope(
+        &self,
+        params: &std::collections::HashMap<String, f64>,
+    ) -> Result<f64, String> {
         match self {
             Expr::Float(val) => Ok(*val),
             Expr::Var(name) => {
                 if name == "pi" {
                     Ok(std::f64::consts::PI)
+                } else if let Some(&val) = params.get(name) {
+                    Ok(val)
                 } else {
                     Err(format!("Unknown variable: {}", name))
                 }
             }
-            Expr::Add(lhs, rhs) => Ok(lhs.evaluate()? + rhs.evaluate()?),
-            Expr::Sub(lhs, rhs) => Ok(lhs.evaluate()? - rhs.evaluate()?),
-            Expr::Mul(lhs, rhs) => Ok(lhs.evaluate()? * rhs.evaluate()?),
+            Expr::Add(lhs, rhs) => {
+                Ok(lhs.evaluate_with_scope(params)? + rhs.evaluate_with_scope(params)?)
+            }
+            Expr::Sub(lhs, rhs) => {
+                Ok(lhs.evaluate_with_scope(params)? - rhs.evaluate_with_scope(params)?)
+            }
+            Expr::Mul(lhs, rhs) => {
+                Ok(lhs.evaluate_with_scope(params)? * rhs.evaluate_with_scope(params)?)
+            }
             Expr::Div(lhs, rhs) => {
-                let denom = rhs.evaluate()?;
+                let denom = rhs.evaluate_with_scope(params)?;
                 if denom == 0.0 {
                     Err("Division by zero".to_string())
                 } else {
-                    Ok(lhs.evaluate()? / denom)
+                    Ok(lhs.evaluate_with_scope(params)? / denom)
                 }
             }
         }
+    }
+
+    pub fn evaluate(&self) -> Result<f64, String> {
+        self.evaluate_with_scope(&std::collections::HashMap::new())
     }
 }
 

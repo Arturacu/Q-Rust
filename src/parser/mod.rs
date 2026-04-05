@@ -1,49 +1,16 @@
-pub mod ast;
 pub mod rules;
 
-use self::ast::ParsedStatement;
 use self::rules::{comment, creg, gate_call, include, measure, openqasm_version, qreg};
+use crate::ir::ast::ParsedStatement;
 use crate::ir::{Circuit, GateType, Operation};
 use nom::{branch::alt, character::complete::multispace0};
 use std::collections::HashMap;
 
 // --- Resolution & Mapping ---
 
-fn map_gate_type(name: &str) -> GateType {
-    match name {
-        "h" => GateType::H,
-        "x" => GateType::X,
-        "y" => GateType::Y,
-        "z" => GateType::Z,
-        "cx" => GateType::CX,
-        "rx" => GateType::RX,
-        "ry" => GateType::RY,
-        "rz" => GateType::RZ,
-        "u1" => GateType::RZ, // u1(lambda) = RZ(lambda)
-        "u2" => GateType::U,  // u2(phi, lambda) = U(pi/2, phi, lambda)
-        "u3" | "U" => GateType::U,
-        "id" => GateType::ID,
-        "s" => GateType::S,
-        "sdg" => GateType::Sdg,
-        "t" => GateType::T,
-        "tdg" => GateType::Tdg,
-        "swap" => GateType::SWAP,
-        "ccx" => GateType::CCX,
-        "cz" => GateType::CZ,
-        "cy" => GateType::CY,
-        "crx" => GateType::CRX,
-        "cry" => GateType::CRY,
-        "crz" => GateType::CRZ,
-        "ch" => GateType::CH,
-        "csx" => GateType::CSX,
-        "rxx" => GateType::RXX,
-        "ryy" => GateType::RYY,
-        "rzz" => GateType::RZZ,
-        _ => GateType::Custom(name.to_string()),
-    }
-}
+// Removed map_gate_type
 
-use self::ast::Expr;
+use crate::ir::ast::Expr;
 
 fn evaluate_expr(expr: &Expr, params: &HashMap<String, f64>) -> Result<f64, String> {
     match expr {
@@ -191,6 +158,12 @@ pub fn parse_qasm(input: &str) -> Result<Circuit, String> {
                 total_cbits += size;
             }
             ParsedStatement::GateDef(name, params, qubits, body) => {
+                circuit.register_custom_gate(
+                    name.clone(),
+                    params.clone(),
+                    qubits.clone(),
+                    body.clone(),
+                );
                 ctx.gate_defs.insert(name, (params, qubits, body));
             }
             ParsedStatement::Gate(name, qubits, params) => {
@@ -224,15 +197,7 @@ pub fn parse_qasm(input: &str) -> Result<Circuit, String> {
                         }
                     }
 
-                    expand_gate(
-                        &mut circuit,
-                        &ctx,
-                        &name,
-                        &params,
-                        &current_qubits,
-                        &HashMap::new(),
-                        &HashMap::new(),
-                    )?;
+                    emit_gate(&mut circuit, &ctx, &name, &params, &current_qubits)?;
                 }
             }
             ParsedStatement::Measure((q_name, q_idx), (c_name, c_idx)) => {
@@ -274,42 +239,39 @@ pub fn parse_qasm(input: &str) -> Result<Circuit, String> {
     Ok(circuit)
 }
 
-fn expand_gate(
+fn emit_gate(
     circuit: &mut Circuit,
     ctx: &ParseContext,
     name: &str,
     params: &[Expr],
     qubits: &[usize],
-    scope_params: &HashMap<String, f64>,
-    scope_qubits: &HashMap<String, usize>,
 ) -> Result<(), String> {
-    // 1. Evaluate parameters
+    // 1. Evaluate parameters (top-level only)
+    let empty_scope = HashMap::new();
     let mut eval_params = Vec::new();
     for p in params {
-        eval_params.push(evaluate_expr(p, scope_params)?);
+        eval_params.push(evaluate_expr(p, &empty_scope)?);
     }
 
     // 2. Check standard gate
-    let gate_type = map_gate_type(name);
+    let gate_type = name
+        .parse::<GateType>()
+        .unwrap_or_else(|_| GateType::Custom(name.to_string()));
     if !matches!(gate_type, GateType::Custom(_)) {
         // Handle special cases for U1, U2, U3 parameter mapping
         let final_params = match name {
             "u2" => {
-                // U2(phi, lambda) -> U(pi/2, phi, lambda)
                 if eval_params.len() == 2 {
                     vec![std::f64::consts::PI / 2.0, eval_params[0], eval_params[1]]
                 } else {
                     eval_params
                 }
             }
-            "u1" => eval_params,       // Already mapped to RZ
-            "u3" | "U" => eval_params, // Direct mapping
+            "u1" => eval_params,
+            "u3" | "U" => eval_params,
             _ => eval_params,
         };
 
-        // Construct the operation
-        // For standard gates, we use the GateType enum
-        // For custom gates, we would need to look up the definition (not handled fully here yet)
         let op = Operation::Gate {
             name: gate_type,
             qubits: qubits.to_vec(),
@@ -319,9 +281,9 @@ fn expand_gate(
         return Ok(());
     }
 
-    // 3. Custom gate expansion
+    // 3. Custom gate emission (deferred expansion)
     if let GateType::Custom(ref n) = gate_type {
-        if let Some((def_params, def_qubits, body)) = ctx.gate_defs.get(n) {
+        if let Some((def_params, def_qubits, _)) = ctx.gate_defs.get(n) {
             if eval_params.len() != def_params.len() {
                 return Err(format!(
                     "Gate {} expects {} params, got {}",
@@ -339,41 +301,12 @@ fn expand_gate(
                 ));
             }
 
-            let mut new_scope_params = scope_params.clone();
-            for (j, param_name) in def_params.iter().enumerate() {
-                new_scope_params.insert(param_name.clone(), eval_params[j]);
-            }
-            let mut new_scope_qubits = scope_qubits.clone();
-            for (j, qubit_name) in def_qubits.iter().enumerate() {
-                new_scope_qubits.insert(qubit_name.clone(), qubits[j]);
-            }
-
-            for stmt in body {
-                match stmt {
-                    ParsedStatement::Gate(g_name, g_qubits, g_params) => {
-                        // Resolve qubits in body
-                        let mut g_resolved_qubits = Vec::new();
-                        for q_arg in g_qubits {
-                            let indices = resolve_argument(q_arg, &ctx.qregs, &new_scope_qubits)?;
-                            if indices.len() != 1 {
-                                return Err(format!("Broadcasting not allowed in gate definition body for argument {:?}", q_arg));
-                            }
-                            g_resolved_qubits.push(indices[0]);
-                        }
-                        expand_gate(
-                            circuit,
-                            ctx,
-                            g_name,
-                            g_params,
-                            &g_resolved_qubits,
-                            &new_scope_params,
-                            &new_scope_qubits,
-                        )?;
-                    }
-                    ParsedStatement::Barrier(_) => {}
-                    _ => {}
-                }
-            }
+            let op = Operation::Gate {
+                name: gate_type,
+                qubits: qubits.to_vec(),
+                params: eval_params,
+            };
+            circuit.add_op(op);
             return Ok(());
         }
     }
@@ -452,7 +385,7 @@ mod tests {
                 ParsedStatement::Gate(
                     "rx".to_string(),
                     vec![("q".to_string(), Some(0))],
-                    vec![ast::Expr::Float(1.57)]
+                    vec![Expr::Float(1.57)]
                 )
             ))
         );

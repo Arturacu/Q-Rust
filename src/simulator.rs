@@ -94,11 +94,12 @@ fn embed_3q(gate_8x8: &DMatrix<C>, q0: usize, q1: usize, q2: usize, n_qubits: us
 ///
 /// Non-gate operations (Measure, Reset, Barrier) are ignored.
 pub fn circuit_to_unitary(circuit: &Circuit) -> DMatrix<C> {
-    let n = circuit.num_qubits;
+    let unrolled = crate::transpiler::decomposition::unroll_custom_gates(circuit);
+    let n = unrolled.num_qubits;
     let dim = 1 << n;
     let mut u = DMatrix::<C>::identity(dim, dim);
 
-    for op in &circuit.operations {
+    for op in &unrolled.operations {
         if let Operation::Gate {
             name,
             qubits,

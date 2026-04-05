@@ -1,4 +1,5 @@
 use super::operations::Operation;
+use super::registry::GateRegistry;
 
 /// Intermediate Representation of a Quantum Circuit.
 ///
@@ -12,6 +13,8 @@ pub struct Circuit {
     pub num_cbits: usize,
     /// Sequence of operations (gates, measurements, etc.).
     pub operations: Vec<Operation>,
+    /// Registry of user-defined custom gates.
+    pub custom_gates: GateRegistry,
 }
 
 impl Circuit {
@@ -26,7 +29,19 @@ impl Circuit {
             num_qubits,
             num_cbits,
             operations: Vec::new(),
+            custom_gates: GateRegistry::new(),
         }
+    }
+
+    /// Adds a gate definition to the circuit's registry.
+    pub fn register_custom_gate(
+        &mut self,
+        name: String,
+        params: Vec<String>,
+        qubits: Vec<String>,
+        body: Vec<crate::ir::ast::ParsedStatement>,
+    ) {
+        self.custom_gates.register(name, params, qubits, body);
     }
 
     /// Adds an operation to the circuit.

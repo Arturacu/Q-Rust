@@ -6,6 +6,7 @@ use crate::ir::{Circuit, GateDefinition, GateType, Operation};
 /// using the decomposition rules defined in `GateDefinition::decompose()`.
 pub fn decompose_basis(circuit: &Circuit) -> Circuit {
     let mut result = Circuit::new(circuit.num_qubits, circuit.num_cbits);
+    result.custom_gates = circuit.custom_gates.clone();
 
     for op in &circuit.operations {
         match op {
@@ -14,7 +15,7 @@ pub fn decompose_basis(circuit: &Circuit) -> Circuit {
                 qubits,
                 params,
             } => {
-                expand_gate(&mut result, name, qubits, params);
+                expand_gate(&mut result, &circuit.custom_gates, name, qubits, params);
             }
             Operation::Measure { qubit, cbit } => {
                 result.add_op(Operation::Measure {
@@ -28,40 +29,196 @@ pub fn decompose_basis(circuit: &Circuit) -> Circuit {
     result
 }
 
+/// Unrolls ONLY custom gates, leaving standard gates untouched.
+pub fn unroll_custom_gates(circuit: &Circuit) -> Circuit {
+    let mut result = Circuit::new(circuit.num_qubits, circuit.num_cbits);
+    result.custom_gates = circuit.custom_gates.clone();
+
+    for op in &circuit.operations {
+        match op {
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } => {
+                if matches!(name, GateType::Custom(_)) {
+                    expand_gate_custom_only(
+                        &mut result,
+                        &circuit.custom_gates,
+                        name,
+                        qubits,
+                        params,
+                    );
+                } else {
+                    result.add_op(op.clone());
+                }
+            }
+            _ => result.add_op(op.clone()),
+        }
+    }
+    result
+}
+
+fn expand_gate_custom_only(
+    circuit: &mut Circuit,
+    registry: &crate::ir::registry::GateRegistry,
+    name: &GateType,
+    qubits: &[usize],
+    params: &[f64],
+) {
+    if let GateType::Custom(ref custom_name) = name {
+        if let Some(def) = registry.get(custom_name) {
+            let mut scope_params = std::collections::HashMap::new();
+            for (p_name, &val) in def.params.iter().zip(params.iter()) {
+                scope_params.insert(p_name.clone(), val);
+            }
+
+            let mut scope_qubits = std::collections::HashMap::new();
+            for (q_name, &idx) in def.qubits.iter().zip(qubits.iter()) {
+                scope_qubits.insert(q_name.clone(), idx);
+            }
+
+            for stmt in &def.body {
+                if let crate::ir::ast::ParsedStatement::Gate(
+                    inner_name_str,
+                    inner_qubits,
+                    inner_params,
+                ) = stmt
+                {
+                    let mut resolved_qubits = Vec::new();
+                    for (q_reg, _) in inner_qubits {
+                        if let Some(&resolved) = scope_qubits.get(q_reg) {
+                            resolved_qubits.push(resolved);
+                        } else {
+                            panic!("Unknown qubit {} in custom gate {}", q_reg, custom_name);
+                        }
+                    }
+
+                    let mut resolved_params = Vec::new();
+                    for p in inner_params {
+                        resolved_params.push(
+                            p.evaluate_with_scope(&scope_params)
+                                .expect("Failed to evaluate parameter"),
+                        );
+                    }
+
+                    let inner_gatetype = inner_name_str
+                        .parse::<GateType>()
+                        .unwrap_or_else(|_| GateType::Custom(inner_name_str.clone()));
+
+                    if matches!(inner_gatetype, GateType::Custom(_)) {
+                        expand_gate_custom_only(
+                            circuit,
+                            registry,
+                            &inner_gatetype,
+                            &resolved_qubits,
+                            &resolved_params,
+                        );
+                    } else {
+                        circuit.add_op(Operation::Gate {
+                            name: inner_gatetype,
+                            qubits: resolved_qubits,
+                            params: resolved_params,
+                        });
+                    }
+                }
+            }
+        } else {
+            panic!("Custom gate {} not found in registry", custom_name);
+        }
+    }
+}
+
 /// Expands a single gate into a sequence of basis gates (U, CX) and adds them to the circuit.
 ///
 /// Uses `GateDefinition::decompose()` as the single source of truth for
 /// decomposition rules. Results are recursively expanded until only
 /// basis gates remain.
-fn expand_gate(circuit: &mut Circuit, name: &GateType, qubits: &[usize], params: &[f64]) {
-    match name.decompose(qubits, params) {
-        None => {
-            // Basis gate or non-decomposable: keep as-is
-            circuit.add_op(Operation::Gate {
-                name: name.clone(),
-                qubits: qubits.to_vec(),
-                params: params.to_vec(),
-            });
-        }
-        Some(ops) => {
-            // Recursively expand each resulting operation
-            for op in ops {
-                if let Operation::Gate {
-                    name: sub_name,
-                    qubits: sub_qubits,
-                    params: sub_params,
-                } = op
+fn expand_gate(
+    circuit: &mut Circuit,
+    registry: &crate::ir::registry::GateRegistry,
+    name: &GateType,
+    qubits: &[usize],
+    params: &[f64],
+) {
+    if let GateType::Custom(ref custom_name) = name {
+        if let Some(def) = registry.get(custom_name) {
+            let mut scope_params = std::collections::HashMap::new();
+            for (p_name, &val) in def.params.iter().zip(params.iter()) {
+                scope_params.insert(p_name.clone(), val);
+            }
+
+            let mut scope_qubits = std::collections::HashMap::new();
+            for (q_name, &idx) in def.qubits.iter().zip(qubits.iter()) {
+                scope_qubits.insert(q_name.clone(), idx);
+            }
+
+            for stmt in &def.body {
+                if let crate::ir::ast::ParsedStatement::Gate(
+                    inner_name_str,
+                    inner_qubits,
+                    inner_params,
+                ) = stmt
                 {
-                    if sub_name.is_basis() {
-                        // Already a basis gate, add directly
-                        circuit.add_op(Operation::Gate {
-                            name: sub_name,
-                            qubits: sub_qubits,
-                            params: sub_params,
-                        });
-                    } else {
-                        // Needs further decomposition
-                        expand_gate(circuit, &sub_name, &sub_qubits, &sub_params);
+                    let mut resolved_qubits = Vec::new();
+                    for (q_reg, _) in inner_qubits {
+                        if let Some(&resolved) = scope_qubits.get(q_reg) {
+                            resolved_qubits.push(resolved);
+                        } else {
+                            panic!("Unknown qubit {} in custom gate {}", q_reg, custom_name);
+                        }
+                    }
+
+                    let mut resolved_params = Vec::new();
+                    for p in inner_params {
+                        resolved_params.push(
+                            p.evaluate_with_scope(&scope_params)
+                                .expect("Failed to evaluate parameter"),
+                        );
+                    }
+
+                    let inner_gatetype = inner_name_str
+                        .parse::<GateType>()
+                        .unwrap_or_else(|_| GateType::Custom(inner_name_str.clone()));
+
+                    expand_gate(
+                        circuit,
+                        registry,
+                        &inner_gatetype,
+                        &resolved_qubits,
+                        &resolved_params,
+                    );
+                }
+            }
+        } else {
+            panic!("Custom gate {} not found in registry", custom_name);
+        }
+    } else {
+        match name.decompose(qubits, params) {
+            None => {
+                circuit.add_op(Operation::Gate {
+                    name: name.clone(),
+                    qubits: qubits.to_vec(),
+                    params: params.to_vec(),
+                });
+            }
+            Some(ops) => {
+                for op in ops {
+                    if let Operation::Gate {
+                        name: sub_name,
+                        qubits: sub_qubits,
+                        params: sub_params,
+                    } = op
+                    {
+                        if sub_name.is_basis() {
+                            circuit.add_op(Operation::Gate {
+                                name: sub_name,
+                                qubits: sub_qubits,
+                                params: sub_params,
+                            });
+                        } else {
+                            expand_gate(circuit, registry, &sub_name, &sub_qubits, &sub_params);
+                        }
                     }
                 }
             }

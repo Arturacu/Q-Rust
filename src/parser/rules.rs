@@ -1,4 +1,4 @@
-use super::ast::ParsedStatement;
+use crate::ir::ast::ParsedStatement;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_while, take_while1},
@@ -25,7 +25,11 @@ fn usize_parser(input: &str) -> IResult<&str, usize> {
     map_res(digit1, |s: &str| s.parse::<usize>())(input)
 }
 
-use nom::number::complete::double;
+use nom::number::complete::recognize_float;
+
+fn parse_f64(input: &str) -> IResult<&str, f64> {
+    map_res(recognize_float, |s: &str| s.parse::<f64>())(input)
+}
 
 pub fn comment(input: &str) -> IResult<&str, ()> {
     value((), pair(tag("//"), take_while(|c| c != '\n')))(input)
@@ -100,7 +104,7 @@ fn qubit_ref(input: &str) -> IResult<&str, (String, Option<usize>)> {
     )(input)
 }
 
-use super::ast::Expr;
+use crate::ir::ast::Expr;
 
 fn term(input: &str) -> IResult<&str, Expr> {
     let (input, init) = factor(input)?;
@@ -128,7 +132,7 @@ fn factor(input: &str) -> IResult<&str, Expr> {
             ),
             |e| e,
         ),
-        map(double, Expr::Float),
+        map(parse_f64, Expr::Float),
         map(identifier, Expr::Var),
     ))(input)
 }

@@ -1,7 +1,9 @@
+pub mod ast;
 pub mod circuit;
 pub mod gate_def;
 pub mod gates;
 pub mod operations;
+pub mod registry;
 
 // Re-export for easier access
 pub use circuit::Circuit;
