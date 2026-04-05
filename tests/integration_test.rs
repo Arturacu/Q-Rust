@@ -40,6 +40,7 @@ mod tests {
 
     #[test]
     fn test_custom_gate_expansion() {
+        use q_rust::transpiler::decomposition::decompose_basis;
         let qasm = r#"
 OPENQASM 2.0;
 
@@ -49,8 +50,19 @@ qreg q[1];
 my_rotation(1.57) q[0];
 "#;
 
-        let circuit = parse_qasm(qasm).expect("Failed to parse");
-        assert_eq!(circuit.num_qubits, 1);
+        let parsed_circuit = parse_qasm(qasm).expect("Failed to parse");
+        assert_eq!(parsed_circuit.num_qubits, 1);
+        assert_eq!(parsed_circuit.operations.len(), 1);
+
+        // The parser should defer expansion, emitting a Custom gate
+        if let Operation::Gate { name, .. } = &parsed_circuit.operations[0] {
+            assert_eq!(*name, GateType::Custom("my_rotation".to_string()));
+        } else {
+            panic!("Expected Custom gate from parser");
+        }
+
+        // Transpiler should unroll it
+        let circuit = decompose_basis(&parsed_circuit);
         assert_eq!(circuit.operations.len(), 1);
 
         match &circuit.operations[0] {

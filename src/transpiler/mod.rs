@@ -1,3 +1,4 @@
+pub mod dag;
 pub mod decomposition;
 pub mod optimization;
 pub mod pass;

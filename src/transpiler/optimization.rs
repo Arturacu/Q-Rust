@@ -11,110 +11,82 @@ impl Pass for GateFusionPass {
     }
 
     fn run(&self, circuit: &Circuit) -> Circuit {
-        let mut new_circuit = Circuit::new(circuit.num_qubits, circuit.num_cbits);
+        let mut dag = DAGCircuit::from(circuit);
+        let mut progress = true;
 
-        // Pending unitary for each qubit: Option<Unitary2x2>
-        // We initialize with Identity (None implies no pending gate, or Identity)
-        let mut pending_gates: Vec<Option<Unitary2x2>> = vec![None; circuit.num_qubits];
+        while progress {
+            progress = false;
+            let edge_indices: Vec<_> = dag.graph.edge_indices().collect();
 
-        for op in &circuit.operations {
-            match op {
-                Operation::Gate {
-                    name,
+            for &edge in &edge_indices {
+                if dag.graph.edge_weight(edge).is_none() {
+                    continue; // Edge was removed during iteration
+                }
+
+                let (src, dst) = match dag.graph.edge_endpoints(edge) {
+                    Some(endpoints) => endpoints,
+                    None => continue,
+                };
+
+                // Check if both nodes are single-qubit U gates
+                let mut src_op_u = None;
+                if let DAGNode::Op(Operation::Gate {
+                    name: GateType::U,
                     qubits,
                     params,
-                } => {
+                }) = &dag.graph[src]
+                {
                     if qubits.len() == 1 {
-                        // Single qubit gate - accumulate
-                        let q = qubits[0];
-                        let current_matrix = match name {
-                            GateType::U => {
-                                if params.len() == 3 {
-                                    u_to_matrix(params[0], params[1], params[2])
-                                } else {
-                                    // Should not happen if parser is correct
-                                    flush_qubit(&mut new_circuit, &mut pending_gates, q);
-                                    new_circuit.add_op(op.clone());
-                                    continue;
-                                }
-                            }
-                            // If we encounter other single qubit gates, we should ideally decompose them first
-                            // or handle them here. Assuming basis decomposition ran first, we only see U.
-                            // But for robustness, let's assume we might see others if decomposition wasn't run.
-                            // For now, let's only fuse U gates. If it's not U, we flush and add it.
-                            _ => {
-                                flush_qubit(&mut new_circuit, &mut pending_gates, q);
-                                new_circuit.add_op(op.clone());
-                                continue;
-                            }
-                        };
-
-                        if let Some(pending) = pending_gates[q] {
-                            // Multiply: New * Old (since New is applied after Old)
-                            // Matrix multiplication: C = A * B
-                            // [c00 c01] = [a00 a01] * [b00 b01]
-                            // [c10 c11]   [a10 a11]   [b10 b11]
-                            let a = current_matrix;
-                            let b = pending;
-
-                            let c00 = a[0][0] * b[0][0] + a[0][1] * b[1][0];
-                            let c01 = a[0][0] * b[0][1] + a[0][1] * b[1][1];
-                            let c10 = a[1][0] * b[0][0] + a[1][1] * b[1][0];
-                            let c11 = a[1][0] * b[0][1] + a[1][1] * b[1][1];
-
-                            pending_gates[q] = Some([[c00, c01], [c10, c11]]);
-                        } else {
-                            pending_gates[q] = Some(current_matrix);
-                        }
-                    } else {
-                        // Multi-qubit gate - flush involved qubits
-                        for &q in qubits {
-                            flush_qubit(&mut new_circuit, &mut pending_gates, q);
-                        }
-                        new_circuit.add_op(op.clone());
+                        src_op_u = Some((qubits[0], params.clone()));
                     }
                 }
-                _ => {
-                    // Other ops (Measure, Barrier) - flush all involved or all?
-                    // Measure involves specific qubits. Barrier might involve specific or all.
-                    // To be safe, let's look at the operation details if possible,
-                    // but Operation enum structure for Measure/Barrier is different.
-                    // For simplicity/safety, flush ALL qubits on non-gate operations for now,
-                    // or try to be more granular.
-                    // Measure has qubits. Barrier has qubits.
 
-                    // Let's flush all for safety in this first iteration.
-                    for q in 0..circuit.num_qubits {
-                        flush_qubit(&mut new_circuit, &mut pending_gates, q);
+                let mut dst_op_u = None;
+                if let DAGNode::Op(Operation::Gate {
+                    name: GateType::U,
+                    qubits,
+                    params,
+                }) = &dag.graph[dst]
+                {
+                    if qubits.len() == 1 {
+                        dst_op_u = Some((qubits[0], params.clone()));
                     }
-                    new_circuit.add_op(op.clone());
+                }
+
+                if let (Some((sq, sp)), Some((dq, dp))) = (src_op_u, dst_op_u) {
+                    if sq == dq {
+                        // We found an edge connecting two U gates on the same qubit: src -> dst.
+                        // New matrix = U(dst) * U(src)
+                        let m_matrix = u_to_matrix(sp[0], sp[1], sp[2]);
+                        let n_matrix = u_to_matrix(dp[0], dp[1], dp[2]);
+
+                        let c00 = n_matrix[0][0] * m_matrix[0][0] + n_matrix[0][1] * m_matrix[1][0];
+                        let c01 = n_matrix[0][0] * m_matrix[0][1] + n_matrix[0][1] * m_matrix[1][1];
+                        let c10 = n_matrix[1][0] * m_matrix[0][0] + n_matrix[1][1] * m_matrix[1][0];
+                        let c11 = n_matrix[1][0] * m_matrix[0][1] + n_matrix[1][1] * m_matrix[1][1];
+
+                        let c_matrix = [[c00, c01], [c10, c11]];
+                        let (theta, phi, lambda, _) = zyz_decomposition(c_matrix);
+
+                        // Update src node to the fused gate
+                        dag.graph[src] = DAGNode::Op(Operation::Gate {
+                            name: GateType::U,
+                            qubits: vec![sq],
+                            params: vec![theta, phi, lambda],
+                        });
+
+                        // Delete dst node. `remove_node` automatically rewires incoming edges
+                        // directly to outgoing, meaning the DAG topology remains perfectly sound!
+                        dag.remove_node(dst);
+
+                        progress = true;
+                        break; // Restart loop to handle updated DAG
+                    }
                 }
             }
         }
 
-        // Flush remaining gates at the end
-        for q in 0..circuit.num_qubits {
-            flush_qubit(&mut new_circuit, &mut pending_gates, q);
-        }
-
-        new_circuit
-    }
-}
-
-fn flush_qubit(circuit: &mut Circuit, pending_gates: &mut Vec<Option<Unitary2x2>>, q: usize) {
-    if let Some(matrix) = pending_gates[q] {
-        // Decompose matrix back to U gate
-        let (theta, phi, lambda, _gamma) = zyz_decomposition(matrix);
-        // We ignore global phase _gamma for the gate parameters,
-        // as U gate definition doesn't include it.
-        // Note: This drops global phase, which is physically fine but mathematically lossy.
-
-        circuit.add_op(Operation::Gate {
-            name: GateType::U,
-            qubits: vec![q],
-            params: vec![theta, phi, lambda],
-        });
-        pending_gates[q] = None;
+        Circuit::from(&dag)
     }
 }
 
@@ -185,50 +157,13 @@ mod tests {
     }
 }
 
-/// A pass that removes adjacent identical CX gates (CX a,b; CX a,b -> ID).
-pub struct CXCancellationPass;
+use crate::transpiler::dag::{DAGCircuit, DAGNode};
+use petgraph::graph::NodeIndex;
+use petgraph::visit::EdgeRef;
 
-impl Pass for CXCancellationPass {
-    fn name(&self) -> &str {
-        "CXCancellationPass"
-    }
-
-    fn run(&self, circuit: &Circuit) -> Circuit {
-        let mut new_circuit = Circuit::new(circuit.num_qubits, circuit.num_cbits);
-        let mut skip_next = false;
-
-        for i in 0..circuit.operations.len() {
-            if skip_next {
-                skip_next = false;
-                continue;
-            }
-
-            let op = &circuit.operations[i];
-
-            // Check if this is a CX gate
-            let is_cx = match op {
-                Operation::Gate { name, .. } => *name == GateType::CX,
-                _ => false,
-            };
-
-            if is_cx && i + 1 < circuit.operations.len() {
-                let next_op = &circuit.operations[i + 1];
-                if op == next_op {
-                    // Found adjacent identical CX gates, skip both
-                    skip_next = true;
-                    continue;
-                }
-            }
-
-            new_circuit.add_op(op.clone());
-        }
-
-        new_circuit
-    }
-}
-
-/// A pass that cancels CX gates separated by commuting single-qubit gates.
-/// Pattern: CX a,b; [Commuting Ops]; CX a,b -> [Commuting Ops]
+/// A pass that cancels CX gates separated by commuting single-qubit gates,
+/// or adjacent identical CX gates.
+/// Walks the DAGCircuit topologically to find canceling pairs.
 pub struct CommutationCancellationPass;
 
 impl Pass for CommutationCancellationPass {
@@ -237,69 +172,123 @@ impl Pass for CommutationCancellationPass {
     }
 
     fn run(&self, circuit: &Circuit) -> Circuit {
-        let mut new_circuit = Circuit::new(circuit.num_qubits, circuit.num_cbits);
-        let mut i = 0;
+        let mut dag = DAGCircuit::from(circuit);
+        let mut progress = true;
 
-        while i < circuit.operations.len() {
-            let op = &circuit.operations[i];
+        while progress {
+            progress = false;
+            let node_indices: Vec<_> = dag.graph.node_indices().collect();
 
-            // Check start of potential cancellation block: CX a,b
-            if let Operation::Gate {
-                name: GateType::CX,
-                qubits: cx_qubits,
-                ..
-            } = op
-            {
-                let ctrl = cx_qubits[0];
-                let target = cx_qubits[1];
-
-                // Look ahead for matching CX
-                let mut j = i + 1;
-                let mut commute = true;
-                let mut intermediate_ops = Vec::new();
-
-                while j < circuit.operations.len() {
-                    let next_op = &circuit.operations[j];
-
-                    // If we find the matching CX, we can stop
-                    if let Operation::Gate {
-                        name: GateType::CX,
-                        qubits: next_qubits,
-                        ..
-                    } = next_op
-                    {
-                        if next_qubits == cx_qubits {
-                            // Found match!
-                            break;
-                        }
-                    }
-
-                    // Check commutation
-                    if !commutes_with_cx(next_op, ctrl, target) {
-                        commute = false;
-                        break;
-                    }
-
-                    intermediate_ops.push(next_op.clone());
-                    j += 1;
+            for &idx in &node_indices {
+                if dag.graph.node_weight(idx).is_none() {
+                    continue; // Node might have been removed
                 }
 
-                if commute && j < circuit.operations.len() {
-                    // We found a matching CX and everything in between commutes.
-                    // Skip the first CX (i), add intermediate ops, and skip the second CX (j).
-                    for mid_op in intermediate_ops {
-                        new_circuit.add_op(mid_op);
+                if let DAGNode::Op(Operation::Gate {
+                    name: GateType::CX,
+                    qubits,
+                    ..
+                }) = &dag.graph[idx]
+                {
+                    let ctrl = qubits[0];
+                    let target = qubits[1];
+
+                    if let Some(cancel_idx) = find_commuting_cx(&dag, idx, ctrl, target) {
+                        // Found a matching CX with perfectly commuting paths!
+                        dag.remove_node(idx);
+                        dag.remove_node(cancel_idx);
+                        progress = true;
+                        break; // Restart the pass with the simplified DAG
                     }
-                    i = j + 1; // Continue after the second CX
-                    continue;
                 }
             }
-
-            new_circuit.add_op(op.clone());
-            i += 1;
         }
 
-        new_circuit
+        Circuit::from(&dag)
+    }
+}
+
+fn find_commuting_cx(
+    dag: &DAGCircuit,
+    start: NodeIndex,
+    ctrl_wire: usize,
+    target_wire: usize,
+) -> Option<NodeIndex> {
+    // Traverse ctrl_wire forward
+    let mut current = start;
+    let mut candidate: Option<NodeIndex> = None;
+
+    loop {
+        let mut next_node = None;
+        let edges = dag
+            .graph
+            .edges_directed(current, petgraph::Direction::Outgoing);
+        for edge in edges {
+            if edge.weight().index == ctrl_wire {
+                next_node = Some(edge.target());
+                break;
+            }
+        }
+
+        let next = next_node?;
+
+        match &dag.graph[next] {
+            DAGNode::Op(Operation::Gate {
+                name: GateType::CX,
+                qubits,
+                ..
+            }) => {
+                if qubits[0] == ctrl_wire && qubits[1] == target_wire {
+                    candidate = Some(next);
+                    break;
+                }
+
+                // Another gate, check commutation
+                if !commutes_with_cx(&dag.graph[next].clone_op().unwrap(), ctrl_wire, target_wire) {
+                    return None;
+                }
+            }
+            DAGNode::Op(op) => {
+                if !commutes_with_cx(op, ctrl_wire, target_wire) {
+                    return None;
+                }
+            }
+            _ => return None, // In/Out block
+        }
+        current = next;
+    }
+
+    let candidate_idx = candidate?;
+
+    // Traverse target_wire forward to verify it reaches candidate cleanly
+    current = start;
+    loop {
+        let mut next_node = None;
+        let edges = dag
+            .graph
+            .edges_directed(current, petgraph::Direction::Outgoing);
+        for edge in edges {
+            if edge.weight().index == target_wire {
+                next_node = Some(edge.target());
+                break;
+            }
+        }
+
+        let next = next_node?;
+
+        if next == candidate_idx {
+            return Some(candidate_idx);
+        }
+
+        match &dag.graph[next] {
+            DAGNode::Op(op) => {
+                if !commutes_with_cx(op, ctrl_wire, target_wire) {
+                    return None;
+                }
+            }
+            _ => return None,
+        }
+        current = next;
     }
 }
 
@@ -400,7 +389,7 @@ mod optimization_tests {
             params: vec![],
         });
 
-        let pass = CXCancellationPass;
+        let pass = CommutationCancellationPass;
         let new_circuit = pass.run(&circuit);
         assert_eq!(new_circuit.operations.len(), 0);
     }
