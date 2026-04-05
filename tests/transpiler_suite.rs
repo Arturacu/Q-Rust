@@ -24,6 +24,7 @@ fn config_no_decompose() -> TranspilerConfig {
     TranspilerConfig {
         decompose_basis: false,
         optimization_level: 0,
+        backend: None,
     }
 }
 
@@ -32,6 +33,7 @@ fn config_decompose_only() -> TranspilerConfig {
     TranspilerConfig {
         decompose_basis: true,
         optimization_level: 0,
+        backend: None,
     }
 }
 
