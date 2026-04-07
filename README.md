@@ -1,6 +1,6 @@
 # Q-Rust
 
-A **quantum transpiler** written in Rust, designed to parse, analyze, and optimize quantum circuits with OpenQASM 2.0 support.
+A high-performance **quantum transpiler** written in Rust, designed to parse, analyze, and optimize quantum circuits with native OpenQASM 2.0 support and a metadata-driven architecture.
 
 [![Crates.io](https://img.shields.io/crates/v/q-rust.svg)](https://crates.io/crates/q-rust)
 [![Build Status](https://github.com/Arturacu/Q-Rust/workflows/Rust/badge.svg)](https://github.com/Arturacu/Q-Rust/actions)
@@ -8,30 +8,35 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 ## Features
 
 ### QASM 2.0 Parser
-- ✅ **Custom Gate Definitions**: Define parameterized gates with expressions
-- ✅ **Mathematical Expressions**: upport for `pi`, arithmetic operations (`+`, `-`, `*`, `/`)
+- ✅ **Custom Gate Definitions**: Define parameterized gates with expressions (supports multi-qubit definitions)
+- ✅ **Mathematical Expressions**: Support for `pi`, arithmetic operations (`+`, `-`, `*`, `/`)
 - ✅ **Register Broadcasting**: Apply gates to entire registers (e.g., `h q;`)
 - ✅ **Parameterized Gates**: Rotation gates with variable angles
 - ✅ **Measurements & Barriers**: Measurement and barrier support
 - ✅ **Comments**: Single-line comments with `//`
 
-### Transpilation & Optimization
-- ✅ **Basis Decomposition**: automatic conversion to `{U, CX}` universal basis
-- ✅ **Single-Qubit Synthesis**: ZYZ decomposition into Euler angles
-- ✅ **Two-Qubit Synthesis**: KAK decomposition using the magic basis
-- ✅ **Optimization Passes**: 
-  - Gate Fusion (merging consecutive single-qubit gates)
-  - CX/SWAP Cancellation (removing redundant pairs)
-  - Parameter Simplification (modulo 2π, negligible rotations)
-  - Peephole Optimization (self-inverse cancellation)
+### Modernized Transpilation Pipeline
+Q-Rust uses a modular, metadata-driven pipeline inspired by modern compiler architecture (e.g., Qiskit 1.x, LLVM):
+- ✅ **Dual-Layer IR**: 
+  - **Flat IR**: High-performance sequential `Vec<Operation>` for execution and unrolling.
+  - **DAG IR**: Directed Acyclic Graph based on `petgraph`, enabling $O(1)$ topological dependency analysis.
+- ✅ **PassManager**: Sequence-controlled pipeline execution with unified error handling.
+- ✅ **PropertySet**: Centralized metadata storage allowing decoupled passes to share structural analysis without redundant circuit scans.
 
-### Verifying Correctness
-- ✅ **Unitary Simulator**: computes the full 2ⁿ × 2ⁿ unitary matrix for a circuit
-- ✅ **Equivalence Testing**: verifies transpilation by comparing unitaries up to a global phase
-- ✅ **Fixture-Driven Tests**: 103 tests running various QASM circuits through different transpiler configurations
+### Advanced Optimization Passes
+- **Topological Optimization**:
+  - `GateFusionPass`: Collapses consecutive single-qubit sequences into individual $U$-gates via matrix multiplication.
+  - `CommutationCancellationPass`: Identifies and cancels non-adjacent `CX` and rotation gates by analyzing commutation through intermediate operations.
+  - `InverseCancellationPass`: Removes adjacent self-inverse pairs ($H$-$H$, $X$-$X$, $CZ$-$CZ$, $CCX$-$CCX$).
+- **Algebraic Simplification**:
+  - `RotationMergePass`: Geometrically combines adjacent rotation axes ($RZ(\theta_1) \cdot RZ(\theta_2) \to RZ(\theta_1+\theta_2)$), supporting controlled rotations (`CRX`, `CRY`, `CRZ`).
+  - `ParameterSimplificationPass`: Normalizes rotation angles (modulo $2\pi$) and removes negligible rotations.
+  - `CrossConjugationPass`: Implements structural rewrites like $H \cdot RZ(\theta) \cdot H \to RX(\theta)$.
 
-### Architecture
-- ✅ **GateDefinition Trait**: single source of truth for gate unitary matrices and decomposition rules, eliminating drift between simulator and transpiler
+### Correctness & Performance
+- ✅ **Unitary Simulator**: Native Rust simulator to compute $2^n \times 2^n$ unitary matrices for mathematical verification.
+- ✅ **Equivalence Testing**: Automated fidelity checks to ensure transpilation maintains unitary correctness (up to global phase).
+- ✅ **Rust Advantage**: Zero-latency binary execution with no Python/GIL overhead, enabling real-time streaming transpilation.
 
 ## Supported Gates
 
@@ -43,22 +48,13 @@ A **quantum transpiler** written in Rust, designed to parse, analyze, and optimi
 
 ### Parametric Gates
 - **Rotations**: `rx(θ)`, `ry(θ)`, `rz(θ)`
-- **Universal**: `U(θ, φ, λ)`, `u1(λ)`, `u2(φ, λ)`, `u3(θ, φ, λ)`
+- **Universal**: `u3(θ, φ, λ)`, `u1(λ)`, `u2(φ, λ)`
 
-### Multi-Qubit Gates
-- **CNOT**: `cx`
-- **Swap**: `swap`
-- **Toffoli**: `ccx` (3-qubit controlled-NOT)
-
-### Controlled Gates
-- **Controlled Pauli**: `cz`, `cy`, `ch`, `csx`
+### Multi-Qubit & Controlled Gates
+- **Two-Qubit**: `cx`, `cz`, `cy`, `ch`, `csx`, `swap`
+- **Three-Qubit**: `ccx` (Toffoli)
 - **Controlled Rotations**: `crx(θ)`, `cry(θ)`, `crz(θ)`
-
-### Ising Interaction Gates
-- **Two-Qubit Rotations**: `rxx(θ)`, `ryy(θ)`, `rzz(θ)`
-
-### Custom Gates
-- User-defined gates via `gate` definitions with parameters and expressions (single-qubit supported)
+- **Ising Interactions**: `rxx(θ)`, `ryy(θ)`, `rzz(θ)`
 
 ## Installation
 
@@ -69,9 +65,7 @@ Add to your `Cargo.toml`:
 q-rust = "0.1.1"
 ```
 
-## Usage Examples
-
-### Transpiling to a Basis Set
+## Usage Example
 
 ```rust
 use q_rust::parser::parse_qasm;
@@ -80,57 +74,43 @@ use q_rust::transpiler::{transpile, TranspilerConfig};
 fn main() {
     let qasm = r#"
         OPENQASM 2.0;
-        qreg q[1];
+        qreg q[2];
         h q[0];
+        cx q[0], q[1];
+        // Redundant cancellation
+        cz q[0], q[1];
+        cz q[0], q[1];
     "#;
 
-    let circuit = parse_qasm(qasm).unwrap();
+    let circuit = parse_qasm(qasm).expect("Parse error");
+    
     let config = TranspilerConfig {
-        decompose_basis: true,
-        optimization_level: 1,
+        optimization_level: 3, // Enable full DAG-based optimizations
+        decompose_basis: true, // Unroll to {U, CX}
+        backend: None,         // Use default all-to-all coupling
     };
 
     let transpiled = transpile(&circuit, Some(config));
-    // H gate is now decomposed into U(pi/2, 0, pi)
+    println!("Gates: {}", transpiled.operations.len());
 }
-```
-
-### Verifying Unitary Equivalence
-
-```rust
-use q_rust::simulator::{circuit_to_unitary, unitary_fidelity};
-// ... after transpilation ...
-let u_orig = circuit_to_unitary(&circuit);
-let u_trans = circuit_to_unitary(&transpiled);
-
-let fidelity = unitary_fidelity(&u_orig, &u_trans);
-assert!(fidelity > 0.99999999); // Equivalent up to global phase
 ```
 
 ## Testing Infrastructure
 
-The project includes a robust test suite that uses QASM files as fixtures.
-
-To run the full suite:
+Run the full suite of fixture-driven tests:
 ```sh
 cargo test
 ```
 
-To run the transpiler fixture suite specifically:
-```sh
-cargo test --test transpiler_suite
-```
-
-Fixtures are located in `tests/fixtures/`. Each fixture is run through multiple transpiler configurations (Default, No Decomposition, Decompose Only) to ensure universal invariants like qubit count preservation and unitary fidelity.
+Fixtures are located in `tests/fixtures/`. Each circuit is verified for unitary fidelity against its original form across multiple optimization levels.
 
 ## Limitations
 
 The following OpenQASM 2.0 features are **not yet supported**:
 
 - ❌ **Include Statements**: e.g., `include "qelib.inc";` (inline gate definitions instead)
-- ❌ **Conditional Operations**: `if(c==1) x q[0];`
-- ❌ **Multi-qubit Custom Gates**: Only single-qubit definitions are currently supported
 - ❌ **OpenQASM 3.0**: Only version 2.0 is supported
+  - ❌ **Conditional Operations**: `if(c==1) x q[0];`
 
 ## References
 
@@ -142,4 +122,3 @@ This project adheres to the **OpenQASM 2.0** specification:
 ## License
 
 MIT or Apache-2.0
-
