@@ -1013,10 +1013,10 @@ impl Pass for RotationMergePass {
                     params,
                 }) = &dag.graph[src]
                 {
-                    if qubits.len() == 1 {
-                        if matches!(name, GateType::RX | GateType::RY | GateType::RZ) {
-                            src_info = Some((name.clone(), qubits[0], params.clone()));
-                        }
+                    if matches!(name, GateType::RX | GateType::RY | GateType::RZ) && qubits.len() == 1 {
+                        src_info = Some((name.clone(), qubits.clone(), params.clone()));
+                    } else if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ) && qubits.len() == 2 {
+                        src_info = Some((name.clone(), qubits.clone(), params.clone()));
                     }
                 }
 
@@ -1027,22 +1027,22 @@ impl Pass for RotationMergePass {
                     params,
                 }) = &dag.graph[dst]
                 {
-                    if qubits.len() == 1 {
-                        if matches!(name, GateType::RX | GateType::RY | GateType::RZ) {
-                            dst_info = Some((name.clone(), qubits[0], params.clone()));
-                        }
+                    if matches!(name, GateType::RX | GateType::RY | GateType::RZ) && qubits.len() == 1 {
+                        dst_info = Some((name.clone(), qubits.clone(), params.clone()));
+                    } else if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ) && qubits.len() == 2 {
+                        dst_info = Some((name.clone(), qubits.clone(), params.clone()));
                     }
                 }
 
                 if let (Some((sn, sq, sp)), Some((dn, dq, dp))) = (src_info, dst_info) {
-                    // Check if they are on the exact same axis and the exact same qubit
+                    // Check if they are on the exact same axis and the exact same qubits
                     if sq == dq && sn == dn {
                         // Geometrically sum the underlying continuous rotational parameters natively
                         let new_theta = sp[0] + dp[0];
 
                         dag.graph[src] = DAGNode::Op(Operation::Gate {
                             name: sn,
-                            qubits: vec![sq],
+                            qubits: sq,
                             params: vec![new_theta],
                         });
 
@@ -1186,19 +1186,48 @@ impl Pass for InverseCancellationPass {
                     continue;
                 };
 
-                // Since we rely on a strictly routed directed topological edge, the adjacency guarantee
-                // mathematically asserts that no interfering structural gates sit between them.
+                // Since we rely on a strictly routed directed topological edge, we must
+                // verify that the nodes are strictly adjacent on ALL shared qubits.
+                // If they are only adjacent on one wire but have something in between on another, 
+                // canceling them is physically incorrect (as seen in CRZ/CX regressions).
                 if are_inverses(&src_op, &dst_op) {
-                    dag.remove_node(src);
-                    dag.remove_node(dst);
-                    progress = true;
-                    break;
+                    let shared_qubits = get_shared_qubits(&src_op, &dst_op);
+                    if is_strictly_adjacent(&dag, src, dst, &shared_qubits) {
+                        dag.remove_node(src);
+                        dag.remove_node(dst);
+                        progress = true;
+                        break;
+                    }
                 }
             }
         }
 
         Circuit::from(&dag)
     }
+}
+
+fn get_shared_qubits(op1: &Operation, op2: &Operation) -> Vec<usize> {
+    if let (Operation::Gate { qubits: q1, .. }, Operation::Gate { qubits: q2, .. }) = (op1, op2) {
+        q1.iter().filter(|q| q2.contains(q)).cloned().collect()
+    } else {
+        vec![]
+    }
+}
+
+fn is_strictly_adjacent(dag: &DAGCircuit, src: NodeIndex, dst: NodeIndex, qubits: &[usize]) -> bool {
+    for &q in qubits {
+        let mut found_edge = false;
+        for edge in dag.graph.edges_directed(src, petgraph::Direction::Outgoing) {
+            if edge.target() == dst && edge.weight().index == q {
+                found_edge = true;
+                break;
+            }
+        }
+        if !found_edge {
+            return false;
+        }
+    }
+    true
 }
 
 fn are_inverses(op1: &Operation, op2: &Operation) -> bool {
@@ -1225,8 +1254,12 @@ fn are_inverses(op1: &Operation, op2: &Operation) -> bool {
                 (GateType::X, GateType::X) => true,
                 (GateType::Y, GateType::Y) => true,
                 (GateType::Z, GateType::Z) => true,
-                (GateType::CX, GateType::CX) => true, // Already handled by CXCancellation, but good to have
-                (GateType::SWAP, GateType::SWAP) => true, // Already handled
+                (GateType::CX, GateType::CX) => true,
+                (GateType::CZ, GateType::CZ) => true,
+                (GateType::CY, GateType::CY) => true,
+                (GateType::CH, GateType::CH) => true,
+                (GateType::CCX, GateType::CCX) => true,
+                (GateType::SWAP, GateType::SWAP) => true,
 
                 // Inverse pairs
                 (GateType::S, GateType::Sdg) => true,
@@ -1234,10 +1267,13 @@ fn are_inverses(op1: &Operation, op2: &Operation) -> bool {
                 (GateType::T, GateType::Tdg) => true,
                 (GateType::Tdg, GateType::T) => true,
 
-                // Rotations with opposite angles
+                // Rotations / Controlled Rotations with opposite angles
                 (GateType::RX, GateType::RX)
                 | (GateType::RY, GateType::RY)
-                | (GateType::RZ, GateType::RZ) => {
+                | (GateType::RZ, GateType::RZ)
+                | (GateType::CRX, GateType::CRX)
+                | (GateType::CRY, GateType::CRY)
+                | (GateType::CRZ, GateType::CRZ) => {
                     if let (Some(a1), Some(a2)) = (p1.first(), p2.first()) {
                         (a1 + a2).abs() < 1e-9
                             || (a1 + a2 - 2.0 * std::f64::consts::PI).abs() < 1e-9
@@ -1442,5 +1478,71 @@ mod peephole_tests {
         );
 
         assert_eq!(new_circuit.operations.len(), 0);
+    }
+
+    #[test]
+    fn test_inverse_controlled() {
+        let mut circuit = Circuit::new(3, 0);
+        // CZ q0, q1
+        circuit.add_op(Operation::Gate {
+            name: GateType::CZ,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CZ,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        // CCX q0, q1, q2
+        circuit.add_op(Operation::Gate {
+            name: GateType::CCX,
+            qubits: vec![0, 1, 2],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CCX,
+            qubits: vec![0, 1, 2],
+            params: vec![],
+        });
+
+        let pass = InverseCancellationPass;
+        let new_circuit = pass.run(
+            &circuit,
+            &mut crate::transpiler::property_set::PropertySet::new(),
+        );
+
+        assert_eq!(new_circuit.operations.len(), 0);
+    }
+
+    #[test]
+    fn test_rotation_merge_controlled() {
+        let mut circuit = Circuit::new(2, 0);
+        // CRZ(0.5) q0, q1
+        circuit.add_op(Operation::Gate {
+            name: GateType::CRZ,
+            qubits: vec![0, 1],
+            params: vec![0.5],
+        });
+        // CRZ(0.7) q0, q1
+        circuit.add_op(Operation::Gate {
+            name: GateType::CRZ,
+            qubits: vec![0, 1],
+            params: vec![0.7],
+        });
+
+        let pass = RotationMergePass;
+        let new_circuit = pass.run(
+            &circuit,
+            &mut crate::transpiler::property_set::PropertySet::new(),
+        );
+
+        assert_eq!(new_circuit.operations.len(), 1);
+        if let Operation::Gate { name, params, .. } = &new_circuit.operations[0] {
+            assert_eq!(*name, GateType::CRZ);
+            assert!((params[0] - 1.2).abs() < 1e-9);
+        } else {
+            panic!("Expected CRZ");
+        }
     }
 }

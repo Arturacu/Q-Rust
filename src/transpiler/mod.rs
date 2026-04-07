@@ -55,6 +55,7 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Circuit
         pm.add_pass(Box::new(optimization::RotationMergePass {}));
         pm.add_pass(Box::new(optimization::CrossConjugationPass {}));
         pm.add_pass(Box::new(optimization::InverseCancellationPass {}));
+        pm.add_pass(Box::new(optimization::CommutationCancellationPass {}));
         // Note: PauliTrackerPass requires explicit invocation / integration mechanics for bounding contexts
         // pm.add_pass(Box::new(pauli_tracker::PauliTrackerPass {}));
     }
