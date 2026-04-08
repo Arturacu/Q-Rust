@@ -125,6 +125,10 @@ fn term(input: &str) -> IResult<&str, Expr> {
 fn factor(input: &str) -> IResult<&str, Expr> {
     alt((
         map(
+            pair(delimited(space0, char('-'), space0), factor),
+            |(_, f)| Expr::Sub(Box::new(Expr::Float(0.0)), Box::new(f)),
+        ),
+        map(
             delimited(
                 tuple((space0, char('('), space0)),
                 expr,

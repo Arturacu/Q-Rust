@@ -103,13 +103,43 @@ fn test_custom_include_error() {
 }
 
 #[test]
-fn test_qelib1_include_rejected() {
+fn test_qelib1_include_accepted() {
     let qasm = r#"
         OPENQASM 2.0;
         include "qelib1.inc";
+        qreg q[1];
+        h q[0];
     "#;
-    let err = parse_qasm(qasm).unwrap_err();
-    assert!(err.contains("Includes are not supported"));
+    let circuit = parse_qasm(qasm).expect("Failed to parse circuit with qelib1.inc");
+    assert_eq!(circuit.num_qubits, 1);
+    assert_eq!(circuit.operations.len(), 1);
+}
+
+#[test]
+fn test_qasm_round_trip() {
+    let qasm = r#"
+        OPENQASM 2.0;
+        include "qelib1.inc";
+        qreg q[2];
+        creg c[2];
+        h q[0];
+        cx q[0], q[1];
+        measure q[0] -> c[0];
+        measure q[1] -> c[1];
+    "#;
+    
+    // Original -> parsed
+    let parsed1 = parse_qasm(qasm).expect("Failed first parse");
+    
+    // Parsed -> string
+    let generated = parsed1.to_qasm(None);
+    
+    // String -> parsed
+    let parsed2 = parse_qasm(&generated).expect("Failed second parse");
+    
+    assert_eq!(parsed1.num_qubits, parsed2.num_qubits);
+    assert_eq!(parsed1.num_cbits, parsed2.num_cbits);
+    assert_eq!(parsed1.operations, parsed2.operations);
 }
 
 #[test]

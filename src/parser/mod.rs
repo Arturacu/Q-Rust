@@ -144,10 +144,13 @@ pub fn parse_qasm(input: &str) -> Result<Circuit, String> {
         match stmt {
             ParsedStatement::Ignore => {}
             ParsedStatement::Include(filename) => {
-                return Err(format!(
-                    "Includes are not supported. Please resolve all imports before parsing. Found: 'include \"{}\"'",
-                    filename
-                ));
+                // We natively support the standard gate set defined in qelib1.inc
+                if filename != "qelib1.inc" {
+                    return Err(format!(
+                        "Includes are not supported. Please resolve all imports before parsing. Found: 'include \"{}\"'",
+                        filename
+                    ));
+                }
             }
             ParsedStatement::QReg(name, size) => {
                 ctx.qregs.insert(name, (total_qubits, size));
