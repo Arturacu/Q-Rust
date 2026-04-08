@@ -86,7 +86,7 @@ impl FromStr for GateType {
             "rz" => GateType::RZ,
             "u1" => GateType::RZ, // u1(lambda) = RZ(lambda)
             "u2" => GateType::U,  // u2(phi, lambda) = U(pi/2, phi, lambda)
-            "u3" | "U" => GateType::U,
+            "u" | "u3" | "U" => GateType::U,
             "id" => GateType::ID,
             "s" => GateType::S,
             "sdg" => GateType::Sdg,
@@ -106,5 +106,40 @@ impl FromStr for GateType {
             "rzz" => GateType::RZZ,
             _ => GateType::Custom(name.to_string()),
         })
+    }
+}
+
+impl GateType {
+    /// Returns the OpenQASM 2.0 standard string representation for the gate type.
+    pub fn to_qasm_name(&self) -> String {
+        match self {
+            GateType::H => "h".to_string(),
+            GateType::X => "x".to_string(),
+            GateType::Y => "y".to_string(),
+            GateType::Z => "z".to_string(),
+            GateType::CX => "cx".to_string(),
+            GateType::RX => "rx".to_string(),
+            GateType::RY => "ry".to_string(),
+            GateType::RZ => "rz".to_string(),
+            GateType::U => "u".to_string(),
+            GateType::ID => "id".to_string(),
+            GateType::S => "s".to_string(),
+            GateType::Sdg => "sdg".to_string(),
+            GateType::T => "t".to_string(),
+            GateType::Tdg => "tdg".to_string(),
+            GateType::SWAP => "swap".to_string(),
+            GateType::CCX => "ccx".to_string(),
+            GateType::CZ => "cz".to_string(),
+            GateType::CY => "cy".to_string(),
+            GateType::CRX => "crx".to_string(),
+            GateType::CRY => "cry".to_string(),
+            GateType::CRZ => "crz".to_string(),
+            GateType::CH => "ch".to_string(),
+            GateType::CSX => "csx".to_string(),
+            GateType::RXX => "rxx".to_string(),
+            GateType::RYY => "ryy".to_string(),
+            GateType::RZZ => "rzz".to_string(),
+            GateType::Custom(name) => name.clone(),
+        }
     }
 }
