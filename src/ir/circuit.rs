@@ -232,4 +232,69 @@ mod tests {
         assert!(qasm.contains("cx q[0], q[1];"));
         assert!(qasm.contains("measure q[0] -> c[0];"));
     }
+
+    #[test]
+    fn test_to_qasm_with_layout() {
+        use crate::transpiler::property_set::PropertySet;
+        let circuit = Circuit::new(2, 0);
+        let mut props = PropertySet::new();
+        props.insert("initial_layout", vec![1usize, 0usize]);
+        props.insert("final_layout", vec![0usize, 1usize]);
+
+        let qasm = circuit.to_qasm(Some(&props));
+        assert!(qasm.contains("// qrust_initial_layout: [1, 0]"));
+        assert!(qasm.contains("// qrust_final_layout: [0, 1]"));
+    }
+
+    #[test]
+    fn test_gate_count() {
+        let mut circuit = Circuit::new(2, 0);
+        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        circuit.add_op(Operation::Barrier { qubits: vec![0, 1] });
+        
+        // Only gates should be counted, not barriers
+        assert_eq!(circuit.gate_count(), 2);
+    }
+
+    #[test]
+    fn test_circuit_depth() {
+        let mut circuit = Circuit::new(3, 0);
+        
+        // Depth 1
+        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
+        
+        // Depth 2 (depends on q0, q1)
+        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        
+        // Depth 3 (depends on q1)
+        circuit.add_op(Operation::Gate { name: GateType::T, qubits: vec![1], params: vec![] });
+        
+        // Separate path on q2 (stays Depth 1)
+        circuit.add_op(Operation::Gate { name: GateType::X, qubits: vec![2], params: vec![] });
+        
+        assert_eq!(circuit.depth(), 3);
+    }
+
+    #[test]
+    fn test_circuit_depth_with_barrier() {
+        let mut circuit = Circuit::new(2, 0);
+        
+        // Q0: Depth 1, Q1: Depth 0
+        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        
+        // Barrier: Q0 and Q1 synchronized at Depth 1
+        circuit.add_op(Operation::Barrier { qubits: vec![0, 1] });
+        
+        // Next op on Q1 should start after synchronization point (Depth 2)
+        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
+        
+        // Wait, current depth() logic for Barrier is:
+        // for &q in qubits { max_d = max_d.max(qubit_depths[q]); }
+        // for &q in qubits { qubit_depths[q] = max_d; }
+        // So after barrier, both are at depth 1. 
+        // Next gate on Q1 will be max(1) + 1 = 2.
+        assert_eq!(circuit.depth(), 2);
+    }
 }
