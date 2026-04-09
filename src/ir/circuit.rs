@@ -66,6 +66,100 @@ impl Circuit {
 
         warnings
     }
+
+    /// Exports the Circuit as an OpenQASM 2.0 string.
+    ///
+    /// If `property_set` is provided, includes `initial_layout` and `final_layout` mapping 
+    /// arrays as metadata comments so downstream tools can track hardware routing results.
+    pub fn to_qasm(&self, property_set: Option<&crate::transpiler::property_set::PropertySet>) -> String {
+        let mut qasm = String::new();
+        qasm.push_str("OPENQASM 2.0;\n");
+        qasm.push_str("include \"qelib1.inc\";\n\n");
+
+        // Write custom metadata
+        if let Some(props) = property_set {
+            if let Some(initial) = props.get::<Vec<usize>>("initial_layout") {
+                qasm.push_str(&format!("// qrust_initial_layout: {:?}\n", initial));
+            }
+            if let Some(final_l) = props.get::<Vec<usize>>("final_layout") {
+                qasm.push_str(&format!("// qrust_final_layout: {:?}\n", final_l));
+            }
+        }
+
+        qasm.push_str(&format!("qreg q[{}];\n", self.num_qubits));
+        if self.num_cbits > 0 {
+            qasm.push_str(&format!("creg c[{}];\n", self.num_cbits));
+        }
+
+        qasm.push_str("\n");
+
+        for op in &self.operations {
+            qasm.push_str(&op.to_qasm());
+            qasm.push_str("\n");
+        }
+
+        qasm
+    }
+
+    /// Calculates the quantum depth of the circuit.
+    ///
+    /// Depth is defined as the length of the longest path in the circuit's 
+    /// dependency graph (critical path).
+    pub fn depth(&self) -> usize {
+        let mut qubit_depths = vec![0usize; self.num_qubits];
+
+        for op in &self.operations {
+            match op {
+                Operation::Gate { qubits, .. } => {
+                    let mut max_d = 0;
+                    for &q in qubits {
+                        if q < qubit_depths.len() {
+                            max_d = max_d.max(qubit_depths[q]);
+                        }
+                    }
+                    let new_d = max_d + 1;
+                    for &q in qubits {
+                        if q < qubit_depths.len() {
+                            qubit_depths[q] = new_d;
+                        }
+                    }
+                }
+                Operation::Measure { qubit, .. } => {
+                    if *qubit < qubit_depths.len() {
+                        qubit_depths[*qubit] += 1;
+                    }
+                }
+                Operation::Reset { qubit } => {
+                    if *qubit < qubit_depths.len() {
+                        qubit_depths[*qubit] += 1;
+                    }
+                }
+                Operation::Barrier { qubits } => {
+                    let mut max_d = 0;
+                    for &q in qubits {
+                        if q < qubit_depths.len() {
+                            max_d = max_d.max(qubit_depths[q]);
+                        }
+                    }
+                    for &q in qubits {
+                        if q < qubit_depths.len() {
+                            qubit_depths[q] = max_d;
+                        }
+                    }
+                }
+            }
+        }
+
+        *qubit_depths.iter().max().unwrap_or(&0)
+    }
+
+    /// Returns the total number of gate operations in the circuit.
+    pub fn gate_count(&self) -> usize {
+        self.operations
+            .iter()
+            .filter(|op| matches!(op, Operation::Gate { .. }))
+            .count()
+    }
 }
 
 #[cfg(test)]
@@ -113,5 +207,29 @@ mod tests {
         circuit.add_op(Operation::Measure { qubit: 0, cbit: 0 });
         let warnings = circuit.validate();
         assert!(warnings.is_empty());
+    }
+
+    #[test]
+    fn test_to_qasm() {
+        let mut circuit = Circuit::new(2, 2);
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Measure { qubit: 0, cbit: 0 });
+
+        let qasm = circuit.to_qasm(None);
+        assert!(qasm.contains("OPENQASM 2.0;"));
+        assert!(qasm.contains("qreg q[2];"));
+        assert!(qasm.contains("creg c[2];"));
+        assert!(qasm.contains("h q[0];"));
+        assert!(qasm.contains("cx q[0], q[1];"));
+        assert!(qasm.contains("measure q[0] -> c[0];"));
     }
 }
