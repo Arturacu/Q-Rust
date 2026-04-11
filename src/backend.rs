@@ -1,7 +1,7 @@
 use petgraph::graph::{Graph, NodeIndex};
 use petgraph::Directed;
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 
 /// Serialization surrogate for reading standard JSON hardware definitions.
 /// Designed to perfectly interface with generic cloud API execution bounds natively.
@@ -122,6 +122,87 @@ impl Backend {
         backend.set_coupling_map(edges);
         backend
     }
+
+
+    pub fn ring(num_qubits: usize) -> Self {
+        let mut backend = Backend::new(format!("ring_{}", num_qubits), num_qubits);
+        let mut edges = Vec::new();
+        if num_qubits > 0 {
+            for i in 0..num_qubits {
+                edges.push((i, (i + 1) % num_qubits));
+                edges.push(((i + 1) % num_qubits, i));
+            }
+        }
+        backend.set_coupling_map(edges);
+        backend
+    }
+
+    pub fn star(num_qubits: usize) -> Self {
+        let mut backend = Backend::new(format!("star_{}", num_qubits), num_qubits);
+        let mut edges = Vec::new();
+        for i in 1..num_qubits {
+            edges.push((0, i));
+            edges.push((i, 0));
+        }
+        backend.set_coupling_map(edges);
+        backend
+    }
+
+    pub fn tree(num_qubits: usize) -> Self {
+        let mut backend = Backend::new(format!("tree_{}", num_qubits), num_qubits);
+        let mut edges = Vec::new();
+        for i in 1..num_qubits {
+            let parent = (i - 1) / 2;
+            edges.push((parent, i));
+            edges.push((i, parent));
+        }
+        backend.set_coupling_map(edges);
+        backend
+    }
+
+    /// Returns true if physical qubits q1 and q2 are directly connected
+    /// in the coupling map (in either direction).
+    pub fn is_adjacent(&self, q1: usize, q2: usize) -> bool {
+        self.coupling_map
+            .contains_edge(NodeIndex::new(q1), NodeIndex::new(q2))
+            || self
+                .coupling_map
+                .contains_edge(NodeIndex::new(q2), NodeIndex::new(q1))
+    }
+
+    /// Returns all physical qubits directly connected to `q` in the coupling map.
+    pub fn neighbors(&self, q: usize) -> Vec<usize> {
+        self.coupling_map
+            .neighbors(NodeIndex::new(q))
+            .map(|n| n.index())
+            .collect()
+    }
+
+    /// Computes all-pairs shortest path distances via BFS on the coupling map.
+    /// Returns `dist[i][j]` = minimum hop count from physical qubit i to j.
+    /// Returns `usize::MAX` for disconnected pairs.
+    pub fn shortest_path_matrix(&self) -> Vec<Vec<usize>> {
+        let n = self.num_qubits;
+        let mut dist = vec![vec![usize::MAX; n]; n];
+
+        for start in 0..n {
+            dist[start][start] = 0;
+            let mut queue = VecDeque::new();
+            queue.push_back(start);
+
+            while let Some(current) = queue.pop_front() {
+                let current_dist = dist[start][current];
+                for neighbor in self.neighbors(current) {
+                    if dist[start][neighbor] == usize::MAX {
+                        dist[start][neighbor] = current_dist + 1;
+                        queue.push_back(neighbor);
+                    }
+                }
+            }
+        }
+
+        dist
+    }
 }
 
 #[cfg(test)]
@@ -196,5 +277,45 @@ mod tests {
         assert_eq!(backend.num_qubits, 7);
         assert_eq!(backend.coupling_map.edge_count(), 6);
         assert!(backend.basis_gates.contains("cx"));
+    }
+
+    #[test]
+    fn test_is_adjacent() {
+        let backend = Backend::linear(5);
+        assert!(backend.is_adjacent(0, 1));
+        assert!(backend.is_adjacent(1, 0)); // Symmetric
+        assert!(backend.is_adjacent(3, 4));
+        assert!(!backend.is_adjacent(0, 2)); // Not adjacent
+        assert!(!backend.is_adjacent(0, 4)); // Far apart
+    }
+
+    #[test]
+    fn test_neighbors() {
+        let backend = Backend::linear(5);
+        let n0 = backend.neighbors(0);
+        assert_eq!(n0, vec![1]); // End of chain
+        let mut n2 = backend.neighbors(2);
+        n2.sort();
+        assert_eq!(n2, vec![1, 3]); // Middle of chain
+    }
+
+    #[test]
+    fn test_shortest_path_matrix() {
+        let backend = Backend::linear(5);
+        let dist = backend.shortest_path_matrix();
+        assert_eq!(dist[0][0], 0);
+        assert_eq!(dist[0][1], 1);
+        assert_eq!(dist[0][4], 4);
+        assert_eq!(dist[1][3], 2);
+        assert_eq!(dist[2][2], 0);
+
+        // Grid topology
+        let grid = Backend::grid(2, 3);
+        // 0-1-2
+        // |   |
+        // 3-4-5
+        let gdist = grid.shortest_path_matrix();
+        assert_eq!(gdist[0][5], 3); // 0→1→2→5 or 0→3→4→5
+        assert_eq!(gdist[0][4], 2); // 0→1→4 or 0→3→4
     }
 }
