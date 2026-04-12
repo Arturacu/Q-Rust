@@ -155,6 +155,31 @@ pub fn extract_logical_unitary(
     final_layout: &[usize],
 ) -> DMatrix<C> {
     let n_physical = (u_routed.nrows() as f64).log2().round() as usize;
+
+    debug_assert!(
+        {
+            let mut seen = std::collections::HashSet::new();
+            initial_layout.iter().all(|&p| seen.insert(p))
+        },
+        "extract_logical_unitary: initial_layout contains duplicate physical qubits: {:?}",
+        initial_layout
+    );
+    debug_assert!(
+        {
+            let mut seen = std::collections::HashSet::new();
+            final_layout.iter().all(|&p| seen.insert(p))
+        },
+        "extract_logical_unitary: final_layout contains duplicate physical qubits: {:?}",
+        final_layout
+    );
+    debug_assert!(
+        initial_layout.len() == n_logical && final_layout.len() == n_logical,
+        "extract_logical_unitary: layout length ({}/{}) does not match n_logical ({})",
+        initial_layout.len(),
+        final_layout.len(),
+        n_logical
+    );
+
     let dim_logical = 1usize << n_logical;
     let mut u_logical = DMatrix::<C>::zeros(dim_logical, dim_logical);
 
@@ -289,8 +314,7 @@ mod tests {
         let u_phys = circuit_to_unitary(&circuit);
         let initial_layout = vec![1, 0];
         let final_layout = vec![0, 1];
-
-        let u_log = extract_logical_unitary(&u_phys, 2, &initial_layout, &final_layout);
+        let _u_log = extract_logical_unitary(&u_phys, 2, &initial_layout, &final_layout);
         
         // This specific combination of Gate(P1,P0) and Layout L0->P1, L1->P0
         // maps to a logically valid but non-standard CX. We use a simpler 
