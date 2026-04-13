@@ -25,3 +25,9 @@ target
 
 # Internal specifications (not tracked)
 .specifications/
+
+# Benchmark and temporary execution artifacts
+.venv/
+benchmark/
+qasm_dumps/
+*.qasm
