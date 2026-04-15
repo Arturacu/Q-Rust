@@ -1,14 +1,13 @@
-// The foundational axes of the Pauli matrices.
+//! Algebraic signatures used by commutation and simplification analyses.
 
-/// The foundational axes of the Pauli matrices.
+use std::f64::consts::PI;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[non_exhaustive]
 pub enum PauliBasis {
-    X,
-    Y,
-    Z,
+    X, Y, Z,
 }
 
-/// Represents a fractional angle expressed as `numerator / denominator * π`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SymbolicFraction {
     pub num: i64,
@@ -16,56 +15,104 @@ pub struct SymbolicFraction {
 }
 
 impl SymbolicFraction {
-    /// Evaluates the fraction to a floating-point value in radians.
-    pub fn to_radians(self) -> f64 {
-        (self.num as f64 / self.den as f64) * std::f64::consts::PI
+    pub fn new(num: i64, den: i64) -> Option<Self> {
+        if den == 0 {
+            None
+        } else {
+            Some(SymbolicFraction { num, den }.simplify())
+        }
     }
 
-    /// Reduces the fraction modulo 2π, mapping it into [-π, π].
-    pub fn reduce(mut self) -> Self {
+    #[inline]
+    pub fn to_radians(self) -> f64 {
+        (self.num as f64 / self.den as f64) * PI
+    }
+
+    pub fn simplify(mut self) -> Self {
         if self.den == 0 {
             return self;
         }
-        // Simplified canonicalization:
-        let period = 2 * self.den;
-        self.num = self.num % period;
-        if self.num > self.den {
-            self.num -= period;
-        } else if self.num < -self.den {
-            self.num += period;
+        if self.den < 0 {
+            self.num = self.num.wrapping_neg();
+            self.den = self.den.wrapping_neg();
         }
-        // Try to simplify based on powers of 2 (typical in quantum circuits)
-        while self.num % 2 == 0 && self.den % 2 == 0 && self.den > 1 {
-            self.num /= 2;
-            self.den /= 2;
+        let a = self.num.unsigned_abs();
+        let b = self.den.unsigned_abs();
+        let g = gcd_u64(a, b);
+        if g > 1 {
+            self.num /= g as i64;
+            self.den /= g as i64;
         }
         self
     }
+
+    pub fn reduce(self) -> Self {
+        let simplified = self.simplify();
+        if simplified.den == 0 {
+            return simplified;
+        }
+        let period = 2i64.saturating_mul(simplified.den);
+        let mut n = simplified.num.rem_euclid(period);
+        if n > simplified.den {
+            n -= period;
+        }
+        SymbolicFraction {
+            num: n,
+            den: simplified.den,
+        }
+        .simplify()
+    }
 }
 
-/// Strongly-typed canonical rotation parameters for use in optimizations.
+fn gcd_u64(mut a: u64, mut b: u64) -> u64 {
+    while b != 0 {
+        let t = a % b;
+        a = b;
+        b = t;
+    }
+    a.max(1)
+}
+
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[non_exhaustive]
 pub enum SymbolicAngle {
-    /// Exact rational multiple of π
     Rational(SymbolicFraction),
-    /// Inexact f64 parameterized angle, requiring epsilon bounded matching
     Float(f64),
 }
 
-/// Structural hint for an operator's algebraic commutativity.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum CommutationSignature {
-    /// Operates diagonally across its entire support in a shared Pauli Tensor Basis.
-    /// Example: RZ, Z, S, T are Z-diagonal. RX, X are X-diagonal.
     Diagonal(PauliBasis),
-
-    /// Entangling gate exhibiting independent local diagonal symmetries per-wire.
-    /// E.g., CX is Z-diagonal on the Control (local idx 0), and X-diagonal on Target (local idx 1).
     CompositeDiagonal(Vec<(usize, PauliBasis)>),
-
-    /// Pure Clifford basis transformers (e.g. H) acting natively on Pauli frames.
     Clifford,
-
-    /// Unresolved or non-Clifford parametric gates structurally blocking trivial topological commutativity.
     Generic,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_fraction_simplify() {
+        let f = SymbolicFraction::new(4, 8).unwrap();
+        assert_eq!(f, SymbolicFraction { num: 1, den: 2 });
+    }
+
+    #[test]
+    fn test_fraction_simplify_gcd() {
+        let f = SymbolicFraction::new(6, 9).unwrap();
+        assert_eq!(f, SymbolicFraction { num: 2, den: 3 });
+    }
+
+    #[test]
+    fn test_fraction_negative_denominator() {
+        let f = SymbolicFraction::new(3, -6).unwrap();
+        assert_eq!(f, SymbolicFraction { num: -1, den: 2 });
+    }
+
+    #[test]
+    fn test_fraction_zero_den_sentinel() {
+        assert!(SymbolicFraction::new(1, 0).is_none());
+    }
 }

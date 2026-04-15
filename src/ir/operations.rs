@@ -1,62 +1,120 @@
-use super::gates::GateType;
+//! Circuit operations (gates, measurements, resets, barriers, conditionals).
 
-/// Represents a single operation in the quantum circuit.
+use super::gates::GateType;
+use std::fmt;
+
+/// A classical condition used to guard a conditional operation.
 ///
-/// Operations can be quantum gates, measurements, resets, or barriers.
+/// Represents `if (creg == value) op` from QASM 2.0.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "serde-ir", derive(serde::Serialize, serde::Deserialize))]
+pub struct ClassicalCondition {
+    /// Classical register name.
+    pub creg: String,
+    /// Required decimal value for the register contents.
+    pub value: u64,
+}
+
+/// A single operation in a [`crate::ir::Circuit`].
 #[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde-ir", derive(serde::Serialize, serde::Deserialize))]
+#[non_exhaustive]
 pub enum Operation {
-    /// A quantum gate application.
     Gate {
-        /// Type of the gate (e.g., H, CX).
         name: GateType,
-        /// Indices of the qubits involved.
         qubits: Vec<usize>,
-        /// Parameters for the gate (if any).
         params: Vec<f64>,
     },
-    /// A measurement operation.
     Measure {
-        /// Index of the qubit to measure.
         qubit: usize,
-        /// Index of the classical bit to store the result.
         cbit: usize,
     },
-    /// Reset a qubit to the |0> state.
     Reset {
-        /// Index of the qubit to reset.
         qubit: usize,
     },
-    /// A barrier to prevent optimizations across a boundary.
     Barrier {
-        /// Indices of the qubits involved in the barrier.
         qubits: Vec<usize>,
+    },
+    /// Classically-conditioned inner operation (QASM 2.0 `if (c==v) op`).
+    Conditional {
+        condition: ClassicalCondition,
+        op: Box<Operation>,
     },
 }
 
 impl Operation {
-    /// Returns the OpenQASM 2.0 string representation of the operation.
     pub fn to_qasm(&self) -> String {
         match self {
             Operation::Gate { name, qubits, params } => {
-                let mut s = name.to_qasm_name();
+                let mut s = String::with_capacity(16);
+                s.push_str(name.to_qasm_name());
                 if !params.is_empty() {
-                    let p_strs: Vec<String> = params.iter().map(|p| format!("{:.6}", p)).collect();
-                    s.push_str(&format!("({})", p_strs.join(", ")));
+                    s.push('(');
+                    for (i, p) in params.iter().enumerate() {
+                        if i > 0 {
+                            s.push_str(", ");
+                        }
+                        s.push_str(&format!("{:.10}", p));
+                    }
+                    s.push(')');
                 }
-                let q_strs: Vec<String> = qubits.iter().map(|q| format!("q[{}]", q)).collect();
-                s.push_str(&format!(" {};", q_strs.join(", ")));
+                s.push(' ');
+                for (i, q) in qubits.iter().enumerate() {
+                    if i > 0 {
+                        s.push_str(", ");
+                    }
+                    s.push_str(&format!("q[{}]", q));
+                }
+                s.push(';');
                 s
             }
             Operation::Measure { qubit, cbit } => {
                 format!("measure q[{}] -> c[{}];", qubit, cbit)
             }
-            Operation::Reset { qubit } => {
-                format!("reset q[{}];", qubit)
-            }
+            Operation::Reset { qubit } => format!("reset q[{}];", qubit),
             Operation::Barrier { qubits } => {
-                let q_strs: Vec<String> = qubits.iter().map(|q| format!("q[{}]", q)).collect();
-                format!("barrier {};", q_strs.join(", "))
+                let mut s = String::from("barrier ");
+                for (i, q) in qubits.iter().enumerate() {
+                    if i > 0 {
+                        s.push_str(", ");
+                    }
+                    s.push_str(&format!("q[{}]", q));
+                }
+                s.push(';');
+                s
+            }
+            Operation::Conditional { condition, op } => {
+                format!("if({}=={}) {}", condition.creg, condition.value, op.to_qasm())
             }
         }
+    }
+
+    pub fn qubits(&self) -> &[usize] {
+        match self {
+            Operation::Gate { qubits, .. } | Operation::Barrier { qubits } => qubits,
+            Operation::Measure { qubit, .. } | Operation::Reset { qubit } => {
+                std::slice::from_ref(qubit)
+            }
+            Operation::Conditional { op, .. } => op.qubits(),
+        }
+    }
+
+    /// Returns true if this operation is a barrier. Optimization passes
+    /// must not reorder/combine operations across barriers.
+    #[inline]
+    pub fn is_barrier(&self) -> bool {
+        matches!(self, Operation::Barrier { .. })
+    }
+
+    /// Returns true if this operation is classically conditioned.
+    #[inline]
+    pub fn is_conditional(&self) -> bool {
+        matches!(self, Operation::Conditional { .. })
+    }
+}
+
+impl fmt::Display for Operation {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.to_qasm())
     }
 }

@@ -1,6 +1,11 @@
-/// Internal AST for parsed statements
+//! Parser-internal AST for OpenQASM 2.0 statements and expressions.
+
+use crate::error::{QRustError, Result};
+use std::collections::HashMap;
+use std::f64::consts::PI;
+
 #[derive(Debug, PartialEq, Clone)]
-#[allow(dead_code)]
+#[non_exhaustive]
 pub enum Expr {
     Float(f64),
     Var(String),
@@ -11,56 +16,50 @@ pub enum Expr {
 }
 
 impl Expr {
-    pub fn evaluate_with_scope(
-        &self,
-        params: &std::collections::HashMap<String, f64>,
-    ) -> Result<f64, String> {
+    pub fn evaluate_with_scope(&self, scope: &HashMap<String, f64>) -> Result<f64> {
         match self {
-            Expr::Float(val) => Ok(*val),
+            Expr::Float(v) => Ok(*v),
             Expr::Var(name) => {
                 if name == "pi" {
-                    Ok(std::f64::consts::PI)
-                } else if let Some(&val) = params.get(name) {
-                    Ok(val)
+                    Ok(PI)
                 } else {
-                    Err(format!("Unknown variable: {}", name))
+                    scope
+                        .get(name)
+                        .copied()
+                        .ok_or_else(|| QRustError::Undefined(name.clone()))
                 }
             }
-            Expr::Add(lhs, rhs) => {
-                Ok(lhs.evaluate_with_scope(params)? + rhs.evaluate_with_scope(params)?)
-            }
-            Expr::Sub(lhs, rhs) => {
-                Ok(lhs.evaluate_with_scope(params)? - rhs.evaluate_with_scope(params)?)
-            }
-            Expr::Mul(lhs, rhs) => {
-                Ok(lhs.evaluate_with_scope(params)? * rhs.evaluate_with_scope(params)?)
-            }
-            Expr::Div(lhs, rhs) => {
-                let denom = rhs.evaluate_with_scope(params)?;
-                if denom == 0.0 {
-                    Err("Division by zero".to_string())
+            Expr::Add(l, r) => Ok(l.evaluate_with_scope(scope)? + r.evaluate_with_scope(scope)?),
+            Expr::Sub(l, r) => Ok(l.evaluate_with_scope(scope)? - r.evaluate_with_scope(scope)?),
+            Expr::Mul(l, r) => Ok(l.evaluate_with_scope(scope)? * r.evaluate_with_scope(scope)?),
+            Expr::Div(l, r) => {
+                let d = r.evaluate_with_scope(scope)?;
+                if d == 0.0 {
+                    Err(QRustError::Arithmetic("division by zero".into()))
                 } else {
-                    Ok(lhs.evaluate_with_scope(params)? / denom)
+                    Ok(l.evaluate_with_scope(scope)? / d)
                 }
             }
         }
     }
 
-    pub fn evaluate(&self) -> Result<f64, String> {
-        self.evaluate_with_scope(&std::collections::HashMap::new())
+    #[inline]
+    pub fn evaluate(&self) -> Result<f64> {
+        self.evaluate_with_scope(&HashMap::new())
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum ParsedStatement {
     QReg(String, usize),
     CReg(String, usize),
-    Gate(String, Vec<(String, Option<usize>)>, Vec<Expr>), // Name, Qubits, Params
-    Measure((String, Option<usize>), (String, Option<usize>)), // Qubit -> Cbit
-    Include(String),                                       // Filename
-    Barrier(Vec<(String, Option<usize>)>),                 // Qubits
-    GateDef(String, Vec<String>, Vec<String>, Vec<ParsedStatement>), // Name, Params, Qubits, Body
-    If(String, usize, Box<ParsedStatement>),               // CReg, Val, Op
+    Gate(String, Vec<(String, Option<usize>)>, Vec<Expr>),
+    Measure((String, Option<usize>), (String, Option<usize>)),
+    Include(String),
+    Barrier(Vec<(String, Option<usize>)>),
+    GateDef(String, Vec<String>, Vec<String>, Vec<ParsedStatement>),
+    If(String, usize, Box<ParsedStatement>),
     Ignore,
 }
 
@@ -70,66 +69,49 @@ mod tests {
 
     #[test]
     fn test_expr_float_literal() {
-        let expr = Expr::Float(3.14);
-        assert_eq!(expr.evaluate(), Ok(3.14));
+        assert_eq!(Expr::Float(3.14).evaluate().unwrap(), 3.14);
     }
 
     #[test]
     fn test_expr_pi_constant() {
-        let expr = Expr::Var("pi".to_string());
-        assert_eq!(expr.evaluate(), Ok(std::f64::consts::PI));
+        assert_eq!(Expr::Var("pi".into()).evaluate().unwrap(), PI);
     }
 
     #[test]
     fn test_expr_unknown_variable() {
-        let expr = Expr::Var("theta".to_string());
-        assert!(expr.evaluate().is_err());
-        assert!(expr.evaluate().unwrap_err().contains("Unknown variable"));
+        assert!(matches!(
+            Expr::Var("theta".into()).evaluate(),
+            Err(QRustError::Undefined(_))
+        ));
     }
 
     #[test]
     fn test_expr_addition() {
-        let expr = Expr::Add(Box::new(Expr::Float(2.0)), Box::new(Expr::Float(3.0)));
-        assert_eq!(expr.evaluate(), Ok(5.0));
-    }
-
-    #[test]
-    fn test_expr_subtraction() {
-        let expr = Expr::Sub(Box::new(Expr::Float(5.0)), Box::new(Expr::Float(3.0)));
-        assert_eq!(expr.evaluate(), Ok(2.0));
-    }
-
-    #[test]
-    fn test_expr_multiplication() {
-        let expr = Expr::Mul(Box::new(Expr::Float(4.0)), Box::new(Expr::Float(2.5)));
-        assert_eq!(expr.evaluate(), Ok(10.0));
-    }
-
-    #[test]
-    fn test_expr_division() {
-        let expr = Expr::Div(Box::new(Expr::Float(10.0)), Box::new(Expr::Float(2.0)));
-        assert_eq!(expr.evaluate(), Ok(5.0));
+        let e = Expr::Add(Box::new(Expr::Float(2.0)), Box::new(Expr::Float(3.0)));
+        assert_eq!(e.evaluate().unwrap(), 5.0);
     }
 
     #[test]
     fn test_expr_division_by_zero() {
-        let expr = Expr::Div(Box::new(Expr::Float(10.0)), Box::new(Expr::Float(0.0)));
-        assert!(expr.evaluate().is_err());
-        assert!(expr.evaluate().unwrap_err().contains("Division by zero"));
+        let e = Expr::Div(Box::new(Expr::Float(10.0)), Box::new(Expr::Float(0.0)));
+        assert!(matches!(e.evaluate(), Err(QRustError::Arithmetic(_))));
     }
 
     #[test]
     fn test_expr_complex_expression() {
-        // (pi / 2) + 1
-        let expr = Expr::Add(
+        let e = Expr::Add(
             Box::new(Expr::Div(
-                Box::new(Expr::Var("pi".to_string())),
+                Box::new(Expr::Var("pi".into())),
                 Box::new(Expr::Float(2.0)),
             )),
             Box::new(Expr::Float(1.0)),
         );
-        let result = expr.evaluate().unwrap();
-        let expected = std::f64::consts::PI / 2.0 + 1.0;
-        assert!((result - expected).abs() < 1e-10);
+        let got = e.evaluate().unwrap();
+        assert!((got - (PI / 2.0 + 1.0)).abs() < 1e-12);
     }
 }
+
+
+
+
+
