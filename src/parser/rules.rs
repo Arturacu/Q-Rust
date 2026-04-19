@@ -1,15 +1,16 @@
-use crate::ir::ast::ParsedStatement;
+//! Nom grammar rules for the OpenQASM 2.0 parser.
+
+use crate::ir::ast::{Expr, ParsedStatement};
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_while, take_while1},
     character::complete::{alpha1, alphanumeric1, char, digit1, space0, space1},
     combinator::{map, map_res, opt, recognize, value},
     multi::{many0, separated_list0},
+    number::complete::recognize_float,
     sequence::{delimited, pair, tuple},
     IResult,
 };
-
-// --- Helpers ---
 
 fn identifier(input: &str) -> IResult<&str, String> {
     map(
@@ -17,25 +18,21 @@ fn identifier(input: &str) -> IResult<&str, String> {
             alt((alpha1, tag("_"))),
             many0(alt((alphanumeric1, tag("_")))),
         )),
-        |s: &str| s.to_string(),
+        str::to_string,
     )(input)
 }
 
 fn usize_parser(input: &str) -> IResult<&str, usize> {
-    map_res(digit1, |s: &str| s.parse::<usize>())(input)
+    map_res(digit1, str::parse::<usize>)(input)
 }
 
-use nom::number::complete::recognize_float;
-
 fn parse_f64(input: &str) -> IResult<&str, f64> {
-    map_res(recognize_float, |s: &str| s.parse::<f64>())(input)
+    map_res(recognize_float, str::parse::<f64>)(input)
 }
 
 pub fn comment(input: &str) -> IResult<&str, ()> {
     value((), pair(tag("//"), take_while(|c| c != '\n')))(input)
 }
-
-// --- QASM Parsers ---
 
 pub fn openqasm_version(input: &str) -> IResult<&str, String> {
     map(
@@ -104,8 +101,6 @@ fn qubit_ref(input: &str) -> IResult<&str, (String, Option<usize>)> {
     )(input)
 }
 
-use crate::ir::ast::Expr;
-
 fn term(input: &str) -> IResult<&str, Expr> {
     let (input, init) = factor(input)?;
     let (input, res) = many0(pair(
@@ -128,13 +123,10 @@ fn factor(input: &str) -> IResult<&str, Expr> {
             pair(delimited(space0, char('-'), space0), factor),
             |(_, f)| Expr::Sub(Box::new(Expr::Float(0.0)), Box::new(f)),
         ),
-        map(
-            delimited(
-                tuple((space0, char('('), space0)),
-                expr,
-                tuple((space0, char(')'), space0)),
-            ),
-            |e| e,
+        delimited(
+            tuple((space0, char('('), space0)),
+            expr,
+            tuple((space0, char(')'), space0)),
         ),
         map(parse_f64, Expr::Float),
         map(identifier, Expr::Var),
@@ -204,12 +196,40 @@ pub fn barrier(input: &str) -> IResult<&str, ParsedStatement> {
     map(
         tuple((
             tag("barrier"),
-            space1,
+            space0,
             separated_list0(tuple((space0, char(','), space0)), qubit_ref),
             space0,
             tag(";"),
         )),
         |(_, _, qubits, _, _)| ParsedStatement::Barrier(qubits),
+    )(input)
+}
+
+/// Parses `reset q[i];` or register-wide `reset q;`, producing a synthetic
+/// gate-call statement (the upper parser will expand it into
+/// `Operation::Reset` by intercepting the "reset" name).
+///
+/// We re-use `ParsedStatement::Gate` with the special name `"__reset__"` —
+/// but cleaner is to introduce a dedicated parser that the top-level parser
+/// dispatches on. Here we emit a `Gate("reset", ...)` call, which the
+/// existing parser machinery turns into an unknown gate error. To avoid
+/// churning the AST, we instead expose a dedicated helper.
+pub fn reset(input: &str) -> IResult<&str, ParsedStatement> {
+    map(
+        tuple((
+            tag("reset"),
+            space1,
+            separated_list0(tuple((space0, char(','), space0)), qubit_ref),
+            space0,
+            tag(";"),
+        )),
+        |(_, _, qubits, _, _)| {
+            // Represent reset as a Gate with a sentinel name. The parser
+            // `handle_statement` must be aware of this — but to avoid
+            // touching the AST enum shape, we piggyback on Gate with a
+            // well-known sentinel identifier.
+            ParsedStatement::Gate("__reset__".to_string(), qubits, Vec::new())
+        },
     )(input)
 }
 
@@ -228,7 +248,7 @@ pub fn if_stmt(input: &str) -> IResult<&str, ParsedStatement> {
             space0,
             char(')'),
             space0,
-            alt((measure, gate_call, barrier)), // Allowed ops in if
+            alt((measure, reset, gate_call, barrier)),
         )),
         |(_, _, _, _, creg, _, _, _, val, _, _, _, op)| {
             ParsedStatement::If(creg, val, Box::new(op))
@@ -240,8 +260,6 @@ fn gate_body_stmt(input: &str) -> IResult<&str, ParsedStatement> {
     alt((barrier, gate_call))(input)
 }
 
-// TODO: Support multi-qubit custom gate definitions (e.g., `gate rxx(theta) a, b { ... }`)
-//       Currently only single-qubit custom gates are parsed correctly.
 pub fn gate_def(input: &str) -> IResult<&str, ParsedStatement> {
     let (input, _) = tag("gate")(input)?;
     let (input, _) = space1(input)?;
@@ -251,7 +269,6 @@ pub fn gate_def(input: &str) -> IResult<&str, ParsedStatement> {
         separated_list0(tuple((space0, char(','), space0)), identifier),
         tuple((space0, char(')'), space0)),
     ))(input)?;
-
     let (input, _) = space0(input)?;
     let (input, qubits) = separated_list0(tuple((space0, char(','), space0)), identifier)(input)?;
     let (input, _) = space0(input)?;

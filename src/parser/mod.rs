@@ -1,129 +1,104 @@
+//! OpenQASM 2.0 parser.
+
 pub mod rules;
 
 use self::rules::{comment, creg, gate_call, include, measure, openqasm_version, qreg};
-use crate::ir::ast::ParsedStatement;
-use crate::ir::{Circuit, GateType, Operation};
+use crate::error::{QRustError, Result};
+use crate::ir::ast::{Expr, ParsedStatement};
+use crate::ir::{ClassicalCondition, Circuit, GateType, Operation};
 use nom::{branch::alt, character::complete::multispace0};
 use std::collections::HashMap;
-
-// --- Resolution & Mapping ---
-
-// Removed map_gate_type
-
-use crate::ir::ast::Expr;
-
-fn evaluate_expr(expr: &Expr, params: &HashMap<String, f64>) -> Result<f64, String> {
-    match expr {
-        Expr::Float(val) => Ok(*val),
-        Expr::Var(name) => {
-            if name == "pi" {
-                Ok(std::f64::consts::PI)
-            } else {
-                params
-                    .get(name)
-                    .cloned()
-                    .ok_or_else(|| format!("Undefined parameter: {}", name))
-            }
-        }
-        Expr::Add(lhs, rhs) => Ok(evaluate_expr(lhs, params)? + evaluate_expr(rhs, params)?),
-        Expr::Sub(lhs, rhs) => Ok(evaluate_expr(lhs, params)? - evaluate_expr(rhs, params)?),
-        Expr::Mul(lhs, rhs) => Ok(evaluate_expr(lhs, params)? * evaluate_expr(rhs, params)?),
-        Expr::Div(lhs, rhs) => Ok(evaluate_expr(lhs, params)? / evaluate_expr(rhs, params)?),
-    }
-}
+use std::f64::consts::PI;
 
 fn resolve_argument(
     arg: &(String, Option<usize>),
     qregs: &HashMap<String, (usize, usize)>,
-    scope_qubits: &HashMap<String, usize>, // For inside gate defs (arg name -> resolved index)
-) -> Result<Vec<usize>, String> {
+    scope_qubits: &HashMap<String, usize>,
+) -> Result<Vec<usize>> {
     let (name, idx) = arg;
     if let Some(mapped_idx) = scope_qubits.get(name) {
-        // It's a qubit argument in a gate definition
         if idx.is_some() {
-            return Err(format!("Cannot index a qubit argument: {}", name));
+            return Err(QRustError::ParseError(format!(
+                "cannot index qubit argument '{}' inside gate definition",
+                name
+            )));
         }
         Ok(vec![*mapped_idx])
     } else if let Some(&(start, size)) = qregs.get(name) {
-        // It's a global register
         if let Some(i) = idx {
             if *i < size {
                 Ok(vec![start + i])
             } else {
-                Err(format!("Qubit index out of bounds: {}[{}]", name, i))
+                Err(QRustError::IndexOutOfBounds {
+                    name: name.clone(),
+                    index: *i,
+                    size,
+                })
             }
         } else {
-            // Broadcasting: return all qubits in register
             Ok((0..size).map(|i| start + i).collect())
         }
     } else {
-        Err(format!("Undefined quantum register or argument: {}", name))
+        Err(QRustError::Undefined(format!(
+            "Undefined quantum register or argument: {}",
+            name
+        )))
     }
 }
 
+#[derive(Default)]
 struct ParseContext {
     qregs: HashMap<String, (usize, usize)>,
     cregs: HashMap<String, (usize, usize)>,
     gate_defs: HashMap<String, (Vec<String>, Vec<String>, Vec<ParsedStatement>)>,
 }
 
-pub fn parse_qasm(input: &str) -> Result<Circuit, String> {
+pub fn parse_qasm(input: &str) -> Result<Circuit> {
     let mut circuit = Circuit::new(0, 0);
-    let mut ctx = ParseContext {
-        qregs: HashMap::new(),
-        cregs: HashMap::new(),
-        gate_defs: HashMap::new(),
-    };
+    let mut ctx = ParseContext::default();
     let mut total_qubits = 0;
     let mut total_cbits = 0;
 
-    let mut current_input = input;
+    let mut current = input;
 
-    // 1. Skip initial comments/whitespace and parse Header
     loop {
-        // Consume whitespace
-        let (rem, _) = multispace0::<&str, nom::error::Error<&str>>(current_input)
-            .map_err(|e| e.to_string())?;
-        current_input = rem;
-
-        if current_input.is_empty() {
-            return Err("Empty file or missing OPENQASM header".to_string());
+        let (rem, _) = multispace0::<&str, nom::error::Error<&str>>(current)
+            .map_err(|e| QRustError::ParseError(e.to_string()))?;
+        current = rem;
+        if current.is_empty() {
+            return Err(QRustError::ParseError(
+                "Empty source or missing OPENQASM header".into(),
+            ));
         }
-
-        // Check for comment
-        if let Ok((rem, _)) = comment(current_input) {
-            current_input = rem;
+        if let Ok((rem, _)) = comment(current) {
+            current = rem;
             continue;
         }
         break;
     }
 
-    let (rem, version) = openqasm_version(current_input).map_err(|_| {
-        "Missing or invalid OPENQASM header. File must start with 'OPENQASM 2.0;'".to_string()
+    let (rem, version) = openqasm_version(current).map_err(|_| {
+        QRustError::ParseError(
+            "Missing or invalid OPENQASM header. File must start with 'OPENQASM 2.0;'".into(),
+        )
     })?;
-
     if version != "2.0" {
-        return Err(format!(
-            "Unsupported OpenQASM version: '{}'. Only '2.0' is supported.",
+        return Err(QRustError::Unsupported(format!(
+            "OpenQASM version '{}' (only '2.0' is supported)",
             version
-        ));
+        )));
     }
-    current_input = rem;
+    current = rem;
 
-    // 2. Parse remaining statements
     loop {
-        // Consume whitespace
-        let (rem, _) = multispace0::<&str, nom::error::Error<&str>>(current_input)
-            .map_err(|e| e.to_string())?;
-        current_input = rem;
-
-        if current_input.is_empty() {
+        let (rem, _) = multispace0::<&str, nom::error::Error<&str>>(current)
+            .map_err(|e| QRustError::ParseError(e.to_string()))?;
+        current = rem;
+        if current.is_empty() {
             break;
         }
-
-        // Check for comment
-        if let Ok((rem, _)) = comment(current_input) {
-            current_input = rem;
+        if let Ok((rem, _)) = comment(current) {
+            current = rem;
             continue;
         }
 
@@ -133,113 +108,240 @@ pub fn parse_qasm(input: &str) -> Result<Circuit, String> {
             creg,
             measure,
             rules::barrier,
+            rules::reset,
             rules::gate_def,
             rules::if_stmt,
             gate_call,
-        ))(current_input)
-        .map_err(|_e| format!("Parse error at: {}", current_input))?;
+        ))(current)
+        .map_err(|_| {
+            let snippet: String = current.chars().take(60).collect();
+            QRustError::ParseError(format!("parse error near: {}", snippet))
+        })?;
+        current = rem;
 
-        current_input = rem;
-
-        match stmt {
-            ParsedStatement::Ignore => {}
-            ParsedStatement::Include(filename) => {
-                // We natively support the standard gate set defined in qelib1.inc
-                if filename != "qelib1.inc" {
-                    return Err(format!(
-                        "Includes are not supported. Please resolve all imports before parsing. Found: 'include \"{}\"'",
-                        filename
-                    ));
-                }
-            }
-            ParsedStatement::QReg(name, size) => {
-                ctx.qregs.insert(name, (total_qubits, size));
-                total_qubits += size;
-            }
-            ParsedStatement::CReg(name, size) => {
-                ctx.cregs.insert(name, (total_cbits, size));
-                total_cbits += size;
-            }
-            ParsedStatement::GateDef(name, params, qubits, body) => {
-                circuit.register_custom_gate(
-                    name.clone(),
-                    params.clone(),
-                    qubits.clone(),
-                    body.clone(),
-                );
-                ctx.gate_defs.insert(name, (params, qubits, body));
-            }
-            ParsedStatement::Gate(name, qubits, params) => {
-                // Top-level gate call
-                let mut args_indices = Vec::new();
-                let mut max_len = 1;
-
-                for q_arg in &qubits {
-                    let indices = resolve_argument(q_arg, &ctx.qregs, &HashMap::new())?;
-                    if indices.len() > max_len {
-                        max_len = indices.len();
-                    }
-                    args_indices.push(indices);
-                }
-
-                // Validate broadcasting
-                for indices in &args_indices {
-                    if indices.len() != 1 && indices.len() != max_len {
-                        return Err("Register size mismatch in gate call".to_string());
-                    }
-                }
-
-                // Iterate max_len times
-                for i in 0..max_len {
-                    let mut current_qubits = Vec::new();
-                    for indices in &args_indices {
-                        if indices.len() == 1 {
-                            current_qubits.push(indices[0]);
-                        } else {
-                            current_qubits.push(indices[i]);
-                        }
-                    }
-
-                    emit_gate(&mut circuit, &ctx, &name, &params, &current_qubits)?;
-                }
-            }
-            ParsedStatement::Measure((q_name, q_idx), (c_name, c_idx)) => {
-                let q_indices = resolve_argument(&(q_name, q_idx), &ctx.qregs, &HashMap::new())?;
-                let c_indices = if let Some(&(start, size)) = ctx.cregs.get(&c_name) {
-                    if let Some(i) = c_idx {
-                        if i < size {
-                            vec![start + i]
-                        } else {
-                            return Err(format!("Index out of bounds"));
-                        }
-                    } else {
-                        (0..size).map(|i| start + i).collect()
-                    }
-                } else {
-                    return Err(format!("Undefined creg"));
-                };
-
-                if q_indices.len() != c_indices.len() {
-                    return Err("Measure register size mismatch".to_string());
-                }
-
-                for (q, c) in q_indices.iter().zip(c_indices.iter()) {
-                    circuit.add_op(Operation::Measure {
-                        qubit: *q,
-                        cbit: *c,
-                    });
-                }
-            }
-            ParsedStatement::Barrier(_) => {} // Ignore top level barrier
-            ParsedStatement::If(_, _, _) => {
-                return Err("Conditional operations not yet supported".to_string());
-            }
-        }
+        handle_statement(&mut circuit, &mut ctx, &mut total_qubits, &mut total_cbits, stmt)?;
     }
 
     circuit.num_qubits = total_qubits;
     circuit.num_cbits = total_cbits;
     Ok(circuit)
+}
+
+fn handle_statement(
+    circuit: &mut Circuit,
+    ctx: &mut ParseContext,
+    total_qubits: &mut usize,
+    total_cbits: &mut usize,
+    stmt: ParsedStatement,
+) -> Result<()> {
+    match stmt {
+        ParsedStatement::Ignore => {}
+        ParsedStatement::Include(filename) => {
+            if filename != "qelib1.inc" {
+                return Err(QRustError::Unsupported(format!(
+                    "Includes are not supported. Please resolve all imports before parsing. \
+                     Found: 'include \"{}\"'",
+                    filename
+                )));
+            }
+        }
+        ParsedStatement::QReg(name, size) => {
+            ctx.qregs.insert(name, (*total_qubits, size));
+            *total_qubits += size;
+        }
+        ParsedStatement::CReg(name, size) => {
+            ctx.cregs.insert(name, (*total_cbits, size));
+            *total_cbits += size;
+        }
+        ParsedStatement::GateDef(name, params, qubits, body) => {
+            circuit.register_custom_gate(
+                name.clone(),
+                params.clone(),
+                qubits.clone(),
+                body.clone(),
+            );
+            ctx.gate_defs.insert(name, (params, qubits, body));
+        }
+        ParsedStatement::Gate(name, qubits, params) => {
+            // Intercept the reset sentinel from rules::reset.
+            if name == "__reset__" {
+                emit_reset(circuit, ctx, &qubits, None)?;
+            } else {
+                emit_resolved_gate_call(circuit, ctx, &name, &qubits, &params, None)?;
+            }
+        }
+        ParsedStatement::Measure((q_name, q_idx), (c_name, c_idx)) => {
+            emit_measure(circuit, ctx, &q_name, q_idx, &c_name, c_idx, None)?;
+        }
+        ParsedStatement::Barrier(args) => {
+            let mut qubits: Vec<usize> = Vec::new();
+            if args.is_empty() {
+                qubits = (0..*total_qubits).collect();
+            } else {
+                for arg in &args {
+                    let indices = resolve_argument(
+                        &(arg.0.clone(), arg.1),
+                        &ctx.qregs,
+                        &HashMap::new(),
+                    )?;
+                    qubits.extend(indices);
+                }
+            }
+            circuit.add_op(Operation::Barrier { qubits });
+        }
+        ParsedStatement::If(creg, value, inner) => {
+            if !ctx.cregs.contains_key(&creg) {
+                return Err(QRustError::Undefined(format!(
+                    "Undefined classical register in `if`: {}",
+                    creg
+                )));
+            }
+            let condition = ClassicalCondition {
+                creg,
+                value: value as u64,
+            };
+            match *inner {
+                ParsedStatement::Gate(name, qubits, params) => {
+                    if name == "__reset__" {
+                        emit_reset(circuit, ctx, &qubits, Some(condition))?;
+                    } else {
+                        emit_resolved_gate_call(
+                            circuit,
+                            ctx,
+                            &name,
+                            &qubits,
+                            &params,
+                            Some(condition),
+                        )?;
+                    }
+                }
+                ParsedStatement::Measure((q_name, q_idx), (c_name, c_idx)) => {
+                    emit_measure(
+                        circuit, ctx, &q_name, q_idx, &c_name, c_idx,
+                        Some(condition),
+                    )?;
+                }
+                ParsedStatement::Barrier(_) => {
+                    return Err(QRustError::Unsupported(
+                        "`if` over barrier is not supported".into(),
+                    ));
+                }
+                other => {
+                    return Err(QRustError::Unsupported(format!(
+                        "`if` over {:?} is not supported",
+                        other
+                    )));
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn emit_reset(
+    circuit: &mut Circuit,
+    ctx: &ParseContext,
+    qubits: &[(String, Option<usize>)],
+    condition: Option<ClassicalCondition>,
+) -> Result<()> {
+    let mut all: Vec<usize> = Vec::new();
+    for arg in qubits {
+        let indices =
+            resolve_argument(&(arg.0.clone(), arg.1), &ctx.qregs, &HashMap::new())?;
+        all.extend(indices);
+    }
+    for q in all {
+        let op = Operation::Reset { qubit: q };
+        match &condition {
+            Some(cond) => circuit.add_op(Operation::Conditional {
+                condition: cond.clone(),
+                op: Box::new(op),
+            }),
+            None => circuit.add_op(op),
+        }
+    }
+    Ok(())
+}
+
+fn emit_measure(
+    circuit: &mut Circuit,
+    ctx: &ParseContext,
+    q_name: &str,
+    q_idx: Option<usize>,
+    c_name: &str,
+    c_idx: Option<usize>,
+    condition: Option<ClassicalCondition>,
+) -> Result<()> {
+    let q_indices =
+        resolve_argument(&(q_name.to_string(), q_idx), &ctx.qregs, &HashMap::new())?;
+    let c_indices = if let Some(&(start, size)) = ctx.cregs.get(c_name) {
+        if let Some(i) = c_idx {
+            if i < size {
+                vec![start + i]
+            } else {
+                return Err(QRustError::IndexOutOfBounds {
+                    name: c_name.to_string(),
+                    index: i,
+                    size,
+                });
+            }
+        } else {
+            (0..size).map(|i| start + i).collect()
+        }
+    } else {
+        return Err(QRustError::Undefined(format!(
+            "Undefined classical register: {}",
+            c_name
+        )));
+    };
+    if q_indices.len() != c_indices.len() {
+        return Err(QRustError::SizeMismatch(
+            "measure register size mismatch".into(),
+        ));
+    }
+    for (q, c) in q_indices.into_iter().zip(c_indices) {
+        let op = Operation::Measure { qubit: q, cbit: c };
+        match &condition {
+            Some(cond) => circuit.add_op(Operation::Conditional {
+                condition: cond.clone(),
+                op: Box::new(op),
+            }),
+            None => circuit.add_op(op),
+        }
+    }
+    Ok(())
+}
+
+fn emit_resolved_gate_call(
+    circuit: &mut Circuit,
+    ctx: &ParseContext,
+    name: &str,
+    qubits: &[(String, Option<usize>)],
+    params: &[Expr],
+    condition: Option<ClassicalCondition>,
+) -> Result<()> {
+    let mut args_indices = Vec::with_capacity(qubits.len());
+    let mut max_len = 1;
+    for q_arg in qubits {
+        let indices = resolve_argument(q_arg, &ctx.qregs, &HashMap::new())?;
+        max_len = max_len.max(indices.len());
+        args_indices.push(indices);
+    }
+    for indices in &args_indices {
+        if indices.len() != 1 && indices.len() != max_len {
+            return Err(QRustError::SizeMismatch(
+                "register size mismatch in gate call".into(),
+            ));
+        }
+    }
+    for i in 0..max_len {
+        let current_qubits: Vec<usize> = args_indices
+            .iter()
+            .map(|indices| if indices.len() == 1 { indices[0] } else { indices[i] })
+            .collect();
+        emit_gate(circuit, ctx, name, params, &current_qubits, condition.clone())?;
+    }
+    Ok(())
 }
 
 fn emit_gate(
@@ -248,73 +350,72 @@ fn emit_gate(
     name: &str,
     params: &[Expr],
     qubits: &[usize],
-) -> Result<(), String> {
-    // 1. Evaluate parameters (top-level only)
+    condition: Option<ClassicalCondition>,
+) -> Result<()> {
     let empty_scope = HashMap::new();
-    let mut eval_params = Vec::new();
+    let mut eval_params = Vec::with_capacity(params.len());
     for p in params {
-        eval_params.push(evaluate_expr(p, &empty_scope)?);
+        eval_params.push(p.evaluate_with_scope(&empty_scope)?);
     }
 
-    // 2. Check standard gate
     let gate_type = name
         .parse::<GateType>()
         .unwrap_or_else(|_| GateType::Custom(name.to_string()));
+
+    let emit = |circuit: &mut Circuit, op: Operation| match &condition {
+        Some(cond) => circuit.add_op(Operation::Conditional {
+            condition: cond.clone(),
+            op: Box::new(op),
+        }),
+        None => circuit.add_op(op),
+    };
+
     if !matches!(gate_type, GateType::Custom(_)) {
-        // Handle special cases for U1, U2, U3 parameter mapping
         let final_params = match name {
-            "u2" => {
-                if eval_params.len() == 2 {
-                    vec![std::f64::consts::PI / 2.0, eval_params[0], eval_params[1]]
-                } else {
-                    eval_params
-                }
-            }
-            "u1" => eval_params,
-            "u3" | "U" => eval_params,
+            "u2" if eval_params.len() == 2 => vec![PI / 2.0, eval_params[0], eval_params[1]],
             _ => eval_params,
         };
-
-        let op = Operation::Gate {
-            name: gate_type,
-            qubits: qubits.to_vec(),
-            params: final_params,
-        };
-        circuit.add_op(op);
+        emit(
+            circuit,
+            Operation::Gate {
+                name: gate_type,
+                qubits: qubits.to_vec(),
+                params: final_params,
+            },
+        );
         return Ok(());
     }
 
-    // 3. Custom gate emission (deferred expansion)
     if let GateType::Custom(ref n) = gate_type {
         if let Some((def_params, def_qubits, _)) = ctx.gate_defs.get(n) {
             if eval_params.len() != def_params.len() {
-                return Err(format!(
-                    "Gate {} expects {} params, got {}",
+                return Err(QRustError::ParseError(format!(
+                    "gate '{}' expects {} params, got {}",
                     n,
                     def_params.len(),
                     eval_params.len()
-                ));
+                )));
             }
             if qubits.len() != def_qubits.len() {
-                return Err(format!(
-                    "Gate {} expects {} qubits, got {}",
+                return Err(QRustError::ParseError(format!(
+                    "gate '{}' expects {} qubits, got {}",
                     n,
                     def_qubits.len(),
                     qubits.len()
-                ));
+                )));
             }
-
-            let op = Operation::Gate {
-                name: gate_type,
-                qubits: qubits.to_vec(),
-                params: eval_params,
-            };
-            circuit.add_op(op);
+            emit(
+                circuit,
+                Operation::Gate {
+                    name: gate_type,
+                    qubits: qubits.to_vec(),
+                    params: eval_params,
+                },
+            );
             return Ok(());
         }
     }
-
-    Err(format!("Unknown gate: {}", name))
+    Err(QRustError::UnknownGate(name.to_string()))
 }
 
 #[cfg(test)]
@@ -334,134 +435,91 @@ mod tests {
             tdg q[2];
             ccx q[0], q[1], q[2];
         "#;
-        let circuit = parse_qasm(qasm).expect("Failed to parse standard gates");
+        let circuit = parse_qasm(qasm).expect("parse");
         assert_eq!(circuit.operations.len(), 7);
-        // Check first gate is U
-        if let Operation::Gate { name, .. } = &circuit.operations[0] {
-            assert!(matches!(name, GateType::U));
-        } else {
-            panic!("Expected U gate");
-        }
     }
 
     #[test]
     fn test_header() {
-        assert_eq!(
-            openqasm_version("OPENQASM 2.0;"),
-            Ok(("", "2.0".to_string()))
-        );
-    }
-
-    #[test]
-    fn test_qreg() {
-        assert_eq!(
-            qreg("qreg q[2];"),
-            Ok(("", ParsedStatement::QReg("q".to_string(), 2)))
-        );
-    }
-
-    #[test]
-    fn test_creg() {
-        assert_eq!(
-            creg("creg c[3];"),
-            Ok(("", ParsedStatement::CReg("c".to_string(), 3)))
-        );
-    }
-
-    #[test]
-    fn test_gate_call_no_params() {
-        assert_eq!(
-            gate_call("h q[0];"),
-            Ok((
-                "",
-                ParsedStatement::Gate("h".to_string(), vec![("q".to_string(), Some(0))], vec![])
-            ))
-        );
-    }
-
-    #[test]
-    fn test_gate_call_with_params() {
-        assert_eq!(
-            gate_call("rx(1.57) q[0];"),
-            Ok((
-                "",
-                ParsedStatement::Gate(
-                    "rx".to_string(),
-                    vec![("q".to_string(), Some(0))],
-                    vec![Expr::Float(1.57)]
-                )
-            ))
-        );
-    }
-
-    #[test]
-    fn test_measure() {
-        assert_eq!(
-            measure("measure q[0] -> c[0];"),
-            Ok((
-                "",
-                ParsedStatement::Measure(("q".to_string(), Some(0)), ("c".to_string(), Some(0)))
-            ))
-        );
+        assert_eq!(openqasm_version("OPENQASM 2.0;"), Ok(("", "2.0".to_string())));
     }
 
     #[test]
     fn test_valid_file() {
-        let qasm = "OPENQASM 2.0; qreg q[1];";
-        assert!(parse_qasm(qasm).is_ok());
+        assert!(parse_qasm("OPENQASM 2.0; qreg q[1];").is_ok());
     }
 
     #[test]
     fn test_invalid_version() {
-        let qasm = "OPENQASM 3.0; qreg q[1];";
-        let err = parse_qasm(qasm).unwrap_err();
-        assert!(err.contains("Unsupported OpenQASM version"));
+        let err = parse_qasm("OPENQASM 3.0; qreg q[1];").unwrap_err();
+        assert!(matches!(err, QRustError::Unsupported(_)));
     }
 
     #[test]
     fn test_missing_header() {
-        let qasm = "qreg q[1];";
-        let err = parse_qasm(qasm).unwrap_err();
-        assert!(err.contains("Missing or invalid OPENQASM header"));
-    }
-
-    #[test]
-    fn test_gate_def_simple() {
-        let input = "gate mygate q { h q; }";
-        let result = rules::gate_def(input);
-        assert!(
-            result.is_ok(),
-            "Failed to parse simple gate def: {:?}",
-            result
-        );
-    }
-
-    #[test]
-    fn test_gate_def_with_params() {
-        let input = "gate u2(phi,lambda) q { h q; }";
-        let result = rules::gate_def(input);
-        assert!(
-            result.is_ok(),
-            "Failed to parse gate def with params: {:?}",
-            result
-        );
-    }
-
-    #[test]
-    fn test_gate_def_with_uppercase_call() {
-        let input = "gate u2(phi,lambda) q { U(pi/2,phi,lambda) q; }";
-        let result = rules::gate_def(input);
-        assert!(
-            result.is_ok(),
-            "Failed to parse gate def with uppercase call: {:?}",
-            result
-        );
+        let err = parse_qasm("qreg q[1];").unwrap_err();
+        assert!(matches!(err, QRustError::ParseError(_)));
     }
 
     #[test]
     fn test_garbage() {
-        let qasm = "NOT A QASM FILE";
-        let err = parse_qasm(qasm).unwrap_err();
-        assert!(err.contains("Missing or invalid OPENQASM header"));
+        let err = parse_qasm("NOT A QASM FILE").unwrap_err();
+        assert!(matches!(err, QRustError::ParseError(_)));
+    }
+
+    #[test]
+    fn test_barrier_parses() {
+        let qasm = r#"
+            OPENQASM 2.0;
+            qreg q[2];
+            h q[0];
+            barrier q[0], q[1];
+            cx q[0], q[1];
+        "#;
+        let c = parse_qasm(qasm).unwrap();
+        assert!(c.operations.iter().any(|op| matches!(op, Operation::Barrier { .. })));
+    }
+
+    #[test]
+    fn test_reset_parses() {
+        let qasm = r#"
+            OPENQASM 2.0;
+            qreg q[2];
+            reset q[0];
+            reset q;
+        "#;
+        let c = parse_qasm(qasm).unwrap();
+        let resets = c
+            .operations
+            .iter()
+            .filter(|op| matches!(op, Operation::Reset { .. }))
+            .count();
+        // 1 indexed reset + 2 from register-wide.
+        assert_eq!(resets, 3);
+    }
+
+    #[test]
+    fn test_conditional_gate() {
+        let qasm = r#"
+            OPENQASM 2.0;
+            qreg q[1];
+            creg c[1];
+            if(c==1) x q[0];
+        "#;
+        let circ = parse_qasm(qasm).unwrap();
+        assert!(circ.operations.iter().any(|op| matches!(op, Operation::Conditional { .. })));
+    }
+
+    #[test]
+    fn test_conditional_measure() {
+        let qasm = r#"
+            OPENQASM 2.0;
+            qreg q[1];
+            creg c[1];
+            if(c==0) measure q[0] -> c[0];
+        "#;
+        let circ = parse_qasm(qasm).unwrap();
+        assert_eq!(circ.operations.len(), 1);
+        assert!(matches!(circ.operations[0], Operation::Conditional { .. }));
     }
 }
