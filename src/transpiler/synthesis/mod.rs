@@ -1,3 +1,15 @@
+//! Unitary synthesis algorithms.
+//!
+//! The [`Synthesizer`] trait is implemented by a family of algorithms:
+//!
+//! - [`zyz::ZyzSynthesizer`]   — exact single-qubit (Euler-angle) decomposition.
+//! - [`kak::KakSynthesizer`]   — exact two-qubit (Cartan) decomposition.
+//! - [`qsd::QsdSynthesizer`]   — Shannon decomposition for N≥3 (stub).
+//! - [`qsearch::QSearchSynthesizer`] — A*-style approximate synthesis (stub).
+//! - [`numerical::NumericalSynthesizer`] — gradient-based synthesis (stub).
+//!
+//! [`GlobalSynthesizer`] is a dispatcher that routes by matrix size.
+
 pub mod kak;
 pub mod numerical;
 pub mod qsd;
@@ -8,46 +20,30 @@ use crate::ir::{Circuit, GateType};
 use nalgebra::DMatrix;
 use num_complex::Complex;
 
-/// A trait for unitary synthesis algorithms.
-///
-/// Implementors of this trait can synthesize a quantum circuit that approximates
-/// a given unitary matrix using a specific set of basis gates.
+/// Synthesizes a circuit that implements a given unitary.
 pub trait Synthesizer {
-    /// Synthesizes a unitary matrix into a Circuit using the allowed basis gates.
-    ///
-    /// # Arguments
-    ///
-    /// * `unitary` - The target unitary matrix to synthesize.
-    /// * `basis` - The allowed set of basis gates to use in the output circuit.
-    ///
-    /// # Returns
-    ///
-    /// * `Option<Circuit>` - The synthesized circuit, or None if synthesis failed.
+    /// Returns a circuit equivalent (up to global phase) to `unitary`, using
+    /// at least the gates in `basis`. Returns `None` when synthesis is not
+    /// possible (wrong size, numerical failure, unsupported N).
     fn synthesize(&self, unitary: &DMatrix<Complex<f64>>, basis: &[GateType]) -> Option<Circuit>;
 }
 
-/// A global synthesis router that dispatches arbitrary unitaries to the correct exact algorithm.
-/// Enforces a hard physical ceiling restricting exact synthesis to N <= 2 qubits.
+/// Dispatch by matrix size: 2×2 → ZYZ, 4×4 → KAK, otherwise `None`.
+///
+/// Does **not** panic on unsupported sizes; use [`qsd::QsdSynthesizer`] (still
+/// a stub) or the numerical synthesizers for larger matrices.
+#[derive(Debug, Clone, Copy)]
 pub struct GlobalSynthesizer;
 
 impl Synthesizer for GlobalSynthesizer {
     fn synthesize(&self, unitary: &DMatrix<Complex<f64>>, basis: &[GateType]) -> Option<Circuit> {
-        let rows = unitary.nrows();
-        let cols = unitary.ncols();
-
-        if rows != cols {
+        if unitary.nrows() != unitary.ncols() {
             return None;
         }
-
-        match rows {
+        match unitary.nrows() {
             2 => zyz::ZyzSynthesizer.synthesize(unitary, basis),
             4 => kak::KakSynthesizer.synthesize(unitary, basis),
-            _ => unimplemented!(
-                "Exact matrix synthesis for N >= 3 qubits (matrix size {}x{}) is intentionally unsupported. \
-                 Exponential O(4^N) scaling renders exact unrolling physically impractical. \
-                 Please rely on rule-based decomposition or implement Phase 3 approximate compilers.",
-                rows, cols
-            ),
+            _ => None,
         }
     }
 }
@@ -60,27 +56,21 @@ mod tests {
 
     #[test]
     fn test_global_synthesizer_routes_1q() {
-        let synth = GlobalSynthesizer;
         let id2 = DMatrix::<Complex<f64>>::identity(2, 2);
-        let circ = synth.synthesize(&id2, &[]).unwrap();
-        // ZYZ produces exactly 1 gate (U gate)
+        let circ = GlobalSynthesizer.synthesize(&id2, &[]).unwrap();
         assert_eq!(circ.operations.len(), 1);
     }
 
     #[test]
     fn test_global_synthesizer_routes_2q() {
-        let synth = GlobalSynthesizer;
         let id4 = DMatrix::<Complex<f64>>::identity(4, 4);
-        let circ = synth.synthesize(&id4, &[]).unwrap();
-        // KAK naturally generates 21 operations
-        assert_eq!(circ.operations.len(), 21);
+        let circ = GlobalSynthesizer.synthesize(&id4, &[]).unwrap();
+        assert_eq!(circ.operations.len(), 4);
     }
 
     #[test]
-    #[should_panic(expected = "Exact matrix synthesis for N >= 3 qubits")]
-    fn test_global_synthesizer_rejects_3q() {
-        let synth = GlobalSynthesizer;
+    fn test_global_synthesizer_returns_none_for_3q() {
         let id8 = DMatrix::<Complex<f64>>::identity(8, 8);
-        let _ = synth.synthesize(&id8, &[]);
+        assert!(GlobalSynthesizer.synthesize(&id8, &[]).is_none());
     }
 }

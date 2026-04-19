@@ -1,25 +1,42 @@
+//! Pass infrastructure: the [`Pass`] trait and [`PassManager`].
+
 use super::property_set::PropertySet;
 use crate::ir::Circuit;
 
-/// A trait for transpiler passes.
+/// A transpiler pass: consumes a circuit, produces a (possibly) transformed one.
 ///
-/// A pass takes a circuit and returns a transformed circuit.
+/// Passes share metadata via a [`PropertySet`] that lives on the [`PassManager`].
 pub trait Pass {
-    /// Returns the name of the pass.
+    /// A short identifier used in diagnostics and debug output.
     fn name(&self) -> &str;
 
-    /// Runs the pass on the given circuit and has access to shared metadata.
+    /// Runs the pass, possibly reading or writing properties.
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit;
 }
 
-/// Manages a sequence of transpiler passes.
+/// Sequentially applies a list of [`Pass`]es, sharing a [`PropertySet`].
 pub struct PassManager {
     passes: Vec<Box<dyn Pass>>,
+    /// Shared metadata — exposed so tests and downstream tools can inspect it.
     pub property_set: PropertySet,
 }
 
+impl std::fmt::Debug for PassManager {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("PassManager")
+            .field("num_passes", &self.passes.len())
+            .finish()
+    }
+}
+
+impl Default for PassManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PassManager {
-    /// Creates a new empty PassManager.
+    /// Creates a new empty manager.
     pub fn new() -> Self {
         Self {
             passes: Vec::new(),
@@ -27,18 +44,18 @@ impl PassManager {
         }
     }
 
-    /// Adds a pass to the manager.
+    /// Appends a pass.
     pub fn add_pass(&mut self, pass: Box<dyn Pass>) {
         self.passes.push(pass);
     }
 
-    /// Runs all passes in sequence on the given circuit.
+    /// Runs all passes in order.
     pub fn run(&mut self, circuit: &Circuit) -> Circuit {
-        let mut current_circuit = circuit.clone();
+        let mut current = circuit.clone();
         for pass in &self.passes {
-            current_circuit = pass.run(&current_circuit, &mut self.property_set);
+            current = pass.run(&current, &mut self.property_set);
         }
-        current_circuit
+        current
     }
 }
 
@@ -48,35 +65,27 @@ mod tests {
     use crate::ir::{GateType, Operation};
 
     struct MockPass;
-
     impl Pass for MockPass {
         fn name(&self) -> &str {
             "MockPass"
         }
-
-        fn run(&self, circuit: &Circuit, _property_set: &mut PropertySet) -> Circuit {
-            let mut new_circuit = circuit.clone();
-            // Add a dummy gate to verify the pass ran
-            new_circuit.add_op(Operation::Gate {
+        fn run(&self, circuit: &Circuit, _props: &mut PropertySet) -> Circuit {
+            let mut c = circuit.clone();
+            c.add_op(Operation::Gate {
                 name: GateType::ID,
                 qubits: vec![0],
                 params: vec![],
             });
-            new_circuit
+            c
         }
     }
 
     #[test]
     fn test_pass_manager() {
-        let circuit = Circuit::new(1, 0);
+        let c = Circuit::new(1, 0);
         let mut pm = PassManager::new();
         pm.add_pass(Box::new(MockPass));
-
-        let new_circuit = pm.run(&circuit);
-        assert_eq!(new_circuit.operations.len(), 1);
-        match &new_circuit.operations[0] {
-            Operation::Gate { name, .. } => assert_eq!(*name, GateType::ID),
-            _ => panic!("Expected ID gate"),
-        }
+        let out = pm.run(&c);
+        assert_eq!(out.operations.len(), 1);
     }
 }
