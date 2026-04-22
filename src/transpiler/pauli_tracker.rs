@@ -100,8 +100,8 @@ impl Pass for PauliTrackerPass {
                         let ctrl = qubits[0];
                         let tgt = qubits[1];
 
-                        let (cx, cz) = frames.entry(ctrl).or_insert((false, false)).clone();
-                        let (tx, tz) = frames.entry(tgt).or_insert((false, false)).clone();
+                        let (cx, cz) = *frames.entry(ctrl).or_insert((false, false));
+                        let (tx, tz) = *frames.entry(tgt).or_insert((false, false));
 
                         let next_cx = cx;
                         let mut next_cz = cz;
@@ -124,8 +124,8 @@ impl Pass for PauliTrackerPass {
                     } else if qubits.len() == 2 && name == &GateType::SWAP {
                         let q1 = qubits[0];
                         let q2 = qubits[1];
-                        let f1 = frames.entry(q1).or_insert((false, false)).clone();
-                        let f2 = frames.entry(q2).or_insert((false, false)).clone();
+                        let f1 = *frames.entry(q1).or_insert((false, false));
+                        let f2 = *frames.entry(q2).or_insert((false, false));
                         frames.insert(q1, f2);
                         frames.insert(q2, f1);
 

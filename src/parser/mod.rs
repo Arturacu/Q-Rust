@@ -210,13 +210,13 @@ pub fn parse_qasm(input: &str) -> Result<Circuit, String> {
                         if i < size {
                             vec![start + i]
                         } else {
-                            return Err(format!("Index out of bounds"));
+                            return Err("Index out of bounds".to_string());
                         }
                     } else {
                         (0..size).map(|i| start + i).collect()
                     }
                 } else {
-                    return Err(format!("Undefined creg"));
+                    return Err("Undefined creg".to_string());
                 };
 
                 if q_indices.len() != c_indices.len() {

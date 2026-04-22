@@ -10,9 +10,9 @@
 use q_rust::backend::{Backend, BackendConfig};
 use q_rust::ir::{Circuit, GateType, Operation};
 use q_rust::simulator::{circuit_to_unitary, extract_logical_unitary, unitary_fidelity};
-use q_rust::transpiler::routing::{BeamSabrePass, Layout};
 use q_rust::transpiler::pass::Pass;
 use q_rust::transpiler::property_set::PropertySet;
+use q_rust::transpiler::routing::{BeamSabrePass, Layout};
 use q_rust::transpiler::{transpile, TranspilerConfig};
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -34,7 +34,10 @@ fn assert_all_adjacent(circuit: &Circuit, backend: &Backend) {
                 assert!(
                     backend.is_adjacent(qubits[0], qubits[1]),
                     "Gate #{} {:?} on qubits {:?} violates adjacency on backend '{}'",
-                    i, name, qubits, backend.name
+                    i,
+                    name,
+                    qubits,
+                    backend.name
                 );
             }
         }
@@ -43,14 +46,26 @@ fn assert_all_adjacent(circuit: &Circuit, backend: &Backend) {
 
 /// Count the number of SWAP gates in a circuit.
 fn count_swaps(circuit: &Circuit) -> usize {
-    circuit.operations.iter()
-        .filter(|op| matches!(op, Operation::Gate { name: GateType::SWAP, .. }))
+    circuit
+        .operations
+        .iter()
+        .filter(|op| {
+            matches!(
+                op,
+                Operation::Gate {
+                    name: GateType::SWAP,
+                    ..
+                }
+            )
+        })
         .count()
 }
 
 /// Count the number of 2-qubit gates (excluding SWAP) in a circuit.
 fn count_2q_gates(circuit: &Circuit) -> usize {
-    circuit.operations.iter()
+    circuit
+        .operations
+        .iter()
         .filter(|op| {
             if let Operation::Gate { name, qubits, .. } = op {
                 qubits.len() >= 2 && *name != GateType::SWAP
@@ -68,7 +83,12 @@ fn route(circuit: &Circuit, backend: &Backend, beam_width: usize, bidir: usize) 
 }
 
 /// Route a circuit and also return the resulting property set (which contains the final layout).
-fn route_with_props(circuit: &Circuit, backend: &Backend, beam_width: usize, bidir: usize) -> (Circuit, PropertySet) {
+fn route_with_props(
+    circuit: &Circuit,
+    backend: &Backend,
+    beam_width: usize,
+    bidir: usize,
+) -> (Circuit, PropertySet) {
     let pass = BeamSabrePass {
         backend: backend.clone(),
         beam_width,
@@ -101,16 +121,27 @@ fn build_circuit(num_qubits: usize, gates: &[(GateType, Vec<usize>, Vec<f64>)]) 
 fn test_layout_roundtrip_10_swaps() {
     let mut layout = Layout::trivial(8, 8);
     let swaps = vec![
-        (0,1),(3,7),(2,5),(6,4),(1,3),(0,7),(5,6),(4,2),(7,0),(3,1),
+        (0, 1),
+        (3, 7),
+        (2, 5),
+        (6, 4),
+        (1, 3),
+        (0, 7),
+        (5, 6),
+        (4, 2),
+        (7, 0),
+        (3, 1),
     ];
     for (a, b) in &swaps {
         layout.swap_physical(*a, *b);
         // invariant: l2p and p2l are consistent
         for l in 0..8 {
             let p = layout.l2p(l);
-            assert_eq!(layout.physical_to_logical[p], l,
+            assert_eq!(
+                layout.physical_to_logical[p], l,
                 "Inconsistent after swap({},{}): l2p[{}]={} but p2l[{}]={}",
-                a, b, l, p, p, layout.physical_to_logical[p]);
+                a, b, l, p, p, layout.physical_to_logical[p]
+            );
         }
     }
 }
@@ -123,10 +154,13 @@ fn test_layout_roundtrip_10_swaps() {
 
 #[test]
 fn test_bell_state_linear_3() {
-    let c = build_circuit(2, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-    ]);
+    let c = build_circuit(
+        2,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+        ],
+    );
     let b = Backend::linear(3);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -135,10 +169,13 @@ fn test_bell_state_linear_3() {
 
 #[test]
 fn test_bell_state_ibm_quito() {
-    let c = build_circuit(2, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-    ]);
+    let c = build_circuit(
+        2,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+        ],
+    );
     let b = load_backend("ibm_quito_5q.json");
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -148,11 +185,14 @@ fn test_bell_state_ibm_quito() {
 
 #[test]
 fn test_ghz3_linear_3() {
-    let c = build_circuit(3, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-    ]);
+    let c = build_circuit(
+        3,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+        ],
+    );
     let b = Backend::linear(3);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -161,12 +201,15 @@ fn test_ghz3_linear_3() {
 
 #[test]
 fn test_ghz4_linear_4() {
-    let c = build_circuit(4, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-        (GateType::CX, vec![2, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![2, 3], vec![]),
+        ],
+    );
     let b = Backend::linear(4);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -175,13 +218,16 @@ fn test_ghz4_linear_4() {
 
 #[test]
 fn test_ghz5_ibm_quito() {
-    let c = build_circuit(5, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-        (GateType::CX, vec![2, 3], vec![]),
-        (GateType::CX, vec![3, 4], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![2, 3], vec![]),
+            (GateType::CX, vec![3, 4], vec![]),
+        ],
+    );
     let b = load_backend("ibm_quito_5q.json");
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -190,13 +236,16 @@ fn test_ghz5_ibm_quito() {
 
 #[test]
 fn test_ghz5_ibm_nairobi() {
-    let c = build_circuit(5, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-        (GateType::CX, vec![2, 3], vec![]),
-        (GateType::CX, vec![3, 4], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![2, 3], vec![]),
+            (GateType::CX, vec![3, 4], vec![]),
+        ],
+    );
     let b = load_backend("ibm_nairobi_7q.json");
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -204,11 +253,14 @@ fn test_ghz5_ibm_nairobi() {
 
 #[test]
 fn test_ghz3_grid_2x2() {
-    let c = build_circuit(3, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-    ]);
+    let c = build_circuit(
+        3,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+        ],
+    );
     let b = Backend::grid(2, 2);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -220,12 +272,15 @@ fn test_ghz3_grid_2x2() {
 fn test_star_4q_grid_2x2() {
     // CX(0,1), CX(0,2), CX(0,3) — qubit 0 connects to everything
     // On grid(2,2), 0-3 diagonal is NOT adjacent
-    let c = build_circuit(4, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![0, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![0, 3], vec![]),
+        ],
+    );
     let b = Backend::grid(2, 2);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -234,13 +289,16 @@ fn test_star_4q_grid_2x2() {
 #[test]
 fn test_star_5q_ibm_quito() {
     // Hub qubit 0 connects to 1,2,3,4
-    let c = build_circuit(5, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![0, 3], vec![]),
-        (GateType::CX, vec![0, 4], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![0, 3], vec![]),
+            (GateType::CX, vec![0, 4], vec![]),
+        ],
+    );
     let b = load_backend("ibm_quito_5q.json");
     let routed = route(&c, &b, 8, 3);
     assert_all_adjacent(&routed, &b);
@@ -251,12 +309,15 @@ fn test_star_5q_ibm_quito() {
 #[test]
 fn test_reverse_chain_linear_5() {
     // CX(4,3), CX(3,2), CX(2,1), CX(1,0) — reversed direction
-    let c = build_circuit(5, &[
-        (GateType::CX, vec![4, 3], vec![]),
-        (GateType::CX, vec![3, 2], vec![]),
-        (GateType::CX, vec![2, 1], vec![]),
-        (GateType::CX, vec![1, 0], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::CX, vec![4, 3], vec![]),
+            (GateType::CX, vec![3, 2], vec![]),
+            (GateType::CX, vec![2, 1], vec![]),
+            (GateType::CX, vec![1, 0], vec![]),
+        ],
+    );
     let b = Backend::linear(5);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -268,11 +329,14 @@ fn test_reverse_chain_linear_5() {
 #[test]
 fn test_skip_connections_linear_5() {
     // CX(0,2), CX(1,3), CX(2,4) — all skip one qubit
-    let c = build_circuit(5, &[
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![1, 3], vec![]),
-        (GateType::CX, vec![2, 4], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![1, 3], vec![]),
+            (GateType::CX, vec![2, 4], vec![]),
+        ],
+    );
     let b = Backend::linear(5);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -281,10 +345,13 @@ fn test_skip_connections_linear_5() {
 #[test]
 fn test_long_range_cx_linear_5() {
     // CX(0, 4) — maximum distance on linear(5)
-    let c = build_circuit(5, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 4], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 4], vec![]),
+        ],
+    );
     let b = Backend::linear(5);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -294,9 +361,7 @@ fn test_long_range_cx_linear_5() {
 
 #[test]
 fn test_crz_routing_linear_3() {
-    let c = build_circuit(3, &[
-        (GateType::CRZ, vec![0, 2], vec![0.5]),
-    ]);
+    let c = build_circuit(3, &[(GateType::CRZ, vec![0, 2], vec![0.5])]);
     let b = Backend::linear(3);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -304,11 +369,14 @@ fn test_crz_routing_linear_3() {
 
 #[test]
 fn test_crx_cry_crz_ibm_quito() {
-    let c = build_circuit(5, &[
-        (GateType::CRX, vec![0, 2], vec![0.3]),
-        (GateType::CRY, vec![1, 4], vec![0.7]),
-        (GateType::CRZ, vec![3, 0], vec![1.1]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::CRX, vec![0, 2], vec![0.3]),
+            (GateType::CRY, vec![1, 4], vec![0.7]),
+            (GateType::CRZ, vec![3, 0], vec![1.1]),
+        ],
+    );
     let b = load_backend("ibm_quito_5q.json");
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -318,11 +386,14 @@ fn test_crx_cry_crz_ibm_quito() {
 
 #[test]
 fn test_cz_cy_routing_linear_4() {
-    let c = build_circuit(4, &[
-        (GateType::CZ, vec![0, 2], vec![]),
-        (GateType::CY, vec![1, 3], vec![]),
-        (GateType::CZ, vec![0, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::CZ, vec![0, 2], vec![]),
+            (GateType::CY, vec![1, 3], vec![]),
+            (GateType::CZ, vec![0, 3], vec![]),
+        ],
+    );
     let b = Backend::linear(4);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -332,9 +403,7 @@ fn test_cz_cy_routing_linear_4() {
 
 #[test]
 fn test_swap_gate_routing() {
-    let c = build_circuit(3, &[
-        (GateType::SWAP, vec![0, 2], vec![]),
-    ]);
+    let c = build_circuit(3, &[(GateType::SWAP, vec![0, 2], vec![])]);
     let b = Backend::linear(3);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -359,14 +428,17 @@ fn test_ghz8_heavy_hex_16q() {
 #[test]
 fn test_all_pairs_4q_heavy_hex() {
     // Every pair of 4 qubits needs a CX — maximally entangling
-    let c = build_circuit(4, &[
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![0, 3], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-        (GateType::CX, vec![1, 3], vec![]),
-        (GateType::CX, vec![2, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![0, 3], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![1, 3], vec![]),
+            (GateType::CX, vec![2, 3], vec![]),
+        ],
+    );
     let b = load_backend("ibm_heavy_hex_16q.json");
     let routed = route(&c, &b, 8, 3);
     assert_all_adjacent(&routed, &b);
@@ -376,9 +448,7 @@ fn test_all_pairs_4q_heavy_hex() {
 #[test]
 fn test_long_range_heavy_hex() {
     // CX(0, 14) — opposite corners of the heavy-hex
-    let c = build_circuit(16, &[
-        (GateType::CX, vec![0, 14], vec![]),
-    ]);
+    let c = build_circuit(16, &[(GateType::CX, vec![0, 14], vec![])]);
     let b = load_backend("ibm_heavy_hex_16q.json");
     let routed = route(&c, &b, 8, 3);
     assert_all_adjacent(&routed, &b);
@@ -390,11 +460,14 @@ fn test_long_range_heavy_hex() {
 
 #[test]
 fn test_single_qubit_only_circuit() {
-    let c = build_circuit(3, &[
-        (GateType::H,  vec![0], vec![]),
-        (GateType::RZ, vec![1], vec![0.5]),
-        (GateType::X,  vec![2], vec![]),
-    ]);
+    let c = build_circuit(
+        3,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::RZ, vec![1], vec![0.5]),
+            (GateType::X, vec![2], vec![]),
+        ],
+    );
     let b = Backend::linear(3);
     let routed = route(&c, &b, 4, 2);
     // No 2q gates → pass-through
@@ -413,9 +486,7 @@ fn test_empty_circuit() {
 #[test]
 fn test_fewer_logical_than_physical() {
     // 2 logical qubits on a 7-qubit backend
-    let c = build_circuit(2, &[
-        (GateType::CX, vec![0, 1], vec![]),
-    ]);
+    let c = build_circuit(2, &[(GateType::CX, vec![0, 1], vec![])]);
     let b = load_backend("ibm_nairobi_7q.json");
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -442,7 +513,9 @@ fn test_circuit_with_measurements() {
     assert_all_adjacent(&routed, &b);
 
     // Measurements should still be present
-    let meas_count = routed.operations.iter()
+    let meas_count = routed
+        .operations
+        .iter()
         .filter(|op| matches!(op, Operation::Measure { .. }))
         .count();
     assert_eq!(meas_count, 2);
@@ -456,7 +529,9 @@ fn test_circuit_with_barriers() {
         qubits: vec![0, 1],
         params: vec![],
     });
-    c.add_op(Operation::Barrier { qubits: vec![0, 1, 2] });
+    c.add_op(Operation::Barrier {
+        qubits: vec![0, 1, 2],
+    });
     c.add_op(Operation::Gate {
         name: GateType::CX,
         qubits: vec![1, 2],
@@ -475,17 +550,20 @@ fn test_circuit_with_barriers() {
 #[test]
 fn test_beam_width_1_vs_8_quality() {
     // A harder circuit: all-pairs on 5 qubits on linear(5)
-    let c = build_circuit(5, &[
-        (GateType::CX, vec![0, 4], vec![]),
-        (GateType::CX, vec![1, 3], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![2, 4], vec![]),
-        (GateType::CX, vec![1, 4], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::CX, vec![0, 4], vec![]),
+            (GateType::CX, vec![1, 3], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![2, 4], vec![]),
+            (GateType::CX, vec![1, 4], vec![]),
+        ],
+    );
     let b = Backend::linear(5);
 
     let routed_greedy = route(&c, &b, 1, 1);
-    let routed_beam   = route(&c, &b, 8, 3);
+    let routed_beam = route(&c, &b, 8, 3);
 
     assert_all_adjacent(&routed_greedy, &b);
     assert_all_adjacent(&routed_beam, &b);
@@ -496,7 +574,8 @@ fn test_beam_width_1_vs_8_quality() {
     assert!(
         swaps_beam <= swaps_greedy,
         "Beam search ({} SWAPs) should not be worse than greedy ({} SWAPs)",
-        swaps_beam, swaps_greedy
+        swaps_beam,
+        swaps_greedy
     );
 }
 
@@ -506,11 +585,14 @@ fn test_beam_width_1_vs_8_quality() {
 
 #[test]
 fn test_e2e_pipeline_linear_3() {
-    let c = build_circuit(3, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-    ]);
+    let c = build_circuit(
+        3,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+        ],
+    );
     let b = Backend::linear(3);
     let config = TranspilerConfig {
         optimization_level: 3,
@@ -523,13 +605,16 @@ fn test_e2e_pipeline_linear_3() {
 
 #[test]
 fn test_e2e_pipeline_ibm_quito() {
-    let c = build_circuit(5, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![0, 3], vec![]),
-        (GateType::RZ, vec![2],    vec![0.5]),
-        (GateType::CX, vec![2, 4], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![0, 3], vec![]),
+            (GateType::RZ, vec![2], vec![0.5]),
+            (GateType::CX, vec![2, 4], vec![]),
+        ],
+    );
     let b = load_backend("ibm_quito_5q.json");
     let config = TranspilerConfig {
         optimization_level: 2,
@@ -542,14 +627,17 @@ fn test_e2e_pipeline_ibm_quito() {
 
 #[test]
 fn test_e2e_pipeline_ibm_nairobi() {
-    let c = build_circuit(7, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-        (GateType::CX, vec![3, 5], vec![]),
-        (GateType::CX, vec![4, 6], vec![]),
-        (GateType::CX, vec![0, 6], vec![]), // Long-range!
-    ]);
+    let c = build_circuit(
+        7,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![3, 5], vec![]),
+            (GateType::CX, vec![4, 6], vec![]),
+            (GateType::CX, vec![0, 6], vec![]), // Long-range!
+        ],
+    );
     let b = load_backend("ibm_nairobi_7q.json");
     let config = TranspilerConfig {
         optimization_level: 3,
@@ -562,14 +650,17 @@ fn test_e2e_pipeline_ibm_nairobi() {
 
 #[test]
 fn test_e2e_pipeline_heavy_hex() {
-    let c = build_circuit(8, &[
-        (GateType::H,  vec![0],     vec![]),
-        (GateType::CX, vec![0, 1],  vec![]),
-        (GateType::CX, vec![1, 2],  vec![]),
-        (GateType::CX, vec![3, 7],  vec![]),
-        (GateType::CX, vec![4, 5],  vec![]),
-        (GateType::CX, vec![0, 7],  vec![]), // Long-range
-    ]);
+    let c = build_circuit(
+        8,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![3, 7], vec![]),
+            (GateType::CX, vec![4, 5], vec![]),
+            (GateType::CX, vec![0, 7], vec![]), // Long-range
+        ],
+    );
     let b = load_backend("ibm_heavy_hex_16q.json");
     let config = TranspilerConfig {
         optimization_level: 3,
@@ -583,9 +674,7 @@ fn test_e2e_pipeline_heavy_hex() {
 #[test]
 fn test_e2e_pipeline_no_backend_unchanged() {
     // Without a backend, routing should not be invoked
-    let c = build_circuit(3, &[
-        (GateType::CX, vec![0, 2], vec![]),
-    ]);
+    let c = build_circuit(3, &[(GateType::CX, vec![0, 2], vec![])]);
     let config = TranspilerConfig {
         optimization_level: 3,
         decompose_basis: false,
@@ -603,17 +692,20 @@ fn test_e2e_pipeline_no_backend_unchanged() {
 #[test]
 fn test_qft_pattern_4q_linear() {
     // QFT-like: each qubit CX-connects to all qubits after it
-    let c = build_circuit(4, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![0, 3], vec![]),
-        (GateType::H,  vec![1],    vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-        (GateType::CX, vec![1, 3], vec![]),
-        (GateType::H,  vec![2],    vec![]),
-        (GateType::CX, vec![2, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![0, 3], vec![]),
+            (GateType::H, vec![1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![1, 3], vec![]),
+            (GateType::H, vec![2], vec![]),
+            (GateType::CX, vec![2, 3], vec![]),
+        ],
+    );
     let b = Backend::linear(4);
     let routed = route(&c, &b, 8, 3);
     assert_all_adjacent(&routed, &b);
@@ -622,20 +714,23 @@ fn test_qft_pattern_4q_linear() {
 
 #[test]
 fn test_qft_pattern_5q_ibm_quito() {
-    let c = build_circuit(5, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![0, 3], vec![]),
-        (GateType::CX, vec![0, 4], vec![]),
-        (GateType::H,  vec![1],    vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-        (GateType::CX, vec![1, 3], vec![]),
-        (GateType::CX, vec![1, 4], vec![]),
-        (GateType::H,  vec![2],    vec![]),
-        (GateType::CX, vec![2, 3], vec![]),
-        (GateType::CX, vec![2, 4], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![0, 3], vec![]),
+            (GateType::CX, vec![0, 4], vec![]),
+            (GateType::H, vec![1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![1, 3], vec![]),
+            (GateType::CX, vec![1, 4], vec![]),
+            (GateType::H, vec![2], vec![]),
+            (GateType::CX, vec![2, 3], vec![]),
+            (GateType::CX, vec![2, 4], vec![]),
+        ],
+    );
     let b = load_backend("ibm_quito_5q.json");
     let routed = route(&c, &b, 8, 3);
     assert_all_adjacent(&routed, &b);
@@ -647,23 +742,28 @@ fn test_qft_pattern_5q_ibm_quito() {
 
 #[test]
 fn test_mixed_gates_ibm_quito() {
-    let c = build_circuit(5, &[
-        (GateType::H,   vec![0],    vec![]),
-        (GateType::RZ,  vec![0],    vec![0.3]),
-        (GateType::CX,  vec![0, 1], vec![]),
-        (GateType::RX,  vec![1],    vec![0.7]),
-        (GateType::CZ,  vec![1, 3], vec![]),
-        (GateType::H,   vec![2],    vec![]),
-        (GateType::CRZ, vec![2, 4], vec![1.2]),
-        (GateType::Y,   vec![3],    vec![]),
-        (GateType::CX,  vec![3, 0], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::RZ, vec![0], vec![0.3]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::RX, vec![1], vec![0.7]),
+            (GateType::CZ, vec![1, 3], vec![]),
+            (GateType::H, vec![2], vec![]),
+            (GateType::CRZ, vec![2, 4], vec![1.2]),
+            (GateType::Y, vec![3], vec![]),
+            (GateType::CX, vec![3, 0], vec![]),
+        ],
+    );
     let b = load_backend("ibm_quito_5q.json");
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
 
     // All single-qubit gates should be preserved
-    let sq_count = routed.operations.iter()
+    let sq_count = routed
+        .operations
+        .iter()
         .filter(|op| {
             if let Operation::Gate { qubits, .. } = op {
                 qubits.len() == 1
@@ -672,7 +772,11 @@ fn test_mixed_gates_ibm_quito() {
             }
         })
         .count();
-    assert!(sq_count >= 5, "Expected at least 5 single-qubit gates, got {}", sq_count);
+    assert!(
+        sq_count >= 5,
+        "Expected at least 5 single-qubit gates, got {}",
+        sq_count
+    );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -681,11 +785,14 @@ fn test_mixed_gates_ibm_quito() {
 
 #[test]
 fn test_repeated_cx_same_pair() {
-    let c = build_circuit(3, &[
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-    ]);
+    let c = build_circuit(
+        3,
+        &[
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+        ],
+    );
     let b = Backend::linear(3);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -695,12 +802,15 @@ fn test_repeated_cx_same_pair() {
 #[test]
 fn test_alternating_cx_pairs() {
     // CX(0,1) CX(2,3) CX(0,1) CX(2,3) — two independent pairs
-    let c = build_circuit(4, &[
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![2, 3], vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![2, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![2, 3], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![2, 3], vec![]),
+        ],
+    );
     let b = Backend::linear(4);
     let routed = route(&c, &b, 4, 2);
     assert_all_adjacent(&routed, &b);
@@ -712,9 +822,7 @@ fn test_alternating_cx_pairs() {
 
 #[test]
 fn test_opt_level_0_skips_routing() {
-    let c = build_circuit(3, &[
-        (GateType::CX, vec![0, 2], vec![]),
-    ]);
+    let c = build_circuit(3, &[(GateType::CX, vec![0, 2], vec![])]);
     let b = Backend::linear(3);
     let config = TranspilerConfig {
         optimization_level: 0,
@@ -729,10 +837,13 @@ fn test_opt_level_0_skips_routing() {
 
 #[test]
 fn test_opt_level_1_greedy_routing() {
-    let c = build_circuit(5, &[
-        (GateType::CX, vec![0, 4], vec![]),
-        (GateType::CX, vec![1, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::CX, vec![0, 4], vec![]),
+            (GateType::CX, vec![1, 3], vec![]),
+        ],
+    );
     let b = Backend::linear(5);
     let config = TranspilerConfig {
         optimization_level: 1,
@@ -745,11 +856,14 @@ fn test_opt_level_1_greedy_routing() {
 
 #[test]
 fn test_opt_level_3_full_beam() {
-    let c = build_circuit(5, &[
-        (GateType::CX, vec![0, 4], vec![]),
-        (GateType::CX, vec![1, 3], vec![]),
-        (GateType::CX, vec![2, 0], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::CX, vec![0, 4], vec![]),
+            (GateType::CX, vec![1, 3], vec![]),
+            (GateType::CX, vec![2, 0], vec![]),
+        ],
+    );
     let b = Backend::linear(5);
     let config = TranspilerConfig {
         optimization_level: 3,
@@ -766,10 +880,13 @@ fn test_opt_level_3_full_beam() {
 
 #[test]
 fn test_routing_fidelity_bell_state_quito() {
-    let c = build_circuit(2, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-    ]);
+    let c = build_circuit(
+        2,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+        ],
+    );
     let b = load_backend("ibm_quito_5q.json");
 
     let u_orig = circuit_to_unitary(&c);
@@ -782,27 +899,42 @@ fn test_routing_fidelity_bell_state_quito() {
     padded_routed.num_qubits = b.num_qubits;
     let u_routed_physical = circuit_to_unitary(&padded_routed);
 
-    let u_routed_logical = extract_logical_unitary(&u_routed_physical, c.num_qubits, &initial_layout, &final_layout);
+    let u_routed_logical = extract_logical_unitary(
+        &u_routed_physical,
+        c.num_qubits,
+        &initial_layout,
+        &final_layout,
+    );
 
     let fid = unitary_fidelity(&u_orig, &u_routed_logical);
-    assert!((fid - 1.0).abs() < 1e-9, "Fidelity is {}, expected 1.0", fid);
+    assert!(
+        (fid - 1.0).abs() < 1e-9,
+        "Fidelity is {}, expected 1.0",
+        fid
+    );
 }
 
 #[test]
 fn test_routing_fidelity_ghz4_linear() {
-    let c = build_circuit(4, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-        (GateType::CX, vec![2, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![2, 3], vec![]),
+        ],
+    );
     // A linear 4 backend, but let's reverse the circuit so SWAPs are needed
-    let c_reversed = build_circuit(4, &[
-        (GateType::H,  vec![3],    vec![]),
-        (GateType::CX, vec![3, 0], vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-    ]);
+    let c_reversed = build_circuit(
+        4,
+        &[
+            (GateType::H, vec![3], vec![]),
+            (GateType::CX, vec![3, 0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+        ],
+    );
     let b = Backend::linear(4);
 
     let u_orig = circuit_to_unitary(&c_reversed);
@@ -815,153 +947,240 @@ fn test_routing_fidelity_ghz4_linear() {
     padded_routed.num_qubits = b.num_qubits;
     let u_routed_physical = circuit_to_unitary(&padded_routed);
 
-    let u_routed_logical = extract_logical_unitary(&u_routed_physical, c_reversed.num_qubits, &initial_layout, &final_layout);
+    let u_routed_logical = extract_logical_unitary(
+        &u_routed_physical,
+        c_reversed.num_qubits,
+        &initial_layout,
+        &final_layout,
+    );
 
     let fid = unitary_fidelity(&u_orig, &u_routed_logical);
-    assert!((fid - 1.0).abs() < 1e-9, "Fidelity is {}, expected 1.0", fid);
+    assert!(
+        (fid - 1.0).abs() < 1e-9,
+        "Fidelity is {}, expected 1.0",
+        fid
+    );
 }
 
 #[test]
 fn test_routing_fidelity_qft_pattern_nairobi() {
-    let c = build_circuit(4, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![0, 3], vec![]),
-        (GateType::H,  vec![1],    vec![]),
-        (GateType::CX, vec![1, 2], vec![]),
-        (GateType::CX, vec![1, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![0, 3], vec![]),
+            (GateType::H, vec![1], vec![]),
+            (GateType::CX, vec![1, 2], vec![]),
+            (GateType::CX, vec![1, 3], vec![]),
+        ],
+    );
     let b = load_backend("ibm_nairobi_7q.json"); // 7q backend
     let u_orig = circuit_to_unitary(&c);
     let (routed, props) = route_with_props(&c, &b, 4, 2);
     let u_routed_logical = extract_logical_unitary(
-        &circuit_to_unitary(&{ let mut r = routed.clone(); r.num_qubits = 7; r }),
-        4, &props.get::<Vec<usize>>("initial_layout").unwrap(), &props.get::<Vec<usize>>("final_layout").unwrap()
+        &circuit_to_unitary(&{
+            let mut r = routed.clone();
+            r.num_qubits = 7;
+            r
+        }),
+        4,
+        &props.get::<Vec<usize>>("initial_layout").unwrap(),
+        &props.get::<Vec<usize>>("final_layout").unwrap(),
     );
     assert!((unitary_fidelity(&u_orig, &u_routed_logical) - 1.0).abs() < 1e-9);
 }
 
 #[test]
 fn test_routing_fidelity_star_grid2x2() {
-    let c = build_circuit(4, &[
-        (GateType::H,  vec![0],    vec![]),
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![0, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![0, 3], vec![]),
+        ],
+    );
     let b = Backend::grid(2, 2); // 4q
     let u_orig = circuit_to_unitary(&c);
     let (routed, props) = route_with_props(&c, &b, 4, 2);
     let u_routed_logical = extract_logical_unitary(
-        &circuit_to_unitary(&{ let mut r = routed.clone(); r.num_qubits = 4; r }),
-        4, &props.get::<Vec<usize>>("initial_layout").unwrap(), &props.get::<Vec<usize>>("final_layout").unwrap()
+        &circuit_to_unitary(&{
+            let mut r = routed.clone();
+            r.num_qubits = 4;
+            r
+        }),
+        4,
+        &props.get::<Vec<usize>>("initial_layout").unwrap(),
+        &props.get::<Vec<usize>>("final_layout").unwrap(),
     );
     assert!((unitary_fidelity(&u_orig, &u_routed_logical) - 1.0).abs() < 1e-9);
 }
 
 #[test]
 fn test_routing_fidelity_reverse_chain_linear5() {
-    let c = build_circuit(5, &[
-        (GateType::CX, vec![4, 3], vec![]),
-        (GateType::CX, vec![3, 2], vec![]),
-        (GateType::CX, vec![2, 1], vec![]),
-        (GateType::CX, vec![1, 0], vec![]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::CX, vec![4, 3], vec![]),
+            (GateType::CX, vec![3, 2], vec![]),
+            (GateType::CX, vec![2, 1], vec![]),
+            (GateType::CX, vec![1, 0], vec![]),
+        ],
+    );
     let b = Backend::linear(5);
     let u_orig = circuit_to_unitary(&c);
     let (routed, props) = route_with_props(&c, &b, 4, 2);
     let u_routed_logical = extract_logical_unitary(
-        &circuit_to_unitary(&{ let mut r = routed.clone(); r.num_qubits = 5; r }),
-        5, &props.get::<Vec<usize>>("initial_layout").unwrap(), &props.get::<Vec<usize>>("final_layout").unwrap()
+        &circuit_to_unitary(&{
+            let mut r = routed.clone();
+            r.num_qubits = 5;
+            r
+        }),
+        5,
+        &props.get::<Vec<usize>>("initial_layout").unwrap(),
+        &props.get::<Vec<usize>>("final_layout").unwrap(),
     );
     assert!((unitary_fidelity(&u_orig, &u_routed_logical) - 1.0).abs() < 1e-9);
 }
 
 #[test]
 fn test_routing_fidelity_skip_connection_linear4() {
-    let c = build_circuit(4, &[
-        (GateType::CX, vec![0, 2], vec![]),
-        (GateType::CX, vec![1, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::CX, vec![0, 2], vec![]),
+            (GateType::CX, vec![1, 3], vec![]),
+        ],
+    );
     let b = Backend::linear(4);
     let u_orig = circuit_to_unitary(&c);
     let (routed, props) = route_with_props(&c, &b, 4, 2);
     let u_routed_logical = extract_logical_unitary(
-        &circuit_to_unitary(&{ let mut r = routed.clone(); r.num_qubits = 4; r }),
-        4, &props.get::<Vec<usize>>("initial_layout").unwrap(), &props.get::<Vec<usize>>("final_layout").unwrap()
+        &circuit_to_unitary(&{
+            let mut r = routed.clone();
+            r.num_qubits = 4;
+            r
+        }),
+        4,
+        &props.get::<Vec<usize>>("initial_layout").unwrap(),
+        &props.get::<Vec<usize>>("final_layout").unwrap(),
     );
     assert!((unitary_fidelity(&u_orig, &u_routed_logical) - 1.0).abs() < 1e-9);
 }
 
 #[test]
 fn test_routing_fidelity_mixed_gates_quito() {
-    let c = build_circuit(5, &[
-        (GateType::CRX, vec![0, 2], vec![0.3]),
-        (GateType::CRY, vec![1, 4], vec![0.7]),
-        (GateType::CRZ, vec![3, 0], vec![1.1]),
-    ]);
+    let c = build_circuit(
+        5,
+        &[
+            (GateType::CRX, vec![0, 2], vec![0.3]),
+            (GateType::CRY, vec![1, 4], vec![0.7]),
+            (GateType::CRZ, vec![3, 0], vec![1.1]),
+        ],
+    );
     let b = load_backend("ibm_quito_5q.json");
     let u_orig = circuit_to_unitary(&c);
     let (routed, props) = route_with_props(&c, &b, 4, 2);
     let u_routed_logical = extract_logical_unitary(
-        &circuit_to_unitary(&{ let mut r = routed.clone(); r.num_qubits = 5; r }),
-        5, &props.get::<Vec<usize>>("initial_layout").unwrap(), &props.get::<Vec<usize>>("final_layout").unwrap()
+        &circuit_to_unitary(&{
+            let mut r = routed.clone();
+            r.num_qubits = 5;
+            r
+        }),
+        5,
+        &props.get::<Vec<usize>>("initial_layout").unwrap(),
+        &props.get::<Vec<usize>>("final_layout").unwrap(),
     );
     assert!((unitary_fidelity(&u_orig, &u_routed_logical) - 1.0).abs() < 1e-9);
 }
 
 #[test]
 fn test_routing_fidelity_cz_cy_linear4() {
-    let c = build_circuit(4, &[
-        (GateType::CZ, vec![0, 2], vec![]),
-        (GateType::CY, vec![1, 3], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::CZ, vec![0, 2], vec![]),
+            (GateType::CY, vec![1, 3], vec![]),
+        ],
+    );
     let b = Backend::linear(4);
     let u_orig = circuit_to_unitary(&c);
     let (routed, props) = route_with_props(&c, &b, 8, 3);
     let u_routed_logical = extract_logical_unitary(
-        &circuit_to_unitary(&{ let mut r = routed.clone(); r.num_qubits = 4; r }),
-        4, &props.get::<Vec<usize>>("initial_layout").unwrap(), &props.get::<Vec<usize>>("final_layout").unwrap()
+        &circuit_to_unitary(&{
+            let mut r = routed.clone();
+            r.num_qubits = 4;
+            r
+        }),
+        4,
+        &props.get::<Vec<usize>>("initial_layout").unwrap(),
+        &props.get::<Vec<usize>>("final_layout").unwrap(),
     );
     assert!((unitary_fidelity(&u_orig, &u_routed_logical) - 1.0).abs() < 1e-9);
 }
 
 #[test]
 fn test_routing_fidelity_single_qubits_linear3() {
-    let c = build_circuit(3, &[
-        (GateType::H,  vec![0], vec![]),
-        (GateType::RZ, vec![1], vec![0.5]),
-        (GateType::X,  vec![2], vec![]),
-    ]);
+    let c = build_circuit(
+        3,
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::RZ, vec![1], vec![0.5]),
+            (GateType::X, vec![2], vec![]),
+        ],
+    );
     let b = Backend::linear(3);
     let u_orig = circuit_to_unitary(&c);
     let (routed, props) = route_with_props(&c, &b, 4, 2);
-    
+
     // If there are no 2q gates, BeamSabre skips and leaves layouts empty. Default to trivial.
-    let initial_layout = props.get::<Vec<usize>>("initial_layout").cloned().unwrap_or_else(|| vec![0usize, 1, 2]);
-    let final_layout = props.get::<Vec<usize>>("final_layout").cloned().unwrap_or_else(|| vec![0usize, 1, 2]);
+    let initial_layout = props
+        .get::<Vec<usize>>("initial_layout")
+        .cloned()
+        .unwrap_or_else(|| vec![0usize, 1, 2]);
+    let final_layout = props
+        .get::<Vec<usize>>("final_layout")
+        .cloned()
+        .unwrap_or_else(|| vec![0usize, 1, 2]);
 
     let u_routed_logical = extract_logical_unitary(
-        &circuit_to_unitary(&{ let mut r = routed.clone(); r.num_qubits = 3; r }),
-        3, &initial_layout, &final_layout
+        &circuit_to_unitary(&{
+            let mut r = routed.clone();
+            r.num_qubits = 3;
+            r
+        }),
+        3,
+        &initial_layout,
+        &final_layout,
     );
     assert!((unitary_fidelity(&u_orig, &u_routed_logical) - 1.0).abs() < 1e-9);
 }
 
 #[test]
 fn test_routing_fidelity_swap_in_input_grid2x2() {
-    let c = build_circuit(4, &[
-        (GateType::CX, vec![0, 1], vec![]),
-        (GateType::SWAP, vec![0, 3], vec![]), // explicit swap in original
-        (GateType::CX, vec![1, 2], vec![]),
-    ]);
+    let c = build_circuit(
+        4,
+        &[
+            (GateType::CX, vec![0, 1], vec![]),
+            (GateType::SWAP, vec![0, 3], vec![]), // explicit swap in original
+            (GateType::CX, vec![1, 2], vec![]),
+        ],
+    );
     let b = Backend::grid(2, 2);
     let u_orig = circuit_to_unitary(&c);
     let (routed, props) = route_with_props(&c, &b, 4, 2);
     let u_routed_logical = extract_logical_unitary(
-        &circuit_to_unitary(&{ let mut r = routed.clone(); r.num_qubits = 4; r }),
-        4, &props.get::<Vec<usize>>("initial_layout").unwrap(), &props.get::<Vec<usize>>("final_layout").unwrap()
+        &circuit_to_unitary(&{
+            let mut r = routed.clone();
+            r.num_qubits = 4;
+            r
+        }),
+        4,
+        &props.get::<Vec<usize>>("initial_layout").unwrap(),
+        &props.get::<Vec<usize>>("final_layout").unwrap(),
     );
     assert!((unitary_fidelity(&u_orig, &u_routed_logical) - 1.0).abs() < 1e-9);
 }

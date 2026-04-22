@@ -23,11 +23,18 @@ fn main() {
     };
     let result_lin = transpile(&circuit_ghz, Some(config_lin));
     let swap_count_1 = count_swaps(&result_lin);
-    println!("  Gate count: {}  |  SWAPs: {}", result_lin.operations.len(), swap_count_1);
+    println!(
+        "  Gate count: {}  |  SWAPs: {}",
+        result_lin.operations.len(),
+        swap_count_1
+    );
     check_adjacency(&result_lin, &Backend::linear(3));
 
     // Fidelity works here because layout is trivial (no permutation)
-    let fid = unitary_fidelity(&circuit_to_unitary(&circuit_ghz), &circuit_to_unitary(&result_lin));
+    let fid = unitary_fidelity(
+        &circuit_to_unitary(&circuit_ghz),
+        &circuit_to_unitary(&result_lin),
+    );
     println!("  Unitary Fidelity: {:.10}", fid);
 
     // ─── Test 2: Non-adjacent CX on Linear(3) ─────────────────────────
@@ -48,7 +55,11 @@ fn main() {
     };
     let result_nonadj = transpile(&circuit_nonadj, Some(config_nonadj));
     let swap_count_2 = count_swaps(&result_nonadj);
-    println!("  Gate count: {}  |  SWAPs: {}", result_nonadj.operations.len(), swap_count_2);
+    println!(
+        "  Gate count: {}  |  SWAPs: {}",
+        result_nonadj.operations.len(),
+        swap_count_2
+    );
     check_adjacency(&result_nonadj, &Backend::linear(3));
 
     // ─── Test 3: 4-qubit circuit on Grid(2,2) ─────────────────────────
@@ -73,7 +84,11 @@ fn main() {
     };
     let result_grid = transpile(&circuit_grid, Some(config_grid));
     let swap_count_3 = count_swaps(&result_grid);
-    println!("  Gate count: {}  |  SWAPs: {}", result_grid.operations.len(), swap_count_3);
+    println!(
+        "  Gate count: {}  |  SWAPs: {}",
+        result_grid.operations.len(),
+        swap_count_3
+    );
     check_adjacency(&result_grid, &Backend::grid(2, 2));
 
     println!("\n  Routed circuit:");
@@ -83,9 +98,21 @@ fn main() {
 
     // ─── Summary ──────────────────────────────────────────────────────
     println!("\n=== Summary ===");
-    println!("  Test 1 (already routable): {} gates, {} SWAPs", result_lin.operations.len(), swap_count_1);
-    println!("  Test 2 (forced routing):   {} gates, {} SWAPs", result_nonadj.operations.len(), swap_count_2);
-    println!("  Test 3 (grid routing):     {} gates, {} SWAPs", result_grid.operations.len(), swap_count_3);
+    println!(
+        "  Test 1 (already routable): {} gates, {} SWAPs",
+        result_lin.operations.len(),
+        swap_count_1
+    );
+    println!(
+        "  Test 2 (forced routing):   {} gates, {} SWAPs",
+        result_nonadj.operations.len(),
+        swap_count_2
+    );
+    println!(
+        "  Test 3 (grid routing):     {} gates, {} SWAPs",
+        result_grid.operations.len(),
+        swap_count_3
+    );
     println!("  All 2-qubit gates respect hardware adjacency ✅");
 }
 
@@ -93,7 +120,15 @@ fn count_swaps(circuit: &q_rust::ir::Circuit) -> usize {
     circuit
         .operations
         .iter()
-        .filter(|op| matches!(op, q_rust::ir::Operation::Gate { name: q_rust::ir::GateType::SWAP, .. }))
+        .filter(|op| {
+            matches!(
+                op,
+                q_rust::ir::Operation::Gate {
+                    name: q_rust::ir::GateType::SWAP,
+                    ..
+                }
+            )
+        })
         .count()
 }
 
@@ -104,7 +139,8 @@ fn check_adjacency(circuit: &q_rust::ir::Circuit, backend: &Backend) {
                 assert!(
                     backend.is_adjacent(qubits[0], qubits[1]),
                     "  ❌ Non-adjacent: {:?} on {:?}",
-                    name, qubits
+                    name,
+                    qubits
                 );
             }
         }

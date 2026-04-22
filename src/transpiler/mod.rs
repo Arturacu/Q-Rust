@@ -68,8 +68,8 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Circuit
         // Stage 2.5a: Layout discovery via iterative SABRE (opt level ≥ 2)
         if config.optimization_level >= 2 {
             let (num_trials, num_iterations) = match config.optimization_level {
-                2     => (10, 3),   // Moderate search
-                _     => (50, 5),   // Full search with many stochastic restarts
+                2 => (10, 3), // Moderate search
+                _ => (50, 5), // Full search with many stochastic restarts
             };
             pm.add_pass(Box::new(layout::SabreLayoutPass {
                 backend: backend.clone(),
@@ -80,9 +80,9 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Circuit
 
         // Stage 2.5b: BeamSABRE routing (uses layout from above if available)
         let (beam_width, branch_factor, bidir_iters) = match config.optimization_level {
-            0 | 1 => (1, 1, 1),   // Greedy (= LightSABRE)
-            2     => (4, 3, 2),   // Moderate beam search
-            _     => (8, 5, 4),   // Full BeamSABRE
+            0 | 1 => (1, 1, 1), // Greedy (= LightSABRE)
+            2 => (4, 3, 2),     // Moderate beam search
+            _ => (8, 5, 4),     // Full BeamSABRE
         };
         pm.add_pass(Box::new(routing::BeamSabrePass {
             backend: backend.clone(),
@@ -111,9 +111,9 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Circuit
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::backend::Backend;
     use crate::ir::{GateType, Operation};
     use crate::simulator::{circuit_to_unitary, extract_logical_unitary, unitary_fidelity};
-    use crate::backend::Backend;
 
     #[test]
     fn test_transpile_default() {
@@ -169,13 +169,25 @@ mod tests {
     fn test_pipeline_e2e_fidelity() {
         // GHZ-3 circuit on linear(3) backend
         let mut circuit = Circuit::new(3, 0);
-        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 2], params: vec![] });
-        
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 2],
+            params: vec![],
+        });
+
         let backend = Backend::linear(3);
         let mut pm = PassManager::new();
-        
+
         // Add layout and routing
         pm.add_pass(Box::new(layout::SabreLayoutPass {
             backend: backend.clone(),
@@ -188,18 +200,18 @@ mod tests {
             branch_factor: 2,
             bidir_iterations: 1,
         }));
-        
+
         let routed = pm.run(&circuit);
-        
+
         let u_orig = circuit_to_unitary(&circuit);
         let u_phys = circuit_to_unitary(&routed);
-        
+
         let initial = pm.property_set.get::<Vec<usize>>("initial_layout").unwrap();
         let final_l = pm.property_set.get::<Vec<usize>>("final_layout").unwrap();
-        
+
         let u_log = extract_logical_unitary(&u_phys, 3, initial, final_l);
         assert!((unitary_fidelity(&u_orig, &u_log) - 1.0).abs() < 1e-9);
-        
+
         // Final connectivity check
         for op in &routed.operations {
             if let Operation::Gate { qubits, .. } = op {
