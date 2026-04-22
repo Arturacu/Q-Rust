@@ -139,8 +139,8 @@ pub fn unitary_fidelity(u1: &DMatrix<C>, u2: &DMatrix<C>) -> f64 {
     let trace: C = product.trace();
 
     // |Tr(U1^dag U2)|^2 / d^2
-    let fid = trace.norm_sqr() / (d as f64 * d as f64);
-    fid
+
+    trace.norm_sqr() / (d as f64 * d as f64)
 }
 
 /// Extracts the effective logical unitary (2^n x 2^n) from a physically routed unitary (2^N x 2^N).
@@ -197,12 +197,14 @@ pub fn extract_logical_unitary(
         // For each output physical state |x_out>
         for row_p in 0..u_routed.nrows() {
             let amp = output_col[row_p];
-            if amp.norm() < 1e-9 { continue; } // Optimization
+            if amp.norm() < 1e-9 {
+                continue;
+            } // Optimization
 
             // Verify ancillas are zero
             let mut row_l = 0usize;
             let mut ancilla_violation = false;
-            
+
             for p_q in 0..n_physical {
                 let bit = (row_p >> p_q) & 1;
                 // Reverse lookup in final_layout
@@ -294,7 +296,7 @@ mod tests {
         let final_layout = vec![0];
 
         let u_log = extract_logical_unitary(&u_phys, 1, &initial_layout, &final_layout);
-        
+
         // Logical side should see a 2x2 X gate
         let x_gate = GateType::X.unitary(&[]);
         assert!((u_log - x_gate).norm() < 1e-10);
@@ -315,12 +317,16 @@ mod tests {
         let initial_layout = vec![1, 0];
         let final_layout = vec![0, 1];
         let _u_log = extract_logical_unitary(&u_phys, 2, &initial_layout, &final_layout);
-        
+
         // This specific combination of Gate(P1,P0) and Layout L0->P1, L1->P0
-        // maps to a logically valid but non-standard CX. We use a simpler 
+        // maps to a logically valid but non-standard CX. We use a simpler
         // 1-qubit remapping for the absolute equality check:
         let mut c2 = Circuit::new(2, 0);
-        c2.add_op(Operation::Gate { name: GateType::X, qubits: vec![1], params: vec![] });
+        c2.add_op(Operation::Gate {
+            name: GateType::X,
+            qubits: vec![1],
+            params: vec![],
+        });
         let u_p2 = circuit_to_unitary(&c2);
         let u_l2 = extract_logical_unitary(&u_p2, 1, &vec![1], &vec![1]);
         assert!((u_l2 - GateType::X.unitary(&[])).norm() < 1e-10);
@@ -340,11 +346,11 @@ mod tests {
         let u_phys = circuit_to_unitary(&circuit);
         let layout = vec![0];
         let u_log = extract_logical_unitary(&u_phys, 1, &layout, &layout);
-        
+
         // Logical matrix should be non-unitary due to leakage
         assert!((u_log[(0, 0)] - c(1.0, 0.0)).norm() < 1e-10);
         assert!((u_log[(1, 1)]).norm() < 1e-10);
-        
+
         let id = DMatrix::<C>::identity(2, 2);
         assert!((unitary_fidelity(&u_log, &id) - 0.25).abs() < 1e-10);
     }
@@ -361,7 +367,7 @@ mod tests {
 
         let u_phys = circuit_to_unitary(&circuit);
         let u_log = extract_logical_unitary(&u_phys, 1, &vec![0], &vec![0]);
-        
+
         let expected = GateType::RZ.unitary(&[theta]);
         assert!((u_log - expected).norm() < 1e-10);
     }
@@ -374,10 +380,10 @@ mod tests {
 
         // They should be different
         assert!((&u01 - &u10).norm() > 0.1);
-        
+
         // q0=0 (control), q1=1 (target)
         assert!((u01[(3, 1)] - c(1.0, 0.0)).norm() < 1e-10);
-        
+
         // q0=1 (control), q1=0 (target)
         assert!((u10[(3, 2)] - c(1.0, 0.0)).norm() < 1e-10);
     }
@@ -385,11 +391,11 @@ mod tests {
     #[test]
     fn test_embed_3q_ordering() {
         let ccx = GateType::CCX.unitary(&[]);
-        
+
         // q0 as control-1, q1 as control-2, q2 as target
         let u012 = embed_3q(&ccx, 0, 1, 2, 3);
         assert!((u012[(7, 3)] - c(1.0, 0.0)).norm() < 1e-10);
-        
+
         // q2 as control-1, q1 as control-2, q0 as target
         let u210 = embed_3q(&ccx, 2, 1, 0, 3);
         assert!((u210[(7, 6)] - c(1.0, 0.0)).norm() < 1e-10);

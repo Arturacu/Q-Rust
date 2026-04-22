@@ -233,7 +233,7 @@ impl Synthesizer for KakSynthesizer {
         y = fold_scalar(y).abs();
         z = fold_scalar(z).abs();
 
-        let mut coords = vec![x, y, z];
+        let mut coords = [x, y, z];
         coords.sort_by(|a, b| b.partial_cmp(a).unwrap());
         x = coords[0];
         y = coords[1];
@@ -244,12 +244,12 @@ impl Synthesizer for KakSynthesizer {
         // p1 = x + y - z
         // p2 = -x - y - z
         // p3 = -x + y + z
-        let target_phases = vec![x - y + z, x + y - z, -x - y - z, -x + y + z];
+        let target_phases = [x - y + z, x + y - z, -x - y - z, -x + y + z];
 
         // Find permutation to match n_magic phases to target_phases
         let current_phases: Vec<f64> = n_magic.diagonal().iter().map(|c| c.arg()).collect();
-        let mut permutation = vec![0; 4];
-        let mut used = vec![false; 4];
+        let mut permutation = [0; 4];
+        let mut used = [false; 4];
 
         for (i, target) in target_phases.iter().enumerate() {
             let mut best_j = 0;
@@ -498,8 +498,8 @@ fn decompose_tensor_product(
     // So B is conjugate of v0.
 
     let svd = t.svd(true, true);
-    let s = svd.singular_values;
-    if s[1] > 1e-6 {}
+    let _s = svd.singular_values;
+
     let u_vec = svd.u.unwrap().column(0).into_owned();
     let v_vec = svd.v_t.unwrap().row(0).transpose().into_owned(); // v_t is V^dag, row 0 is v0^dag
 

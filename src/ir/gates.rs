@@ -1,3 +1,4 @@
+use std::f64::consts::PI;
 /// Quantum Gate Types
 ///
 /// This enum represents the set of supported quantum gates.
@@ -110,6 +111,24 @@ impl FromStr for GateType {
 }
 
 impl GateType {
+    /// Returns the U(theta, phi, lambda) parameters for single-qubit gates, or None if not applicable.
+    pub fn single_qubit_u_params(&self, params: &[f64]) -> Option<(f64, f64, f64)> {
+        match self {
+            GateType::ID => Some((0.0, 0.0, 0.0)),
+            GateType::X => Some((PI, 0.0, PI)),
+            GateType::Y => Some((PI, PI / 2.0, PI / 2.0)),
+            GateType::Z => Some((0.0, 0.0, PI)),
+            GateType::H => Some((PI / 2.0, 0.0, PI)),
+            GateType::S => Some((0.0, 0.0, PI / 2.0)),
+            GateType::Sdg => Some((0.0, 0.0, -PI / 2.0)),
+            GateType::T => Some((0.0, 0.0, PI / 4.0)),
+            GateType::Tdg => Some((0.0, 0.0, -PI / 4.0)),
+            GateType::RX => Some((params[0], -PI / 2.0, PI / 2.0)),
+            GateType::RY => Some((params[0], 0.0, 0.0)),
+            GateType::RZ => Some((0.0, 0.0, params[0])),
+            _ => None,
+        }
+    }
     /// Returns the OpenQASM 2.0 standard string representation for the gate type.
     pub fn to_qasm_name(&self) -> String {
         match self {

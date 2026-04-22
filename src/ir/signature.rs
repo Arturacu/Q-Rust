@@ -28,7 +28,7 @@ impl SymbolicFraction {
         }
         // Simplified canonicalization:
         let period = 2 * self.den;
-        self.num = self.num % period;
+        self.num %= period;
         if self.num > self.den {
             self.num -= period;
         } else if self.num < -self.den {

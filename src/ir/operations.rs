@@ -37,7 +37,11 @@ impl Operation {
     /// Returns the OpenQASM 2.0 string representation of the operation.
     pub fn to_qasm(&self) -> String {
         match self {
-            Operation::Gate { name, qubits, params } => {
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } => {
                 let mut s = name.to_qasm_name();
                 if !params.is_empty() {
                     let p_strs: Vec<String> = params.iter().map(|p| format!("{:.6}", p)).collect();

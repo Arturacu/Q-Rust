@@ -339,11 +339,7 @@ fn commutes_with_cx(op: &Operation, ctrl: usize, target: usize) -> bool {
                     GateType::U => {
                         // U(0, 0, lambda) is RZ(lambda) -> Commutes
                         // U(theta, phi, lambda) generally doesn't unless theta=0
-                        if params.len() >= 1 && params[0].abs() < 1e-9 {
-                            true
-                        } else {
-                            false
-                        }
+                        !params.is_empty() && params[0].abs() < 1e-9
                     }
                     _ => false, // X, Y, H, etc.
                 }
@@ -361,11 +357,7 @@ fn commutes_with_cx(op: &Operation, ctrl: usize, target: usize) -> bool {
                             let lambda = params[2];
                             // Check if it's RX-like: phi = -pi/2, lambda = pi/2
                             let pi_2 = std::f64::consts::FRAC_PI_2;
-                            if (phi - -pi_2).abs() < 1e-9 && (lambda - pi_2).abs() < 1e-9 {
-                                true
-                            } else {
-                                false
-                            }
+                            (phi - -pi_2).abs() < 1e-9 && (lambda - pi_2).abs() < 1e-9
                         } else {
                             false
                         }
@@ -565,7 +557,7 @@ impl Pass for SwapSimplificationPass {
                     }
 
                     // Check commutation: SWAP(a,b) commutes with any gate that doesn't involve a or b
-                    if involves_any(next_op, &swap_qubits) {
+                    if involves_any(next_op, swap_qubits) {
                         commute = false;
                         break;
                     }
@@ -775,7 +767,7 @@ impl Pass for ParameterSimplificationPass {
                         GateType::RX | GateType::RY | GateType::RZ | GateType::U => {
                             for param in &mut new_params {
                                 // Normalize to [0, 2pi)
-                                *param = *param % two_pi;
+                                *param %= two_pi;
                                 if *param < 0.0 {
                                     *param += two_pi;
                                 }
@@ -1013,9 +1005,13 @@ impl Pass for RotationMergePass {
                     params,
                 }) = &dag.graph[src]
                 {
-                    if matches!(name, GateType::RX | GateType::RY | GateType::RZ) && qubits.len() == 1 {
+                    if matches!(name, GateType::RX | GateType::RY | GateType::RZ)
+                        && qubits.len() == 1
+                    {
                         src_info = Some((name.clone(), qubits.clone(), params.clone()));
-                    } else if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ) && qubits.len() == 2 {
+                    } else if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ)
+                        && qubits.len() == 2
+                    {
                         src_info = Some((name.clone(), qubits.clone(), params.clone()));
                     }
                 }
@@ -1027,9 +1023,13 @@ impl Pass for RotationMergePass {
                     params,
                 }) = &dag.graph[dst]
                 {
-                    if matches!(name, GateType::RX | GateType::RY | GateType::RZ) && qubits.len() == 1 {
+                    if matches!(name, GateType::RX | GateType::RY | GateType::RZ)
+                        && qubits.len() == 1
+                    {
                         dst_info = Some((name.clone(), qubits.clone(), params.clone()));
-                    } else if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ) && qubits.len() == 2 {
+                    } else if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ)
+                        && qubits.len() == 2
+                    {
                         dst_info = Some((name.clone(), qubits.clone(), params.clone()));
                     }
                 }
@@ -1188,7 +1188,7 @@ impl Pass for InverseCancellationPass {
 
                 // Since we rely on a strictly routed directed topological edge, we must
                 // verify that the nodes are strictly adjacent on ALL shared qubits.
-                // If they are only adjacent on one wire but have something in between on another, 
+                // If they are only adjacent on one wire but have something in between on another,
                 // canceling them is physically incorrect (as seen in CRZ/CX regressions).
                 if are_inverses(&src_op, &dst_op) {
                     let shared_qubits = get_shared_qubits(&src_op, &dst_op);
@@ -1214,7 +1214,12 @@ fn get_shared_qubits(op1: &Operation, op2: &Operation) -> Vec<usize> {
     }
 }
 
-fn is_strictly_adjacent(dag: &DAGCircuit, src: NodeIndex, dst: NodeIndex, qubits: &[usize]) -> bool {
+fn is_strictly_adjacent(
+    dag: &DAGCircuit,
+    src: NodeIndex,
+    dst: NodeIndex,
+    qubits: &[usize],
+) -> bool {
     for &q in qubits {
         let mut found_edge = false;
         for edge in dag.graph.edges_directed(src, petgraph::Direction::Outgoing) {

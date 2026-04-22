@@ -75,9 +75,7 @@ struct TwoQGate {
 
 /// Builds the dependency graph for two-qubit gates in the circuit.
 /// Returns (list of TwoQGate, initial predecessor counts, single-qubit ops grouped by qubit).
-fn build_gate_graph(
-    circuit: &Circuit,
-) -> (Vec<TwoQGate>, Vec<u16>, Vec<Vec<(usize, Operation)>>) {
+fn build_gate_graph(circuit: &Circuit) -> (Vec<TwoQGate>, Vec<u16>, Vec<Vec<(usize, Operation)>>) {
     // Identify all two-qubit gates and their positions
     let mut two_q_gates: Vec<TwoQGate> = Vec::new();
     let mut single_q_ops: Vec<Vec<(usize, Operation)>> = vec![vec![]; circuit.num_qubits];
@@ -162,9 +160,7 @@ impl Beam {
     fn new(layout: Layout, pred_counts: &[u16], num_gates: usize) -> Self {
         let remaining_deps = pred_counts.to_vec();
         // Initial front layer: all gates with zero predecessors
-        let front_layer: Vec<usize> = (0..num_gates)
-            .filter(|&i| remaining_deps[i] == 0)
-            .collect();
+        let front_layer: Vec<usize> = (0..num_gates).filter(|&i| remaining_deps[i] == 0).collect();
 
         Beam {
             layout,
@@ -221,7 +217,7 @@ fn relative_score(
 ) -> f64 {
     let (pa, pb) = swap;
     let mut delta = 0.0;
-    
+
     // Maintain a set of unique successors for the extended lookahead layer
     let mut extended_layer = std::collections::HashSet::new();
 
@@ -229,7 +225,7 @@ fn relative_score(
         let gate = &gates[gate_idx];
         let p0 = layout.l2p(gate.logical_qubits[0]);
         let p1 = layout.l2p(gate.logical_qubits[1]);
-        
+
         for &succ in &gate.successors {
             extended_layer.insert(succ);
         }
@@ -239,26 +235,50 @@ fn relative_score(
         }
 
         let old_dist = dist[p0][p1] as f64;
-        let new_p0 = if p0 == pa { pb } else if p0 == pb { pa } else { p0 };
-        let new_p1 = if p1 == pa { pb } else if p1 == pb { pa } else { p1 };
+        let new_p0 = if p0 == pa {
+            pb
+        } else if p0 == pb {
+            pa
+        } else {
+            p0
+        };
+        let new_p1 = if p1 == pa {
+            pb
+        } else if p1 == pb {
+            pa
+        } else {
+            p1
+        };
         let new_dist = dist[new_p0][new_p1] as f64;
         delta += new_dist - old_dist;
     }
-    
+
     // Incorporate Extended Lookahead Layer (weight = 0.5)
     let lookahead_weight = 0.5;
     for gate_idx in extended_layer {
         let gate = &gates[gate_idx];
         let p0 = layout.l2p(gate.logical_qubits[0]);
         let p1 = layout.l2p(gate.logical_qubits[1]);
-        
+
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
             continue;
         }
 
         let old_dist = dist[p0][p1] as f64;
-        let new_p0 = if p0 == pa { pb } else if p0 == pb { pa } else { p0 };
-        let new_p1 = if p1 == pa { pb } else if p1 == pb { pa } else { p1 };
+        let new_p0 = if p0 == pa {
+            pb
+        } else if p0 == pb {
+            pa
+        } else {
+            p0
+        };
+        let new_p1 = if p1 == pa {
+            pb
+        } else if p1 == pb {
+            pa
+        } else {
+            p1
+        };
         let new_dist = dist[new_p0][new_p1] as f64;
         delta += (new_dist - old_dist) * lookahead_weight;
     }
@@ -379,11 +399,7 @@ fn beam_sabre_forward(
         }
 
         // Global prune: keep only the best beam_width beams
-        new_beams.sort_by(|a, b| {
-            a.cumulative_cost
-                .partial_cmp(&b.cumulative_cost)
-                .unwrap()
-        });
+        new_beams.sort_by(|a, b| a.cumulative_cost.partial_cmp(&b.cumulative_cost).unwrap());
         new_beams.truncate(beam_width);
 
         beams = new_beams;
@@ -580,9 +596,21 @@ impl Pass for BeamSabrePass {
             return circuit.clone();
         }
 
-        assert!(self.beam_width >= 1, "BeamSabrePass: beam_width must be >= 1, got {}", self.beam_width);
-        assert!(self.branch_factor >= 1, "BeamSabrePass: branch_factor must be >= 1, got {}", self.branch_factor);
-        assert!(self.bidir_iterations >= 1, "BeamSabrePass: bidir_iterations must be >= 1, got {}", self.bidir_iterations);
+        assert!(
+            self.beam_width >= 1,
+            "BeamSabrePass: beam_width must be >= 1, got {}",
+            self.beam_width
+        );
+        assert!(
+            self.branch_factor >= 1,
+            "BeamSabrePass: branch_factor must be >= 1, got {}",
+            self.branch_factor
+        );
+        assert!(
+            self.bidir_iterations >= 1,
+            "BeamSabrePass: bidir_iterations must be >= 1, got {}",
+            self.bidir_iterations
+        );
 
         // Validate qubit count
         assert!(
@@ -694,9 +722,7 @@ impl Pass for BeamSabrePass {
 
                 let backward_best = backward_beams
                     .iter()
-                    .min_by(|a, b| {
-                        a.cumulative_cost.partial_cmp(&b.cumulative_cost).unwrap()
-                    })
+                    .min_by(|a, b| a.cumulative_cost.partial_cmp(&b.cumulative_cost).unwrap())
                     .unwrap();
 
                 // The backward pass's final layout becomes the next forward pass's initial
@@ -800,7 +826,15 @@ mod tests {
         let swap_count = routed
             .operations
             .iter()
-            .filter(|op| matches!(op, Operation::Gate { name: GateType::SWAP, .. }))
+            .filter(|op| {
+                matches!(
+                    op,
+                    Operation::Gate {
+                        name: GateType::SWAP,
+                        ..
+                    }
+                )
+            })
             .count();
         assert_eq!(swap_count, 0);
     }
@@ -846,7 +880,15 @@ mod tests {
         let cx_count = routed
             .operations
             .iter()
-            .filter(|op| matches!(op, Operation::Gate { name: GateType::CX, .. }))
+            .filter(|op| {
+                matches!(
+                    op,
+                    Operation::Gate {
+                        name: GateType::CX,
+                        ..
+                    }
+                )
+            })
             .count();
         assert!(cx_count >= 1, "Expected at least 1 CX gate in output");
     }
@@ -876,9 +918,21 @@ mod tests {
         let swap_count = routed
             .operations
             .iter()
-            .filter(|op| matches!(op, Operation::Gate { name: GateType::SWAP, .. }))
+            .filter(|op| {
+                matches!(
+                    op,
+                    Operation::Gate {
+                        name: GateType::SWAP,
+                        ..
+                    }
+                )
+            })
             .count();
-        assert!(swap_count >= 1, "Expected at least 1 SWAP with trivial layout, got {}", swap_count);
+        assert!(
+            swap_count >= 1,
+            "Expected at least 1 SWAP with trivial layout, got {}",
+            swap_count
+        );
 
         // All 2q gates must be on adjacent physical qubits
         for op in &routed.operations {
@@ -961,21 +1015,30 @@ mod tests {
     #[test]
     fn test_route_fidelity_basic_cx() {
         let mut circuit = Circuit::new(2, 0);
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-        
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+
         // linear(2) is trivial, but let's use linear(3) and force it to qubits 0,1
         let backend = Backend::linear(3);
-        let pass = BeamSabrePass { backend, beam_width: 1, branch_factor: 1, bidir_iterations: 1 };
-        
+        let pass = BeamSabrePass {
+            backend,
+            beam_width: 1,
+            branch_factor: 1,
+            bidir_iterations: 1,
+        };
+
         let mut ps = PropertySet::new();
         let routed = pass.run(&circuit, &mut ps);
-        
+
         let u_orig = circuit_to_unitary(&circuit);
         let u_phys = circuit_to_unitary(&routed);
-        
+
         let initial_layout: Vec<usize> = ps.get::<Vec<usize>>("initial_layout").unwrap().clone();
         let final_layout: Vec<usize> = ps.get::<Vec<usize>>("final_layout").unwrap().clone();
-        
+
         let u_log = extract_logical_unitary(&u_phys, 2, &initial_layout, &final_layout);
         assert!((unitary_fidelity(&u_orig, &u_log) - 1.0).abs() < 1e-9);
     }
@@ -984,20 +1047,29 @@ mod tests {
     fn test_route_fidelity_with_swaps() {
         // CX(0, 2) on linear(3) - requires at least one SWAP
         let mut circuit = Circuit::new(3, 0);
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 2], params: vec![] });
-        
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 2],
+            params: vec![],
+        });
+
         let backend = Backend::linear(3);
-        let pass = BeamSabrePass { backend, beam_width: 4, branch_factor: 3, bidir_iterations: 1 };
-        
+        let pass = BeamSabrePass {
+            backend,
+            beam_width: 4,
+            branch_factor: 3,
+            bidir_iterations: 1,
+        };
+
         let mut ps = PropertySet::new();
         let routed = pass.run(&circuit, &mut ps);
-        
+
         let u_orig = circuit_to_unitary(&circuit);
         let u_phys = circuit_to_unitary(&routed);
-        
+
         let initial: &Vec<usize> = ps.get("initial_layout").unwrap();
         let final_l: &Vec<usize> = ps.get("final_layout").unwrap();
-        
+
         let u_log = extract_logical_unitary(&u_phys, 3, initial, final_l);
         assert!((unitary_fidelity(&u_orig, &u_log) - 1.0).abs() < 1e-9);
     }
@@ -1005,18 +1077,33 @@ mod tests {
     #[test]
     fn test_route_preserves_non_gates() {
         let mut circuit = Circuit::new(2, 1);
-        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
         circuit.add_op(Operation::Barrier { qubits: vec![0, 1] });
         circuit.add_op(Operation::Measure { qubit: 0, cbit: 0 });
-        
+
         let backend = Backend::linear(2);
-        let pass = BeamSabrePass { backend, beam_width: 1, branch_factor: 1, bidir_iterations: 1 };
+        let pass = BeamSabrePass {
+            backend,
+            beam_width: 1,
+            branch_factor: 1,
+            bidir_iterations: 1,
+        };
         let mut ps = PropertySet::new();
         let routed = pass.run(&circuit, &mut ps);
-        
+
         // Check for Barrier and Measure presence
-        let barrier = routed.operations.iter().any(|op| matches!(op, Operation::Barrier { .. }));
-        let measure = routed.operations.iter().any(|op| matches!(op, Operation::Measure { .. }));
+        let barrier = routed
+            .operations
+            .iter()
+            .any(|op| matches!(op, Operation::Barrier { .. }));
+        let measure = routed
+            .operations
+            .iter()
+            .any(|op| matches!(op, Operation::Measure { .. }));
         assert!(barrier);
         assert!(measure);
     }
@@ -1025,15 +1112,24 @@ mod tests {
     fn test_route_large_backend_mapping() {
         // 2 logical qubits on 5 physical qubits
         let mut circuit = Circuit::new(2, 0);
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-        
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+
         let backend = Backend::linear(5);
-        let pass = BeamSabrePass { backend, beam_width: 2, branch_factor: 2, bidir_iterations: 1 };
+        let pass = BeamSabrePass {
+            backend,
+            beam_width: 2,
+            branch_factor: 2,
+            bidir_iterations: 1,
+        };
         let mut ps = PropertySet::new();
         let routed = pass.run(&circuit, &mut ps);
-        
+
         assert_eq!(routed.num_qubits, 5);
-        
+
         let u_orig = circuit_to_unitary(&circuit);
         let u_phys = circuit_to_unitary(&routed);
         let initial = ps.get::<Vec<usize>>("initial_layout").unwrap();
@@ -1046,19 +1142,33 @@ mod tests {
     fn test_route_mid_circuit_measurement_ordering() {
         // Circuit: CX(0,1), Measure(0), CX(0,1) on linear(3).
         let mut circuit = Circuit::new(2, 1);
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         circuit.add_op(Operation::Measure { qubit: 0, cbit: 0 });
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-        
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+
         let backend = Backend::linear(3);
-        let pass = BeamSabrePass { backend, beam_width: 1, branch_factor: 1, bidir_iterations: 1 };
+        let pass = BeamSabrePass {
+            backend,
+            beam_width: 1,
+            branch_factor: 1,
+            bidir_iterations: 1,
+        };
         let mut ps = PropertySet::new();
         let routed = pass.run(&circuit, &mut ps);
-        
+
         // Verify order: Gate, Measure, Gate
         let ops = &routed.operations;
         assert_eq!(
-            ops.len(), 3,
+            ops.len(),
+            3,
             "Expected exactly 3 operations (CX, Measure, CX), got: {:?}",
             ops
         );

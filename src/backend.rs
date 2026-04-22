@@ -123,7 +123,6 @@ impl Backend {
         backend
     }
 
-
     pub fn ring(num_qubits: usize) -> Self {
         let mut backend = Backend::new(format!("ring_{}", num_qubits), num_qubits);
         let mut edges = Vec::new();

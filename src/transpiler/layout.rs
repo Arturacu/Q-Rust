@@ -19,7 +19,7 @@
 //! **zero-SWAP** layout — matching VF2 without any graph-isomorphism solver.
 
 use crate::backend::Backend;
-use crate::ir::{Circuit, GateType, Operation};
+use crate::ir::{Circuit, Operation};
 use crate::transpiler::pass::Pass;
 use crate::transpiler::property_set::PropertySet;
 use crate::transpiler::routing::Layout;
@@ -108,9 +108,7 @@ fn greedy_sabre_cost(
 
     let mut layout = initial_layout.clone();
     let mut remaining = preds.to_vec();
-    let mut front: Vec<usize> = (0..gates.len())
-        .filter(|&i| remaining[i] == 0)
-        .collect();
+    let mut front: Vec<usize> = (0..gates.len()).filter(|&i| remaining[i] == 0).collect();
     let mut cost = 0.0;
     let mut executed = 0usize;
     let total = gates.len();
@@ -198,13 +196,13 @@ fn relative_score(
 ) -> f64 {
     let (pa, pb) = swap;
     let mut delta = 0.0;
-    
+
     let mut extended_layer = HashSet::new();
 
     for &g in front {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
-        
+
         for &succ in &gates[g].successors {
             extended_layer.insert(succ);
         }
@@ -213,25 +211,49 @@ fn relative_score(
             continue;
         }
         let old = dist[p0][p1] as f64;
-        let np0 = if p0 == pa { pb } else if p0 == pb { pa } else { p0 };
-        let np1 = if p1 == pa { pb } else if p1 == pb { pa } else { p1 };
+        let np0 = if p0 == pa {
+            pb
+        } else if p0 == pb {
+            pa
+        } else {
+            p0
+        };
+        let np1 = if p1 == pa {
+            pb
+        } else if p1 == pb {
+            pa
+        } else {
+            p1
+        };
         delta += dist[np0][np1] as f64 - old;
     }
-    
+
     let lookahead_weight = 0.5;
     for g in extended_layer {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
-        
+
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
             continue;
         }
         let old = dist[p0][p1] as f64;
-        let np0 = if p0 == pa { pb } else if p0 == pb { pa } else { p0 };
-        let np1 = if p1 == pa { pb } else if p1 == pb { pa } else { p1 };
+        let np0 = if p0 == pa {
+            pb
+        } else if p0 == pb {
+            pa
+        } else {
+            p0
+        };
+        let np1 = if p1 == pa {
+            pb
+        } else if p1 == pb {
+            pa
+        } else {
+            p1
+        };
         delta += (dist[np0][np1] as f64 - old) * lookahead_weight;
     }
-    
+
     delta
 }
 
@@ -308,7 +330,8 @@ impl Pass for SabreLayoutPass {
 
         // Score the trivial layout as the baseline
         let trivial = Layout::trivial(num_logical, num_physical);
-        let (trivial_cost, _) = greedy_sabre_cost(&fwd_gates, &fwd_preds, &self.backend, &dist, &trivial);
+        let (trivial_cost, _) =
+            greedy_sabre_cost(&fwd_gates, &fwd_preds, &self.backend, &dist, &trivial);
         let mut best_cost = trivial_cost;
         let mut best_layout = trivial.clone();
 
@@ -379,6 +402,7 @@ fn random_layout(num_logical: usize, num_physical: usize, seed: u64) -> Layout {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ir::GateType;
 
     #[test]
     fn test_random_layout_valid() {
@@ -438,7 +462,8 @@ mod tests {
             let p0 = layout.l2p(i);
             let p1 = layout.l2p(i - 1);
             assert_eq!(
-                dist[p0][p1], 1,
+                dist[p0][p1],
+                1,
                 "Logical {i} -> phys {p0} and logical {} -> phys {p1} are not adjacent",
                 i - 1
             );
@@ -448,8 +473,12 @@ mod tests {
     #[test]
     fn test_layout_no_2q_gates() {
         let mut circuit = Circuit::new(3, 0);
-        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-        
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+
         let mut ps = PropertySet::new();
         let pass = SabreLayoutPass {
             backend: Backend::linear(3),
@@ -463,8 +492,12 @@ mod tests {
     #[test]
     fn test_layout_already_optimal() {
         let mut circuit = Circuit::new(2, 0);
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-        
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+
         let mut ps = PropertySet::new();
         let pass = SabreLayoutPass {
             backend: Backend::linear(2),
@@ -472,7 +505,7 @@ mod tests {
             num_iterations: 2,
         };
         let _ = pass.run(&circuit, &mut ps);
-        
+
         let layout = ps.get::<Vec<usize>>("sabre_initial_layout").unwrap();
         let dist = Backend::linear(2).shortest_path_matrix();
         assert_eq!(dist[layout[0]][layout[1]], 1);

@@ -191,6 +191,262 @@ pub trait GateDefinition {
     fn commutation_signature(&self) -> CommutationSignature;
 }
 
+// ─── Multi-qubit decomposition helpers ──────────────────────────────────────
+
+fn decompose_swap(qubits: &[usize]) -> Vec<Operation> {
+    let a = qubits[0];
+    let b = qubits[1];
+    vec![
+        Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![a, b],
+            params: vec![],
+        },
+        Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![b, a],
+            params: vec![],
+        },
+        Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![a, b],
+            params: vec![],
+        },
+    ]
+}
+
+fn decompose_ccx(qubits: &[usize]) -> Vec<Operation> {
+    let a = qubits[0];
+    let b = qubits[1];
+    let tgt = qubits[2];
+    let mut ops = Vec::new();
+    ops.extend(GateType::H.decompose(&[tgt], &[]).unwrap());
+    ops.push(Operation::Gate {
+        name: GateType::CX,
+        qubits: vec![b, tgt],
+        params: vec![],
+    });
+    ops.extend(GateType::Tdg.decompose(&[tgt], &[]).unwrap());
+    ops.push(Operation::Gate {
+        name: GateType::CX,
+        qubits: vec![a, tgt],
+        params: vec![],
+    });
+    ops.extend(GateType::T.decompose(&[tgt], &[]).unwrap());
+    ops.push(Operation::Gate {
+        name: GateType::CX,
+        qubits: vec![b, tgt],
+        params: vec![],
+    });
+    ops.extend(GateType::Tdg.decompose(&[tgt], &[]).unwrap());
+    ops.push(Operation::Gate {
+        name: GateType::CX,
+        qubits: vec![a, tgt],
+        params: vec![],
+    });
+    ops.extend(GateType::T.decompose(&[b], &[]).unwrap());
+    ops.extend(GateType::T.decompose(&[tgt], &[]).unwrap());
+    ops.extend(GateType::H.decompose(&[tgt], &[]).unwrap());
+    ops.push(Operation::Gate {
+        name: GateType::CX,
+        qubits: vec![a, b],
+        params: vec![],
+    });
+    ops.extend(GateType::T.decompose(&[a], &[]).unwrap());
+    ops.extend(GateType::Tdg.decompose(&[b], &[]).unwrap());
+    ops.push(Operation::Gate {
+        name: GateType::CX,
+        qubits: vec![a, b],
+        params: vec![],
+    });
+    ops
+}
+
+fn decompose_controlled_gates(
+    gate: &GateType,
+    qubits: &[usize],
+    params: &[f64],
+) -> Option<Vec<Operation>> {
+    let mut ops = Vec::new();
+    match gate {
+        GateType::CZ => {
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
+        }
+        GateType::CY => {
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.extend(GateType::Sdg.decompose(&[b], &[]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.extend(GateType::S.decompose(&[b], &[]).unwrap());
+        }
+        GateType::CH => {
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.extend(GateType::S.decompose(&[b], &[]).unwrap());
+            ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
+            ops.extend(GateType::T.decompose(&[b], &[]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.extend(GateType::Tdg.decompose(&[b], &[]).unwrap());
+            ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
+            ops.extend(GateType::Sdg.decompose(&[b], &[]).unwrap());
+        }
+        GateType::CSX => {
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.push(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![a],
+                params: vec![0.0, 0.0, PI / 4.0],
+            });
+            ops.extend(GateType::CRX.decompose(&[a, b], &[PI / 2.0]).unwrap());
+        }
+        GateType::CRX => {
+            let theta = params[0];
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.extend(GateType::RZ.decompose(&[b], &[PI / 2.0]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.push(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![b],
+                params: vec![-theta / 2.0, 0.0, 0.0],
+            });
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.push(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![b],
+                params: vec![theta / 2.0, -PI / 2.0, 0.0],
+            });
+        }
+        GateType::CRY => {
+            let theta = params[0];
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.push(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![b],
+                params: vec![theta / 2.0, 0.0, 0.0],
+            });
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.push(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![b],
+                params: vec![-theta / 2.0, 0.0, 0.0],
+            });
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+        }
+        GateType::CRZ => {
+            let theta = params[0];
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.extend(GateType::RZ.decompose(&[b], &[theta / 2.0]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.extend(GateType::RZ.decompose(&[b], &[-theta / 2.0]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+        }
+        _ => return None,
+    }
+    Some(ops)
+}
+
+fn decompose_ising_gates(
+    gate: &GateType,
+    qubits: &[usize],
+    params: &[f64],
+) -> Option<Vec<Operation>> {
+    let mut ops = Vec::new();
+    match gate {
+        GateType::RXX => {
+            let theta = params[0];
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.extend(GateType::H.decompose(&[a], &[]).unwrap());
+            ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.extend(GateType::RZ.decompose(&[b], &[theta]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.extend(GateType::H.decompose(&[a], &[]).unwrap());
+            ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
+        }
+        GateType::RYY => {
+            let theta = params[0];
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.extend(GateType::RX.decompose(&[a], &[PI / 2.0]).unwrap());
+            ops.extend(GateType::RX.decompose(&[b], &[PI / 2.0]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.extend(GateType::RZ.decompose(&[b], &[theta]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.extend(GateType::RX.decompose(&[a], &[-PI / 2.0]).unwrap());
+            ops.extend(GateType::RX.decompose(&[b], &[-PI / 2.0]).unwrap());
+        }
+        GateType::RZZ => {
+            let theta = params[0];
+            let (a, b) = (qubits[0], qubits[1]);
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+            ops.extend(GateType::RZ.decompose(&[b], &[theta]).unwrap());
+            ops.push(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+        }
+        _ => return None,
+    }
+    Some(ops)
+}
+
 impl GateDefinition for GateType {
     fn num_qubits(&self) -> usize {
         match self {
@@ -257,340 +513,44 @@ impl GateDefinition for GateType {
             return None; // Already a basis gate
         }
 
-        let mut ops = Vec::new();
+        if let Some((theta, phi, lambda)) = self.single_qubit_u_params(params) {
+            return Some(vec![Operation::Gate {
+                name: GateType::U,
+                qubits: qubits.to_vec(),
+                params: vec![theta, phi, lambda],
+            }]);
+        }
 
         match self {
             GateType::U | GateType::CX => unreachable!(), // handled above
+            GateType::SWAP => Some(decompose_swap(qubits)),
+            GateType::CCX => Some(decompose_ccx(qubits)),
+            GateType::CZ
+            | GateType::CY
+            | GateType::CH
+            | GateType::CSX
+            | GateType::CRX
+            | GateType::CRY
+            | GateType::CRZ => decompose_controlled_gates(self, qubits, params),
+            GateType::RXX | GateType::RYY | GateType::RZZ => {
+                decompose_ising_gates(self, qubits, params)
+            }
+            GateType::Custom(_) => None,
 
-            // ── Single-qubit → U(θ,φ,λ) ─────────────────────────────────
-            GateType::ID => {
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![0.0, 0.0, 0.0],
-                });
-            }
-            GateType::X => {
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![PI, 0.0, PI],
-                });
-            }
-            GateType::Y => {
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![PI, PI / 2.0, PI / 2.0],
-                });
-            }
-            GateType::Z => {
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![0.0, 0.0, PI],
-                });
-            }
-            GateType::H => {
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![PI / 2.0, 0.0, PI],
-                });
-            }
-            GateType::S => {
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![0.0, 0.0, PI / 2.0],
-                });
-            }
-            GateType::Sdg => {
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![0.0, 0.0, -PI / 2.0],
-                });
-            }
-            GateType::T => {
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![0.0, 0.0, PI / 4.0],
-                });
-            }
-            GateType::Tdg => {
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![0.0, 0.0, -PI / 4.0],
-                });
-            }
-            GateType::RX => {
-                let theta = params[0];
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![theta, -PI / 2.0, PI / 2.0],
-                });
-            }
-            GateType::RY => {
-                let theta = params[0];
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![theta, 0.0, 0.0],
-                });
-            }
-            GateType::RZ => {
-                let phi = params[0];
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: qubits.to_vec(),
-                    params: vec![0.0, 0.0, phi],
-                });
-            }
-
-            // ── SWAP → 3 CX ─────────────────────────────────────────────
-            GateType::SWAP => {
-                let a = qubits[0];
-                let b = qubits[1];
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![b, a],
-                    params: vec![],
-                });
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-            }
-
-            // ── CCX (Toffoli) ────────────────────────────────────────────
-            GateType::CCX => {
-                let a = qubits[0];
-                let b = qubits[1];
-                let tgt = qubits[2];
-                ops.extend(GateType::H.decompose(&[tgt], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![b, tgt],
-                    params: vec![],
-                });
-                ops.extend(GateType::Tdg.decompose(&[tgt], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, tgt],
-                    params: vec![],
-                });
-                ops.extend(GateType::T.decompose(&[tgt], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![b, tgt],
-                    params: vec![],
-                });
-                ops.extend(GateType::Tdg.decompose(&[tgt], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, tgt],
-                    params: vec![],
-                });
-                ops.extend(GateType::T.decompose(&[b], &[]).unwrap());
-                ops.extend(GateType::T.decompose(&[tgt], &[]).unwrap());
-                ops.extend(GateType::H.decompose(&[tgt], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::T.decompose(&[a], &[]).unwrap());
-                ops.extend(GateType::Tdg.decompose(&[b], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-            }
-
-            // ── Controlled gates ─────────────────────────────────────────
-            GateType::CZ => {
-                let (a, b) = (qubits[0], qubits[1]);
-                ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
-            }
-            GateType::CY => {
-                let (a, b) = (qubits[0], qubits[1]);
-                ops.extend(GateType::Sdg.decompose(&[b], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::S.decompose(&[b], &[]).unwrap());
-            }
-            GateType::CH => {
-                let (a, b) = (qubits[0], qubits[1]);
-                ops.extend(GateType::S.decompose(&[b], &[]).unwrap());
-                ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
-                ops.extend(GateType::T.decompose(&[b], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::Tdg.decompose(&[b], &[]).unwrap());
-                ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
-                ops.extend(GateType::Sdg.decompose(&[b], &[]).unwrap());
-            }
-            GateType::CSX => {
-                let (a, b) = (qubits[0], qubits[1]);
-                // Phase on control
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: vec![a],
-                    params: vec![0.0, 0.0, PI / 4.0],
-                });
-                // CRX(pi/2)
-                ops.extend(GateType::CRX.decompose(&[a, b], &[PI / 2.0]).unwrap());
-            }
-
-            // ── Controlled rotations ─────────────────────────────────────
-            GateType::CRX => {
-                let theta = params[0];
-                let (a, b) = (qubits[0], qubits[1]);
-                ops.extend(GateType::RZ.decompose(&[b], &[PI / 2.0]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: vec![b],
-                    params: vec![-theta / 2.0, 0.0, 0.0],
-                });
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: vec![b],
-                    params: vec![theta / 2.0, -PI / 2.0, 0.0],
-                });
-            }
-            GateType::CRY => {
-                let theta = params[0];
-                let (a, b) = (qubits[0], qubits[1]);
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: vec![b],
-                    params: vec![theta / 2.0, 0.0, 0.0],
-                });
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.push(Operation::Gate {
-                    name: GateType::U,
-                    qubits: vec![b],
-                    params: vec![-theta / 2.0, 0.0, 0.0],
-                });
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-            }
-            GateType::CRZ => {
-                let theta = params[0];
-                let (a, b) = (qubits[0], qubits[1]);
-                ops.extend(GateType::RZ.decompose(&[b], &[theta / 2.0]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::RZ.decompose(&[b], &[-theta / 2.0]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-            }
-
-            // ── Ising interaction gates ──────────────────────────────────
-            GateType::RXX => {
-                let theta = params[0];
-                let (a, b) = (qubits[0], qubits[1]);
-                ops.extend(GateType::H.decompose(&[a], &[]).unwrap());
-                ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::RZ.decompose(&[b], &[theta]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::H.decompose(&[a], &[]).unwrap());
-                ops.extend(GateType::H.decompose(&[b], &[]).unwrap());
-            }
-            GateType::RYY => {
-                let theta = params[0];
-                let (a, b) = (qubits[0], qubits[1]);
-                ops.extend(GateType::RX.decompose(&[a], &[PI / 2.0]).unwrap());
-                ops.extend(GateType::RX.decompose(&[b], &[PI / 2.0]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::RZ.decompose(&[b], &[theta]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::RX.decompose(&[a], &[-PI / 2.0]).unwrap());
-                ops.extend(GateType::RX.decompose(&[b], &[-PI / 2.0]).unwrap());
-            }
-            GateType::RZZ => {
-                let theta = params[0];
-                let (a, b) = (qubits[0], qubits[1]);
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-                ops.extend(GateType::RZ.decompose(&[b], &[theta]).unwrap());
-                ops.push(Operation::Gate {
-                    name: GateType::CX,
-                    qubits: vec![a, b],
-                    params: vec![],
-                });
-            }
-
-            GateType::Custom(_) => return None,
+            // Handled by single_qubit_u_params
+            GateType::ID
+            | GateType::X
+            | GateType::Y
+            | GateType::Z
+            | GateType::H
+            | GateType::S
+            | GateType::Sdg
+            | GateType::T
+            | GateType::Tdg
+            | GateType::RX
+            | GateType::RY
+            | GateType::RZ => unreachable!(),
         }
-
-        Some(ops)
     }
 
     fn commutation_signature(&self) -> CommutationSignature {

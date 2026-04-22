@@ -127,16 +127,16 @@ fn test_qasm_round_trip() {
         measure q[0] -> c[0];
         measure q[1] -> c[1];
     "#;
-    
+
     // Original -> parsed
     let parsed1 = parse_qasm(qasm).expect("Failed first parse");
-    
+
     // Parsed -> string
     let generated = parsed1.to_qasm(None);
-    
+
     // String -> parsed
     let parsed2 = parse_qasm(&generated).expect("Failed second parse");
-    
+
     assert_eq!(parsed1.num_qubits, parsed2.num_qubits);
     assert_eq!(parsed1.num_cbits, parsed2.num_cbits);
     assert_eq!(parsed1.operations, parsed2.operations);

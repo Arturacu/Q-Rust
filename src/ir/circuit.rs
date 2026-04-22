@@ -69,9 +69,12 @@ impl Circuit {
 
     /// Exports the Circuit as an OpenQASM 2.0 string.
     ///
-    /// If `property_set` is provided, includes `initial_layout` and `final_layout` mapping 
+    /// If `property_set` is provided, includes `initial_layout` and `final_layout` mapping
     /// arrays as metadata comments so downstream tools can track hardware routing results.
-    pub fn to_qasm(&self, property_set: Option<&crate::transpiler::property_set::PropertySet>) -> String {
+    pub fn to_qasm(
+        &self,
+        property_set: Option<&crate::transpiler::property_set::PropertySet>,
+    ) -> String {
         let mut qasm = String::new();
         qasm.push_str("OPENQASM 2.0;\n");
         qasm.push_str("include \"qelib1.inc\";\n\n");
@@ -91,11 +94,11 @@ impl Circuit {
             qasm.push_str(&format!("creg c[{}];\n", self.num_cbits));
         }
 
-        qasm.push_str("\n");
+        qasm.push('\n');
 
         for op in &self.operations {
             qasm.push_str(&op.to_qasm());
-            qasm.push_str("\n");
+            qasm.push('\n');
         }
 
         qasm
@@ -103,7 +106,7 @@ impl Circuit {
 
     /// Calculates the quantum depth of the circuit.
     ///
-    /// Depth is defined as the length of the longest path in the circuit's 
+    /// Depth is defined as the length of the longest path in the circuit's
     /// dependency graph (critical path).
     pub fn depth(&self) -> usize {
         let mut qubit_depths = vec![0usize; self.num_qubits];
@@ -249,12 +252,20 @@ mod tests {
     #[test]
     fn test_gate_count_mixed_ops() {
         let mut circuit = Circuit::new(2, 2);
-        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
         circuit.add_op(Operation::Barrier { qubits: vec![0, 1] });
         circuit.add_op(Operation::Reset { qubit: 0 });
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         circuit.add_op(Operation::Measure { qubit: 0, cbit: 0 });
-        
+
         // Gates: H, CX. Measurements, Barriers, and Resets are excluded.
         assert_eq!(circuit.gate_count(), 2);
     }
@@ -262,21 +273,49 @@ mod tests {
     #[test]
     fn test_circuit_depth_complex_dependencies() {
         let mut circuit = Circuit::new(4, 0);
-        
+
         // Parallel Layer 1
-        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
-        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![2], params: vec![] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![1],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![2],
+            params: vec![],
+        });
 
         // Dependent Layer 2
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![2, 3], params: vec![] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![2, 3],
+            params: vec![],
+        });
 
         // Cross-Dependency Layer 3
-        circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![1, 2], params: vec![] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![1, 2],
+            params: vec![],
+        });
 
         // Final Depth Layer 4
-        circuit.add_op(Operation::Gate { name: GateType::X, qubits: vec![2], params: vec![] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::X,
+            qubits: vec![2],
+            params: vec![],
+        });
 
         assert_eq!(circuit.depth(), 4);
     }
@@ -284,18 +323,28 @@ mod tests {
     #[test]
     fn test_depth_synchronization_at_barrier() {
         let mut circuit = Circuit::new(3, 0);
-        
+
         // Q0 reaches Depth 10
         for _ in 0..10 {
-            circuit.add_op(Operation::Gate { name: GateType::X, qubits: vec![0], params: vec![] });
+            circuit.add_op(Operation::Gate {
+                name: GateType::X,
+                qubits: vec![0],
+                params: vec![],
+            });
         }
-        
+
         // Barrier synchronizes Q1 and Q2 (at Depth 0) up to Depth 10
-        circuit.add_op(Operation::Barrier { qubits: vec![0, 1, 2] });
-        
+        circuit.add_op(Operation::Barrier {
+            qubits: vec![0, 1, 2],
+        });
+
         // Next operation on Q1 starts from Depth 10 + 1
-        circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
-        
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![1],
+            params: vec![],
+        });
+
         assert_eq!(circuit.depth(), 11);
     }
 }
