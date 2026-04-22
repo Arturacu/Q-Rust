@@ -216,23 +216,18 @@ fn relative_score(
     layout: &Layout,
     swap: (usize, usize),
     front_layer: &[usize],
+    extended_layer: &[usize],
+    w_weight: f64,
     gates: &[TwoQGate],
     dist: &[Vec<usize>],
 ) -> f64 {
     let (pa, pb) = swap;
     let mut delta = 0.0;
     
-    // Maintain a set of unique successors for the extended lookahead layer
-    let mut extended_layer = std::collections::HashSet::new();
-
     for &gate_idx in front_layer {
         let gate = &gates[gate_idx];
         let p0 = layout.l2p(gate.logical_qubits[0]);
         let p1 = layout.l2p(gate.logical_qubits[1]);
-        
-        for &succ in &gate.successors {
-            extended_layer.insert(succ);
-        }
 
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
             continue;
@@ -245,9 +240,8 @@ fn relative_score(
         delta += new_dist - old_dist;
     }
     
-    // Incorporate Extended Lookahead Layer (weight = 0.5)
-    let lookahead_weight = 0.5;
-    for gate_idx in extended_layer {
+    // Incorporate Extended Lookahead Layer
+    for &gate_idx in extended_layer {
         let gate = &gates[gate_idx];
         let p0 = layout.l2p(gate.logical_qubits[0]);
         let p1 = layout.l2p(gate.logical_qubits[1]);
@@ -260,7 +254,7 @@ fn relative_score(
         let new_p0 = if p0 == pa { pb } else if p0 == pb { pa } else { p0 };
         let new_p1 = if p1 == pa { pb } else if p1 == pb { pa } else { p1 };
         let new_dist = dist[new_p0][new_p1] as f64;
-        delta += (new_dist - old_dist) * lookahead_weight;
+        delta += (new_dist - old_dist) * w_weight;
     }
 
     delta
@@ -303,6 +297,9 @@ fn beam_sabre_forward(
     let mut beams = vec![Beam::new(initial_layout.clone(), pred_counts, gates.len())];
 
     loop {
+        // W_weight will start at 0.5 and decay to 0 over execution
+        let max_gates = beams.iter().map(|b| b.total_gates).max().unwrap_or(1).max(1) as f64;
+
         // Execute all routable gates in each beam
         for beam in &mut beams {
             if beam.complete {
@@ -341,11 +338,22 @@ fn beam_sabre_forward(
                 }
             }
 
+            let mut extended_layer_set = std::collections::HashSet::new();
+            for &gate_idx in &beam.front_layer {
+                for &succ in &gates[gate_idx].successors {
+                    extended_layer_set.insert(succ);
+                }
+            }
+            let extended_layer: Vec<usize> = extended_layer_set.into_iter().collect();
+
+            let executed_ratio = beam.executed_count as f64 / max_gates;
+            let w_weight = 0.5 * (1.0 - executed_ratio).max(0.0);
+
             // Score each candidate
             let mut scored: Vec<(f64, (usize, usize))> = candidates
                 .iter()
                 .map(|&swap| {
-                    let delta = relative_score(&beam.layout, swap, &beam.front_layer, gates, dist);
+                    let delta = relative_score(&beam.layout, swap, &beam.front_layer, &extended_layer, w_weight, gates, dist);
                     (beam.cumulative_cost + SWAP_COST + delta, swap)
                 })
                 .collect();
@@ -361,7 +369,7 @@ fn beam_sabre_forward(
             // Release valve: if no candidate swap improves the heuristic score,
             // restrict branching to 1 to avoid combinatorial explosion on plateaus.
             let best_delta =
-                relative_score(&beam.layout, scored[0].1, &beam.front_layer, gates, dist);
+                relative_score(&beam.layout, scored[0].1, &beam.front_layer, &extended_layer, w_weight, gates, dist);
 
             let effective_branch = if best_delta >= 0.0 {
                 // Not making progress — use release valve (take only 1 path)
