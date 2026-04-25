@@ -1,3 +1,5 @@
+//! Debug harness for the KAK decomposition's eigenstructure.
+
 use nalgebra::{ComplexField, DMatrix};
 use num_complex::Complex;
 
@@ -25,21 +27,18 @@ fn main() {
     );
 
     let u_magic = magic_matrix.adjoint() * &swap * &magic_matrix;
-    println!("U_magic:");
-    println!("{}", u_magic);
+    println!("U_magic:\n{u_magic}");
 
     let m_sys = u_magic.transpose() * &u_magic;
-    println!("M_sys:");
-    println!("{}", m_sys);
+    println!("M_sys:\n{m_sys}");
 
-    let schur = m_sys.try_schur(1e-9, 0).unwrap();
+    let schur = m_sys.try_schur(1e-9, 0).expect("Schur decomposition failed");
     let eigen = schur.unpack().1.diagonal();
-    println!("Eigenvalues:");
-    println!("{}", eigen);
+    println!("Eigenvalues:\n{eigen}");
 
     let phases: Vec<f64> = eigen.iter().map(|c| c.arg()).collect();
-    println!("Phases: {:?}", phases);
+    println!("Phases: {phases:?}");
 
     let theta: Vec<f64> = phases.iter().map(|p| p / 2.0).collect();
-    println!("Theta (psi): {:?}", theta);
+    println!("Theta: {theta:?}");
 }
