@@ -10,9 +10,12 @@ pub mod profiler;
 pub mod property_set;
 pub mod routing;
 pub mod synthesis;
+pub mod target_basis;
 
+use crate::error::{QRustError, Result};
 use crate::ir::{Circuit, GateType, Operation};
 use pass::{Pass, PassManager};
+use std::collections::HashSet;
 
 #[derive(Clone, Debug)]
 #[non_exhaustive]
@@ -20,6 +23,12 @@ pub struct TranspilerConfig {
     pub decompose_basis: bool,
     pub optimization_level: u8,
     pub backend: Option<crate::backend::Backend>,
+    /// Target gate set to translate into after all other passes complete.
+    ///
+    /// If `None` and a `Backend` with non-empty `basis_gates` is provided,
+    /// those are used automatically. If both are absent, basis translation
+    /// is skipped (permissive mode — internal canonical gates are kept).
+    pub target_basis: Option<HashSet<String>>,
 }
 
 impl Default for TranspilerConfig {
@@ -28,6 +37,7 @@ impl Default for TranspilerConfig {
             decompose_basis: true,
             optimization_level: 1,
             backend: None,
+            target_basis: None,
         }
     }
 }
@@ -43,6 +53,7 @@ pub struct TranspilerConfigBuilder {
     decompose_basis: Option<bool>,
     optimization_level: Option<u8>,
     backend: Option<crate::backend::Backend>,
+    target_basis: Option<HashSet<String>>,
 }
 
 impl TranspilerConfigBuilder {
@@ -58,6 +69,12 @@ impl TranspilerConfigBuilder {
         self.backend = Some(backend);
         self
     }
+    /// Explicitly set the target basis gate set.
+    /// Overrides any `basis_gates` coming from the `Backend`.
+    pub fn target_basis(mut self, basis: impl IntoIterator<Item = impl Into<String>>) -> Self {
+        self.target_basis = Some(basis.into_iter().map(|s| s.into()).collect());
+        self
+    }
     pub fn build(self) -> TranspilerConfig {
         let default = TranspilerConfig::default();
         let level = self
@@ -68,6 +85,7 @@ impl TranspilerConfigBuilder {
             decompose_basis: self.decompose_basis.unwrap_or(default.decompose_basis),
             optimization_level: level,
             backend: self.backend,
+            target_basis: self.target_basis,
         }
     }
 }
@@ -216,7 +234,7 @@ impl Pass for NativeBasisTranslationPass {
     }
 }
 
-pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Circuit {
+pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Result<Circuit> {
     let config = config.unwrap_or_default();
     let mut pm = PassManager::new();
 
@@ -285,14 +303,24 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Circuit
         ));
     }
 
-    // Final backend-aware basis translation (IBM-style {id, rz, sx, x, cx}).
-    if let Some(ref backend) = config.backend {
-        pm.add_pass(Box::new(NativeBasisTranslationPass {
-            backend: backend.clone(),
-        }));
-    }
+    // Final target-basis translation.
+    // Priority: explicit target_basis on config > backend.basis_gates > skip (permissive).
+    let resolved_basis: Option<HashSet<String>> = config.target_basis.clone().or_else(|| {
+        config
+            .backend
+            .as_ref()
+            .filter(|b| !b.basis_gates.is_empty())
+            .map(|b| b.basis_gates.clone())
+    });
 
-    pm.run(circuit)
+    if let Some(basis) = resolved_basis {
+        // validate_universality is called inside TargetBasisPass::new.
+        let tb_pass = target_basis::TargetBasisPass::new(basis)?;
+        pm.add_pass(Box::new(tb_pass));
+    }
+    // If no basis is resolved: permissive mode — leave canonical gates in place.
+
+    Ok(pm.run(circuit))
 }
 
 #[cfg(test)]
@@ -309,7 +337,7 @@ mod tests {
             qubits: vec![0],
             params: vec![],
         });
-        let t = transpile(&c, None);
+        let t = transpile(&c, None).expect("transpile failed");
         assert_eq!(t.operations.len(), 1);
     }
 
@@ -340,7 +368,7 @@ mod tests {
             params: vec![],
         });
         let cfg2 = TranspilerConfig::default();
-        let out2 = transpile(&c2, Some(cfg2));
+        let out2 = transpile(&c2, Some(cfg2)).expect("transpile failed");
         assert!(!out2.operations.is_empty());
     }
 }

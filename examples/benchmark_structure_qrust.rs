@@ -31,7 +31,7 @@ fn main() {
         .build();
 
     let start = Instant::now();
-    let r = transpile(&c, Some(cfg));
+    let r = transpile(&c, Some(cfg)).expect("transpile failed");
     let duration = start.elapsed();
 
     println!("Original QFT-like ops: {}", c.operations.len());

@@ -84,7 +84,7 @@ fn main() {
             .decompose_basis(true)
             .backend(backend.clone())
             .build();
-        let out = transpile(&circ, Some(cfg));
+        let out = transpile(&circ, Some(cfg)).expect("transpile failed");
         println!("\n--- {name} ---");
         println!(
             "CX: {}   total gates: {}   depth: {}",

@@ -55,7 +55,7 @@ fn main() {
         .decompose_basis(true)
         .backend(Backend::linear(3))
         .build();
-    let out = transpile(&ghz, Some(cfg));
+    let out = transpile(&ghz, Some(cfg)).expect("transpile failed");
     println!(
         "  gates: {}  swaps: {}",
         out.operations.len(),
@@ -78,7 +78,7 @@ fn main() {
         .decompose_basis(true)
         .backend(Backend::linear(3))
         .build();
-    let out = transpile(&nonadj, Some(cfg));
+    let out = transpile(&nonadj, Some(cfg)).expect("transpile failed");
     println!(
         "  gates: {}  swaps: {}",
         out.operations.len(),
@@ -101,7 +101,7 @@ fn main() {
         .decompose_basis(false)
         .backend(Backend::grid(2, 2))
         .build();
-    let out = transpile(&grid, Some(cfg));
+    let out = transpile(&grid, Some(cfg)).expect("transpile failed");
     println!(
         "  gates: {}  swaps: {}",
         out.operations.len(),

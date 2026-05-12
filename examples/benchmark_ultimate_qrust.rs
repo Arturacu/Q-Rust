@@ -5,7 +5,7 @@ fn run_example(name: &str) {
     println!("Running: {}", name);
     println!("=============================================");
     let status = Command::new("cargo")
-        .args(&["run", "--release", "--example", name])
+        .args(["run", "--release", "--example", name])
         .status()
         .expect("Failed to execute example");
 

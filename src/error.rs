@@ -35,6 +35,18 @@ pub enum QRustError {
     Decomposition(String),
     #[error("Internal invariant violation: {0}")]
     Internal(String),
+    /// Raised when `decompose_basis = true` but no target gate set was provided.
+    #[error(
+        "no target basis specified: set `target_basis` on TranspilerConfig or \
+         provide a Backend with non-empty `basis_gates`"
+    )]
+    NoBasisSpecified,
+    /// Raised when the provided gate set is not quantum-universal.
+    #[error("provided gate set is not quantum-universal: {reason}")]
+    NonUniversalBasisGateSet { reason: String },
+    /// Raised when a gate cannot be expressed in the given target basis.
+    #[error("gate '{gate}' cannot be expressed in target basis {basis:?}")]
+    UntranslatableGate { gate: String, basis: Vec<String> },
 }
 
 impl From<&str> for QRustError {

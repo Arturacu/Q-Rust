@@ -244,7 +244,7 @@ fn test_e2e_pipeline_ibm_quito() {
         .decompose_basis(true)
         .backend(b.clone())
         .build();
-    let r = transpile(&c, Some(cfg));
+    let r = transpile(&c, Some(cfg)).expect("transpile failed");
     assert_all_adjacent(&r, &b);
 }
 

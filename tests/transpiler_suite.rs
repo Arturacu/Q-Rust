@@ -32,7 +32,7 @@ fn run_and_check(qasm: &str, config: TranspilerConfig, fixture_name: &str) {
     let decompose = config.decompose_basis;
     let u_orig = circuit_to_unitary(&circuit);
 
-    let result = transpile(&circuit, Some(config));
+    let result = transpile(&circuit, Some(config)).expect("transpile failed");
 
     assert_eq!(
         result.num_qubits, original_qubits,

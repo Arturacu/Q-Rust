@@ -45,7 +45,7 @@ fn main() {
         .decompose_basis(true)
         .build();
 
-    let transpiled = transpile(&circuit, Some(config));
+    let transpiled = transpile(&circuit, Some(config)).expect("transpile failed");
     let final_count = transpiled.operations.len();
     println!("Transpiled gate count: {final_count}");
     println!(
