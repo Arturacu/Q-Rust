@@ -12,7 +12,11 @@ pub enum QRustError {
     #[error("Undefined identifier: {0}")]
     Undefined(String),
     #[error("Index out of bounds: {name}[{index}] (size = {size})")]
-    IndexOutOfBounds { name: String, index: usize, size: usize },
+    IndexOutOfBounds {
+        name: String,
+        index: usize,
+        size: usize,
+    },
     #[error("Arithmetic error: {0}")]
     Arithmetic(String),
     #[error("Unknown gate: {0}")]
@@ -44,5 +48,3 @@ impl From<String> for QRustError {
         QRustError::Internal(s)
     }
 }
-
-

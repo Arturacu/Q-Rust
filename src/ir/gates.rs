@@ -7,10 +7,32 @@ use std::str::FromStr;
 #[cfg_attr(feature = "serde-ir", derive(serde::Serialize, serde::Deserialize))]
 #[non_exhaustive]
 pub enum GateType {
-    H, X, Y, Z, S, Sdg, T, Tdg, ID,
-    RX, RY, RZ, U,
-    CX, CY, CZ, CH, CSX, CRX, CRY, CRZ,
-    RXX, RYY, RZZ, SWAP, CCX,
+    H,
+    X,
+    Y,
+    Z,
+    S,
+    Sdg,
+    T,
+    Tdg,
+    ID,
+    RX,
+    RY,
+    RZ,
+    U,
+    CX,
+    CY,
+    CZ,
+    CH,
+    CSX,
+    CRX,
+    CRY,
+    CRZ,
+    RXX,
+    RYY,
+    RZZ,
+    SWAP,
+    CCX,
     /// A barrier pseudo-gate placeholder. Not used as a real gate
     /// (barriers are represented by `Operation::Barrier`), but exists so
     /// `count_ops` and similar tools can report barriers uniformly.

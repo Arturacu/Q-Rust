@@ -58,7 +58,11 @@ my_rotation(1.57) q[0];
         let circuit = decompose_basis(&parsed);
         assert_eq!(circuit.operations.len(), 1);
         match &circuit.operations[0] {
-            Operation::Gate { name, qubits, params } => {
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } => {
                 assert_eq!(*name, GateType::U);
                 assert_eq!(*qubits, vec![0]);
                 assert_eq!(params.len(), 3);

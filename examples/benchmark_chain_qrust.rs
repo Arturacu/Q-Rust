@@ -1,2 +1,4 @@
 // Chain benchmark
-fn main() { println!("Chain Benchmark"); }
+fn main() {
+    println!("Chain Benchmark");
+}

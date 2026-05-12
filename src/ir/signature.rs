@@ -5,7 +5,9 @@ use std::f64::consts::PI;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum PauliBasis {
-    X, Y, Z,
+    X,
+    Y,
+    Z,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

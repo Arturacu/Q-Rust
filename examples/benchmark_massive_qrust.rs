@@ -1,2 +1,4 @@
 // Massive benchmark
-fn main() { println!("Massive Benchmark"); }
+fn main() {
+    println!("Massive Benchmark");
+}

@@ -1,2 +1,4 @@
 // Export to qiskit
-fn main() { println!("Export"); }
+fn main() {
+    println!("Export");
+}

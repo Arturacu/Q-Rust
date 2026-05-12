@@ -5,7 +5,7 @@ pub mod rules;
 use self::rules::{comment, creg, gate_call, include, measure, openqasm_version, qreg};
 use crate::error::{QRustError, Result};
 use crate::ir::ast::{Expr, ParsedStatement};
-use crate::ir::{ClassicalCondition, Circuit, GateType, Operation};
+use crate::ir::{Circuit, ClassicalCondition, GateType, Operation};
 use nom::{branch::alt, character::complete::multispace0};
 use std::collections::HashMap;
 use std::f64::consts::PI;
@@ -119,7 +119,13 @@ pub fn parse_qasm(input: &str) -> Result<Circuit> {
         })?;
         current = rem;
 
-        handle_statement(&mut circuit, &mut ctx, &mut total_qubits, &mut total_cbits, stmt)?;
+        handle_statement(
+            &mut circuit,
+            &mut ctx,
+            &mut total_qubits,
+            &mut total_cbits,
+            stmt,
+        )?;
     }
 
     circuit.num_qubits = total_qubits;
@@ -179,11 +185,8 @@ fn handle_statement(
                 qubits = (0..*total_qubits).collect();
             } else {
                 for arg in &args {
-                    let indices = resolve_argument(
-                        &(arg.0.clone(), arg.1),
-                        &ctx.qregs,
-                        &HashMap::new(),
-                    )?;
+                    let indices =
+                        resolve_argument(&(arg.0.clone(), arg.1), &ctx.qregs, &HashMap::new())?;
                     qubits.extend(indices);
                 }
             }
@@ -217,7 +220,12 @@ fn handle_statement(
                 }
                 ParsedStatement::Measure((q_name, q_idx), (c_name, c_idx)) => {
                     emit_measure(
-                        circuit, ctx, &q_name, q_idx, &c_name, c_idx,
+                        circuit,
+                        ctx,
+                        &q_name,
+                        q_idx,
+                        &c_name,
+                        c_idx,
                         Some(condition),
                     )?;
                 }
@@ -246,8 +254,7 @@ fn emit_reset(
 ) -> Result<()> {
     let mut all: Vec<usize> = Vec::new();
     for arg in qubits {
-        let indices =
-            resolve_argument(&(arg.0.clone(), arg.1), &ctx.qregs, &HashMap::new())?;
+        let indices = resolve_argument(&(arg.0.clone(), arg.1), &ctx.qregs, &HashMap::new())?;
         all.extend(indices);
     }
     for q in all {
@@ -272,8 +279,7 @@ fn emit_measure(
     c_idx: Option<usize>,
     condition: Option<ClassicalCondition>,
 ) -> Result<()> {
-    let q_indices =
-        resolve_argument(&(q_name.to_string(), q_idx), &ctx.qregs, &HashMap::new())?;
+    let q_indices = resolve_argument(&(q_name.to_string(), q_idx), &ctx.qregs, &HashMap::new())?;
     let c_indices = if let Some(&(start, size)) = ctx.cregs.get(c_name) {
         if let Some(i) = c_idx {
             if i < size {
@@ -337,9 +343,22 @@ fn emit_resolved_gate_call(
     for i in 0..max_len {
         let current_qubits: Vec<usize> = args_indices
             .iter()
-            .map(|indices| if indices.len() == 1 { indices[0] } else { indices[i] })
+            .map(|indices| {
+                if indices.len() == 1 {
+                    indices[0]
+                } else {
+                    indices[i]
+                }
+            })
             .collect();
-        emit_gate(circuit, ctx, name, params, &current_qubits, condition.clone())?;
+        emit_gate(
+            circuit,
+            ctx,
+            name,
+            params,
+            &current_qubits,
+            condition.clone(),
+        )?;
     }
     Ok(())
 }
@@ -441,7 +460,10 @@ mod tests {
 
     #[test]
     fn test_header() {
-        assert_eq!(openqasm_version("OPENQASM 2.0;"), Ok(("", "2.0".to_string())));
+        assert_eq!(
+            openqasm_version("OPENQASM 2.0;"),
+            Ok(("", "2.0".to_string()))
+        );
     }
 
     #[test]
@@ -477,7 +499,10 @@ mod tests {
             cx q[0], q[1];
         "#;
         let c = parse_qasm(qasm).unwrap();
-        assert!(c.operations.iter().any(|op| matches!(op, Operation::Barrier { .. })));
+        assert!(c
+            .operations
+            .iter()
+            .any(|op| matches!(op, Operation::Barrier { .. })));
     }
 
     #[test]
@@ -507,7 +532,10 @@ mod tests {
             if(c==1) x q[0];
         "#;
         let circ = parse_qasm(qasm).unwrap();
-        assert!(circ.operations.iter().any(|op| matches!(op, Operation::Conditional { .. })));
+        assert!(circ
+            .operations
+            .iter()
+            .any(|op| matches!(op, Operation::Conditional { .. })));
     }
 
     #[test]

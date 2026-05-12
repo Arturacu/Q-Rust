@@ -110,8 +110,3 @@ mod tests {
         assert!((got - (PI / 2.0 + 1.0)).abs() < 1e-12);
     }
 }
-
-
-
-
-

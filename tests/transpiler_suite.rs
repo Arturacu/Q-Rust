@@ -34,8 +34,14 @@ fn run_and_check(qasm: &str, config: TranspilerConfig, fixture_name: &str) {
 
     let result = transpile(&circuit, Some(config));
 
-    assert_eq!(result.num_qubits, original_qubits, "[{fixture_name}] num_qubits");
-    assert_eq!(result.num_cbits, original_cbits, "[{fixture_name}] num_cbits");
+    assert_eq!(
+        result.num_qubits, original_qubits,
+        "[{fixture_name}] num_qubits"
+    );
+    assert_eq!(
+        result.num_cbits, original_cbits,
+        "[{fixture_name}] num_cbits"
+    );
 
     if decompose {
         for (i, op) in result.operations.iter().enumerate() {
@@ -78,38 +84,142 @@ macro_rules! fixture_test {
     };
 }
 
-fixture_test!(test_bell_state_default, "fixtures/bell_state.qasm", config_default);
-fixture_test!(test_bell_state_no_decompose, "fixtures/bell_state.qasm", config_no_decompose);
-fixture_test!(test_bell_state_decompose_only, "fixtures/bell_state.qasm", config_decompose_only);
+fixture_test!(
+    test_bell_state_default,
+    "fixtures/bell_state.qasm",
+    config_default
+);
+fixture_test!(
+    test_bell_state_no_decompose,
+    "fixtures/bell_state.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_bell_state_decompose_only,
+    "fixtures/bell_state.qasm",
+    config_decompose_only
+);
 
 fixture_test!(test_ghz_3_default, "fixtures/ghz_3.qasm", config_default);
-fixture_test!(test_ghz_3_no_decompose, "fixtures/ghz_3.qasm", config_no_decompose);
-fixture_test!(test_ghz_3_decompose_only, "fixtures/ghz_3.qasm", config_decompose_only);
+fixture_test!(
+    test_ghz_3_no_decompose,
+    "fixtures/ghz_3.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_ghz_3_decompose_only,
+    "fixtures/ghz_3.qasm",
+    config_decompose_only
+);
 
-fixture_test!(test_rotations_default, "fixtures/rotations.qasm", config_default);
-fixture_test!(test_rotations_no_decompose, "fixtures/rotations.qasm", config_no_decompose);
-fixture_test!(test_rotations_decompose_only, "fixtures/rotations.qasm", config_decompose_only);
+fixture_test!(
+    test_rotations_default,
+    "fixtures/rotations.qasm",
+    config_default
+);
+fixture_test!(
+    test_rotations_no_decompose,
+    "fixtures/rotations.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_rotations_decompose_only,
+    "fixtures/rotations.qasm",
+    config_decompose_only
+);
 
-fixture_test!(test_multi_gate_default, "fixtures/multi_gate.qasm", config_default);
-fixture_test!(test_multi_gate_no_decompose, "fixtures/multi_gate.qasm", config_no_decompose);
-fixture_test!(test_multi_gate_decompose_only, "fixtures/multi_gate.qasm", config_decompose_only);
+fixture_test!(
+    test_multi_gate_default,
+    "fixtures/multi_gate.qasm",
+    config_default
+);
+fixture_test!(
+    test_multi_gate_no_decompose,
+    "fixtures/multi_gate.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_multi_gate_decompose_only,
+    "fixtures/multi_gate.qasm",
+    config_decompose_only
+);
 
-fixture_test!(test_toffoli_default, "fixtures/toffoli.qasm", config_default);
-fixture_test!(test_toffoli_no_decompose, "fixtures/toffoli.qasm", config_no_decompose);
-fixture_test!(test_toffoli_decompose_only, "fixtures/toffoli.qasm", config_decompose_only);
+fixture_test!(
+    test_toffoli_default,
+    "fixtures/toffoli.qasm",
+    config_default
+);
+fixture_test!(
+    test_toffoli_no_decompose,
+    "fixtures/toffoli.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_toffoli_decompose_only,
+    "fixtures/toffoli.qasm",
+    config_decompose_only
+);
 
-fixture_test!(test_custom_gate_default, "fixtures/custom_gate.qasm", config_default);
-fixture_test!(test_custom_gate_no_decompose, "fixtures/custom_gate.qasm", config_no_decompose);
-fixture_test!(test_custom_gate_decompose_only, "fixtures/custom_gate.qasm", config_decompose_only);
+fixture_test!(
+    test_custom_gate_default,
+    "fixtures/custom_gate.qasm",
+    config_default
+);
+fixture_test!(
+    test_custom_gate_no_decompose,
+    "fixtures/custom_gate.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_custom_gate_decompose_only,
+    "fixtures/custom_gate.qasm",
+    config_decompose_only
+);
 
-fixture_test!(test_identity_only_default, "fixtures/identity_only.qasm", config_default);
-fixture_test!(test_identity_only_no_decompose, "fixtures/identity_only.qasm", config_no_decompose);
-fixture_test!(test_identity_only_decompose_only, "fixtures/identity_only.qasm", config_decompose_only);
+fixture_test!(
+    test_identity_only_default,
+    "fixtures/identity_only.qasm",
+    config_default
+);
+fixture_test!(
+    test_identity_only_no_decompose,
+    "fixtures/identity_only.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_identity_only_decompose_only,
+    "fixtures/identity_only.qasm",
+    config_decompose_only
+);
 
-fixture_test!(test_controlled_gates_default, "fixtures/controlled_gates.qasm", config_default);
-fixture_test!(test_controlled_gates_no_decompose, "fixtures/controlled_gates.qasm", config_no_decompose);
-fixture_test!(test_controlled_gates_decompose_only, "fixtures/controlled_gates.qasm", config_decompose_only);
+fixture_test!(
+    test_controlled_gates_default,
+    "fixtures/controlled_gates.qasm",
+    config_default
+);
+fixture_test!(
+    test_controlled_gates_no_decompose,
+    "fixtures/controlled_gates.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_controlled_gates_decompose_only,
+    "fixtures/controlled_gates.qasm",
+    config_decompose_only
+);
 
-fixture_test!(test_csx_gate_default, "fixtures/csx_gate.qasm", config_default);
-fixture_test!(test_csx_gate_no_decompose, "fixtures/csx_gate.qasm", config_no_decompose);
-fixture_test!(test_csx_gate_decompose_only, "fixtures/csx_gate.qasm", config_decompose_only);
+fixture_test!(
+    test_csx_gate_default,
+    "fixtures/csx_gate.qasm",
+    config_default
+);
+fixture_test!(
+    test_csx_gate_no_decompose,
+    "fixtures/csx_gate.qasm",
+    config_no_decompose
+);
+fixture_test!(
+    test_csx_gate_decompose_only,
+    "fixtures/csx_gate.qasm",
+    config_decompose_only
+);

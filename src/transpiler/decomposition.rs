@@ -44,7 +44,11 @@ pub fn try_unroll_custom_gates(circuit: &Circuit) -> Result<Circuit> {
 
     for op in &circuit.operations {
         match op {
-            Operation::Gate { name, qubits, params } if matches!(name, GateType::Custom(_)) => {
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } if matches!(name, GateType::Custom(_)) => {
                 expand_gate_custom_only(
                     &mut result,
                     &circuit.custom_gates,
@@ -71,10 +75,15 @@ fn expand_op(
     cache: &mut HashMap<String, CachedTemplate>,
 ) -> Result<()> {
     match op {
-        Operation::Gate { name, qubits, params } => {
-            expand_gate(circuit, registry, name, qubits, params, cache)
-        }
-        Operation::Conditional { condition, op: inner } => {
+        Operation::Gate {
+            name,
+            qubits,
+            params,
+        } => expand_gate(circuit, registry, name, qubits, params, cache),
+        Operation::Conditional {
+            condition,
+            op: inner,
+        } => {
             // Expand the inner op into a fresh sub-circuit and re-wrap each
             // resulting basis gate under the same condition.
             let mut tmp = Circuit::new(circuit.num_qubits, circuit.num_cbits);
@@ -168,7 +177,14 @@ fn expand_gate_custom_only(
             resolved_params.push(p.evaluate_with_scope(&scope_params)?);
         }
         if matches!(gate_type, GateType::Custom(_)) {
-            expand_gate_custom_only(circuit, registry, gate_type, &resolved_qubits, &resolved_params, cache)?;
+            expand_gate_custom_only(
+                circuit,
+                registry,
+                gate_type,
+                &resolved_qubits,
+                &resolved_params,
+                cache,
+            )?;
         } else {
             circuit.add_op(Operation::Gate {
                 name: gate_type.clone(),
@@ -241,7 +257,14 @@ fn expand_gate(
                             params: sub_params,
                         });
                     } else {
-                        expand_gate(circuit, registry, &sub_name, &sub_qubits, &sub_params, cache)?;
+                        expand_gate(
+                            circuit,
+                            registry,
+                            &sub_name,
+                            &sub_qubits,
+                            &sub_params,
+                            cache,
+                        )?;
                     }
                 }
             }
@@ -253,26 +276,47 @@ fn expand_gate(
 /// Rewrites a CX whose (control, target) direction violates the backend
 /// coupling map — but the reverse edge exists — by sandwiching with H on
 /// both wires: `CX(a,b) = (H⊗H) · CX(b,a) · (H⊗H)`.
-pub fn reorient_cx_for_coupling(
-    circuit: &Circuit,
-    backend: &crate::backend::Backend,
-) -> Circuit {
+pub fn reorient_cx_for_coupling(circuit: &Circuit, backend: &crate::backend::Backend) -> Circuit {
     let mut out = Circuit::new(circuit.num_qubits, circuit.num_cbits);
     out.custom_gates = circuit.custom_gates.clone();
 
     for op in &circuit.operations {
         match op {
-            Operation::Gate { name: GateType::CX, qubits, params } if qubits.len() == 2 => {
+            Operation::Gate {
+                name: GateType::CX,
+                qubits,
+                params,
+            } if qubits.len() == 2 => {
                 let (c, t) = (qubits[0], qubits[1]);
                 if backend.has_directed_edge(c, t) {
                     out.add_op(op.clone());
                 } else if backend.has_directed_edge(t, c) {
                     // Insert H·H CX(t,c) H·H
-                    out.add_op(Operation::Gate { name: GateType::H, qubits: vec![c], params: vec![] });
-                    out.add_op(Operation::Gate { name: GateType::H, qubits: vec![t], params: vec![] });
-                    out.add_op(Operation::Gate { name: GateType::CX, qubits: vec![t, c], params: params.clone() });
-                    out.add_op(Operation::Gate { name: GateType::H, qubits: vec![c], params: vec![] });
-                    out.add_op(Operation::Gate { name: GateType::H, qubits: vec![t], params: vec![] });
+                    out.add_op(Operation::Gate {
+                        name: GateType::H,
+                        qubits: vec![c],
+                        params: vec![],
+                    });
+                    out.add_op(Operation::Gate {
+                        name: GateType::H,
+                        qubits: vec![t],
+                        params: vec![],
+                    });
+                    out.add_op(Operation::Gate {
+                        name: GateType::CX,
+                        qubits: vec![t, c],
+                        params: params.clone(),
+                    });
+                    out.add_op(Operation::Gate {
+                        name: GateType::H,
+                        qubits: vec![c],
+                        params: vec![],
+                    });
+                    out.add_op(Operation::Gate {
+                        name: GateType::H,
+                        qubits: vec![t],
+                        params: vec![],
+                    });
                 } else {
                     // Neither direction available; leave as-is (routing will handle).
                     out.add_op(op.clone());
@@ -338,7 +382,11 @@ mod tests {
         let d = decompose_basis(&c);
         assert_eq!(d.operations.len(), 1);
         match &d.operations[0] {
-            Operation::Gate { name: GateType::U, params, .. } => {
+            Operation::Gate {
+                name: GateType::U,
+                params,
+                ..
+            } => {
                 assert!((params[0] - PI / 2.0).abs() < 1e-6);
                 assert!(params[1].abs() < 1e-6);
                 assert!((params[2] - PI).abs() < 1e-6);
@@ -373,10 +421,21 @@ mod tests {
     #[test]
     fn test_preserves_barrier() {
         let mut c = Circuit::new(2, 0);
-        c.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
         c.add_op(Operation::Barrier { qubits: vec![0, 1] });
-        c.add_op(Operation::Gate { name: GateType::X, qubits: vec![1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::X,
+            qubits: vec![1],
+            params: vec![],
+        });
         let d = decompose_basis(&c);
-        assert!(d.operations.iter().any(|op| matches!(op, Operation::Barrier { .. })));
+        assert!(d
+            .operations
+            .iter()
+            .any(|op| matches!(op, Operation::Barrier { .. })));
     }
 }

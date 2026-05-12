@@ -45,7 +45,11 @@ pub enum Operation {
 impl Operation {
     pub fn to_qasm(&self) -> String {
         match self {
-            Operation::Gate { name, qubits, params } => {
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } => {
                 let mut s = String::with_capacity(16);
                 s.push_str(name.to_qasm_name());
                 if !params.is_empty() {
@@ -84,7 +88,12 @@ impl Operation {
                 s
             }
             Operation::Conditional { condition, op } => {
-                format!("if({}=={}) {}", condition.creg, condition.value, op.to_qasm())
+                format!(
+                    "if({}=={}) {}",
+                    condition.creg,
+                    condition.value,
+                    op.to_qasm()
+                )
             }
         }
     }

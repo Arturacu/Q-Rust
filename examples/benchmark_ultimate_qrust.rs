@@ -1,2 +1,4 @@
 // Ultimate benchmark
-fn main() { println!("Ultimate Benchmark"); }
+fn main() {
+    println!("Ultimate Benchmark");
+}

@@ -10,7 +10,15 @@ fn count_swaps(circuit: &Circuit) -> usize {
     circuit
         .operations
         .iter()
-        .filter(|op| matches!(op, Operation::Gate { name: GateType::SWAP, .. }))
+        .filter(|op| {
+            matches!(
+                op,
+                Operation::Gate {
+                    name: GateType::SWAP,
+                    ..
+                }
+            )
+        })
         .count()
 }
 
@@ -48,7 +56,11 @@ fn main() {
         .backend(Backend::linear(3))
         .build();
     let out = transpile(&ghz, Some(cfg));
-    println!("  gates: {}  swaps: {}", out.operations.len(), count_swaps(&out));
+    println!(
+        "  gates: {}  swaps: {}",
+        out.operations.len(),
+        count_swaps(&out)
+    );
     check_adjacency(&out, &Backend::linear(3));
     let fid = unitary_fidelity(&circuit_to_unitary(&ghz), &circuit_to_unitary(&out));
     println!("  fidelity (no permutation assumed): {fid:.10}");
@@ -67,7 +79,11 @@ fn main() {
         .backend(Backend::linear(3))
         .build();
     let out = transpile(&nonadj, Some(cfg));
-    println!("  gates: {}  swaps: {}", out.operations.len(), count_swaps(&out));
+    println!(
+        "  gates: {}  swaps: {}",
+        out.operations.len(),
+        count_swaps(&out)
+    );
     check_adjacency(&out, &Backend::linear(3));
 
     println!("\n--- Test 3: star pattern on Grid(2,2) ---");
@@ -86,6 +102,10 @@ fn main() {
         .backend(Backend::grid(2, 2))
         .build();
     let out = transpile(&grid, Some(cfg));
-    println!("  gates: {}  swaps: {}", out.operations.len(), count_swaps(&out));
+    println!(
+        "  gates: {}  swaps: {}",
+        out.operations.len(),
+        count_swaps(&out)
+    );
     check_adjacency(&out, &Backend::grid(2, 2));
 }

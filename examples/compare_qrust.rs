@@ -6,7 +6,11 @@ use q_rust::transpiler::{transpile, TranspilerConfig};
 
 fn build_ghz(n: usize) -> Circuit {
     let mut c = Circuit::new(n, 0);
-    c.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+    c.add_op(Operation::Gate {
+        name: GateType::H,
+        qubits: vec![0],
+        params: vec![],
+    });
     for i in 0..n - 1 {
         c.add_op(Operation::Gate {
             name: GateType::CX,
@@ -32,7 +36,11 @@ fn build_reverse_chain(n: usize) -> Circuit {
 fn build_qft(n: usize) -> Circuit {
     let mut c = Circuit::new(n, 0);
     for target in 0..n {
-        c.add_op(Operation::Gate { name: GateType::H, qubits: vec![target], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![target],
+            params: vec![],
+        });
         for control in target + 1..n {
             c.add_op(Operation::Gate {
                 name: GateType::CX,
@@ -45,9 +53,18 @@ fn build_qft(n: usize) -> Circuit {
 }
 
 fn count_cx(c: &Circuit) -> usize {
-    c.operations.iter().filter(|op| {
-        matches!(op, Operation::Gate { name: GateType::CX, .. })
-    }).count()
+    c.operations
+        .iter()
+        .filter(|op| {
+            matches!(
+                op,
+                Operation::Gate {
+                    name: GateType::CX,
+                    ..
+                }
+            )
+        })
+        .count()
 }
 
 fn main() {
@@ -69,6 +86,11 @@ fn main() {
             .build();
         let out = transpile(&circ, Some(cfg));
         println!("\n--- {name} ---");
-        println!("CX: {}   total gates: {}   depth: {}", count_cx(&out), out.operations.len(), out.depth());
+        println!(
+            "CX: {}   total gates: {}   depth: {}",
+            count_cx(&out),
+            out.operations.len(),
+            out.depth()
+        );
     }
 }

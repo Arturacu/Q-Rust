@@ -178,8 +178,20 @@ fn relative_score(
             continue;
         }
         let old = dist[p0][p1] as f64;
-        let np0 = if p0 == pa { pb } else if p0 == pb { pa } else { p0 };
-        let np1 = if p1 == pa { pb } else if p1 == pb { pa } else { p1 };
+        let np0 = if p0 == pa {
+            pb
+        } else if p0 == pb {
+            pa
+        } else {
+            p0
+        };
+        let np1 = if p1 == pa {
+            pb
+        } else if p1 == pb {
+            pa
+        } else {
+            p1
+        };
         delta += dist[np0][np1] as f64 - old;
     }
 
@@ -191,8 +203,20 @@ fn relative_score(
             continue;
         }
         let old = dist[p0][p1] as f64;
-        let np0 = if p0 == pa { pb } else if p0 == pb { pa } else { p0 };
-        let np1 = if p1 == pa { pb } else if p1 == pb { pa } else { p1 };
+        let np0 = if p0 == pa {
+            pb
+        } else if p0 == pb {
+            pa
+        } else {
+            p0
+        };
+        let np1 = if p1 == pa {
+            pb
+        } else if p1 == pb {
+            pa
+        } else {
+            p1
+        };
         delta += (dist[np0][np1] as f64 - old) * lookahead_weight;
     }
 
@@ -273,13 +297,8 @@ impl Pass for SabreLayoutPass {
             for _ in 0..self.num_iterations {
                 let (_, fwd_final) =
                     greedy_sabre_cost(&fwd_gates, &fwd_preds, &self.backend, &dist, &layout);
-                let (_, bwd_final) = greedy_sabre_cost(
-                    &rev_gates,
-                    &rev_preds,
-                    &self.backend,
-                    &dist,
-                    &fwd_final,
-                );
+                let (_, bwd_final) =
+                    greedy_sabre_cost(&rev_gates, &rev_preds, &self.backend, &dist, &fwd_final);
                 layout = bwd_final;
             }
 
@@ -371,7 +390,11 @@ mod tests {
     #[test]
     fn test_layout_no_2q_gates() {
         let mut c = Circuit::new(3, 0);
-        c.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
         let mut ps = PropertySet::new();
         let pass = SabreLayoutPass {
             backend: Backend::linear(3),
@@ -385,7 +408,11 @@ mod tests {
     #[test]
     fn test_layout_already_optimal() {
         let mut c = Circuit::new(2, 0);
-        c.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         let mut ps = PropertySet::new();
         let pass = SabreLayoutPass {
             backend: Backend::linear(2),
@@ -399,4 +426,3 @@ mod tests {
     }
 }
 // /// Layout passes
-

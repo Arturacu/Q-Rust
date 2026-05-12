@@ -1,2 +1,4 @@
 // Structure benchmark
-fn main() { println!("Structure Benchmark"); }
+fn main() {
+    println!("Structure Benchmark");
+}

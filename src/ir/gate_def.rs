@@ -59,7 +59,12 @@ fn compose_basis_ops(ops: &[Operation], n_qubits: usize) -> DMatrix<C> {
     let dim = 1usize << n_qubits;
     let mut result = DMatrix::<C>::identity(dim, dim);
     for op in ops {
-        if let Operation::Gate { name, qubits, params } = op {
+        if let Operation::Gate {
+            name,
+            qubits,
+            params,
+        } = op
+        {
             let gate_u = match name {
                 GateType::U => {
                     let u = basis_u_matrix(params);
@@ -115,14 +120,32 @@ pub trait GateDefinition {
 impl GateDefinition for GateType {
     fn num_qubits(&self) -> usize {
         match self {
-            GateType::H | GateType::X | GateType::Y | GateType::Z
-            | GateType::S | GateType::Sdg | GateType::T | GateType::Tdg
-            | GateType::ID | GateType::RX | GateType::RY | GateType::RZ
+            GateType::H
+            | GateType::X
+            | GateType::Y
+            | GateType::Z
+            | GateType::S
+            | GateType::Sdg
+            | GateType::T
+            | GateType::Tdg
+            | GateType::ID
+            | GateType::RX
+            | GateType::RY
+            | GateType::RZ
             | GateType::U => 1,
 
-            GateType::CX | GateType::CZ | GateType::CY | GateType::CH
-            | GateType::CSX | GateType::CRX | GateType::CRY | GateType::CRZ
-            | GateType::RXX | GateType::RYY | GateType::RZZ | GateType::SWAP => 2,
+            GateType::CX
+            | GateType::CZ
+            | GateType::CY
+            | GateType::CH
+            | GateType::CSX
+            | GateType::CRX
+            | GateType::CRY
+            | GateType::CRZ
+            | GateType::RXX
+            | GateType::RYY
+            | GateType::RZZ
+            | GateType::SWAP => 2,
 
             GateType::CCX => 3,
             GateType::Barrier => 0,
@@ -315,17 +338,22 @@ impl GateDefinition for GateType {
 
     fn commutation_signature(&self) -> CommutationSignature {
         match self {
-            GateType::Z | GateType::RZ | GateType::S | GateType::Sdg
-            | GateType::T | GateType::Tdg | GateType::CZ => {
-                CommutationSignature::Diagonal(PauliBasis::Z)
-            }
+            GateType::Z
+            | GateType::RZ
+            | GateType::S
+            | GateType::Sdg
+            | GateType::T
+            | GateType::Tdg
+            | GateType::CZ => CommutationSignature::Diagonal(PauliBasis::Z),
             GateType::X | GateType::RX => CommutationSignature::Diagonal(PauliBasis::X),
             GateType::Y | GateType::RY => CommutationSignature::Diagonal(PauliBasis::Y),
             GateType::CX => CommutationSignature::CompositeDiagonal(vec![
-                (0, PauliBasis::Z), (1, PauliBasis::X),
+                (0, PauliBasis::Z),
+                (1, PauliBasis::X),
             ]),
             GateType::CY => CommutationSignature::CompositeDiagonal(vec![
-                (0, PauliBasis::Z), (1, PauliBasis::Y),
+                (0, PauliBasis::Z),
+                (1, PauliBasis::Y),
             ]),
             GateType::H | GateType::SWAP => CommutationSignature::Clifford,
             _ => CommutationSignature::Generic,

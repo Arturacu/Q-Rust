@@ -82,11 +82,7 @@ impl Pass for KakSynthesisPass {
         "KakSynthesisPass"
     }
 
-    fn run(
-        &self,
-        circuit: &Circuit,
-        _property_set: &mut property_set::PropertySet,
-    ) -> Circuit {
+    fn run(&self, circuit: &Circuit, _property_set: &mut property_set::PropertySet) -> Circuit {
         use crate::ir::GateDefinition;
         use crate::transpiler::synthesis::kak::KakSynthesizer;
         use crate::transpiler::synthesis::Synthesizer;
@@ -96,9 +92,11 @@ impl Pass for KakSynthesisPass {
 
         for op in &circuit.operations {
             match op {
-                Operation::Gate { name, qubits, params }
-                    if qubits.len() == 2 && !matches!(name, GateType::CX) =>
-                {
+                Operation::Gate {
+                    name,
+                    qubits,
+                    params,
+                } if qubits.len() == 2 && !matches!(name, GateType::CX) => {
                     // Get local 4x4 unitary for this gate and re-synthesize.
                     let u = name.unitary(params);
                     if u.nrows() == 4 && u.ncols() == 4 {
@@ -148,11 +146,7 @@ impl Pass for NativeBasisTranslationPass {
         "NativeBasisTranslationPass"
     }
 
-    fn run(
-        &self,
-        circuit: &Circuit,
-        _property_set: &mut property_set::PropertySet,
-    ) -> Circuit {
+    fn run(&self, circuit: &Circuit, _property_set: &mut property_set::PropertySet) -> Circuit {
         // If the backend natively supports the abstract U gate, no translation needed.
         let native_u = self.backend.basis_gates.contains("u")
             || self.backend.basis_gates.contains("u3")
@@ -230,7 +224,9 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Circuit
         pm.add_pass(Box::new(optimization::GateCrystallizationPass {
             epsilon: 1e-9,
         }));
-        pm.add_pass(Box::new(optimization::ParameterSimplificationPass::default()));
+        pm.add_pass(Box::new(
+            optimization::ParameterSimplificationPass::default(),
+        ));
     }
 
     if config.optimization_level >= 2 {
@@ -238,7 +234,9 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Circuit
         pm.add_pass(Box::new(optimization::CrossConjugationPass));
         pm.add_pass(Box::new(optimization::InverseCancellationPass));
         pm.add_pass(Box::new(optimization::CommutationCancellationPass));
-        pm.add_pass(Box::new(optimization::ParameterSimplificationPass::default()));
+        pm.add_pass(Box::new(
+            optimization::ParameterSimplificationPass::default(),
+        ));
     }
 
     if let Some(ref backend) = config.backend {
@@ -282,7 +280,9 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Circuit
         pm.add_pass(Box::new(optimization::GateFusionPass));
         pm.add_pass(Box::new(optimization::SwapSimplificationPass));
         pm.add_pass(Box::new(optimization::InverseCancellationPass));
-        pm.add_pass(Box::new(optimization::ParameterSimplificationPass::default()));
+        pm.add_pass(Box::new(
+            optimization::ParameterSimplificationPass::default(),
+        ));
     }
 
     // Final backend-aware basis translation (IBM-style {id, rz, sx, x, cx}).
@@ -322,7 +322,11 @@ mod tests {
     #[test]
     fn test_transpile_no_state_leak_between_calls() {
         let mut c1 = Circuit::new(2, 0);
-        c1.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c1.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         let cfg1 = TranspilerConfig::builder()
             .optimization_level(2)
             .backend(Backend::linear(3))
@@ -330,7 +334,11 @@ mod tests {
         let _ = transpile(&c1, Some(cfg1));
 
         let mut c2 = Circuit::new(1, 0);
-        c2.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        c2.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
         let cfg2 = TranspilerConfig::default();
         let out2 = transpile(&c2, Some(cfg2));
         assert!(!out2.operations.is_empty());

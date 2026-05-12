@@ -95,7 +95,11 @@ impl Circuit {
         for op in &self.operations {
             match op {
                 Operation::Gate { qubits, .. } => {
-                    let m = qubits.iter().filter_map(|&q| qd.get(q).copied()).max().unwrap_or(0);
+                    let m = qubits
+                        .iter()
+                        .filter_map(|&q| qd.get(q).copied())
+                        .max()
+                        .unwrap_or(0);
                     let new_d = m + 1;
                     for &q in qubits {
                         if let Some(slot) = qd.get_mut(q) {
@@ -109,7 +113,11 @@ impl Circuit {
                     }
                 }
                 Operation::Barrier { qubits } => {
-                    let m = qubits.iter().filter_map(|&q| qd.get(q).copied()).max().unwrap_or(0);
+                    let m = qubits
+                        .iter()
+                        .filter_map(|&q| qd.get(q).copied())
+                        .max()
+                        .unwrap_or(0);
                     for &q in qubits {
                         if let Some(slot) = qd.get_mut(q) {
                             *slot = m;
@@ -118,7 +126,11 @@ impl Circuit {
                 }
                 Operation::Conditional { op, .. } => {
                     let qubits = op.qubits();
-                    let m = qubits.iter().filter_map(|&q| qd.get(q).copied()).max().unwrap_or(0);
+                    let m = qubits
+                        .iter()
+                        .filter_map(|&q| qd.get(q).copied())
+                        .max()
+                        .unwrap_or(0);
                     let new_d = m + 1;
                     for &q in qubits {
                         if let Some(slot) = qd.get_mut(q) {
@@ -211,18 +223,42 @@ mod tests {
     #[test]
     fn test_depth_simple() {
         let mut c = Circuit::new(2, 0);
-        c.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-        c.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
-        c.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        c.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![1],
+            params: vec![],
+        });
+        c.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         assert_eq!(c.depth(), 2);
     }
 
     #[test]
     fn test_count_ops() {
         let mut c = Circuit::new(2, 0);
-        c.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-        c.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
-        c.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        c.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![1],
+            params: vec![],
+        });
+        c.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         c.add_op(Operation::Barrier { qubits: vec![0, 1] });
         let counts = c.count_ops();
         assert_eq!(counts.get(&GateType::H), Some(&2));
@@ -240,13 +276,18 @@ mod tests {
     #[test]
     fn test_to_qasm_with_barrier() {
         let mut c = Circuit::new(2, 0);
-        c.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
         c.add_op(Operation::Barrier { qubits: vec![0, 1] });
-        c.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         let qasm = c.to_qasm(None);
         assert!(qasm.contains("barrier q[0], q[1];"));
     }
 }
-
-
-

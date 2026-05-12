@@ -1,5 +1,6 @@
 //! Debug harness for the KAK decomposition's eigenstructure.
 
+#![allow(unused_imports)]
 use nalgebra::{ComplexField, DMatrix};
 use num_complex::Complex;
 
@@ -32,7 +33,9 @@ fn main() {
     let m_sys = u_magic.transpose() * &u_magic;
     println!("M_sys:\n{m_sys}");
 
-    let schur = m_sys.try_schur(1e-9, 0).expect("Schur decomposition failed");
+    let schur = m_sys
+        .try_schur(1e-9, 0)
+        .expect("Schur decomposition failed");
     let eigen = schur.unpack().1.diagonal();
     println!("Eigenvalues:\n{eigen}");
 

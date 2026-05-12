@@ -86,8 +86,7 @@ impl Backend {
     /// 1D linear nearest-neighbor chain.
     pub fn linear(num_qubits: usize) -> Self {
         let mut backend = Backend::new("linear", num_qubits);
-        let edges = (0..num_qubits.saturating_sub(1))
-            .flat_map(|i| [(i, i + 1), (i + 1, i)]);
+        let edges = (0..num_qubits.saturating_sub(1)).flat_map(|i| [(i, i + 1), (i + 1, i)]);
         backend.set_coupling_map(edges);
         backend
     }
@@ -294,7 +293,3 @@ mod tests {
     }
 }
 // /// Hardware backend representation
-
-
-
-

@@ -184,8 +184,7 @@ fn find_commuting_cx(
                 ..
             }) if qubits[0] == ctrl_wire && qubits[1] == target_wire => break next,
             DAGNode::Op(Operation::Gate {
-                name: GateType::CX,
-                ..
+                name: GateType::CX, ..
             }) => return None,
             DAGNode::Op(op) => {
                 if !commutes_with_cx(op, ctrl_wire, target_wire) {
@@ -216,7 +215,10 @@ fn find_commuting_cx(
 }
 
 fn walk_forward_on_wire(dag: &DAGCircuit, current: NodeIndex, wire: usize) -> Option<NodeIndex> {
-    for edge in dag.graph.edges_directed(current, petgraph::Direction::Outgoing) {
+    for edge in dag
+        .graph
+        .edges_directed(current, petgraph::Direction::Outgoing)
+    {
         if edge.weight().index == wire {
             return Some(edge.target());
         }
@@ -226,7 +228,11 @@ fn walk_forward_on_wire(dag: &DAGCircuit, current: NodeIndex, wire: usize) -> Op
 
 fn commutes_with_cx(op: &Operation, ctrl: usize, target: usize) -> bool {
     match op {
-        Operation::Gate { name, qubits, params } => {
+        Operation::Gate {
+            name,
+            qubits,
+            params,
+        } => {
             let involves_ctrl = qubits.contains(&ctrl);
             let involves_target = qubits.contains(&target);
 
@@ -302,15 +308,22 @@ fn swap_simplify_segment(circuit: &Circuit) -> Circuit {
         }
         let op = &circuit.operations[i];
         match op {
-            Operation::Gate { name: GateType::SWAP, qubits, .. } if qubits.len() == 2 => {
+            Operation::Gate {
+                name: GateType::SWAP,
+                qubits,
+                ..
+            } if qubits.len() == 2 => {
                 let (a, b) = (qubits[0], qubits[1]);
                 // Is there a pending swap on BOTH a and b pointing to the same earlier SWAP?
                 let pa = pending_swap_by_qubit.get(&a).copied();
                 let pb = pending_swap_by_qubit.get(&b).copied();
                 if let (Some(pa), Some(pb)) = (pa, pb) {
                     if pa == pb {
-                        if let Operation::Gate { name: GateType::SWAP, qubits: pq, .. } =
-                            &circuit.operations[pa]
+                        if let Operation::Gate {
+                            name: GateType::SWAP,
+                            qubits: pq,
+                            ..
+                        } = &circuit.operations[pa]
                         {
                             if pq.len() == 2
                                 && ((pq[0] == a && pq[1] == b) || (pq[0] == b && pq[1] == a))
@@ -332,7 +345,9 @@ fn swap_simplify_segment(circuit: &Circuit) -> Circuit {
             _ => {
                 // Any op that touches q invalidates the pending swap on q.
                 let touched: Vec<usize> = match op {
-                    Operation::Gate { qubits, .. } | Operation::Barrier { qubits } => qubits.clone(),
+                    Operation::Gate { qubits, .. } | Operation::Barrier { qubits } => {
+                        qubits.clone()
+                    }
                     Operation::Measure { qubit, .. } | Operation::Reset { qubit } => vec![*qubit],
                     Operation::Conditional { op, .. } => op.qubits().to_vec(),
                 };
@@ -389,7 +404,11 @@ impl Pass for ParameterSimplificationPass {
 
         for op in &circuit.operations {
             match op {
-                Operation::Gate { name, qubits, params } => {
+                Operation::Gate {
+                    name,
+                    qubits,
+                    params,
+                } => {
                     let mut np = params.clone();
                     let mut keep = true;
                     if matches!(
@@ -467,7 +486,12 @@ impl Pass for GateCrystallizationPass {
         let pi = std::f64::consts::PI;
 
         for op in &circuit.operations {
-            if let Operation::Gate { name, qubits, params } = op {
+            if let Operation::Gate {
+                name,
+                qubits,
+                params,
+            } = op
+            {
                 let mut new_name = name.clone();
                 let mut new_params = params.clone();
 
@@ -590,30 +614,42 @@ fn rotation_merge_segment(circuit: &Circuit) -> Circuit {
                 continue;
             };
             let src_info = match &dag.graph[src] {
-                DAGNode::Op(Operation::Gate { name, qubits, params })
-                    if matches!(name, GateType::RX | GateType::RY | GateType::RZ)
-                        && qubits.len() == 1 =>
+                DAGNode::Op(Operation::Gate {
+                    name,
+                    qubits,
+                    params,
+                }) if matches!(name, GateType::RX | GateType::RY | GateType::RZ)
+                    && qubits.len() == 1 =>
                 {
                     Some((name.clone(), qubits.clone(), params.clone()))
                 }
-                DAGNode::Op(Operation::Gate { name, qubits, params })
-                    if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ)
-                        && qubits.len() == 2 =>
+                DAGNode::Op(Operation::Gate {
+                    name,
+                    qubits,
+                    params,
+                }) if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ)
+                    && qubits.len() == 2 =>
                 {
                     Some((name.clone(), qubits.clone(), params.clone()))
                 }
                 _ => None,
             };
             let dst_info = match &dag.graph[dst] {
-                DAGNode::Op(Operation::Gate { name, qubits, params })
-                    if matches!(name, GateType::RX | GateType::RY | GateType::RZ)
-                        && qubits.len() == 1 =>
+                DAGNode::Op(Operation::Gate {
+                    name,
+                    qubits,
+                    params,
+                }) if matches!(name, GateType::RX | GateType::RY | GateType::RZ)
+                    && qubits.len() == 1 =>
                 {
                     Some((name.clone(), qubits.clone(), params.clone()))
                 }
-                DAGNode::Op(Operation::Gate { name, qubits, params })
-                    if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ)
-                        && qubits.len() == 2 =>
+                DAGNode::Op(Operation::Gate {
+                    name,
+                    qubits,
+                    params,
+                }) if matches!(name, GateType::CRX | GateType::CRY | GateType::CRZ)
+                    && qubits.len() == 2 =>
                 {
                     Some((name.clone(), qubits.clone(), params.clone()))
                 }
@@ -783,7 +819,12 @@ fn get_shared_qubits(op1: &Operation, op2: &Operation) -> Vec<usize> {
     }
 }
 
-fn is_strictly_adjacent(dag: &DAGCircuit, src: NodeIndex, dst: NodeIndex, qubits: &[usize]) -> bool {
+fn is_strictly_adjacent(
+    dag: &DAGCircuit,
+    src: NodeIndex,
+    dst: NodeIndex,
+    qubits: &[usize],
+) -> bool {
     for &q in qubits {
         let mut found = false;
         for edge in dag.graph.edges_directed(src, petgraph::Direction::Outgoing) {
@@ -802,8 +843,16 @@ fn is_strictly_adjacent(dag: &DAGCircuit, src: NodeIndex, dst: NodeIndex, qubits
 fn are_inverses(op1: &Operation, op2: &Operation) -> bool {
     match (op1, op2) {
         (
-            Operation::Gate { name: n1, qubits: q1, params: p1 },
-            Operation::Gate { name: n2, qubits: q2, params: p2 },
+            Operation::Gate {
+                name: n1,
+                qubits: q1,
+                params: p1,
+            },
+            Operation::Gate {
+                name: n2,
+                qubits: q2,
+                params: p2,
+            },
         ) => {
             if q1 != q2 {
                 return false;
@@ -830,8 +879,7 @@ fn are_inverses(op1: &Operation, op2: &Operation) -> bool {
                 | (GateType::CRY, GateType::CRY)
                 | (GateType::CRZ, GateType::CRZ) => match (p1.first(), p2.first()) {
                     (Some(a), Some(b)) => {
-                        (a + b).abs() < 1e-9
-                            || (a + b - 2.0 * std::f64::consts::PI).abs() < 1e-9
+                        (a + b).abs() < 1e-9 || (a + b - 2.0 * std::f64::consts::PI).abs() < 1e-9
                     }
                     _ => false,
                 },
@@ -871,8 +919,16 @@ mod tests {
     #[test]
     fn test_cx_cancellation() {
         let mut c = Circuit::new(2, 0);
-        c.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-        c.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        c.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         let r = CommutationCancellationPass.run(&c, &mut new_props());
         assert_eq!(r.operations.len(), 0);
     }
@@ -899,8 +955,16 @@ mod tests {
     #[test]
     fn test_swap_cancellation_simple() {
         let mut c = Circuit::new(2, 0);
-        c.add_op(Operation::Gate { name: GateType::SWAP, qubits: vec![0, 1], params: vec![] });
-        c.add_op(Operation::Gate { name: GateType::SWAP, qubits: vec![0, 1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::SWAP,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        c.add_op(Operation::Gate {
+            name: GateType::SWAP,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         let r = SwapSimplificationPass.run(&c, &mut new_props());
         assert_eq!(r.operations.len(), 0);
     }
@@ -908,9 +972,21 @@ mod tests {
     #[test]
     fn test_swap_stops_on_touching_op() {
         let mut c = Circuit::new(2, 0);
-        c.add_op(Operation::Gate { name: GateType::SWAP, qubits: vec![0, 1], params: vec![] });
-        c.add_op(Operation::Gate { name: GateType::X, qubits: vec![0], params: vec![] });
-        c.add_op(Operation::Gate { name: GateType::SWAP, qubits: vec![0, 1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::SWAP,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        c.add_op(Operation::Gate {
+            name: GateType::X,
+            qubits: vec![0],
+            params: vec![],
+        });
+        c.add_op(Operation::Gate {
+            name: GateType::SWAP,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         let r = SwapSimplificationPass.run(&c, &mut new_props());
         assert_eq!(r.operations.len(), 3);
     }

@@ -16,9 +16,7 @@ pub struct PropertySet {
 impl fmt::Debug for PropertySet {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let keys: Vec<&str> = self.properties.keys().map(String::as_str).collect();
-        f.debug_struct("PropertySet")
-            .field("keys", &keys)
-            .finish()
+        f.debug_struct("PropertySet").field("keys", &keys).finish()
     }
 }
 

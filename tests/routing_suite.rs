@@ -33,7 +33,15 @@ fn count_swaps(circuit: &Circuit) -> usize {
     circuit
         .operations
         .iter()
-        .filter(|op| matches!(op, Operation::Gate { name: GateType::SWAP, .. }))
+        .filter(|op| {
+            matches!(
+                op,
+                Operation::Gate {
+                    name: GateType::SWAP,
+                    ..
+                }
+            )
+        })
         .count()
 }
 
@@ -88,7 +96,16 @@ fn build_circuit(num_qubits: usize, gates: &[(GateType, Vec<usize>, Vec<f64>)]) 
 fn test_layout_roundtrip_10_swaps() {
     let mut layout = Layout::trivial(8, 8);
     let swaps = vec![
-        (0, 1), (3, 7), (2, 5), (6, 4), (1, 3), (0, 7), (5, 6), (4, 2), (7, 0), (3, 1),
+        (0, 1),
+        (3, 7),
+        (2, 5),
+        (6, 4),
+        (1, 3),
+        (0, 7),
+        (5, 6),
+        (4, 2),
+        (7, 0),
+        (3, 1),
     ];
     for (a, b) in &swaps {
         layout.swap_physical(*a, *b);
@@ -106,7 +123,10 @@ fn test_layout_roundtrip_10_swaps() {
 fn test_bell_state_linear_3() {
     let c = build_circuit(
         2,
-        &[(GateType::H, vec![0], vec![]), (GateType::CX, vec![0, 1], vec![])],
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+        ],
     );
     let b = Backend::linear(3);
     let r = route(&c, &b, 4, 2);
@@ -232,7 +252,10 @@ fn test_e2e_pipeline_ibm_quito() {
 fn test_routing_fidelity_bell_state_quito() {
     let c = build_circuit(
         2,
-        &[(GateType::H, vec![0], vec![]), (GateType::CX, vec![0, 1], vec![])],
+        &[
+            (GateType::H, vec![0], vec![]),
+            (GateType::CX, vec![0, 1], vec![]),
+        ],
     );
     let b = load_backend("ibm_quito_5q.json");
     let u_orig = circuit_to_unitary(&c);

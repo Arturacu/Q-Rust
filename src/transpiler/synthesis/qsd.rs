@@ -65,16 +65,10 @@ impl Synthesizer for QSearchSynthesizer {
     }
 }
 
-fn qsearch_1q(
-    target: &DMatrix<Complex<f64>>,
-    max_iter: usize,
-    tol: f64,
-) -> Option<Circuit> {
+fn qsearch_1q(target: &DMatrix<Complex<f64>>, max_iter: usize, tol: f64) -> Option<Circuit> {
     // Ansatz: single U(theta, phi, lambda). Nelder-Mead over 3-dim.
     let cost = |params: &[f64]| -> f64 {
-        let u = crate::transpiler::synthesis::zyz::u_to_matrix(
-            params[0], params[1], params[2],
-        );
+        let u = crate::transpiler::synthesis::zyz::u_to_matrix(params[0], params[1], params[2]);
         // Frobenius distance up to a global phase:
         // Use 1 - |tr(U† V)|/d
         let t = target;
@@ -184,8 +178,7 @@ fn qsearch_1q(
         }
     }
 
-    let best_idx = (0..simplex.len())
-        .min_by(|&a, &b| fs[a].partial_cmp(&fs[b]).unwrap())?;
+    let best_idx = (0..simplex.len()).min_by(|&a, &b| fs[a].partial_cmp(&fs[b]).unwrap())?;
     let params = simplex[best_idx].clone();
     if fs[best_idx] > 1e-3 {
         return None;

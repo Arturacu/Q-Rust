@@ -83,15 +83,18 @@ pub fn try_circuit_to_unitary(circuit: &Circuit) -> Result<DMatrix<C>> {
     let mut u = DMatrix::<C>::identity(dim, dim);
 
     for op in &unrolled.operations {
-        if let Operation::Gate { name, qubits, params } = op {
+        if let Operation::Gate {
+            name,
+            qubits,
+            params,
+        } = op
+        {
             let local_u = name.unitary(params);
             let gate_u = match name.num_qubits() {
                 0 => continue, // Barrier pseudo-gate; no unitary action.
                 1 => {
                     if qubits.is_empty() {
-                        return Err(QRustError::Simulation(
-                            "1-qubit gate has no target".into(),
-                        ));
+                        return Err(QRustError::Simulation("1-qubit gate has no target".into()));
                     }
                     embed_single_qubit(&local_u, qubits[0], n)
                 }
@@ -229,4 +232,3 @@ mod tests {
     }
 }
 // /// Statevector simulator
-

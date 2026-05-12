@@ -241,5 +241,3 @@ impl From<&DAGCircuit> for Circuit {
     }
 }
 // /// Directed Acyclic Graph representation
-
-

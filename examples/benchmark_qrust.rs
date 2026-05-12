@@ -1,2 +1,4 @@
 // Basic benchmark
-fn main() { println!("Benchmark QRust"); }
+fn main() {
+    println!("Benchmark QRust");
+}

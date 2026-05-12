@@ -37,7 +37,12 @@ pub fn zyz_decomposition(u: Unitary2x2) -> (f64, f64, f64, f64) {
         lambda = v01.arg() - gamma - PI;
     }
 
-    (theta, normalize_angle(phi), normalize_angle(lambda), normalize_angle(gamma))
+    (
+        theta,
+        normalize_angle(phi),
+        normalize_angle(lambda),
+        normalize_angle(gamma),
+    )
 }
 
 fn normalize_angle(angle: f64) -> f64 {

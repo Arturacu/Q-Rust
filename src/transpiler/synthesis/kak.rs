@@ -212,8 +212,16 @@ impl Synthesizer for KakSynthesizer {
         let mut circuit = Circuit::new(2, 0);
 
         // Pre-rotations (always emitted).
-        circuit.add_op(Operation::Gate { name: GateType::U, qubits: vec![1], params: vec![b0_t, b0_p, b0_l] });
-        circuit.add_op(Operation::Gate { name: GateType::U, qubits: vec![0], params: vec![b1_t, b1_p, b1_l] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::U,
+            qubits: vec![1],
+            params: vec![b0_t, b0_p, b0_l],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::U,
+            qubits: vec![0],
+            params: vec![b1_t, b1_p, b1_l],
+        });
 
         match n_nontrivial {
             0 => {
@@ -223,56 +231,200 @@ impl Synthesizer for KakSynthesizer {
                 // 1-CX case: exactly one interaction coefficient is non-zero.
                 // Emit the single corresponding block.
                 if nx {
-                    circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-                    circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
-                    circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                    circuit.add_op(Operation::Gate { name: GateType::RZ, qubits: vec![1], params: vec![-2.0 * x] });
-                    circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                    circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-                    circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::H,
+                        qubits: vec![0],
+                        params: vec![],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::H,
+                        qubits: vec![1],
+                        params: vec![],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::CX,
+                        qubits: vec![0, 1],
+                        params: vec![],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::RZ,
+                        qubits: vec![1],
+                        params: vec![-2.0 * x],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::CX,
+                        qubits: vec![0, 1],
+                        params: vec![],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::H,
+                        qubits: vec![0],
+                        params: vec![],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::H,
+                        qubits: vec![1],
+                        params: vec![],
+                    });
                 } else if ny {
-                    circuit.add_op(Operation::Gate { name: GateType::RX, qubits: vec![0], params: vec![pi_2] });
-                    circuit.add_op(Operation::Gate { name: GateType::RX, qubits: vec![1], params: vec![pi_2] });
-                    circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                    circuit.add_op(Operation::Gate { name: GateType::RZ, qubits: vec![1], params: vec![-2.0 * y] });
-                    circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                    circuit.add_op(Operation::Gate { name: GateType::RX, qubits: vec![0], params: vec![-pi_2] });
-                    circuit.add_op(Operation::Gate { name: GateType::RX, qubits: vec![1], params: vec![-pi_2] });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::RX,
+                        qubits: vec![0],
+                        params: vec![pi_2],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::RX,
+                        qubits: vec![1],
+                        params: vec![pi_2],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::CX,
+                        qubits: vec![0, 1],
+                        params: vec![],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::RZ,
+                        qubits: vec![1],
+                        params: vec![-2.0 * y],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::CX,
+                        qubits: vec![0, 1],
+                        params: vec![],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::RX,
+                        qubits: vec![0],
+                        params: vec![-pi_2],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::RX,
+                        qubits: vec![1],
+                        params: vec![-pi_2],
+                    });
                 } else {
                     // nz
-                    circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                    circuit.add_op(Operation::Gate { name: GateType::RZ, qubits: vec![1], params: vec![-2.0 * z] });
-                    circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::CX,
+                        qubits: vec![0, 1],
+                        params: vec![],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::RZ,
+                        qubits: vec![1],
+                        params: vec![-2.0 * z],
+                    });
+                    circuit.add_op(Operation::Gate {
+                        name: GateType::CX,
+                        qubits: vec![0, 1],
+                        params: vec![],
+                    });
                 }
             }
             _ => {
                 // General (3-CX) case: all three blocks.
                 // XX
-                circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-                circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
-                circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                circuit.add_op(Operation::Gate { name: GateType::RZ, qubits: vec![1], params: vec![-2.0 * x] });
-                circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-                circuit.add_op(Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::H,
+                    qubits: vec![0],
+                    params: vec![],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::H,
+                    qubits: vec![1],
+                    params: vec![],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::CX,
+                    qubits: vec![0, 1],
+                    params: vec![],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::RZ,
+                    qubits: vec![1],
+                    params: vec![-2.0 * x],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::CX,
+                    qubits: vec![0, 1],
+                    params: vec![],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::H,
+                    qubits: vec![0],
+                    params: vec![],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::H,
+                    qubits: vec![1],
+                    params: vec![],
+                });
                 // YY
-                circuit.add_op(Operation::Gate { name: GateType::RX, qubits: vec![0], params: vec![pi_2] });
-                circuit.add_op(Operation::Gate { name: GateType::RX, qubits: vec![1], params: vec![pi_2] });
-                circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                circuit.add_op(Operation::Gate { name: GateType::RZ, qubits: vec![1], params: vec![-2.0 * y] });
-                circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                circuit.add_op(Operation::Gate { name: GateType::RX, qubits: vec![0], params: vec![-pi_2] });
-                circuit.add_op(Operation::Gate { name: GateType::RX, qubits: vec![1], params: vec![-pi_2] });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::RX,
+                    qubits: vec![0],
+                    params: vec![pi_2],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::RX,
+                    qubits: vec![1],
+                    params: vec![pi_2],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::CX,
+                    qubits: vec![0, 1],
+                    params: vec![],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::RZ,
+                    qubits: vec![1],
+                    params: vec![-2.0 * y],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::CX,
+                    qubits: vec![0, 1],
+                    params: vec![],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::RX,
+                    qubits: vec![0],
+                    params: vec![-pi_2],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::RX,
+                    qubits: vec![1],
+                    params: vec![-pi_2],
+                });
                 // ZZ
-                circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
-                circuit.add_op(Operation::Gate { name: GateType::RZ, qubits: vec![1], params: vec![-2.0 * z] });
-                circuit.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::CX,
+                    qubits: vec![0, 1],
+                    params: vec![],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::RZ,
+                    qubits: vec![1],
+                    params: vec![-2.0 * z],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::CX,
+                    qubits: vec![0, 1],
+                    params: vec![],
+                });
             }
         }
 
         // Post-rotations (always emitted).
-        circuit.add_op(Operation::Gate { name: GateType::U, qubits: vec![1], params: vec![a0_t, a0_p, a0_l] });
-        circuit.add_op(Operation::Gate { name: GateType::U, qubits: vec![0], params: vec![a1_t, a1_p, a1_l] });
+        circuit.add_op(Operation::Gate {
+            name: GateType::U,
+            qubits: vec![1],
+            params: vec![a0_t, a0_p, a0_l],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::U,
+            qubits: vec![0],
+            params: vec![a1_t, a1_p, a1_l],
+        });
 
         Some(circuit)
     }
@@ -331,7 +483,15 @@ mod tests {
     fn count_cx(c: &Circuit) -> usize {
         c.operations
             .iter()
-            .filter(|op| matches!(op, Operation::Gate { name: GateType::CX, .. }))
+            .filter(|op| {
+                matches!(
+                    op,
+                    Operation::Gate {
+                        name: GateType::CX,
+                        ..
+                    }
+                )
+            })
             .count()
     }
 

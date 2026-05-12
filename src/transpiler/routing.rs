@@ -29,7 +29,10 @@ impl Layout {
             l2p[i] = i;
             p2l[i] = i;
         }
-        Layout { logical_to_physical: l2p, physical_to_logical: p2l }
+        Layout {
+            logical_to_physical: l2p,
+            physical_to_logical: p2l,
+        }
     }
 
     /// Swaps the logical qubits placed at physical `p1` and `p2`.
@@ -62,9 +65,7 @@ struct TwoQGate {
     successors: Vec<usize>,
 }
 
-fn build_gate_graph(
-    circuit: &Circuit,
-) -> (Vec<TwoQGate>, Vec<u16>, Vec<Vec<(usize, Operation)>>) {
+fn build_gate_graph(circuit: &Circuit) -> (Vec<TwoQGate>, Vec<u16>, Vec<Vec<(usize, Operation)>>) {
     let mut two_q: Vec<TwoQGate> = Vec::new();
     let mut single_q: Vec<Vec<(usize, Operation)>> = vec![vec![]; circuit.num_qubits];
     let mut last_2q: Vec<Option<usize>> = vec![None; circuit.num_qubits];
@@ -181,8 +182,20 @@ fn relative_score(
             continue;
         }
         let old = dist[p0][p1] as f64;
-        let np0 = if p0 == pa { pb } else if p0 == pb { pa } else { p0 };
-        let np1 = if p1 == pa { pb } else if p1 == pb { pa } else { p1 };
+        let np0 = if p0 == pa {
+            pb
+        } else if p0 == pb {
+            pa
+        } else {
+            p0
+        };
+        let np1 = if p1 == pa {
+            pb
+        } else if p1 == pb {
+            pa
+        } else {
+            p1
+        };
         delta += dist[np0][np1] as f64 - old;
     }
     let lookahead_weight = 0.5;
@@ -193,8 +206,20 @@ fn relative_score(
             continue;
         }
         let old = dist[p0][p1] as f64;
-        let np0 = if p0 == pa { pb } else if p0 == pb { pa } else { p0 };
-        let np1 = if p1 == pa { pb } else if p1 == pb { pa } else { p1 };
+        let np0 = if p0 == pa {
+            pb
+        } else if p0 == pb {
+            pa
+        } else {
+            p0
+        };
+        let np1 = if p1 == pa {
+            pb
+        } else if p1 == pb {
+            pa
+        } else {
+            p1
+        };
         delta += (dist[np0][np1] as f64 - old) * lookahead_weight;
     }
     delta
@@ -451,18 +476,19 @@ impl Pass for BeamSabrePass {
         let dist = self.backend.shortest_path_matrix();
         let (gates, preds, single_q_ops) = build_gate_graph(circuit);
 
-        let mut best_layout = if let Some(l2p) = property_set.get::<Vec<usize>>("sabre_initial_layout") {
-            let mut p2l = vec![usize::MAX; self.backend.num_qubits];
-            for (logical, &physical) in l2p.iter().enumerate() {
-                p2l[physical] = logical;
-            }
-            Layout {
-                logical_to_physical: l2p.clone(),
-                physical_to_logical: p2l,
-            }
-        } else {
-            Layout::trivial(circuit.num_qubits, self.backend.num_qubits)
-        };
+        let mut best_layout =
+            if let Some(l2p) = property_set.get::<Vec<usize>>("sabre_initial_layout") {
+                let mut p2l = vec![usize::MAX; self.backend.num_qubits];
+                for (logical, &physical) in l2p.iter().enumerate() {
+                    p2l[physical] = logical;
+                }
+                Layout {
+                    logical_to_physical: l2p.clone(),
+                    physical_to_logical: p2l,
+                }
+            } else {
+                Layout::trivial(circuit.num_qubits, self.backend.num_qubits)
+            };
 
         let mut best_beam: Option<Beam> = None;
         let mut best_cost = f64::MAX;
@@ -582,7 +608,11 @@ mod tests {
     #[test]
     fn test_already_routable_noop() {
         let mut c = Circuit::new(3, 0);
-        c.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         let pass = BeamSabrePass {
             backend: Backend::linear(3),
             beam_width: 4,
@@ -593,7 +623,15 @@ mod tests {
         let swaps = r
             .operations
             .iter()
-            .filter(|op| matches!(op, Operation::Gate { name: GateType::SWAP, .. }))
+            .filter(|op| {
+                matches!(
+                    op,
+                    Operation::Gate {
+                        name: GateType::SWAP,
+                        ..
+                    }
+                )
+            })
             .count();
         assert_eq!(swaps, 0);
     }
@@ -601,7 +639,11 @@ mod tests {
     #[test]
     fn test_route_fidelity_basic_cx() {
         let mut c = Circuit::new(2, 0);
-        c.add_op(Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         let backend = Backend::linear(3);
         let pass = BeamSabrePass {
             backend,
