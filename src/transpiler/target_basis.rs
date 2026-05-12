@@ -113,7 +113,8 @@ struct RewriteRule {
 enum ParamSpec {
     Const(f64),
     Passthrough(usize),
-    NegPassthrough(usize),
+    /// params[i] + constant offset.
+    Sum(usize, f64),
 }
 
 impl ParamSpec {
@@ -121,7 +122,7 @@ impl ParamSpec {
         match self {
             ParamSpec::Const(v) => *v,
             ParamSpec::Passthrough(i) => params[*i],
-            ParamSpec::NegPassthrough(i) => -params[*i],
+            ParamSpec::Sum(i, off) => params[*i] + off,
         }
     }
 }
@@ -136,14 +137,16 @@ fn build_equivalence_library(basis: &HashSet<String>) -> Vec<RewriteRule> {
 
     let mut rules = Vec::new();
 
-    // H = Rz(π) · Rx(π/2)      [when rx,rz available]
-    // Note: phase-equivalent; fidelity-exact up to global phase.
+    // H = Rz(π/2) · Rx(π/2) · Rz(π/2)  [exact, no global phase]
+    // Convention: Rz(φ) = diag(1, e^{iφ}), Rx(θ) = [[cos,⋅-i·sin],[-i·sin,cos]].
+    // Verified: Rz(π/2)·Rx(π/2)·Rz(π/2) = (1/√2)[[1,1],[1,-1]] = H.
     if has("rz") && has("rx") {
         rules.push(RewriteRule {
             from: "h",
             ops: vec![
-                ("rz", vec![0], vec![ParamSpec::Const(PI)]),
+                ("rz", vec![0], vec![ParamSpec::Const(PI / 2.0)]),
                 ("rx", vec![0], vec![ParamSpec::Const(PI / 2.0)]),
+                ("rz", vec![0], vec![ParamSpec::Const(PI / 2.0)]),
             ],
         });
         // X = Rx(π)
@@ -184,22 +187,27 @@ fn build_equivalence_library(basis: &HashSet<String>) -> Vec<RewriteRule> {
             from: "tdg",
             ops: vec![("rz", vec![0], vec![ParamSpec::Const(-PI / 4.0)])],
         });
-        // RY(θ) = Rz(π/2) · Rx(θ) · Rz(-π/2)
+        // RY(θ) = Rz(-π/2) · Rx(θ) · Rz(π/2)  [exact, verified]
+        // Rz(-π/2) = [[1,0],[0,-i]], Rx(θ) = [[c,-is],[-is,c]]
+        // Product = Rz(-π/2)·Rx(θ)·Rz(π/2) = [[c,s],[-s,c]] = RY(θ) ✓
         rules.push(RewriteRule {
             from: "ry",
             ops: vec![
-                ("rz", vec![0], vec![ParamSpec::Const(PI / 2.0)]),
-                ("rx", vec![0], vec![ParamSpec::Passthrough(0)]),
                 ("rz", vec![0], vec![ParamSpec::Const(-PI / 2.0)]),
+                ("rx", vec![0], vec![ParamSpec::Passthrough(0)]),
+                ("rz", vec![0], vec![ParamSpec::Const(PI / 2.0)]),
             ],
         });
-        // U(θ,φ,λ) = Rz(φ) · Rx(θ) · Rz(λ)  [ZXZ decomposition, phase-equiv]
+        // U(θ,φ,λ) ZYZ form: Rz(φ) · Ry(θ) · Rz(λ)
+        // Substituting Ry(θ) = Rz(-π/2) · Rx(θ) · Rz(π/2) gives:
+        //   = Rz(φ - π/2) · Rx(θ) · Rz(λ + π/2)
+        // params[0]=θ, params[1]=φ, params[2]=λ
         rules.push(RewriteRule {
             from: "u",
             ops: vec![
-                ("rz", vec![0], vec![ParamSpec::Passthrough(2)]),
-                ("rx", vec![0], vec![ParamSpec::Passthrough(0)]),
-                ("rz", vec![0], vec![ParamSpec::Passthrough(1)]),
+                ("rz", vec![0], vec![ParamSpec::Sum(2, PI / 2.0)]), // Rz(λ + π/2) first
+                ("rx", vec![0], vec![ParamSpec::Passthrough(0)]),   // Rx(θ)
+                ("rz", vec![0], vec![ParamSpec::Sum(1, -PI / 2.0)]), // Rz(φ - π/2) last
             ],
         });
     }
@@ -268,19 +276,9 @@ fn build_equivalence_library(basis: &HashSet<String>) -> Vec<RewriteRule> {
                 ("cx", vec![0, 1], vec![]),
             ],
         });
-        // CRZ(θ) = Rz(θ/2)q1 · CX · Rz(-θ/2)q1 · CX
-        if has("rz") {
-            rules.push(RewriteRule {
-                from: "crz",
-                ops: vec![
-                    ("rz", vec![1], vec![ParamSpec::Const(PI / 2.0)]), // actually θ/2 — handled below specially
-                    ("cx", vec![0, 1], vec![]),
-                    ("rz", vec![1], vec![ParamSpec::NegPassthrough(0)]),
-                    ("cx", vec![0, 1], vec![]),
-                    ("rz", vec![1], vec![ParamSpec::Passthrough(0)]),
-                ],
-            });
-        }
+        // CRZ: ParamSpec does not support θ/2 (division).
+        // We let CRZ fall through to BasisDecompositionPass, which calls
+        // GateType::CRZ.decompose() — a correct Rz(θ/2)·CX·Rz(-θ/2)·CX decomposition.
     }
 
     rules

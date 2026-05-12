@@ -287,8 +287,24 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Result<
         }));
     }
 
+    // Target-basis translation runs BEFORE BasisDecompositionPass so the
+    // equivalence rules operate on original named gates (H, CZ, SWAP, etc.)
+    // rather than their U-gate expansions (whose angle conventions differ
+    // from the ZXZ basis used by the equivalence library).
+    let resolved_basis: Option<HashSet<String>> = config.target_basis.clone().or_else(|| {
+        config
+            .backend
+            .as_ref()
+            .filter(|b| !b.basis_gates.is_empty())
+            .map(|b| b.basis_gates.clone())
+    });
+    if let Some(ref basis) = resolved_basis {
+        let tb_pass = target_basis::TargetBasisPass::new(basis.clone())?;
+        pm.add_pass(Box::new(tb_pass));
+    }
+
     if config.decompose_basis {
-        // Decompose non-basis gates first (fast path for known identities).
+        // Decompose any residual non-basis gates not covered by TargetBasisPass.
         pm.add_pass(Box::new(decomposition::BasisDecompositionPass));
         // Synthesize any residual 2-qubit gates (that are not CX) via KAK.
         pm.add_pass(Box::new(KakSynthesisPass));
@@ -303,23 +319,7 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Result<
         ));
     }
 
-    // Final target-basis translation.
-    // Priority: explicit target_basis on config > backend.basis_gates > skip (permissive).
-    let resolved_basis: Option<HashSet<String>> = config.target_basis.clone().or_else(|| {
-        config
-            .backend
-            .as_ref()
-            .filter(|b| !b.basis_gates.is_empty())
-            .map(|b| b.basis_gates.clone())
-    });
-
-    if let Some(basis) = resolved_basis {
-        // validate_universality is called inside TargetBasisPass::new.
-        let tb_pass = target_basis::TargetBasisPass::new(basis)?;
-        pm.add_pass(Box::new(tb_pass));
-    }
-    // If no basis is resolved: permissive mode — leave canonical gates in place.
-
+    // Permissive mode: if no basis was resolved, canonical gates remain in place.
     Ok(pm.run(circuit))
 }
 
