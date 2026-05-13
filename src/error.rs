@@ -4,8 +4,6 @@
 //! `std::result::Result<T, QRustError>`). Variants are tagged with
 //! `#[non_exhaustive]` so adding new variants is not a breaking change.
 //!
-//! See `KNOWN_GAPS_UPDATED.md` § `G-DIAG-02` for the planned migration to
-//! structured error codes (e.g. `QR0001`).
 //!
 //! # Display contract
 //!

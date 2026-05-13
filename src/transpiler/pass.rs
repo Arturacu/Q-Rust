@@ -1,14 +1,9 @@
 //! Pass infrastructure: the [`Pass`] trait and [`PassManager`].
 //!
-//! Loop 5 review §Finding 3 (Major): the pass manager is the simplest
-//! possible "run them all in order" loop. Adding analysis-vs-transform
-//! distinction, dependency declaration, or full LLVM-style invalidation
-//! is out of scope for this iteration (review §"Out-of-Scope"). What we
-//! *do* add here is **conditional pass execution** — a closure-guarded
-//! variant of `add_pass` so that downstream callers can use the
-//! analysis-pass output of [`crate::transpiler::profiler::CircuitProfilerPass`]
-//! to bypass expensive transformation passes when the profile says the
-//! transformation has nothing to do.
+//! The pass manager is a sequential "run them all in order" loop. It supports
+//! **conditional pass execution** via predicates over the [`PropertySet`], so
+//! callers can consult analysis-pass output (e.g. [`crate::transpiler::profiler::CircuitProfilerPass`])
+//! to skip expensive transformation passes when there is nothing to do.
 //!
 //! References:
 //! - Hoult & Robinson 2018 (LLVM Devmtg), *The New Pass Manager* —
@@ -33,17 +28,14 @@ pub trait Pass {
     /// Returns `true` if this pass only reads the circuit (does not
     /// transform it). Default: `false` (transformation pass).
     ///
-    /// Loop 5 §Finding 3: this is currently advisory only — the pass
-    /// manager does not yet use it for invalidation. Pure analysis
-    /// passes (e.g. `CircuitProfilerPass`) should override to `true`
-    /// so future versions of the manager can skip cloning the circuit.
+    /// This flag is currently advisory: the pass manager does not use it
+    /// for invalidation. Pure analysis passes (e.g. `CircuitProfilerPass`)
+    /// should override to `true` so future versions of the manager can
+    /// skip cloning the circuit.
     ///
-    /// **Contract**: a pass overriding this to `true` is asserting that
-    /// it will return a circuit whose `operations`, `num_qubits`, and
-    /// `num_cbits` are observationally equal to its input. The
-    /// `test_circuit_profiler_pass_is_observationally_pure` test
-    /// (Loop 5 §NI-3) pins this for `CircuitProfilerPass`. Future
-    /// `is_analysis() == true` passes should add a similar pin.
+    /// **Contract**: a pass overriding this to `true` asserts that it will
+    /// return a circuit whose `operations`, `num_qubits`, and `num_cbits`
+    /// are observationally equal to its input.
     fn is_analysis(&self) -> bool {
         false
     }
@@ -197,7 +189,6 @@ mod tests {
         assert_eq!(out.operations.len(), 1);
     }
 
-    /// Loop 5 §Finding 3: conditional pass runs when predicate is true.
     #[test]
     fn test_conditional_pass_runs_when_predicate_true() {
         let c = Circuit::new(1, 0);
@@ -207,7 +198,6 @@ mod tests {
         assert_eq!(pm.property_set.get::<bool>("ran"), Some(&true));
     }
 
-    /// Loop 5 §Finding 3: conditional pass is skipped when predicate is false.
     #[test]
     fn test_conditional_pass_skipped_when_predicate_false() {
         let c = Circuit::new(1, 0);
@@ -217,7 +207,6 @@ mod tests {
         assert!(pm.property_set.get::<bool>("ran").is_none());
     }
 
-    /// Loop 5 §Finding 3: predicates can read state set by earlier passes.
     #[test]
     fn test_conditional_pass_can_read_earlier_property_state() {
         let c = Circuit::new(1, 0);
@@ -234,16 +223,12 @@ mod tests {
         assert_eq!(pm.property_set.get::<bool>("second_ran"), Some(&true));
     }
 
-    /// Loop 5 §Finding 3: default `is_analysis()` is `false`.
     #[test]
     fn test_pass_default_is_analysis_is_false() {
         assert!(!MockPass.is_analysis());
         assert!(!FlagPass { key: "x" }.is_analysis());
     }
 
-    /// Loop 5 §NI-2: pin `num_passes()` semantics so it's no longer
-    /// dead-by-grep. Cheap counter-style accessor; tracks both
-    /// unconditional and conditional entries.
     #[test]
     fn test_num_passes_counts_both_kinds() {
         let mut pm = PassManager::new();
@@ -254,15 +239,8 @@ mod tests {
         assert_eq!(pm.num_passes(), 2);
     }
 
-    /// Loop 5 §NI-3: any pass that overrides `is_analysis()` to `true`
-    /// asserts a contract that it does not mutate the circuit's
-    /// observable state (operations / num_qubits / num_cbits). Pin this
-    /// for `CircuitProfilerPass` (currently the only `is_analysis==true`
-    /// pass in tree) so future additions cannot quietly violate it.
-    /// Without this test, the marker is purely advisory and a future
-    /// contributor could set `is_analysis() == true` on a transforming
-    /// pass — silently corrupting the optimization in AF-3 once it
-    /// becomes load-bearing.
+    /// Verifies that `CircuitProfilerPass` (an analysis pass) does not mutate
+    /// the circuit's observable state.
     #[test]
     fn test_circuit_profiler_pass_is_observationally_pure() {
         use crate::transpiler::profiler::CircuitProfilerPass;

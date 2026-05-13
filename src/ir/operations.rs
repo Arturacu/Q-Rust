@@ -43,10 +43,6 @@ pub enum Operation {
 }
 
 impl Operation {
-    /// Loop 4 review §"`Display` for `Operation` allocates a String":
-    /// write the QASM rendering directly into a [`fmt::Write`] sink so
-    /// that `Display` formatting incurs zero String allocation. Callers
-    /// that need a String can keep using [`Operation::to_qasm`].
     fn write_qasm<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
         match self {
             Operation::Gate {
@@ -128,7 +124,6 @@ impl Operation {
 
 impl fmt::Display for Operation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // Loop 4 review: Display now writes directly into the formatter.
         self.write_qasm(f)
     }
 }

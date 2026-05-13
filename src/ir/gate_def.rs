@@ -151,6 +151,11 @@ impl GateDefinition for GateType {
 
             GateType::CCX => 3,
             GateType::Barrier => 0,
+            // Custom gates always report arity 1 because GateType carries only
+            // the gate name, not the qubit count. For actual arity, inspect
+            // Operation::Gate { qubits, .. }.len() at the call site. Custom
+            // gates should be unrolled via try_unroll_custom_gates / the
+            // registry before any unitary computation is attempted.
             GateType::Custom(_) => 1,
         }
     }
@@ -163,19 +168,13 @@ impl GateDefinition for GateType {
         match self {
             GateType::U => basis_u_matrix(params),
             GateType::CX => basis_cx_matrix(),
-            // Loop 4 review §"Unitary returns identity(2,2) for unhandled gates":
-            // previously this branch returned a 2×2 identity for arbitrary
-            // multi-qubit Custom gates, producing a type-level lie that
-            // causes downstream embed-* functions to corrupt or panic. We
-            // now size the identity by the gate's declared arity so callers
-            // receive the right-sized matrix for at least the no-op case.
-            // For a Custom gate this is still an under-approximation
-            // (we don't know its true unitary), but it is dimensionally
-            // honest.
-            GateType::Custom(_) => {
-                let dim = 1usize << self.num_qubits();
-                DMatrix::<C>::identity(dim, dim)
-            }
+            // Custom gates have no statically known unitary. This returns a
+            // 2×2 identity (because num_qubits() == 1 for all Custom variants)
+            // which is dimensionally wrong for multi-qubit custom gates.
+            // Custom gates must be unrolled via try_unroll_custom_gates before
+            // any simulation or unitary computation. Reaching this branch for
+            // a multi-qubit Custom gate is a caller bug.
+            GateType::Custom(_) => DMatrix::<C>::identity(2, 2),
             GateType::Barrier => DMatrix::<C>::identity(1, 1),
             other => {
                 let n = other.num_qubits();
@@ -345,9 +344,7 @@ impl GateDefinition for GateType {
                 ops.push(cx_gate(a, b));
             }
 
-            // Loop 4 review §"Patch 2 — Add iSWAP and ECR".
-            //
-            // ECR decomposition (Qiskit `qiskit.circuit.library.ECRGate`,
+            // ECR decomposition (
             // standard 3-CX form). ECR (echoed cross-resonance) is locally
             // equivalent to a CNOT up to single-qubit rotations:
             //   ECR = (1/√2)(IX − XY).
@@ -457,8 +454,6 @@ mod tests {
         assert!(norm > 0.0);
     }
 
-    /// Loop 4 review §"iSWAP and ECR still missing": ensure the new
-    /// variants parse and report the expected arity.
     #[test]
     fn test_ecr_iswap_arity_and_parse() {
         use std::str::FromStr;
@@ -468,8 +463,7 @@ mod tests {
         assert_eq!(GateType::ISwap.to_qasm_name(), "iswap");
     }
 
-    /// Loop 4 review §"ECR decomposition correctness": the decomposition
-    /// must match the analytic ECR unitary up to global phase.
+    /// ECR decomposition must match the analytic ECR unitary up to global phase.
     #[test]
     fn test_ecr_decomposition_unitary_matches_analytic() {
         use crate::ir::Circuit;
@@ -506,7 +500,6 @@ mod tests {
         );
     }
 
-    /// Loop 4 review §"iSWAP decomposition correctness".
     #[test]
     fn test_iswap_decomposition_unitary_matches_analytic() {
         use crate::ir::Circuit;
@@ -532,11 +525,11 @@ mod tests {
         );
     }
 
-    /// Loop 4 review §"Unitary returns identity(2,2) for unhandled gates":
-    /// a 3-qubit Custom gate must now return a 2³×2³ matrix.
+    /// Custom gates always report num_qubits()==1, so unitary() returns a
+    /// 2×2 identity regardless of actual gate arity. Custom gates must be
+    /// unrolled via the registry before simulation.
     #[test]
     fn test_custom_gate_unitary_has_correct_size() {
-        // Custom gates report num_qubits()==1, so a 1q Custom yields 2×2.
         let u = GateType::Custom("foo".into()).unitary(&[]);
         assert_eq!(u.shape(), (2, 2));
     }

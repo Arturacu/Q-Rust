@@ -6,9 +6,7 @@
 //! and emits a circuit targeting a chosen hardware backend or basis-gate set.
 //!
 //! See the [README](https://github.com/Arturacu/Q-Rust/blob/main/README.md)
-//! for the high-level architecture and feature matrix, and
-//! [`FINAL_ASSESSMENT.md`](https://github.com/Arturacu/Q-Rust/blob/main/FINAL_ASSESSMENT.md)
-//! for the full maturity rubric and remaining limitations.
+//! for the high-level architecture and feature matrix.
 //!
 //! ## Quick start
 //!
@@ -58,8 +56,7 @@
 //! Library code is silent by default. Set the `Q_RUST_LOG` environment
 //! variable to any non-empty value other than `"0"` or `"off"` to enable
 //! warning-level diagnostics (e.g. KAK fallback notifications, custom-gate
-//! unroll failures). A migration to the `tracing` crate is logged as
-//! future work — see `KNOWN_GAPS_UPDATED.md` § `G-DIAG-02`.
+//! unroll failures).
 
 #![deny(rust_2018_idioms)]
 #![warn(missing_debug_implementations)]
