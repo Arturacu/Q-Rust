@@ -17,7 +17,6 @@ Q-Rust is a library first (`use qrust::...`) and a CLI second (`qrust circuit.qa
 - [Usage examples](#usage-examples)
 - [Configuration](#configuration)
 - [Testing](#testing)
-- [Origin](#origin)
 - [Contributing](#contributing)
 - [License](#license)
 - [Issues & contact](#issues--contact)
