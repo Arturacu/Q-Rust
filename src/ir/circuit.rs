@@ -13,6 +13,7 @@ pub struct Circuit {
     pub num_qubits: usize,
     pub num_cbits: usize,
     pub operations: Vec<Operation>,
+    #[cfg_attr(feature = "serde-ir", serde(skip))]
     pub custom_gates: GateRegistry,
 }
 

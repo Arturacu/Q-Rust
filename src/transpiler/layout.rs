@@ -6,7 +6,7 @@
 //! topology, this often converges to a zero-SWAP layout.
 
 use crate::backend::Backend;
-use crate::ir::{Circuit, GateType, Operation};
+use crate::ir::{Circuit, Operation};
 use crate::transpiler::pass::Pass;
 use crate::transpiler::property_set::PropertySet;
 use crate::transpiler::routing::Layout;
@@ -337,6 +337,7 @@ fn random_layout(num_logical: usize, num_physical: usize, seed: u64) -> Layout {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::ir::GateType;
 
     #[test]
     fn test_random_layout_valid() {

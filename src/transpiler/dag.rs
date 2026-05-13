@@ -10,14 +10,21 @@ use petgraph::stable_graph::{NodeIndex, StableDiGraph};
 /// Whether a wire carries quantum or classical data.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum WireType {
+    /// A qubit wire.
     Qubit,
+    /// A classical bit wire.
     Cbit,
 }
 
 /// An edge label identifying which wire this edge routes.
+///
+/// Each DAG edge corresponds to a single wire (qubit or classical bit) on
+/// which a value flows from a producer node to a consumer node.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Wire {
+    /// Whether the wire is quantum or classical.
     pub wire_type: WireType,
+    /// Index into the corresponding register.
     pub index: usize,
 }
 
@@ -44,10 +51,17 @@ impl DAGNode {
 }
 
 /// DAG-form quantum circuit.
+///
+/// Built from a [`Circuit`] via `DAGCircuit::from(&circuit)`, mutated by
+/// optimization passes, and converted back via `Circuit::from(&dag)`.
 pub struct DAGCircuit {
+    /// Underlying directed graph. Stable indices survive node removal.
     pub graph: StableDiGraph<DAGNode, Wire>,
+    /// Number of qubit wires.
     pub num_qubits: usize,
+    /// Number of classical-bit wires.
     pub num_cbits: usize,
+    /// Custom gate definitions carried over from the source circuit.
     pub custom_gates: crate::ir::registry::GateRegistry,
 
     current_q_leaves: Vec<NodeIndex>,
@@ -66,7 +80,7 @@ impl std::fmt::Debug for DAGCircuit {
 }
 
 impl DAGCircuit {
-    /// Creates an empty DAG with In terminals for each wire.
+    /// Creates an empty DAG with `In` terminals for each wire.
     pub fn new(num_qubits: usize, num_cbits: usize) -> Self {
         let mut graph = StableDiGraph::new();
         let mut current_q_leaves = Vec::with_capacity(num_qubits);
@@ -97,7 +111,8 @@ impl DAGCircuit {
         }
     }
 
-    /// Appends an operation, wiring each of its qubit/cbit dependencies.
+    /// Appends an operation, wiring each of its qubit/cbit dependencies
+    /// to the most recent producer on that wire.
     pub fn add_op(&mut self, op: Operation) -> NodeIndex {
         let (q_deps, c_deps): (Vec<usize>, Vec<usize>) = match &op {
             Operation::Gate { qubits, .. } => (qubits.clone(), vec![]),
@@ -143,8 +158,8 @@ impl DAGCircuit {
         node_idx
     }
 
-    /// Appends Out terminals to every open wire — should be called once all
-    /// operations have been inserted.
+    /// Appends `Out` terminals to every open wire — should be called once
+    /// all operations have been inserted.
     fn finalize(&mut self) {
         for i in 0..self.num_qubits {
             let out_idx = self.graph.add_node(DAGNode::Out(Wire {
@@ -240,4 +255,3 @@ impl From<&DAGCircuit> for Circuit {
         circuit
     }
 }
-// /// Directed Acyclic Graph representation

@@ -12,7 +12,7 @@ pub mod routing;
 pub mod synthesis;
 pub mod target_basis;
 
-use crate::error::{QRustError, Result};
+use crate::error::Result;
 use crate::ir::{Circuit, GateType, Operation};
 use pass::{Pass, PassManager};
 use std::collections::HashSet;

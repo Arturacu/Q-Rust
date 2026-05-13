@@ -1,7 +1,6 @@
 //! Debug harness for the KAK decomposition's eigenstructure.
 
-#![allow(unused_imports)]
-use nalgebra::{ComplexField, DMatrix};
+use nalgebra::DMatrix;
 use num_complex::Complex;
 
 fn main() {

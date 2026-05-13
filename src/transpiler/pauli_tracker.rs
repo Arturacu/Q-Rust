@@ -1,9 +1,18 @@
-//! Pauli-frame tracking pass (DISABLED by default).
+//! Pauli-frame tracking pass.
+//!
+//! **Status**: implemented but **not wired into any default pipeline**. This
+//! module provides a Clifford-frame propagation pass à la Beverland, Murali
+//! & Smith 2021, but it requires explicit opt-in by constructing
+//! [`PauliTrackerPass`] and adding it to a [`crate::transpiler::pass::PassManager`].
+//!
+//! Reference: Beverland, Murali, Smith 2021, *Pauli frames as a compiler
+//! optimization*.
 
 use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::pass::Pass;
 use std::collections::HashMap;
 
+/// Pauli-frame propagation pass (opt-in).
 #[derive(Debug, Clone, Copy)]
 pub struct PauliTrackerPass;
 
