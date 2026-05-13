@@ -1,25 +1,4 @@
 //! End-to-end verification suite for well-known quantum algorithms.
-//!
-//! Each test builds a canonical circuit for a textbook algorithm, then runs
-//! the complete Q-Rust pipeline (optimize → layout → route → basis translate)
-//! against a specific hardware topology and target gate set.  Mathematical
-//! correctness is verified by comparing the unitary of the original circuit
-//! against the logical unitary extracted from the compiled output.
-//!
-//! ## Verification strategy
-//!
-//! Two complementary approaches are used:
-//!
-//! 1. **Basis-translation fidelity** (`verify_basis_only`): Uses an all-to-all
-//!    topology with no routing so the qubit mapping is always the identity.
-//!    Directly compares `circuit_to_unitary(original)` vs
-//!    `circuit_to_unitary(compiled)`.  Validates that optimization passes and
-//!    basis translation preserve the unitary exactly.
-//!
-//! 2. **Routed fidelity** (`verify_routed`): Runs the router through
-//!    `BeamSabrePass` directly to obtain the `initial_layout` / `final_layout`
-//!    from `PropertySet`, then uses `extract_logical_unitary` to account for
-//!    qubit permutations introduced by routing.
 
 use q_rust::backend::{Backend, BackendConfig};
 use q_rust::error::QRustError;
@@ -28,13 +7,9 @@ use q_rust::parser::parse_qasm;
 use q_rust::simulator::{circuit_to_unitary, extract_logical_unitary, unitary_fidelity};
 use q_rust::transpiler::pass::Pass;
 use q_rust::transpiler::property_set::PropertySet;
-use q_rust::transpiler::routing::BeamSabrePass;
+use q_rust::transpiler::routing::{BeamSabrePass, LookaheadStrategy};
 use q_rust::transpiler::{transpile, TranspilerConfig};
 use std::collections::HashSet;
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 fn load_backend(name: &str) -> Backend {
     let path = format!("tests/fixtures/{name}");
@@ -53,8 +28,6 @@ fn load_circuit(fixture: &str) -> Circuit {
     parse_qasm(&qasm).unwrap_or_else(|e| panic!("parse failed for {fixture}: {e:?}"))
 }
 
-/// Verify that optimize + basis-translation preserves the unitary exactly.
-/// Uses an all-to-all backend so routing never permutes qubits.
 fn verify_basis_only(label: &str, circuit: &Circuit, target_basis: HashSet<String>) {
     let u_orig = circuit_to_unitary(circuit);
     let b = Backend::all_to_all(circuit.num_qubits);
@@ -77,18 +50,17 @@ fn verify_basis_only(label: &str, circuit: &Circuit, target_basis: HashSet<Strin
     );
 }
 
-/// Verify fidelity after routing to a real hardware topology.
-/// Uses the layout maps from PropertySet to extract the logical unitary.
 fn verify_routed(label: &str, circuit: &Circuit, backend: &Backend, target_basis: HashSet<String>) {
     let u_orig = circuit_to_unitary(circuit);
 
-    // 1. Run routing pass directly to capture layout metadata.
+    // Loop 3 review §"Build break": added `lookahead_strategy` field.
+    // Default is classical SABRE, matching pre-loop-3 behavior.
     let router = BeamSabrePass {
         backend: backend.clone(),
         beam_width: 4,
         branch_factor: 3,
         bidir_iterations: 2,
-        lookahead_strategy: Default::default(),
+        lookahead_strategy: LookaheadStrategy::default(),
     };
     let mut props = PropertySet::new();
     let routed = router.run(circuit, &mut props);
@@ -102,7 +74,6 @@ fn verify_routed(label: &str, circuit: &Circuit, backend: &Backend, target_basis
         .cloned()
         .unwrap_or_else(|| (0..circuit.num_qubits).collect());
 
-    // 2. Apply basis translation on top of the routed circuit.
     let cfg = TranspilerConfig::builder()
         .optimization_level(1)
         .decompose_basis(true)
@@ -111,7 +82,6 @@ fn verify_routed(label: &str, circuit: &Circuit, backend: &Backend, target_basis
     let translated = transpile(&routed, Some(cfg))
         .unwrap_or_else(|e| panic!("[{label}] basis translation failed: {e}"));
 
-    // 3. Pad to backend size and extract logical unitary.
     let mut padded = translated.clone();
     padded.num_qubits = backend.num_qubits;
     let u_phys = circuit_to_unitary(&padded);
@@ -125,7 +95,7 @@ fn verify_routed(label: &str, circuit: &Circuit, backend: &Backend, target_basis
 }
 
 // ===========================================================================
-// Bell State (2 qubits — H + CX, creates maximally entangled pair)
+// Bell State
 // ===========================================================================
 
 #[test]
@@ -167,7 +137,7 @@ fn test_e2e_bell_routed_linear3_u_cx() {
 }
 
 // ===========================================================================
-// GHZ-3 (3 qubits — H + 2×CX, creates 3-qubit entanglement)
+// GHZ-3
 // ===========================================================================
 
 #[test]
@@ -209,7 +179,7 @@ fn test_e2e_ghz3_routed_linear5_u_cx() {
 }
 
 // ===========================================================================
-// Grover 2-qubit (oracle + diffusion, marks state |11⟩)
+// Grover 2-qubit
 // ===========================================================================
 
 #[test]
@@ -241,7 +211,7 @@ fn test_e2e_grover2_routed_quito_rz_rx_cx() {
 }
 
 // ===========================================================================
-// QFT-3 (Quantum Fourier Transform on 3 qubits)
+// QFT-3
 // ===========================================================================
 
 #[test]
@@ -273,7 +243,7 @@ fn test_e2e_qft3_routed_nairobi_rz_rx_cx() {
 }
 
 // ===========================================================================
-// Deutsch-Jozsa (2 query + 1 ancilla, balanced oracle f(x)=x₀⊕x₁)
+// Deutsch-Jozsa
 // ===========================================================================
 
 #[test]
@@ -305,7 +275,7 @@ fn test_e2e_dj_routed_linear5_rz_rx_cx() {
 }
 
 // ===========================================================================
-// Bernstein-Vazirani (3 query + 1 ancilla, hidden string s=101)
+// Bernstein-Vazirani
 // ===========================================================================
 
 #[test]
@@ -337,7 +307,7 @@ fn test_e2e_bv_routed_nairobi_rz_rx_cx() {
 }
 
 // ===========================================================================
-// VQE ansatz (4q variational circuit with parametric rotations)
+// VQE ansatz
 // ===========================================================================
 
 #[test]
@@ -359,7 +329,7 @@ fn test_e2e_vqe_basis_u_cx() {
 }
 
 // ===========================================================================
-// Quantum Phase Estimation (toy 2q: estimates eigenphase of T gate)
+// QPE
 // ===========================================================================
 
 #[test]
@@ -382,7 +352,7 @@ fn test_e2e_qpe_routed_quito_rz_rx_cx() {
 }
 
 // ===========================================================================
-// Deep Clifford (H, S, CX, Sdg cascade — 3 qubits)
+// Deep Clifford
 // ===========================================================================
 
 #[test]
@@ -414,7 +384,7 @@ fn test_e2e_clifford_routed_nairobi_u_cx() {
 }
 
 // ===========================================================================
-// QFT-5 (5-qubit Quantum Fourier Transform — deep parametric circuit)
+// QFT-5
 // ===========================================================================
 
 #[test]
@@ -436,7 +406,7 @@ fn test_e2e_qft5_basis_u_cx() {
 }
 
 // ===========================================================================
-// Gate-set validation: universality checks
+// Gate-set validation
 // ===========================================================================
 
 #[test]
@@ -471,7 +441,6 @@ fn test_gateset_rejects_no_entangler() {
 
 #[test]
 fn test_gateset_accepts_solovay_kitaev_basis() {
-    // {H, T, CX}: T is non-Clifford → densely covers SU(2) → universal.
     let c = load_circuit("bell_state.qasm");
     let b = Backend::all_to_all(2);
     let cfg = TranspilerConfig::builder()
@@ -497,7 +466,7 @@ fn test_gateset_accepts_rz_cx() {
 }
 
 // ===========================================================================
-// Permissive mode: no basis specified → circuit passes through unchanged
+// Permissive mode
 // ===========================================================================
 
 #[test]

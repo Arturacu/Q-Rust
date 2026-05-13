@@ -5,7 +5,7 @@ use q_rust::ir::{Circuit, GateType, Operation};
 use q_rust::simulator::{circuit_to_unitary, extract_logical_unitary, unitary_fidelity};
 use q_rust::transpiler::pass::Pass;
 use q_rust::transpiler::property_set::PropertySet;
-use q_rust::transpiler::routing::{BeamSabrePass, Layout};
+use q_rust::transpiler::routing::{BeamSabrePass, Layout, LookaheadStrategy};
 use q_rust::transpiler::{transpile, TranspilerConfig};
 
 fn load_backend(name: &str) -> Backend {
@@ -69,12 +69,16 @@ fn route_with_props(
     beam: usize,
     bidir: usize,
 ) -> (Circuit, PropertySet) {
+    // Loop 3 review §"Build break: missing `lookahead_strategy`": this
+    // helper now uses `..Default::default()` so future field additions
+    // to `BeamSabrePass` don't break the test suite. The default is
+    // classical SABRE, matching the routing pipeline's historical behavior.
     let pass = BeamSabrePass {
         backend: backend.clone(),
         beam_width: beam,
         branch_factor: beam.max(1),
         bidir_iterations: bidir,
-        lookahead_strategy: Default::default(),
+        lookahead_strategy: LookaheadStrategy::default(),
     };
     let mut props = PropertySet::new();
     let routed = pass.run(circuit, &mut props);

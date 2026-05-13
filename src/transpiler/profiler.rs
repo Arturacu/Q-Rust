@@ -39,6 +39,13 @@ impl Pass for CircuitProfilerPass {
         "CircuitProfilerPass"
     }
 
+    /// Loop 5 §Finding 3: this pass only reads the circuit; it never
+    /// transforms it. Mark as analysis so the future pass manager can
+    /// elide cloning.
+    fn is_analysis(&self) -> bool {
+        true
+    }
+
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {
         let mut counts: HashMap<GateType, usize> = HashMap::new();
         let mut self_inverse = 0usize;

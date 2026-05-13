@@ -43,59 +43,63 @@ pub enum Operation {
 }
 
 impl Operation {
-    pub fn to_qasm(&self) -> String {
+    /// Loop 4 review §"`Display` for `Operation` allocates a String":
+    /// write the QASM rendering directly into a [`fmt::Write`] sink so
+    /// that `Display` formatting incurs zero String allocation. Callers
+    /// that need a String can keep using [`Operation::to_qasm`].
+    fn write_qasm<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
         match self {
             Operation::Gate {
                 name,
                 qubits,
                 params,
             } => {
-                let mut s = String::with_capacity(16);
-                s.push_str(name.to_qasm_name());
+                w.write_str(name.to_qasm_name())?;
                 if !params.is_empty() {
-                    s.push('(');
+                    w.write_char('(')?;
                     for (i, p) in params.iter().enumerate() {
                         if i > 0 {
-                            s.push_str(", ");
+                            w.write_str(", ")?;
                         }
-                        s.push_str(&format!("{:.10}", p));
+                        write!(w, "{:.10}", p)?;
                     }
-                    s.push(')');
+                    w.write_char(')')?;
                 }
-                s.push(' ');
+                w.write_char(' ')?;
                 for (i, q) in qubits.iter().enumerate() {
                     if i > 0 {
-                        s.push_str(", ");
+                        w.write_str(", ")?;
                     }
-                    s.push_str(&format!("q[{}]", q));
+                    write!(w, "q[{}]", q)?;
                 }
-                s.push(';');
-                s
+                w.write_char(';')
             }
             Operation::Measure { qubit, cbit } => {
-                format!("measure q[{}] -> c[{}];", qubit, cbit)
+                write!(w, "measure q[{}] -> c[{}];", qubit, cbit)
             }
-            Operation::Reset { qubit } => format!("reset q[{}];", qubit),
+            Operation::Reset { qubit } => write!(w, "reset q[{}];", qubit),
             Operation::Barrier { qubits } => {
-                let mut s = String::from("barrier ");
+                w.write_str("barrier ")?;
                 for (i, q) in qubits.iter().enumerate() {
                     if i > 0 {
-                        s.push_str(", ");
+                        w.write_str(", ")?;
                     }
-                    s.push_str(&format!("q[{}]", q));
+                    write!(w, "q[{}]", q)?;
                 }
-                s.push(';');
-                s
+                w.write_char(';')
             }
             Operation::Conditional { condition, op } => {
-                format!(
-                    "if({}=={}) {}",
-                    condition.creg,
-                    condition.value,
-                    op.to_qasm()
-                )
+                write!(w, "if({}=={}) ", condition.creg, condition.value)?;
+                op.write_qasm(w)
             }
         }
+    }
+
+    pub fn to_qasm(&self) -> String {
+        let mut s = String::with_capacity(32);
+        // Writing into a String is infallible.
+        let _ = self.write_qasm(&mut s);
+        s
     }
 
     pub fn qubits(&self) -> &[usize] {
@@ -124,6 +128,7 @@ impl Operation {
 
 impl fmt::Display for Operation {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(&self.to_qasm())
+        // Loop 4 review: Display now writes directly into the formatter.
+        self.write_qasm(f)
     }
 }

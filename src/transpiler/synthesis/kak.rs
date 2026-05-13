@@ -71,7 +71,6 @@ impl Synthesizer for KakSynthesizer {
         let eigen_vals = d_mat.diagonal();
         let sqrt_eigen: Vec<Complex<f64>> = eigen_vals.iter().map(|c| c.sqrt()).collect();
 
-        let mut best_l = DMatrix::zeros(4, 4);
         let mut best_n = DMatrix::zeros(4, 4);
         let mut min_score = f64::MAX;
 
@@ -92,7 +91,6 @@ impl Synthesizer for KakSynthesizer {
             let score = residual * 1000.0 + phase_sum;
             if score < min_score {
                 min_score = score;
-                best_l = l_candidate;
                 best_n = n_candidate;
             }
         }
@@ -120,16 +118,30 @@ impl Synthesizer for KakSynthesizer {
         let mut y = (sums[2] + sums[3]) / 4.0;
         let mut z = (sums[4] + sums[5]) / 4.0;
 
+        // Loop 4 review §"`fold` non-monotone for large inputs": the
+        // previous `while`-loop fold spun forever on `f64::INFINITY` and
+        // performed up to N subtractions for an input of magnitude N·π/2.
+        // Replace with a branchless rem_euclid-based fold that is bounded
+        // for any finite input and well-defined for non-finite inputs
+        // (returning 0.0 — caller is responsible for guarding upstream).
         fn fold(val: f64) -> f64 {
-            let mut v = val;
             let pi_2 = std::f64::consts::FRAC_PI_2;
-            while v > pi_2 {
-                v -= pi_2;
+            if !val.is_finite() {
+                // Defensive: an infinite or NaN coefficient indicates a
+                // numerically degenerate input that should have been
+                // caught by the `phase.norm() < 1e-9` guard above.
+                // Returning 0 keeps downstream synthesis well-defined.
+                return 0.0;
             }
-            while v < -pi_2 {
-                v += pi_2;
+            // rem_euclid maps any finite f64 into [0, π/2). Re-center to
+            // (-π/4, π/4] — i.e. the canonical Weyl-chamber-friendly
+            // range — by subtracting π/2 when the result exceeds π/4.
+            let r = val.rem_euclid(pi_2);
+            if r > pi_2 / 2.0 {
+                r - pi_2
+            } else {
+                r
             }
-            v
         }
         x = fold(x).abs();
         y = fold(y).abs();
@@ -201,9 +213,7 @@ impl Synthesizer for KakSynthesizer {
         let (b1_t, b1_p, b1_l, _) = zyz_decomposition(to_array(b1));
 
         let pi_2 = std::f64::consts::FRAC_PI_2;
-        let _ = best_l;
 
-        // Weyl-chamber branching: count non-trivial interaction coefficients.
         let nx = x.abs() > KAK_TOL;
         let ny = y.abs() > KAK_TOL;
         let nz = z.abs() > KAK_TOL;
@@ -211,7 +221,6 @@ impl Synthesizer for KakSynthesizer {
 
         let mut circuit = Circuit::new(2, 0);
 
-        // Pre-rotations (always emitted).
         circuit.add_op(Operation::Gate {
             name: GateType::U,
             qubits: vec![1],
@@ -224,12 +233,8 @@ impl Synthesizer for KakSynthesizer {
         });
 
         match n_nontrivial {
-            0 => {
-                // 0-CX case: purely local unitary.
-            }
+            0 => {}
             1 => {
-                // 1-CX case: exactly one interaction coefficient is non-zero.
-                // Emit the single corresponding block.
                 if nx {
                     circuit.add_op(Operation::Gate {
                         name: GateType::H,
@@ -303,7 +308,6 @@ impl Synthesizer for KakSynthesizer {
                         params: vec![-pi_2],
                     });
                 } else {
-                    // nz
                     circuit.add_op(Operation::Gate {
                         name: GateType::CX,
                         qubits: vec![0, 1],
@@ -322,8 +326,6 @@ impl Synthesizer for KakSynthesizer {
                 }
             }
             _ => {
-                // General (3-CX) case: all three blocks.
-                // XX
                 circuit.add_op(Operation::Gate {
                     name: GateType::H,
                     qubits: vec![0],
@@ -359,7 +361,6 @@ impl Synthesizer for KakSynthesizer {
                     qubits: vec![1],
                     params: vec![],
                 });
-                // YY
                 circuit.add_op(Operation::Gate {
                     name: GateType::RX,
                     qubits: vec![0],
@@ -395,7 +396,6 @@ impl Synthesizer for KakSynthesizer {
                     qubits: vec![1],
                     params: vec![-pi_2],
                 });
-                // ZZ
                 circuit.add_op(Operation::Gate {
                     name: GateType::CX,
                     qubits: vec![0, 1],
@@ -414,7 +414,6 @@ impl Synthesizer for KakSynthesizer {
             }
         }
 
-        // Post-rotations (always emitted).
         circuit.add_op(Operation::Gate {
             name: GateType::U,
             qubits: vec![1],
@@ -500,7 +499,6 @@ mod tests {
         let s = KakSynthesizer;
         let id = DMatrix::<Complex<f64>>::identity(4, 4);
         let circuit = s.synthesize(&id, &[]).unwrap();
-        // Identity is local-only => 0 CX.
         assert_eq!(count_cx(&circuit), 0);
     }
 
@@ -518,7 +516,6 @@ mod tests {
             ],
         );
         let circuit = s.synthesize(&cnot, &[]).unwrap();
-        // CNOT is SWAP-class (single non-trivial coefficient) => 1 block, which expands to 2 CXs.
         assert_eq!(count_cx(&circuit), 2);
         let _ = u_matrix(0.0, 0.0, 0.0);
     }
