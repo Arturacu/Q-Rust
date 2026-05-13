@@ -176,7 +176,10 @@ mod tests {
             ),
             (QRustError::Arithmetic("div/0".into()), "arithmetic"),
             (QRustError::UnknownGate("foo".into()), "unknown gate"),
-            (QRustError::SizeMismatch("len mismatch".into()), "size mismatch"),
+            (
+                QRustError::SizeMismatch("len mismatch".into()),
+                "size mismatch",
+            ),
             (QRustError::Unsupported("qasm3".into()), "unsupported"),
             (QRustError::Synthesis("kak".into()), "synthesis"),
             (QRustError::Routing("dead end".into()), "routing"),
@@ -201,7 +204,10 @@ mod tests {
                 QRustError::DisconnectedTopology { from: 0, to: 5 },
                 "disconnected",
             ),
-            (QRustError::InvalidConfig("beam=0".into()), "invalid configuration"),
+            (
+                QRustError::InvalidConfig("beam=0".into()),
+                "invalid configuration",
+            ),
             (
                 QRustError::InsufficientQubits {
                     circuit: 5,

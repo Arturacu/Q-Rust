@@ -202,10 +202,7 @@ mod tests {
     fn test_conditional_pass_runs_when_predicate_true() {
         let c = Circuit::new(1, 0);
         let mut pm = PassManager::new();
-        pm.add_conditional(
-            Box::new(FlagPass { key: "ran" }),
-            |_ps| true,
-        );
+        pm.add_conditional(Box::new(FlagPass { key: "ran" }), |_ps| true);
         pm.run(&c);
         assert_eq!(pm.property_set.get::<bool>("ran"), Some(&true));
     }
@@ -215,10 +212,7 @@ mod tests {
     fn test_conditional_pass_skipped_when_predicate_false() {
         let c = Circuit::new(1, 0);
         let mut pm = PassManager::new();
-        pm.add_conditional(
-            Box::new(FlagPass { key: "ran" }),
-            |_ps| false,
-        );
+        pm.add_conditional(Box::new(FlagPass { key: "ran" }), |_ps| false);
         pm.run(&c);
         assert!(pm.property_set.get::<bool>("ran").is_none());
     }
@@ -229,12 +223,13 @@ mod tests {
         let c = Circuit::new(1, 0);
         let mut pm = PassManager::new();
         // First pass sets a flag.
-        pm.add_pass(Box::new(FlagPass { key: "should_run_next" }));
+        pm.add_pass(Box::new(FlagPass {
+            key: "should_run_next",
+        }));
         // Second pass runs only if that flag is set.
-        pm.add_conditional(
-            Box::new(FlagPass { key: "second_ran" }),
-            |ps| ps.get::<bool>("should_run_next").copied().unwrap_or(false),
-        );
+        pm.add_conditional(Box::new(FlagPass { key: "second_ran" }), |ps| {
+            ps.get::<bool>("should_run_next").copied().unwrap_or(false)
+        });
         pm.run(&c);
         assert_eq!(pm.property_set.get::<bool>("second_ran"), Some(&true));
     }
@@ -292,6 +287,8 @@ mod tests {
         assert_eq!(pre.num_qubits, post.num_qubits);
         assert_eq!(pre.num_cbits, post.num_cbits);
         // And the report was deposited.
-        assert!(ps.get::<crate::transpiler::profiler::ProfileReport>("profile_report").is_some());
+        assert!(ps
+            .get::<crate::transpiler::profiler::ProfileReport>("profile_report")
+            .is_some());
     }
 }

@@ -411,12 +411,9 @@ fn beam_sabre_forward(
             .iter()
             .find(|b| !b.front_layer.is_empty())
             .and_then(|b| {
-                b.front_layer.first().map(|&gi| {
-                    (
-                        gates[gi].logical_qubits[0],
-                        gates[gi].logical_qubits[1],
-                    )
-                })
+                b.front_layer
+                    .first()
+                    .map(|&gi| (gates[gi].logical_qubits[0], gates[gi].logical_qubits[1]))
             });
 
         new_beams.truncate(beam_width);
@@ -589,11 +586,7 @@ impl Default for BeamSabrePass {
 }
 
 impl BeamSabrePass {
-    pub fn try_run(
-        &self,
-        circuit: &Circuit,
-        property_set: &mut PropertySet,
-    ) -> Result<Circuit> {
+    pub fn try_run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Result<Circuit> {
         let has_2q = circuit.operations.iter().any(|op| {
             if let Operation::Gate { qubits, .. } = op {
                 qubits.len() >= 2
@@ -724,7 +717,9 @@ impl BeamSabrePass {
         }
 
         let winning = best_beam.ok_or_else(|| {
-            QRustError::Routing("no routing solution found across all bidirectional iterations".into())
+            QRustError::Routing(
+                "no routing solution found across all bidirectional iterations".into(),
+            )
         })?;
         property_set.insert(
             "initial_layout",

@@ -114,8 +114,7 @@ fn run(args: &[String]) -> Result<(), String> {
     }
 
     let input = input.ok_or("missing <input.qasm>")?;
-    let qasm = std::fs::read_to_string(input)
-        .map_err(|e| format!("cannot read {input}: {e}"))?;
+    let qasm = std::fs::read_to_string(input).map_err(|e| format!("cannot read {input}: {e}"))?;
 
     let circuit = parse_qasm(&qasm).map_err(|e| format!("parse error: {e}"))?;
     if report {
@@ -188,8 +187,9 @@ fn run(args: &[String]) -> Result<(), String> {
 
     let qasm_out = out_circ.to_qasm(None);
     match output {
-        Some(path) => std::fs::write(path, &qasm_out)
-            .map_err(|e| format!("cannot write {path}: {e}"))?,
+        Some(path) => {
+            std::fs::write(path, &qasm_out).map_err(|e| format!("cannot write {path}: {e}"))?
+        }
         None => print!("{qasm_out}"),
     }
     Ok(())
@@ -216,7 +216,10 @@ fn parse_backend_spec(spec: &str) -> Result<Backend, String> {
         if parts.len() != 2 {
             return Err(format!("grid spec must be RxC, got: {spec}"));
         }
-        return Ok(Backend::grid(parse_usize(parts[0])?, parse_usize(parts[1])?));
+        return Ok(Backend::grid(
+            parse_usize(parts[0])?,
+            parse_usize(parts[1])?,
+        ));
     }
     if spec == "ibm_quito" {
         return Ok(Backend::ibm_quito());

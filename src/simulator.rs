@@ -92,13 +92,7 @@ fn embed_3q(gate_8x8: &DMatrix<C>, q0: usize, q1: usize, q2: usize, n_qubits: us
     if n_qubits >= SHIFT_GUARD {
         return DMatrix::<C>::identity(1, 1);
     }
-    if q0 >= n_qubits
-        || q1 >= n_qubits
-        || q2 >= n_qubits
-        || q0 == q1
-        || q1 == q2
-        || q0 == q2
-    {
+    if q0 >= n_qubits || q1 >= n_qubits || q2 >= n_qubits || q0 == q1 || q1 == q2 || q0 == q2 {
         let dim = 1usize << n_qubits;
         return DMatrix::<C>::identity(dim, dim);
     }
@@ -558,12 +552,7 @@ fn haar_random_state(n: usize, rng: &mut SplitMix64) -> DVector<C> {
 ///   sampling-based equivalence at scale.
 /// - Mele 2024 (Quantum 8, 1340), "Introduction to Haar measure tools":
 ///   concentration arguments for Haar-random sampling.
-pub fn equivalence_by_sampling(
-    c1: &Circuit,
-    c2: &Circuit,
-    k: usize,
-    seed: u64,
-) -> Result<f64> {
+pub fn equivalence_by_sampling(c1: &Circuit, c2: &Circuit, k: usize, seed: u64) -> Result<f64> {
     if c1.num_qubits != c2.num_qubits {
         return Err(QRustError::Simulation(format!(
             "equivalence_by_sampling: qubit count mismatch ({} vs {})",
@@ -676,9 +665,7 @@ mod tests {
                     "expected error to identify the unroll failure, got: {msg}"
                 );
             }
-            other => panic!(
-                "expected Simulation error from missing Custom gate, got: {other:?}"
-            ),
+            other => panic!("expected Simulation error from missing Custom gate, got: {other:?}"),
         }
     }
 
@@ -752,11 +739,7 @@ mod tests {
         let mut rng = SplitMix64::new(42);
         let psi = haar_random_state(3, &mut rng);
         let phi = evolve_state(&circuit, &psi).unwrap();
-        assert!(
-            (phi.norm() - 1.0).abs() < 1e-10,
-            "norm = {}",
-            phi.norm()
-        );
+        assert!((phi.norm() - 1.0).abs() < 1e-10, "norm = {}", phi.norm());
     }
 
     #[test]
