@@ -20,13 +20,8 @@ pub const MAX_STATE_VECTOR_QUBITS: usize = 24;
 
 /// Maximum qubit count at which a 3-qubit gate may be applied via the
 /// `embed_3q` fallback. The fallback materializes a full `2^n × 2^n`
-/// matrix; at n=14 this would be 4 GiB. We cap at n=12 (256 MiB peak).
-///
-/// Loop 3 (Loop 2 review §"3-qubit gate ceiling"): the previous limit
-/// `n >= MAX_QUBITS` (i.e. n=14 still allowed) silently OOMed during
-/// `equivalence_by_sampling` on circuits with one Toffoli at ~14 qubits,
-/// contradicting the documented `MAX_STATE_VECTOR_QUBITS=24` ceiling.
-/// A native in-place 3q kernel is tracked as future work.
+/// matrix; at n=12 this is 256 MiB peak. A native in-place 3q kernel
+/// is left as future work.
 pub const MAX_3Q_EMBED_QUBITS: usize = 12;
 
 fn embed_single_qubit(gate_2x2: &DMatrix<C>, target: usize, n_qubits: usize) -> DMatrix<C> {
@@ -125,9 +120,6 @@ pub fn try_circuit_to_unitary(circuit: &Circuit) -> Result<DMatrix<C>> {
             circuit.num_qubits, MAX_QUBITS
         )));
     }
-    // Loop 5 §NI-1: prefer the fallible unroll path so missing
-    // custom-gate registry entries propagate as Simulation errors
-    // rather than silently producing a wrong-but-finite unitary.
     let unrolled = crate::transpiler::decomposition::try_unroll_custom_gates(circuit)
         .map_err(|e| QRustError::Simulation(format!("custom-gate unroll failed: {e}")))?;
     let n = unrolled.num_qubits;
@@ -266,7 +258,7 @@ pub fn extract_logical_unitary(
     u_logical
 }
 
-// ─── State-vector evolution (Loop 3 EXPLORATORY #4 Phase 1) ────────────────
+// ─── State-vector evolution ──────────────────────────────────────────────────
 //
 // Unblocks verification at >14 qubits by avoiding full unitary materialization.
 // Memory: O(2^n) for the state vector vs O(4^n) for the unitary.
@@ -300,12 +292,8 @@ fn apply_1q_gate(state: &mut DVector<C>, u: &DMatrix<C>, q: usize, n: usize) {
 /// Apply a 2-qubit gate to a state vector in-place. `q0` is the LSB of
 /// the local 4×4 matrix, `q1` is the MSB. O(2^n) per gate.
 ///
-/// Loop 3 (review §"apply_2q_gate allocates O(2^n) bool buffer"): the
-/// previous implementation allocated a `Vec<bool>` of length `2^n` per
-/// gate invocation, leading to ~200 MiB of allocator churn over an
-/// 18-qubit, 100-gate circuit. Replaced with a triple-nested stride
-/// iteration (Stim-style; Gidney 2021, Quantum 5, 497) that visits each
-/// 4-amplitude block exactly once with zero heap allocation.
+/// Uses a triple-nested stride iteration (Stim-style; Gidney 2021, Quantum 5, 497)
+/// that visits each 4-amplitude block exactly once with zero heap allocation.
 fn apply_2q_gate(state: &mut DVector<C>, u: &DMatrix<C>, q0: usize, q1: usize, n: usize) {
     debug_assert!(q0 < n && q1 < n && q0 != q1);
     let dim = 1usize << n;
@@ -365,12 +353,8 @@ fn apply_2q_gate(state: &mut DVector<C>, u: &DMatrix<C>, q0: usize, q1: usize, n
 }
 
 /// Apply a 3-qubit gate to a state vector. Falls back to embed_3q +
-/// matrix-vector multiply.
-///
-/// Loop 3 (review §"apply_3q_gate ceiling"): the embed fallback
-/// materializes a `2^n × 2^n` matrix. We cap n at [`MAX_3Q_EMBED_QUBITS`]
-/// (=12, ~256 MiB peak) rather than the previous `MAX_QUBITS=14` which
-/// would have peaked at 4 GiB. A native in-place 3q kernel is future work.
+/// matrix-vector multiply. Capped at [`MAX_3Q_EMBED_QUBITS`] (n=12, ~256 MiB peak)
+/// to avoid OOM. A native in-place 3q kernel is future work.
 fn apply_3q_gate(
     state: &mut DVector<C>,
     u: &DMatrix<C>,
@@ -464,7 +448,7 @@ pub fn evolve_state(circuit: &Circuit, init: &DVector<C>) -> Result<DVector<C>> 
             expected_dim
         )));
     }
-    // Loop 5 §NI-1: same fail-loud-on-missing-custom-gate stance as
+    //
     // `try_circuit_to_unitary` above.
     let unrolled = crate::transpiler::decomposition::try_unroll_custom_gates(circuit)
         .map_err(|e| QRustError::Simulation(format!("custom-gate unroll failed: {e}")))?;
@@ -644,11 +628,8 @@ mod tests {
         assert!(try_circuit_to_unitary(&circuit).is_err());
     }
 
-    /// Loop 5 §NI-1: a circuit referencing a Custom gate that's not in
-    /// the registry must produce a Simulation error rather than silently
-    /// returning a wrong-but-finite unitary (previously this returned the
-    /// 1-qubit identity because the `unroll_custom_gates` infallible
-    /// helper swallowed the error).
+    /// A circuit referencing a Custom gate not in the registry must produce
+    /// a Simulation error rather than silently returning a wrong unitary.
     #[test]
     fn test_simulator_surfaces_missing_custom_gate() {
         let mut c = Circuit::new(1, 0);
@@ -669,8 +650,7 @@ mod tests {
         }
     }
 
-    /// Loop 5 §NI-1: same contract for `evolve_state` (used by
-    /// `equivalence_by_sampling` — see Loop 1 EP-4 Phase 1).
+    /// Same missing-gate contract for `evolve_state`.
     #[test]
     fn test_evolve_state_surfaces_missing_custom_gate() {
         let mut c = Circuit::new(1, 0);
@@ -827,8 +807,7 @@ mod tests {
         assert!(evolve_state(&circuit, &small).is_err());
     }
 
-    /// Loop 3 review §"apply_3q_gate ceiling": at n > MAX_3Q_EMBED_QUBITS,
-    /// 3q gates must error out cleanly rather than OOM.
+    /// At n > MAX_3Q_EMBED_QUBITS, 3q gates must return an error rather than OOM.
     #[test]
     fn test_apply_3q_gate_above_limit_errors() {
         // n = MAX_3Q_EMBED_QUBITS + 1 = 13. Build a circuit with one CCX.
@@ -850,9 +829,8 @@ mod tests {
         );
     }
 
-    /// Loop 3 review §"apply_2q_gate stride iteration": correctness
-    /// regression test. Apply a 2q gate at non-contiguous (q0, q1) and
-    /// verify the result matches the embed-fallback path.
+    /// Apply a 2q gate at non-contiguous (q0, q1) and verify the stride
+    /// kernel matches the embed-fallback path.
     #[test]
     fn test_apply_2q_gate_non_contiguous_matches_embed() {
         let mut c = Circuit::new(5, 0);

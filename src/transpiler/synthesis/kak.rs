@@ -4,10 +4,15 @@
 //! `U = (A1 ⊗ A0) · exp(i(x X⊗X + y Y⊗Y + z Z⊗Z)) · (B1 ⊗ B0)`,
 //! synthesizing the result as an explicit gate sequence.
 //!
-//! Weyl-chamber branching (Shende et al.):
+//! Weyl-chamber branching:
 //! - 0 CX : all interaction coefficients below tolerance (local unitary).
-//! - 1 CX : only one coefficient non-zero (SWAP-class).
-//! - 3 CX : general case.
+//! - 2 CX : exactly one coefficient non-zero (implemented as CX·RZ·CX with
+//!           basis-change sandwiches for the X and Y cases).
+//! - 6 CX : general case (three independent XX/YY/ZZ sub-circuits, each 2 CX).
+//!
+//! The optimal circuit counts from Shende et al. 2004 are 0/1/2/3 CX; reaching
+//! those requires a combined synthesis of the full interaction term rather than
+//! decomposing X, Y, Z axes independently. Optimal synthesis is left as future work.
 
 use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::synthesis::Synthesizer;
@@ -118,12 +123,6 @@ impl Synthesizer for KakSynthesizer {
         let mut y = (sums[2] + sums[3]) / 4.0;
         let mut z = (sums[4] + sums[5]) / 4.0;
 
-        // Loop 4 review §"`fold` non-monotone for large inputs": the
-        // previous `while`-loop fold spun forever on `f64::INFINITY` and
-        // performed up to N subtractions for an input of magnitude N·π/2.
-        // Replace with a branchless rem_euclid-based fold that is bounded
-        // for any finite input and well-defined for non-finite inputs
-        // (returning 0.0 — caller is responsible for guarding upstream).
         fn fold(val: f64) -> f64 {
             let pi_2 = std::f64::consts::FRAC_PI_2;
             if !val.is_finite() {

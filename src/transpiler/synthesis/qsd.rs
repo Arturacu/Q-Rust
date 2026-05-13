@@ -27,16 +27,11 @@ impl Synthesizer for QsdSynthesizer {
     }
 }
 
-/// Nelder–Mead-based 1-qubit synthesizer (was previously named
-/// `QSearchSynthesizer`, which collided with the genuine A*-style stub
-/// in `synthesis::qsearch`).
+/// Nelder–Mead-based 1-qubit synthesizer.
 ///
-/// Loop 3 review §"Two `QSearchSynthesizer` types collide": renamed to
-/// reflect what this struct actually does — a gradient-free Nelder–Mead
-/// optimizer over a fixed single-qubit ansatz. For 2q inputs it falls
-/// back to KAK; for 3q+ it returns `None`. This is a *stub* implementation —
-/// correctness is only guaranteed for 1-qubit inputs where it
-/// essentially reproduces ZYZ.
+/// Uses gradient-free Nelder–Mead over a ZYZ ansatz. For 1-qubit inputs
+/// this reproduces ZYZ (with more iterations). For 2-qubit inputs it falls
+/// back to KAK; for 3q+ it returns `None`.
 #[derive(Debug, Clone, Copy)]
 pub struct NelderMead1qSynthesizer {
     pub max_iter: usize,

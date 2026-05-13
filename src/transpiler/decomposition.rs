@@ -33,8 +33,18 @@ pub fn try_decompose_basis(circuit: &Circuit) -> Result<Circuit> {
     Ok(result)
 }
 
+/// Infallible wrapper around [`try_decompose_basis`].
+///
+/// On error, emits a diagnostic via `Q_RUST_LOG` and returns the original
+/// circuit unchanged. Callers that can propagate errors should prefer
+/// [`try_decompose_basis`] directly.
 pub fn decompose_basis(circuit: &Circuit) -> Circuit {
-    try_decompose_basis(circuit).expect("decompose_basis failed")
+    try_decompose_basis(circuit).unwrap_or_else(|e| {
+        crate::transpiler::warn_diagnostic(format_args!(
+            "decompose_basis: {e}; returning original circuit unchanged"
+        ));
+        circuit.clone()
+    })
 }
 
 pub fn try_unroll_custom_gates(circuit: &Circuit) -> Result<Circuit> {
@@ -66,21 +76,10 @@ pub fn try_unroll_custom_gates(circuit: &Circuit) -> Result<Circuit> {
 
 /// Infallible wrapper around [`try_unroll_custom_gates`].
 ///
-/// Loop 5 §NI-1: previously this silently fell back to `circuit.clone()`
-/// whenever a custom-gate registry lookup failed, leaving downstream
-/// `Operation::Gate { name: GateType::Custom(_), .. }` ops in the circuit.
-/// Consumers like `simulator::try_circuit_to_unitary` then treated those
-/// as 1-qubit identities (see `GateType::unitary` for `Custom`), masking
-/// genuine bugs (parser regressions, mistakenly-reset `Circuit::custom_gates`,
-/// hand-built circuits referencing unregistered gates) with wrong-but-
-/// finite unitaries. We now emit a diagnostic before falling back so the
-/// failure is loud at the boundary, while keeping the function infallible
-/// for backward compatibility.
-///
-/// Callers that can plumb errors should prefer [`try_unroll_custom_gates`]
-/// directly. References: Rust API Guidelines C-VALIDATE; matches the
-/// "fail loudly" stance applied to `synthesis::qsearch::QSearchSynthesizer`
-/// in Loop 1 §Finding 2.
+/// On error, emits a diagnostic via `Q_RUST_LOG` and returns the original
+/// circuit unchanged. Downstream custom-gate ops that were not unrolled will
+/// be treated as 1-qubit identities by the simulator, so callers that can
+/// propagate errors should prefer [`try_unroll_custom_gates`] directly.
 pub fn unroll_custom_gates(circuit: &Circuit) -> Circuit {
     try_unroll_custom_gates(circuit).unwrap_or_else(|e| {
         crate::transpiler::warn_diagnostic(format_args!(
@@ -462,13 +461,6 @@ mod tests {
             .any(|op| matches!(op, Operation::Barrier { .. })));
     }
 
-    /// Loop 5 §NI-1: when a custom gate is missing from the registry,
-    /// `try_unroll_custom_gates` must surface the error rather than
-    /// returning the original circuit. The infallible `unroll_custom_gates`
-    /// wrapper still falls back to `circuit.clone()` (logging via
-    /// `warn_diagnostic`) for backward compatibility, but downstream
-    /// callers that can propagate errors (notably `simulator`) should
-    /// use the fallible variant.
     #[test]
     fn test_try_unroll_surfaces_missing_custom_gate_error() {
         let mut c = Circuit::new(1, 0);
@@ -489,11 +481,8 @@ mod tests {
         }
     }
 
-    /// Loop 5 §NI-1: the infallible wrapper preserves the
-    /// circuit-clone fallback so existing callers continue to compile,
-    /// but the resulting circuit is observably *not* unrolled (the
-    /// Custom op survives) — which is exactly the scenario the
-    /// diagnostic warns about.
+    /// The infallible fallback returns the original circuit unchanged when
+    /// a custom gate is missing, leaving the Custom op in place.
     #[test]
     fn test_unroll_custom_gates_fallback_preserves_input_on_error() {
         let mut c = Circuit::new(1, 0);

@@ -39,9 +39,6 @@ impl Pass for CircuitProfilerPass {
         "CircuitProfilerPass"
     }
 
-    /// Loop 5 §Finding 3: this pass only reads the circuit; it never
-    /// transforms it. Mark as analysis so the future pass manager can
-    /// elide cloning.
     fn is_analysis(&self) -> bool {
         true
     }

@@ -82,9 +82,9 @@ A `CircuitProfilerPass` (analysis-only) populates a `ProfileReport` for inspecti
 ### Synthesis (ZYZ, KAK)
 
 - **`ZyzSynthesizer`** — exact analytic 1-qubit synthesis.
-- **`KakSynthesizer`** — exact analytic 2-qubit synthesis with Weyl-chamber branching (0/1/3-CX cases) and a fidelity-pinned analytic fast-path for known 2q gates.
-- **`QsdSynthesizer`** — dispatcher that routes to ZYZ/KAK; QSD for N ≥ 3 is a stub.
-- **`NelderMead1qSynthesizer`** — numerical 1q synthesis with KAK fall-through for 2q.
+- **`KakSynthesizer`** — exact analytic 2-qubit synthesis using the Cartan/KAK decomposition (Shende et al. 2004). Implements Weyl-chamber branching: 0 CX for local unitaries, 2 CX when only one interaction coefficient is non-zero, 6 CX for the general case. Optimal synthesis (0/1/2/3 CX) is left as future work.
+- **`QsdSynthesizer`** — dispatcher to ZYZ (N=1) or KAK (N=2); N ≥ 3 is not implemented and returns `None`.
+- **`NelderMead1qSynthesizer`** — numerical 1q synthesis via Nelder–Mead over a ZYZ ansatz; falls through to KAK for 2q inputs.
 
 ### Routing & layout (SABRE)
 
@@ -149,6 +149,8 @@ text    │   └────────┘   └──────┘   │  (
 ```
 
 The pipeline is driven by a `PassManager`. Each pass implements the `Pass` trait and reads/writes a shared `PropertySet` (carrying e.g. `initial_layout`, `final_layout`, `swaps_inserted`).
+
+The pipeline architecture follows the same decomposition used by Qiskit's transpiler (optimization → layout → routing → synthesis → basis). The core algorithms — SABRE (Li et al. 2019 ASPLOS), KAK decomposition (Shende et al. 2004), and ZYZ synthesis — are standard published techniques adopted here with a Rust-native implementation.
 
 ---
 
@@ -395,20 +397,7 @@ Test layout:
 - `tests/e2e_pipeline_integration.rs` — parse → transpile → emit → re-parse.
 - `tests/cli_smoke_test.rs` — `qrust` binary, gated `#[ignore]`.
 
-The library has zero `unsafe` blocks, and `clippy::unwrap_used` is denied on the lib target — public APIs are panic-free.
-
----
-
-## Origin
-
-This codebase was hardened through an automated, multi-pass review-and-improvement pipeline (5 review/fix iterations followed by 3 polish passes) on top of an earlier prototype. Each pass ran a Principal-Engineer review and applied compile-validated patches before convergence.
-
-For the curious, two companion documents go into more detail:
-
-- `CODE_UPDATES_SUMMARY.md` — what changed in the source, by area.
-- The sister thesis update document — the methodology and findings.
-
-These are background reading; nothing about using Q-Rust depends on them.
+The library has zero `unsafe` blocks. The `try_*` variants of public APIs return `Result` and are the preferred entry points; infallible wrappers (`decompose_basis`, `unroll_custom_gates`) fall back to returning the original circuit on error and emit a diagnostic via `Q_RUST_LOG`.
 
 ---
 

@@ -319,11 +319,9 @@ impl Pass for SabreLayoutPass {
     }
 }
 
-/// Loop 5 §AF-1: migrated to use [`Layout::from_l2p`] for defense-in-depth.
-/// Fisher-Yates shuffle followed by truncation produces an injective
-/// mapping into `[0, num_physical)`; the validating constructor
-/// re-checks this invariant. The `expect` is appropriate — a panic
-/// here indicates a Fisher-Yates correctness bug, not user error.
+/// Fisher-Yates shuffle followed by truncation produces an injective mapping
+/// into `[0, num_physical)`. The `expect` is appropriate here — a panic
+/// indicates a Fisher-Yates correctness bug, not user error.
 fn random_layout(num_logical: usize, num_physical: usize, seed: u64) -> Layout {
     let mut rng = Rng::new(seed.wrapping_mul(0x517C_C1B7_2722_0A95).wrapping_add(1));
     let mut positions: Vec<usize> = (0..num_physical).collect();
@@ -349,9 +347,6 @@ mod tests {
         }
     }
 
-    /// Loop 5 §AF-1: a regression net for the migrated test helper
-    /// below — confirms the validating constructor accepts the
-    /// shuffle output across a range of (logical, physical) sizes.
     #[test]
     fn test_random_layout_validates_across_sizes() {
         for (l, p, seed) in [(1, 4, 1), (4, 4, 7), (3, 16, 99), (8, 12, 2024)] {
@@ -380,10 +375,6 @@ mod tests {
         let mut ps = PropertySet::new();
         let _ = pass.run(&c, &mut ps);
         let discovered: &Vec<usize> = ps.get("sabre_initial_layout").unwrap();
-        // Loop 5 §AF-1: migrated from hand-rolled p2l construction
-        // to the validating `Layout::from_l2p` constructor. The
-        // `unwrap` is justified — `discovered` was just produced by
-        // SabreLayoutPass and is guaranteed injective by construction.
         let layout = Layout::from_l2p(discovered.clone(), backend.num_qubits)
             .expect("SabreLayoutPass output must be a valid layout");
         let dist = backend.shortest_path_matrix();
