@@ -77,8 +77,10 @@ pub mod ir;
 pub mod parser;
 pub mod simulator;
 pub mod transpiler;
+pub mod verify;
 
 pub use error::{QRustError, Result};
+pub use verify::{verify_equivalence, Verdict};
 
 /// Bit-shift guard for `n`-qubit systems: the simulator and embedding routines
 /// compute `1 << n` for matrix dimensions, so `n` must stay strictly below

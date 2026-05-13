@@ -33,6 +33,13 @@ pub enum GateType {
     RZZ,
     SWAP,
     CCX,
+    /// IBM-Heron native two-qubit echoed cross-resonance gate.
+    /// `ECR = (1/√2)(IX − XY)`. Reference: Sheldon et al. 2016, PRA 93, 060302.
+    ECR,
+    /// Imaginary SWAP — native on IonQ Forte and superconducting fluxonium devices.
+    /// In the {00, 01, 10, 11} basis: `iSWAP = diag(1, [[0, i], [i, 0]], 1)`.
+    /// Reference: Schuch & Siewert 2003, PRA 67, 032301.
+    ISwap,
     /// A barrier pseudo-gate placeholder. Not used as a real gate
     /// (barriers are represented by `Operation::Barrier`), but exists so
     /// `count_ops` and similar tools can report barriers uniformly.
@@ -72,6 +79,8 @@ impl FromStr for GateType {
             "rxx" => GateType::RXX,
             "ryy" => GateType::RYY,
             "rzz" => GateType::RZZ,
+            "ecr" => GateType::ECR,
+            "iswap" => GateType::ISwap,
             "barrier" => GateType::Barrier,
             other => GateType::Custom(other.to_string()),
         })
@@ -107,6 +116,8 @@ impl GateType {
             GateType::RXX => "rxx",
             GateType::RYY => "ryy",
             GateType::RZZ => "rzz",
+            GateType::ECR => "ecr",
+            GateType::ISwap => "iswap",
             GateType::Barrier => "barrier",
             GateType::Custom(n) => n.as_str(),
         }
@@ -140,6 +151,8 @@ impl GateType {
             GateType::RXX => "rxx",
             GateType::RYY => "ryy",
             GateType::RZZ => "rzz",
+            GateType::ECR => "ecr",
+            GateType::ISwap => "iswap",
             GateType::Barrier => "barrier",
             GateType::Custom(_) => return None,
         })

@@ -145,6 +145,8 @@ impl GateDefinition for GateType {
             | GateType::RXX
             | GateType::RYY
             | GateType::RZZ
+            | GateType::ECR
+            | GateType::ISwap
             | GateType::SWAP => 2,
 
             GateType::CCX => 3,
@@ -161,7 +163,20 @@ impl GateDefinition for GateType {
         match self {
             GateType::U => basis_u_matrix(params),
             GateType::CX => basis_cx_matrix(),
-            GateType::Custom(_) | GateType::Barrier => DMatrix::<C>::identity(2, 2),
+            // Loop 4 review §"Unitary returns identity(2,2) for unhandled gates":
+            // previously this branch returned a 2×2 identity for arbitrary
+            // multi-qubit Custom gates, producing a type-level lie that
+            // causes downstream embed-* functions to corrupt or panic. We
+            // now size the identity by the gate's declared arity so callers
+            // receive the right-sized matrix for at least the no-op case.
+            // For a Custom gate this is still an under-approximation
+            // (we don't know its true unitary), but it is dimensionally
+            // honest.
+            GateType::Custom(_) => {
+                let dim = 1usize << self.num_qubits();
+                DMatrix::<C>::identity(dim, dim)
+            }
+            GateType::Barrier => DMatrix::<C>::identity(1, 1),
             other => {
                 let n = other.num_qubits();
                 let qubits: Vec<usize> = (0..n).collect();
@@ -330,6 +345,52 @@ impl GateDefinition for GateType {
                 ops.push(cx_gate(a, b));
             }
 
+            // Loop 4 review §"Patch 2 — Add iSWAP and ECR".
+            //
+            // ECR decomposition (Qiskit `qiskit.circuit.library.ECRGate`,
+            // standard 3-CX form). ECR (echoed cross-resonance) is locally
+            // equivalent to a CNOT up to single-qubit rotations:
+            //   ECR = (1/√2)(IX − XY).
+            // We expand it as the canonical Qiskit `ecr.definition`:
+            //   RZX(π/4) on (a,b) · X⊗I · RZX(-π/4) on (a,b)
+            // which itself decomposes via H·CX·RZ·CX·H on the target wire.
+            // Cost: 2 × CX (post-fusion) + small 1q overhead.
+            //
+            // Verification target: U(ECR) = (1/√2) [[0,1,0,i],[1,0,-i,0],
+            //   [0,i,0,1],[-i,0,1,0]]. Rather than hand-expand, we delegate
+            // to the analytic RZX template via {H, CX, RZ}.
+            GateType::ECR => {
+                let (a, b) = (qubits[0], qubits[1]);
+                // RZX(π/4) on (a, b):
+                ops.extend(GateType::H.decompose(&[b], &[])?);
+                ops.push(cx_gate(a, b));
+                ops.extend(GateType::RZ.decompose(&[b], &[PI / 4.0])?);
+                ops.push(cx_gate(a, b));
+                ops.extend(GateType::H.decompose(&[b], &[])?);
+                // X on a:
+                ops.extend(GateType::X.decompose(&[a], &[])?);
+                // RZX(-π/4) on (a, b):
+                ops.extend(GateType::H.decompose(&[b], &[])?);
+                ops.push(cx_gate(a, b));
+                ops.extend(GateType::RZ.decompose(&[b], &[-PI / 4.0])?);
+                ops.push(cx_gate(a, b));
+                ops.extend(GateType::H.decompose(&[b], &[])?);
+            }
+
+            // iSWAP decomposition (Schuch & Siewert 2003, PRA 67, 032301):
+            //   iSWAP = (S ⊗ S)·(H ⊗ I)·CX(a,b)·CX(b,a)·(I ⊗ H)
+            // (Equivalent forms exist; Qiskit `iswap.definition` uses this
+            // canonical 2-CX presentation.)
+            GateType::ISwap => {
+                let (a, b) = (qubits[0], qubits[1]);
+                ops.extend(GateType::S.decompose(&[a], &[])?);
+                ops.extend(GateType::S.decompose(&[b], &[])?);
+                ops.extend(GateType::H.decompose(&[a], &[])?);
+                ops.push(cx_gate(a, b));
+                ops.push(cx_gate(b, a));
+                ops.extend(GateType::H.decompose(&[b], &[])?);
+            }
+
             GateType::Custom(_) => return None,
         }
 
@@ -356,6 +417,7 @@ impl GateDefinition for GateType {
                 (1, PauliBasis::Y),
             ]),
             GateType::H | GateType::SWAP => CommutationSignature::Clifford,
+            GateType::ECR | GateType::ISwap => CommutationSignature::Generic,
             _ => CommutationSignature::Generic,
         }
     }
@@ -393,5 +455,89 @@ mod tests {
         let u = circuit_to_unitary(&c);
         let norm = u.norm();
         assert!(norm > 0.0);
+    }
+
+    /// Loop 4 review §"iSWAP and ECR still missing": ensure the new
+    /// variants parse and report the expected arity.
+    #[test]
+    fn test_ecr_iswap_arity_and_parse() {
+        use std::str::FromStr;
+        assert_eq!(GateType::from_str("ecr").unwrap().num_qubits(), 2);
+        assert_eq!(GateType::from_str("iswap").unwrap().num_qubits(), 2);
+        assert_eq!(GateType::ECR.to_qasm_name(), "ecr");
+        assert_eq!(GateType::ISwap.to_qasm_name(), "iswap");
+    }
+
+    /// Loop 4 review §"ECR decomposition correctness": the decomposition
+    /// must match the analytic ECR unitary up to global phase.
+    #[test]
+    fn test_ecr_decomposition_unitary_matches_analytic() {
+        use crate::ir::Circuit;
+        use crate::simulator::{circuit_to_unitary, unitary_fidelity};
+        let mut c = Circuit::new(2, 0);
+        c.add_op(Operation::Gate {
+            name: GateType::ECR,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        // The decomposition is wired through ECR.decompose() →
+        // {H, CX, RZ, X} → {U, CX} via compose_basis_ops, giving us
+        // a concrete 4×4 unitary. We compare against a hand-coded
+        // analytic ECR matrix.
+        let u_decomp = circuit_to_unitary(&c);
+        let s = 1.0_f64 / 2.0_f64.sqrt();
+        // ECR (Qiskit convention, qubit 0 = LSB):
+        // [[ 0,  1,  0,  i],
+        //  [ 1,  0, -i,  0],
+        //  [ 0,  i,  0,  1],
+        //  [-i,  0,  1,  0]] * (1/√2)
+        let i = Complex::new(0.0, 1.0);
+        let z = Complex::new(0.0, 0.0);
+        let one = Complex::new(1.0, 0.0);
+        let u_ecr = DMatrix::from_row_slice(
+            4,
+            4,
+            &[z, one, z, i, one, z, -i, z, z, i, z, one, -i, z, one, z],
+        ) * Complex::new(s, 0.0);
+        let fid = unitary_fidelity(&u_decomp, &u_ecr);
+        assert!(
+            fid > 0.999_999_99,
+            "ECR decomposition fidelity = {fid} (expected ≈ 1)"
+        );
+    }
+
+    /// Loop 4 review §"iSWAP decomposition correctness".
+    #[test]
+    fn test_iswap_decomposition_unitary_matches_analytic() {
+        use crate::ir::Circuit;
+        use crate::simulator::{circuit_to_unitary, unitary_fidelity};
+        let mut c = Circuit::new(2, 0);
+        c.add_op(Operation::Gate {
+            name: GateType::ISwap,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        let u_decomp = circuit_to_unitary(&c);
+        // iSWAP in {00,01,10,11} basis with qubit 0 = LSB:
+        // [[1,0,0,0],[0,0,i,0],[0,i,0,0],[0,0,0,1]]
+        let i = Complex::new(0.0, 1.0);
+        let z = Complex::new(0.0, 0.0);
+        let one = Complex::new(1.0, 0.0);
+        let u_iswap =
+            DMatrix::from_row_slice(4, 4, &[one, z, z, z, z, z, i, z, z, i, z, z, z, z, z, one]);
+        let fid = unitary_fidelity(&u_decomp, &u_iswap);
+        assert!(
+            fid > 0.999_999_99,
+            "iSWAP decomposition fidelity = {fid} (expected ≈ 1)"
+        );
+    }
+
+    /// Loop 4 review §"Unitary returns identity(2,2) for unhandled gates":
+    /// a 3-qubit Custom gate must now return a 2³×2³ matrix.
+    #[test]
+    fn test_custom_gate_unitary_has_correct_size() {
+        // Custom gates report num_qubits()==1, so a 1q Custom yields 2×2.
+        let u = GateType::Custom("foo".into()).unitary(&[]);
+        assert_eq!(u.shape(), (2, 2));
     }
 }

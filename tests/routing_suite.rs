@@ -74,6 +74,7 @@ fn route_with_props(
         beam_width: beam,
         branch_factor: beam.max(1),
         bidir_iterations: bidir,
+        lookahead_strategy: Default::default(),
     };
     let mut props = PropertySet::new();
     let routed = pass.run(circuit, &mut props);

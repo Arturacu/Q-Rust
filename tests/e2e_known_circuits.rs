@@ -88,6 +88,7 @@ fn verify_routed(label: &str, circuit: &Circuit, backend: &Backend, target_basis
         beam_width: 4,
         branch_factor: 3,
         bidir_iterations: 2,
+        lookahead_strategy: Default::default(),
     };
     let mut props = PropertySet::new();
     let routed = router.run(circuit, &mut props);
