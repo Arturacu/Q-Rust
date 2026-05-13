@@ -85,7 +85,7 @@ pub fn verify_equivalence(c1: &Circuit, c2: &Circuit) -> Result<Verdict> {
         c1,
         c2,
         DEFAULT_SAMPLE_COUNT,
-        0xC0FF_EE_DEAD_BEEFu64,
+        0x00C0_FFEE_DEAD_BEEF_u64,
         DEFAULT_EXACT_TOLERANCE,
         DEFAULT_SAMPLING_TOLERANCE,
     )

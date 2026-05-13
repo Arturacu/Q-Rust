@@ -6,7 +6,8 @@
 //! topology, this often converges to a zero-SWAP layout.
 
 use crate::backend::Backend;
-use crate::ir::{Circuit, Operation};
+#[allow(unused_imports)]
+use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::pass::Pass;
 use crate::transpiler::property_set::PropertySet;
 use crate::transpiler::routing::Layout;

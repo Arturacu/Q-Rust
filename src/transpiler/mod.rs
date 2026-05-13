@@ -131,7 +131,7 @@ fn diagnostics_enabled() -> bool {
     use std::sync::OnceLock;
     static ENABLED: OnceLock<bool> = OnceLock::new();
     *ENABLED.get_or_init(|| match std::env::var("Q_RUST_LOG") {
-        Ok(v) => !v.is_empty() && v != "0" && v.to_ascii_lowercase() != "off",
+        Ok(v) => !v.is_empty() && v != "0" && !v.eq_ignore_ascii_case("off"),
         Err(_) => false,
     })
 }
