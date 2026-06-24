@@ -354,6 +354,12 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
         }
         Stage::LayoutAndLower => {
             if let Some(ref backend) = config.backend {
+                // Multi-qubit gates (e.g. CCX) must be reduced to ≤2-qubit
+                // operations before routing: the SWAP router cannot make a
+                // 3-qubit interaction adjacent and would otherwise corrupt the
+                // gate. Standard transpiler ordering (decompose, then route).
+                pm.add_pass(Box::new(decomposition::HighArityDecompositionPass));
+
                 if config.optimization_level >= 2 {
                     let (num_trials, num_iterations) = match config.optimization_level {
                         2 => (10, 3),
