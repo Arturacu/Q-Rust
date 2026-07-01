@@ -562,6 +562,136 @@ pub fn equivalence_by_sampling(c1: &Circuit, c2: &Circuit, k: usize, seed: u64) 
     Ok(min_fid)
 }
 
+/// Layout-aware Haar-random equivalence check for **routed** circuits.
+///
+/// [`equivalence_by_sampling`] assumes the two circuits act on the same
+/// logical qubits in the same order. After layout and routing, a circuit's
+/// output lives on *physical* qubits under a permutation (and possibly padded
+/// with ancillas), so a direct comparison spuriously fails. This variant
+/// accounts for that: it evolves a Haar-random logical state through `logical`,
+/// and separately places that state onto the physical register per
+/// `initial_layout`, evolves it through `routed`, and reads the logical result
+/// back per `final_layout` (requiring the ancilla qubits to return to
+/// `|0>`), then compares the two logical states.
+///
+/// This is the state-vector analogue of [`extract_logical_unitary`], costing
+/// `O(k · g · 2^{n_phys})` time and `O(2^{n_phys})` memory rather than the
+/// `O(4^{n_phys})` of full unitary materialisation — so it certifies routed
+/// circuits up to [`MAX_STATE_VECTOR_QUBITS`] physical qubits, well beyond the
+/// 14-qubit exact boundary.
+///
+/// `initial_layout[i]` / `final_layout[i]` give the physical position of
+/// logical qubit `i` at the circuit's input / output. Returns the minimum
+/// state fidelity over `k` samples (`1.0` ⇒ strong evidence of equivalence).
+pub fn equivalence_by_sampling_with_layout(
+    logical: &Circuit,
+    routed: &Circuit,
+    initial_layout: &[usize],
+    final_layout: &[usize],
+    k: usize,
+    seed: u64,
+) -> Result<f64> {
+    let n_log = logical.num_qubits;
+    let n_phys = routed.num_qubits;
+    if n_phys > MAX_STATE_VECTOR_QUBITS {
+        return Err(QRustError::Simulation(format!(
+            "equivalence_by_sampling_with_layout: {n_phys} physical qubits exceeds \
+             practical limit ({MAX_STATE_VECTOR_QUBITS})"
+        )));
+    }
+    if k == 0 {
+        return Err(QRustError::Simulation(
+            "equivalence_by_sampling_with_layout: k must be >= 1".into(),
+        ));
+    }
+    if initial_layout.len() < n_log || final_layout.len() < n_log {
+        return Err(QRustError::Simulation(format!(
+            "equivalence_by_sampling_with_layout: layout length < logical qubits \
+             ({} / {} vs {n_log})",
+            initial_layout.len(),
+            final_layout.len()
+        )));
+    }
+    if initial_layout.iter().chain(final_layout).take(2 * n_log).any(|&p| p >= n_phys) {
+        return Err(QRustError::Simulation(
+            "equivalence_by_sampling_with_layout: layout index out of physical range".into(),
+        ));
+    }
+
+    // Ensure the logical circuit is <=2-qubit so it evolves at any width the
+    // physical circuit reaches (evolve_state's 3-qubit kernel is capped low).
+    let logical2 = crate::transpiler::decomposition::decompose_basis(logical);
+
+    // Precompute which physical qubits carry logical output (the rest are
+    // ancillas that must return to |0>).
+    let mut is_output = vec![false; n_phys];
+    for &p in &final_layout[..n_log] {
+        is_output[p] = true;
+    }
+
+    let dim_log = 1usize << n_log;
+    let dim_phys = 1usize << n_phys;
+    let mut rng = SplitMix64::new(seed);
+    let mut min_fid = 1.0_f64;
+
+    for _ in 0..k {
+        let psi = haar_random_state(n_log, &mut rng);
+        let out_log = evolve_state(&logical2, &psi)?;
+
+        // Place the logical state onto the physical register (ancillas |0>).
+        let mut phys_in = DVector::<C>::zeros(dim_phys);
+        for x in 0..dim_log {
+            let mut big = 0usize;
+            for i in 0..n_log {
+                if (x >> i) & 1 == 1 {
+                    big |= 1 << initial_layout[i];
+                }
+            }
+            phys_in[big] = psi[x];
+        }
+        let out_phys = evolve_state(routed, &phys_in)?;
+
+        // Read the logical output back, discarding branches where an ancilla
+        // did not return to |0> (a correct routing leaves them there).
+        let mut out_log_routed = DVector::<C>::zeros(dim_log);
+        for big in 0..dim_phys {
+            let amp = out_phys[big];
+            if amp.norm() < 1e-12 {
+                continue;
+            }
+            let mut ancilla_clean = true;
+            for p in 0..n_phys {
+                if !is_output[p] && (big >> p) & 1 == 1 {
+                    ancilla_clean = false;
+                    break;
+                }
+            }
+            if !ancilla_clean {
+                continue;
+            }
+            let mut x = 0usize;
+            for i in 0..n_log {
+                if (big >> final_layout[i]) & 1 == 1 {
+                    x |= 1 << i;
+                }
+            }
+            out_log_routed[x] += amp;
+        }
+
+        let na = out_log.norm_squared();
+        let nb = out_log_routed.norm_squared();
+        let fid = if na > 0.0 && nb > 0.0 {
+            out_log.dotc(&out_log_routed).norm_sqr() / (na * nb)
+        } else {
+            0.0
+        };
+        if fid < min_fid {
+            min_fid = fid;
+        }
+    }
+    Ok(min_fid)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -572,6 +702,46 @@ mod tests {
 
     fn c(re: f64, im: f64) -> C {
         Complex::new(re, im)
+    }
+
+    fn ghz2() -> Circuit {
+        let mut c = Circuit::new(2, 0);
+        c.add_op(crate::ir::Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        c.add_op(crate::ir::Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c
+    }
+
+    #[test]
+    fn test_layout_aware_identity() {
+        let g = ghz2();
+        let f = equivalence_by_sampling_with_layout(&g, &g, &[0, 1], &[0, 1], 4, QRUST_SEED).unwrap();
+        assert!((f - 1.0).abs() < 1e-9, "identity layout should be equivalent, got {f}");
+    }
+
+    #[test]
+    fn test_layout_aware_permuted() {
+        // Same circuit realised on swapped physical qubits, with layouts that
+        // track the relabelling: must still verify as equivalent.
+        let logical = ghz2();
+        let mut routed = Circuit::new(2, 0);
+        routed.add_op(crate::ir::Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
+        routed.add_op(crate::ir::Operation::Gate { name: GateType::CX, qubits: vec![1, 0], params: vec![] });
+        let f = equivalence_by_sampling_with_layout(&logical, &routed, &[1, 0], &[1, 0], 4, QRUST_SEED).unwrap();
+        assert!((f - 1.0).abs() < 1e-9, "permuted routing should verify, got {f}");
+        // The identity layout is the *wrong* interpretation and must be rejected.
+        let f_wrong = equivalence_by_sampling_with_layout(&logical, &routed, &[0, 1], &[0, 1], 4, QRUST_SEED).unwrap();
+        assert!(f_wrong < 0.99, "wrong layout should not verify, got {f_wrong}");
+    }
+
+    #[test]
+    fn test_layout_aware_with_ancilla() {
+        // 1-qubit logical hosted on a 2-qubit device (qubit 0 idle ancilla).
+        let mut logical = Circuit::new(1, 0);
+        logical.add_op(crate::ir::Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        let mut routed = Circuit::new(2, 0);
+        routed.add_op(crate::ir::Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
+        let f = equivalence_by_sampling_with_layout(&logical, &routed, &[1], &[1], 4, QRUST_SEED).unwrap();
+        assert!((f - 1.0).abs() < 1e-9, "ancilla-padded routing should verify, got {f}");
     }
 
     #[test]
