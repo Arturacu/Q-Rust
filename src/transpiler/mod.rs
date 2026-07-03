@@ -386,6 +386,9 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 pm.add_pass(Box::new(decomposition::CxDirectionPass {
                     backend: backend.clone(),
                 }));
+                // Fold any trailing SWAPs (e.g. the QFT bit-reversal network)
+                // into the output layout rather than emitting them as gates.
+                pm.add_pass(Box::new(optimization::TrailingSwapElisionPass));
             }
 
             // Target-basis translation runs BEFORE BasisDecompositionPass so the
