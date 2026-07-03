@@ -1,3 +1,10 @@
+# The benchmark harness lives in a separate, non-published
+# workspace member (`experiments/`) so the library's deliberately minimal
+# dependency graph stays untouched. It depends on `q-rust` by path.
+[workspace]
+members = ["experiments"]
+resolver = "2"
+
 [package]
 name = "q-rust"
 version = "0.3.0"

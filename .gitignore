@@ -31,3 +31,12 @@ target
 benchmark/
 qasm_dumps/
 *.qasm
+
+# Benchmark harness: version-control code and fixtures only. Everything
+# else under experiments/ (generated outputs, local documents) is untracked.
+experiments/*
+!experiments/Cargo.toml
+!experiments/src/
+!experiments/*.py
+!experiments/fixtures/
+!experiments/fixtures/*.qasm
