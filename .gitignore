@@ -40,3 +40,6 @@ experiments/*
 !experiments/*.py
 !experiments/fixtures/
 !experiments/fixtures/*.qasm
+
+# Agent working state — never commit.
+.claude/

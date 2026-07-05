@@ -612,7 +612,12 @@ pub fn equivalence_by_sampling_with_layout(
             final_layout.len()
         )));
     }
-    if initial_layout.iter().chain(final_layout).take(2 * n_log).any(|&p| p >= n_phys) {
+    if initial_layout
+        .iter()
+        .chain(final_layout)
+        .take(2 * n_log)
+        .any(|&p| p >= n_phys)
+    {
         return Err(QRustError::Simulation(
             "equivalence_by_sampling_with_layout: layout index out of physical range".into(),
         ));
@@ -706,16 +711,28 @@ mod tests {
 
     fn ghz2() -> Circuit {
         let mut c = Circuit::new(2, 0);
-        c.add_op(crate::ir::Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
-        c.add_op(crate::ir::Operation::Gate { name: GateType::CX, qubits: vec![0, 1], params: vec![] });
+        c.add_op(crate::ir::Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        c.add_op(crate::ir::Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
         c
     }
 
     #[test]
     fn test_layout_aware_identity() {
         let g = ghz2();
-        let f = equivalence_by_sampling_with_layout(&g, &g, &[0, 1], &[0, 1], 4, QRUST_SEED).unwrap();
-        assert!((f - 1.0).abs() < 1e-9, "identity layout should be equivalent, got {f}");
+        let f =
+            equivalence_by_sampling_with_layout(&g, &g, &[0, 1], &[0, 1], 4, QRUST_SEED).unwrap();
+        assert!(
+            (f - 1.0).abs() < 1e-9,
+            "identity layout should be equivalent, got {f}"
+        );
     }
 
     #[test]
@@ -724,24 +741,54 @@ mod tests {
         // track the relabelling: must still verify as equivalent.
         let logical = ghz2();
         let mut routed = Circuit::new(2, 0);
-        routed.add_op(crate::ir::Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
-        routed.add_op(crate::ir::Operation::Gate { name: GateType::CX, qubits: vec![1, 0], params: vec![] });
-        let f = equivalence_by_sampling_with_layout(&logical, &routed, &[1, 0], &[1, 0], 4, QRUST_SEED).unwrap();
-        assert!((f - 1.0).abs() < 1e-9, "permuted routing should verify, got {f}");
+        routed.add_op(crate::ir::Operation::Gate {
+            name: GateType::H,
+            qubits: vec![1],
+            params: vec![],
+        });
+        routed.add_op(crate::ir::Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![1, 0],
+            params: vec![],
+        });
+        let f =
+            equivalence_by_sampling_with_layout(&logical, &routed, &[1, 0], &[1, 0], 4, QRUST_SEED)
+                .unwrap();
+        assert!(
+            (f - 1.0).abs() < 1e-9,
+            "permuted routing should verify, got {f}"
+        );
         // The identity layout is the *wrong* interpretation and must be rejected.
-        let f_wrong = equivalence_by_sampling_with_layout(&logical, &routed, &[0, 1], &[0, 1], 4, QRUST_SEED).unwrap();
-        assert!(f_wrong < 0.99, "wrong layout should not verify, got {f_wrong}");
+        let f_wrong =
+            equivalence_by_sampling_with_layout(&logical, &routed, &[0, 1], &[0, 1], 4, QRUST_SEED)
+                .unwrap();
+        assert!(
+            f_wrong < 0.99,
+            "wrong layout should not verify, got {f_wrong}"
+        );
     }
 
     #[test]
     fn test_layout_aware_with_ancilla() {
         // 1-qubit logical hosted on a 2-qubit device (qubit 0 idle ancilla).
         let mut logical = Circuit::new(1, 0);
-        logical.add_op(crate::ir::Operation::Gate { name: GateType::H, qubits: vec![0], params: vec![] });
+        logical.add_op(crate::ir::Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
         let mut routed = Circuit::new(2, 0);
-        routed.add_op(crate::ir::Operation::Gate { name: GateType::H, qubits: vec![1], params: vec![] });
-        let f = equivalence_by_sampling_with_layout(&logical, &routed, &[1], &[1], 4, QRUST_SEED).unwrap();
-        assert!((f - 1.0).abs() < 1e-9, "ancilla-padded routing should verify, got {f}");
+        routed.add_op(crate::ir::Operation::Gate {
+            name: GateType::H,
+            qubits: vec![1],
+            params: vec![],
+        });
+        let f = equivalence_by_sampling_with_layout(&logical, &routed, &[1], &[1], 4, QRUST_SEED)
+            .unwrap();
+        assert!(
+            (f - 1.0).abs() < 1e-9,
+            "ancilla-padded routing should verify, got {f}"
+        );
     }
 
     #[test]
