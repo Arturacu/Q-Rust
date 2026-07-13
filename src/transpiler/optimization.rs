@@ -998,7 +998,11 @@ mod tests {
     use crate::transpiler::property_set::PropertySet;
 
     fn gate(name: GateType, qubits: Vec<usize>) -> Operation {
-        Operation::Gate { name, qubits, params: vec![] }
+        Operation::Gate {
+            name,
+            qubits,
+            params: vec![],
+        }
     }
 
     #[test]
@@ -1014,13 +1018,28 @@ mod tests {
         // SWAP removed; two gates remain.
         assert_eq!(out.operations.len(), 2);
         assert!(!out.operations.iter().any(|op| matches!(
-            op, Operation::Gate { name: GateType::SWAP, .. })));
+            op,
+            Operation::Gate {
+                name: GateType::SWAP,
+                ..
+            }
+        )));
         let fl = ps.get::<Vec<usize>>("final_layout").unwrap().clone();
         assert_eq!(fl, vec![1, 0], "output permutation must record the swap");
         // The elided circuit + recorded layout must equal the original.
         let fid = crate::simulator::equivalence_by_sampling_with_layout(
-            &c, &out, &[0, 1], &fl, 4, 0xBEEF).unwrap();
-        assert!((fid - 1.0).abs() < 1e-9, "elision must preserve semantics, got {fid}");
+            &c,
+            &out,
+            &[0, 1],
+            &fl,
+            4,
+            0xBEEF,
+        )
+        .unwrap();
+        assert!(
+            (fid - 1.0).abs() < 1e-9,
+            "elision must preserve semantics, got {fid}"
+        );
     }
 
     #[test]

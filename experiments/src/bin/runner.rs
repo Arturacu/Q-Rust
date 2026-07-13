@@ -40,8 +40,8 @@ use q_rust::transpiler::decomposition::{
 use q_rust::transpiler::layout::SabreLayoutPass;
 use q_rust::transpiler::optimization::{
     CommutationCancellationPass, CrossConjugationPass, GateCrystallizationPass, GateFusionPass,
-    InverseCancellationPass, ParameterSimplificationPass, RotationMergePass, SwapSimplificationPass,
-    TrailingSwapElisionPass,
+    InverseCancellationPass, ParameterSimplificationPass, RotationMergePass,
+    SwapSimplificationPass, TrailingSwapElisionPass,
 };
 use q_rust::transpiler::pass::Pass;
 use q_rust::transpiler::property_set::PropertySet;
@@ -183,7 +183,12 @@ fn stage_logic_opt(circuit: &Circuit, opt: u8, ps: &mut PropertySet) -> Circuit 
 }
 
 /// Stage 3: layout + routing + CX-direction (only when a backend is present).
-fn stage_routing(circuit: &Circuit, opt: u8, backend: &Option<Backend>, ps: &mut PropertySet) -> Circuit {
+fn stage_routing(
+    circuit: &Circuit,
+    opt: u8,
+    backend: &Option<Backend>,
+    ps: &mut PropertySet,
+) -> Circuit {
     let mut c = circuit.clone();
     if let Some(backend) = backend {
         // Mirror the library: reduce >2-qubit gates before routing.
@@ -216,7 +221,13 @@ fn stage_routing(circuit: &Circuit, opt: u8, backend: &Option<Backend>, ps: &mut
             &c,
             ps,
         );
-        c = run_pass(&CxDirectionPass { backend: backend.clone() }, &c, ps);
+        c = run_pass(
+            &CxDirectionPass {
+                backend: backend.clone(),
+            },
+            &c,
+            ps,
+        );
         // Fold trailing SWAPs (e.g. the QFT bit-reversal network) into the
         // output layout (mirrors the library pipeline).
         c = run_pass(&TrailingSwapElisionPass, &c, ps);
@@ -274,12 +285,16 @@ fn verify(
 ) -> VerifyResult {
     let n_log = orig.num_qubits;
     let n_phys = transpiled.num_qubits;
-    let identity = n_phys == n_log && is_identity(initial_layout, n_log) && is_identity(final_layout, n_log);
+    let identity =
+        n_phys == n_log && is_identity(initial_layout, n_log) && is_identity(final_layout, n_log);
 
     if identity {
         // No routing permutation: a direct comparison is valid.
         if n_log <= EXACT_MAX_QUBITS {
-            match (try_circuit_to_unitary(orig), try_circuit_to_unitary(transpiled)) {
+            match (
+                try_circuit_to_unitary(orig),
+                try_circuit_to_unitary(transpiled),
+            ) {
                 (Ok(u1), Ok(u2)) => {
                     let fid = unitary_fidelity(&u1, &u2);
                     let ok = (fid - 1.0).abs() < 1e-9;
@@ -333,9 +348,16 @@ fn verify(
         // The only layout-aware primitive we have needs the full routed
         // unitary, so this is feasible only for small physical widths.
         if n_phys <= EXACT_MAX_QUBITS {
-            let init = initial_layout.clone().unwrap_or_else(|| (0..n_log).collect());
-            let fin = final_layout.clone().unwrap_or_else(|| (0..n_phys).collect());
-            match (try_circuit_to_unitary(orig), try_circuit_to_unitary(transpiled)) {
+            let init = initial_layout
+                .clone()
+                .unwrap_or_else(|| (0..n_log).collect());
+            let fin = final_layout
+                .clone()
+                .unwrap_or_else(|| (0..n_phys).collect());
+            match (
+                try_circuit_to_unitary(orig),
+                try_circuit_to_unitary(transpiled),
+            ) {
                 (Ok(u_orig), Ok(u_routed)) => {
                     let u_log = extract_logical_unitary(&u_routed, n_log, &init, &fin);
                     let fid = unitary_fidelity(&u_orig, &u_log);
@@ -358,10 +380,21 @@ fn verify(
             // Layout-aware state-vector sampling: O(2^n_phys), certifies routed
             // circuits well beyond the exact boundary. Fewer Haar samples for
             // wide circuits (each is already 2^{-n_phys/2} concentrated).
-            let init = initial_layout.clone().unwrap_or_else(|| (0..n_log).collect());
-            let fin = final_layout.clone().unwrap_or_else(|| (0..n_phys).collect());
+            let init = initial_layout
+                .clone()
+                .unwrap_or_else(|| (0..n_log).collect());
+            let fin = final_layout
+                .clone()
+                .unwrap_or_else(|| (0..n_phys).collect());
             let samples = if n_phys >= 18 { 2 } else { VERIFY_SAMPLES };
-            match equivalence_by_sampling_with_layout(orig, transpiled, &init, &fin, samples, VERIFY_SEED) {
+            match equivalence_by_sampling_with_layout(
+                orig,
+                transpiled,
+                &init,
+                &fin,
+                samples,
+                VERIFY_SEED,
+            ) {
                 Ok(min_fid) => {
                     let ok = (min_fid - 1.0).abs() < 1e-6;
                     VerifyResult {
@@ -402,8 +435,8 @@ struct Args {
     nominal_n: i64,
     topology: String,
     opt: u8,
-    cleanup: bool, // false => Stage-5 bypassed (ablation)
-    ablation: bool, // marks this as an ablation run for tagging
+    cleanup: bool,   // false => Stage-5 bypassed (ablation)
+    ablation: bool,  // marks this as an ablation run for tagging
     emit_qasm: bool, // also emit the routed output QASM + layout (for external verification)
     no_verify: bool, // skip equivalence verification (e.g. for CX/depth-only ablation sweeps)
 }
@@ -424,23 +457,63 @@ fn parse_args() -> Args {
     let mut i = 0;
     while i < argv.len() {
         match argv[i].as_str() {
-            "--input" => { i += 1; input = Some(argv[i].clone()); }
-            "--fixture" => { i += 1; fixture = argv[i].clone(); }
-            "--family" => { i += 1; family = argv[i].clone(); }
-            "--nominal-n" => { i += 1; nominal_n = argv[i].parse().unwrap_or(0); }
-            "--topology" => { i += 1; topology = argv[i].clone(); }
-            "--opt" => { i += 1; opt = argv[i].parse().unwrap_or(1); }
-            "--no-cleanup" => { cleanup = false; }
-            "--ablation" => { ablation = true; }
-            "--emit-qasm" => { emit_qasm = true; }
-            "--no-verify" => { no_verify = true; }
-            other => { eprintln!("unknown arg: {other}"); std::process::exit(2); }
+            "--input" => {
+                i += 1;
+                input = Some(argv[i].clone());
+            }
+            "--fixture" => {
+                i += 1;
+                fixture = argv[i].clone();
+            }
+            "--family" => {
+                i += 1;
+                family = argv[i].clone();
+            }
+            "--nominal-n" => {
+                i += 1;
+                nominal_n = argv[i].parse().unwrap_or(0);
+            }
+            "--topology" => {
+                i += 1;
+                topology = argv[i].clone();
+            }
+            "--opt" => {
+                i += 1;
+                opt = argv[i].parse().unwrap_or(1);
+            }
+            "--no-cleanup" => {
+                cleanup = false;
+            }
+            "--ablation" => {
+                ablation = true;
+            }
+            "--emit-qasm" => {
+                emit_qasm = true;
+            }
+            "--no-verify" => {
+                no_verify = true;
+            }
+            other => {
+                eprintln!("unknown arg: {other}");
+                std::process::exit(2);
+            }
         }
         i += 1;
     }
     Args {
-        input: input.unwrap_or_else(|| { eprintln!("--input required"); std::process::exit(2); }),
-        fixture, family, nominal_n, topology, opt: opt.min(3), cleanup, ablation, emit_qasm, no_verify,
+        input: input.unwrap_or_else(|| {
+            eprintln!("--input required");
+            std::process::exit(2);
+        }),
+        fixture,
+        family,
+        nominal_n,
+        topology,
+        opt: opt.min(3),
+        cleanup,
+        ablation,
+        emit_qasm,
+        no_verify,
     }
 }
 
@@ -464,12 +537,18 @@ fn main() {
     // --- Stage 1: parse (timed) ---
     let src = match std::fs::read_to_string(&args.input) {
         Ok(s) => s,
-        Err(e) => { emit_error(&mut out, &format!("read {}: {e}", args.input)); return; }
+        Err(e) => {
+            emit_error(&mut out, &format!("read {}: {e}", args.input));
+            return;
+        }
     };
     let t_parse = Instant::now();
     let parsed = match parse_qasm(&src) {
         Ok(c) => c,
-        Err(e) => { emit_error(&mut out, &format!("parse: {e}")); return; }
+        Err(e) => {
+            emit_error(&mut out, &format!("parse: {e}"));
+            return;
+        }
     };
     let us_parse = t_parse.elapsed().as_micros() as u64;
 
@@ -506,7 +585,10 @@ fn main() {
     let t_decomp = Instant::now();
     let after_decomp = match stage_basis_decomp(&after_route, &mut low_ps) {
         Ok(c) => c,
-        Err(e) => { emit_error(&mut out, &e); return; }
+        Err(e) => {
+            emit_error(&mut out, &e);
+            return;
+        }
     };
     let us_decomp = t_decomp.elapsed().as_micros() as u64;
 
@@ -530,7 +612,12 @@ fn main() {
     let initial_layout = low_ps.get::<Vec<usize>>("initial_layout").cloned();
     let final_layout = low_ps.get::<Vec<usize>>("final_layout").cloned();
     let v = if args.no_verify {
-        VerifyResult { class: "Skipped", fidelity: None, verified: false, method: "skipped".into() }
+        VerifyResult {
+            class: "Skipped",
+            fidelity: None,
+            verified: false,
+            method: "skipped".into(),
+        }
     } else {
         verify(&parsed, &final_circuit, &initial_layout, &final_layout)
     };
