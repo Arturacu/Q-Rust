@@ -1,0 +1,20 @@
+# Q-Rust benchmark harness (not published).
+#
+# Kept out of the main library's dependency graph on purpose: the only extra
+# deps here are `serde_json` (already a q-rust dep) for structured output and
+# `libc` for `getrusage`-based peak-RSS measurement.  Release profile settings
+# are inherited from the workspace root (lto=thin, codegen-units=1, opt=3).
+[package]
+name = "qrust-bench"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[[bin]]
+name = "runner"
+path = "src/bin/runner.rs"
+
+[dependencies]
+q-rust = { path = ".." }
+serde_json = "1.0"
+libc = "0.2"

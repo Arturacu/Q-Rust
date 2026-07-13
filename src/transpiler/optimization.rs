@@ -890,9 +890,149 @@ fn are_inverses(op1: &Operation, op2: &Operation) -> bool {
     }
 }
 
+/// Elides trailing `SWAP` gates by folding them into the output layout.
+///
+/// A `SWAP` whose two qubits carry no subsequent gate merely permutes the
+/// output wires; by the permutation-aware equivalence of the verification
+/// harness, it need not be realised in gates at all. This pass removes every
+/// such trailing `SWAP` and composes its permutation into the `"final_layout"`
+/// property, so that downstream measurement (and the verifier) read the output
+/// from the correct physical wires. On the QFT this eliminates the entire
+/// bit-reversal `SWAP` network at zero gate cost, matching the virtual-
+/// permutation optimisation performed by Qiskit and t|ket>.
+///
+/// Intended to run *after* routing (which establishes `"final_layout"`) and
+/// *before* basis decomposition (while SWAPs are still `SWAP` gates). A no-op
+/// when no trailing `SWAP` is present.
+#[derive(Debug, Clone, Copy)]
+pub struct TrailingSwapElisionPass;
+
+impl Pass for TrailingSwapElisionPass {
+    fn name(&self) -> &str {
+        "TrailingSwapElisionPass"
+    }
+
+    fn run(
+        &self,
+        circuit: &Circuit,
+        property_set: &mut crate::transpiler::property_set::PropertySet,
+    ) -> Circuit {
+        let n = circuit.num_qubits;
+        let ops = &circuit.operations;
+        // Mark trailing-elidable SWAPs: both qubits untouched by any later op.
+        let mut used = vec![false; n];
+        let mut elide = vec![false; ops.len()];
+        for i in (0..ops.len()).rev() {
+            match &ops[i] {
+                Operation::Gate { name, qubits, .. }
+                    if matches!(name, GateType::SWAP)
+                        && qubits.len() == 2
+                        && qubits[0] < n
+                        && qubits[1] < n
+                        && !used[qubits[0]]
+                        && !used[qubits[1]] =>
+                {
+                    // Elidable: leave both qubits free so earlier SWAPs on them
+                    // remain elidable too.
+                    elide[i] = true;
+                }
+                Operation::Gate { qubits, .. } => {
+                    for &q in qubits {
+                        if q < n {
+                            used[q] = true;
+                        }
+                    }
+                }
+                // Conservatively treat any non-gate op (measure/reset/barrier)
+                // as touching every wire, so no SWAP before it is elided.
+                _ => used.iter_mut().for_each(|u| *u = true),
+            }
+        }
+        if !elide.iter().any(|&e| e) {
+            return circuit.clone();
+        }
+
+        // Net permutation of the elided swap network (circuit order):
+        // pos[v] = final wire of the value originating on wire v.
+        let mut pos: Vec<usize> = (0..n).collect();
+        for (i, op) in ops.iter().enumerate() {
+            if elide[i] {
+                if let Operation::Gate { qubits, .. } = op {
+                    let (a, b) = (qubits[0], qubits[1]);
+                    for v in pos.iter_mut() {
+                        if *v == a {
+                            *v = b;
+                        } else if *v == b {
+                            *v = a;
+                        }
+                    }
+                }
+            }
+        }
+        // final_layout_elided[l] = pos^{-1}(final_layout_full[l]).
+        let mut inv_pos = vec![0usize; n];
+        for (v, &p) in pos.iter().enumerate() {
+            inv_pos[p] = v;
+        }
+        let full_fl: Vec<usize> = property_set
+            .get::<Vec<usize>>("final_layout")
+            .cloned()
+            .unwrap_or_else(|| (0..n).collect());
+        let new_fl: Vec<usize> = full_fl.iter().map(|&p| inv_pos[p]).collect();
+        property_set.insert("final_layout", new_fl);
+
+        let mut out = Circuit::new(n, circuit.num_cbits);
+        out.custom_gates = circuit.custom_gates.clone();
+        for (i, op) in ops.iter().enumerate() {
+            if !elide[i] {
+                out.add_op(op.clone());
+            }
+        }
+        out
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::transpiler::property_set::PropertySet;
+
+    fn gate(name: GateType, qubits: Vec<usize>) -> Operation {
+        Operation::Gate { name, qubits, params: vec![] }
+    }
+
+    #[test]
+    fn test_trailing_swap_elision_folds_into_layout() {
+        // H q0; CX q0,q1; SWAP q0,q1  -- the SWAP is trailing.
+        let mut c = Circuit::new(2, 0);
+        c.add_op(gate(GateType::H, vec![0]));
+        c.add_op(gate(GateType::CX, vec![0, 1]));
+        c.add_op(gate(GateType::SWAP, vec![0, 1]));
+        let mut ps = PropertySet::new();
+        ps.insert("final_layout", vec![0usize, 1]); // identity input layout
+        let out = TrailingSwapElisionPass.run(&c, &mut ps);
+        // SWAP removed; two gates remain.
+        assert_eq!(out.operations.len(), 2);
+        assert!(!out.operations.iter().any(|op| matches!(
+            op, Operation::Gate { name: GateType::SWAP, .. })));
+        let fl = ps.get::<Vec<usize>>("final_layout").unwrap().clone();
+        assert_eq!(fl, vec![1, 0], "output permutation must record the swap");
+        // The elided circuit + recorded layout must equal the original.
+        let fid = crate::simulator::equivalence_by_sampling_with_layout(
+            &c, &out, &[0, 1], &fl, 4, 0xBEEF).unwrap();
+        assert!((fid - 1.0).abs() < 1e-9, "elision must preserve semantics, got {fid}");
+    }
+
+    #[test]
+    fn test_trailing_swap_elision_noop_when_swap_not_trailing() {
+        // SWAP followed by a gate on one of its qubits is NOT elidable.
+        let mut c = Circuit::new(2, 0);
+        c.add_op(gate(GateType::SWAP, vec![0, 1]));
+        c.add_op(gate(GateType::H, vec![0]));
+        let mut ps = PropertySet::new();
+        let out = TrailingSwapElisionPass.run(&c, &mut ps);
+        assert_eq!(out.operations, c.operations);
+    }
     use std::f64::consts::PI;
 
     fn new_props() -> crate::transpiler::property_set::PropertySet {

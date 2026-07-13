@@ -367,6 +367,59 @@ impl crate::transpiler::pass::Pass for BasisDecompositionPass {
     }
 }
 
+/// Decomposes every gate acting on **more than two qubits** (e.g. the native
+/// `CCX`/Toffoli) into an equivalent sequence of ≤2-qubit gates.
+///
+/// The SWAP-based router only knows how to make *two-qubit* interactions
+/// adjacent on a coupling map; handed a 3-qubit gate it has no well-defined
+/// notion of "the edge to route", and prior to this pass it silently corrupted
+/// the gate's operand list (panicking later in basis decomposition,
+/// `gate_def.rs`). Running this pass **before layout/routing** — the standard
+/// transpiler ordering — guarantees the router only ever sees 1- and 2-qubit
+/// operations. It is a no-op on circuits already free of high-arity gates.
+#[derive(Debug, Clone, Copy)]
+pub struct HighArityDecompositionPass;
+
+impl HighArityDecompositionPass {
+    fn expand(op: &Operation, out: &mut Circuit) {
+        match op {
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } if qubits.len() > 2 => match name.decompose(qubits, params) {
+                // Recurse so a decomposition that itself yields a >2-qubit
+                // gate is fully flattened (none currently do, but this keeps
+                // the invariant robust).
+                Some(sub) => sub.iter().for_each(|s| Self::expand(s, out)),
+                // No analytic rule: leave it for downstream basis decomposition
+                // rather than dropping qubits.
+                None => out.add_op(op.clone()),
+            },
+            other => out.add_op(other.clone()),
+        }
+    }
+}
+
+impl crate::transpiler::pass::Pass for HighArityDecompositionPass {
+    fn name(&self) -> &str {
+        "HighArityDecompositionPass"
+    }
+
+    fn run(
+        &self,
+        circuit: &Circuit,
+        _property_set: &mut crate::transpiler::property_set::PropertySet,
+    ) -> Circuit {
+        let mut out = Circuit::new(circuit.num_qubits, circuit.num_cbits);
+        out.custom_gates = circuit.custom_gates.clone();
+        for op in &circuit.operations {
+            Self::expand(op, &mut out);
+        }
+        out
+    }
+}
+
 /// Pass that rewrites wrong-direction CX gates relative to a coupling map.
 #[derive(Debug, Clone)]
 pub struct CxDirectionPass {
@@ -391,7 +444,44 @@ impl crate::transpiler::pass::Pass for CxDirectionPass {
 mod tests {
     use super::*;
     use crate::ir::gates::GateType;
+    use crate::transpiler::pass::Pass;
+    use crate::transpiler::property_set::PropertySet;
     use std::f64::consts::PI;
+
+    /// Regression: a native CCX must be reduced to ≤2-qubit gates *before*
+    /// routing, so the SWAP router never sees a 3-qubit gate (the bug that
+    /// crashed adder fixtures on hardware topologies at gate_def.rs:245).
+    #[test]
+    fn test_high_arity_decomposition_eliminates_three_qubit_gates() {
+        let mut c = Circuit::new(3, 0);
+        c.add_op(Operation::Gate {
+            name: GateType::CCX,
+            qubits: vec![0, 1, 2],
+            params: vec![],
+        });
+        let mut ps = PropertySet::new();
+        let out = HighArityDecompositionPass.run(&c, &mut ps);
+        assert!(out.operations.len() > 1, "CCX should expand");
+        for op in &out.operations {
+            if let Operation::Gate { qubits, .. } = op {
+                assert!(qubits.len() <= 2, "no >2-qubit gate may survive: {op:?}");
+            }
+        }
+    }
+
+    /// The pass is a no-op on circuits already free of high-arity gates.
+    #[test]
+    fn test_high_arity_decomposition_is_noop_on_two_qubit_circuits() {
+        let mut c = Circuit::new(2, 0);
+        c.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        let mut ps = PropertySet::new();
+        let out = HighArityDecompositionPass.run(&c, &mut ps);
+        assert_eq!(out.operations, c.operations);
+    }
 
     #[test]
     fn test_decompose_h() {
