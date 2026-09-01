@@ -122,6 +122,7 @@ impl GateDefinition for GateType {
         match self {
             GateType::H
             | GateType::X
+            | GateType::SX
             | GateType::Y
             | GateType::Z
             | GateType::S
@@ -214,6 +215,7 @@ impl GateDefinition for GateType {
 
             GateType::ID => ops.push(u_gate(qubits[0], [0.0, 0.0, 0.0])),
             GateType::X => ops.push(u_gate(qubits[0], [PI, 0.0, PI])),
+            GateType::SX => ops.push(u_gate(qubits[0], [PI / 2.0, -PI / 2.0, PI / 2.0])),
             GateType::Y => ops.push(u_gate(qubits[0], [PI, PI / 2.0, PI / 2.0])),
             GateType::Z => ops.push(u_gate(qubits[0], [0.0, 0.0, PI])),
             GateType::H => ops.push(u_gate(qubits[0], [PI / 2.0, 0.0, PI])),
@@ -344,34 +346,24 @@ impl GateDefinition for GateType {
                 ops.push(cx_gate(a, b));
             }
 
-            // ECR decomposition (
-            // standard 3-CX form). ECR (echoed cross-resonance) is locally
-            // equivalent to a CNOT up to single-qubit rotations:
-            //   ECR = (1/√2)(IX − XY).
-            // We expand it as the canonical Qiskit `ecr.definition`:
-            //   RZX(π/4) on (a,b) · X⊗I · RZX(-π/4) on (a,b)
-            // which itself decomposes via H·CX·RZ·CX·H on the target wire.
-            // Cost: 2 × CX (post-fusion) + small 1q overhead.
+            // ECR is locally equivalent to CNOT and therefore needs one CX.
+            // This is Qiskit's canonical definition, up to global phase:
             //
-            // Verification target: U(ECR) = (1/√2) [[0,1,0,i],[1,0,-i,0],
-            //   [0,i,0,1],[-i,0,1,0]]. Rather than hand-expand, we delegate
-            // to the analytic RZX template via {H, CX, RZ}.
+            //   (S ⊗ SX) · CX(a,b) · (X ⊗ I)
+            //
+            // where the operations above are written in circuit order. SX is
+            // represented by RX(pi/2), which differs from the conventional SX
+            // matrix only by an irrelevant global phase.
+            //
+            //   ECR = (1/√2)(IX − XY).
+            // Verification target: U(ECR) = (1/√2)
+            // [[0,1,0,i],[1,0,-i,0],[0,i,0,1],[-i,0,1,0]].
             GateType::ECR => {
                 let (a, b) = (qubits[0], qubits[1]);
-                // RZX(π/4) on (a, b):
-                ops.extend(GateType::H.decompose(&[b], &[])?);
+                ops.extend(GateType::S.decompose(&[a], &[])?);
+                ops.extend(GateType::SX.decompose(&[b], &[])?);
                 ops.push(cx_gate(a, b));
-                ops.extend(GateType::RZ.decompose(&[b], &[PI / 4.0])?);
-                ops.push(cx_gate(a, b));
-                ops.extend(GateType::H.decompose(&[b], &[])?);
-                // X on a:
                 ops.extend(GateType::X.decompose(&[a], &[])?);
-                // RZX(-π/4) on (a, b):
-                ops.extend(GateType::H.decompose(&[b], &[])?);
-                ops.push(cx_gate(a, b));
-                ops.extend(GateType::RZ.decompose(&[b], &[-PI / 4.0])?);
-                ops.push(cx_gate(a, b));
-                ops.extend(GateType::H.decompose(&[b], &[])?);
             }
 
             // iSWAP decomposition (Schuch & Siewert 2003, PRA 67, 032301):
@@ -404,6 +396,7 @@ impl GateDefinition for GateType {
             | GateType::Tdg
             | GateType::CZ => CommutationSignature::Diagonal(PauliBasis::Z),
             GateType::X | GateType::RX => CommutationSignature::Diagonal(PauliBasis::X),
+            GateType::SX => CommutationSignature::Diagonal(PauliBasis::X),
             GateType::Y | GateType::RY => CommutationSignature::Diagonal(PauliBasis::Y),
             GateType::CX => CommutationSignature::CompositeDiagonal(vec![
                 (0, PauliBasis::Z),
@@ -459,8 +452,10 @@ mod tests {
         use std::str::FromStr;
         assert_eq!(GateType::from_str("ecr").unwrap().num_qubits(), 2);
         assert_eq!(GateType::from_str("iswap").unwrap().num_qubits(), 2);
+        assert_eq!(GateType::from_str("sx").unwrap().num_qubits(), 1);
         assert_eq!(GateType::ECR.to_qasm_name(), "ecr");
         assert_eq!(GateType::ISwap.to_qasm_name(), "iswap");
+        assert_eq!(GateType::SX.to_qasm_name(), "sx");
     }
 
     /// ECR decomposition must match the analytic ECR unitary up to global phase.
@@ -498,6 +493,21 @@ mod tests {
             fid > 0.999_999_99,
             "ECR decomposition fidelity = {fid} (expected ≈ 1)"
         );
+        let cx_count = GateType::ECR
+            .decompose(&[0, 1], &[])
+            .unwrap()
+            .iter()
+            .filter(|op| {
+                matches!(
+                    op,
+                    Operation::Gate {
+                        name: GateType::CX,
+                        ..
+                    }
+                )
+            })
+            .count();
+        assert_eq!(cx_count, 1, "ECR is locally equivalent to one CX");
     }
 
     #[test]

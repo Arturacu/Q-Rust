@@ -523,13 +523,11 @@ fn haar_random_state(n: usize, rng: &mut SplitMix64) -> DVector<C> {
 ///
 /// Cost: `O(k · g · 2^n)` time, `O(2^n)` memory. Practical to ~22 qubits.
 ///
-/// **Statistical caveat**: this is a probabilistic check, not a proof.
-/// For two unitaries differing by an `O(1)`-norm perturbation, a single
-/// Haar sample's `1 - fidelity` is concentrated around its mean with
-/// std-dev `O(1/√d)` where `d = 2^n` (Mele 2024, §III.A). So `k`
-/// independent samples give a per-sample false-positive rate of roughly
-/// `O(d^{-1/2}) = 2^{-n/2}`, and `k` samples accumulate (informally)
-/// to `O(2^{-nk/2})` — e.g. `k=4, n=8` yields `< 2^{-16}`.
+/// **Statistical caveat**: this is a probabilistic check, not a proof. The
+/// probability of missing a discrepancy depends on the spectrum of the
+/// relative unitary, the tolerance, and the number of samples; no universal
+/// false-positive bound is inferred from `k` alone. A fixed seed makes the
+/// check reproducible, not exhaustive.
 ///
 /// References:
 /// - Burgholzer & Wille 2021 (IEEE TCAD 40), §III: motivation for

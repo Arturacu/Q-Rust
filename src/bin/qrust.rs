@@ -22,7 +22,7 @@
 use q_rust::backend::Backend;
 use q_rust::parser::parse_qasm;
 use q_rust::transpiler::{transpile, transpile_with_report, TranspilerConfig};
-use q_rust::verify::verify_equivalence;
+use q_rust::verify::{verify_equivalence, verify_equivalence_with_layout};
 use std::path::Path;
 use std::process::ExitCode;
 
@@ -56,7 +56,7 @@ fn print_help() {
          \x20   --basis <g,g,...>    Target basis (e.g. rz,sx,cx)\n\
          \x20   --no-decompose       Disable basis decomposition\n\
          \x20   --report             Print per-stage report to stderr\n\
-         \x20   --verify             Verify equivalence (≤22 qubits)\n\
+         \x20   --verify             Verify equivalence (direct ≤22q; routed ≤20q)\n\
          \x20   --help, -h           Show this help\n\
          \n\
          BACKEND SPECIFIERS:\n\
@@ -149,7 +149,7 @@ fn run(args: &[String]) -> Result<(), String> {
     }
     let cfg = builder.build();
 
-    let (out_circ, stage_report) = if report {
+    let (out_circ, stage_report) = if report || verify {
         let (c, r) = transpile_with_report(&circuit, Some(cfg))
             .map_err(|e| format!("transpile failed: {e}"))?;
         (c, Some(r))
@@ -158,7 +158,8 @@ fn run(args: &[String]) -> Result<(), String> {
         (c, None)
     };
 
-    if let Some(r) = stage_report {
+    if report {
+        let r = stage_report.as_ref().expect("report requested");
         eprintln!("\n--- Stage outputs ---");
         for line in r.format_lines() {
             eprintln!("{line}");
@@ -172,11 +173,22 @@ fn run(args: &[String]) -> Result<(), String> {
     }
 
     if verify {
-        match verify_equivalence(&circuit, &out_circ) {
+        let verdict = if backend_spec.is_some() {
+            let r = stage_report.as_ref().expect("verification requested");
+            let initial = r.initial_layout.as_deref().ok_or(
+                "verification error: routed transpilation did not record an initial layout",
+            )?;
+            let final_layout = r
+                .final_layout
+                .as_deref()
+                .ok_or("verification error: routed transpilation did not record a final layout")?;
+            verify_equivalence_with_layout(&circuit, &out_circ, initial, final_layout)
+        } else {
+            verify_equivalence(&circuit, &out_circ)
+        };
+        match verdict {
             Ok(verdict) => {
-                if report {
-                    eprintln!("\nEquivalence: {}", verdict.describe());
-                }
+                eprintln!("\nEquivalence: {}", verdict.describe());
                 if !verdict.is_equivalent() {
                     return Err(format!("verification failed: {}", verdict.describe()));
                 }

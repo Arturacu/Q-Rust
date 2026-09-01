@@ -9,6 +9,8 @@ use std::str::FromStr;
 pub enum GateType {
     H,
     X,
+    /// Square-root of X, equivalent to `RX(pi/2)` up to global phase.
+    SX,
     Y,
     Z,
     S,
@@ -33,10 +35,10 @@ pub enum GateType {
     RZZ,
     SWAP,
     CCX,
-    /// IBM-Heron native two-qubit echoed cross-resonance gate.
+    /// Echoed cross-resonance gate used by IBM Eagle-class processors.
     /// `ECR = (1/√2)(IX − XY)`. Reference: Sheldon et al. 2016, PRA 93, 060302.
     ECR,
-    /// Imaginary SWAP — native on IonQ Forte and superconducting fluxonium devices.
+    /// Imaginary SWAP, a natural entangler for XY-coupled platforms.
     /// In the {00, 01, 10, 11} basis: `iSWAP = diag(1, [[0, i], [i, 0]], 1)`.
     /// Reference: Schuch & Siewert 2003, PRA 67, 032301.
     ISwap,
@@ -54,6 +56,7 @@ impl FromStr for GateType {
         Ok(match name {
             "h" => GateType::H,
             "x" => GateType::X,
+            "sx" => GateType::SX,
             "y" => GateType::Y,
             "z" => GateType::Z,
             "cx" => GateType::CX,
@@ -92,6 +95,7 @@ impl GateType {
         match self {
             GateType::H => "h",
             GateType::X => "x",
+            GateType::SX => "sx",
             GateType::Y => "y",
             GateType::Z => "z",
             GateType::CX => "cx",
@@ -127,6 +131,7 @@ impl GateType {
         Some(match self {
             GateType::H => "h",
             GateType::X => "x",
+            GateType::SX => "sx",
             GateType::Y => "y",
             GateType::Z => "z",
             GateType::CX => "cx",

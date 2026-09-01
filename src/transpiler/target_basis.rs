@@ -1,16 +1,19 @@
-//! Vendor-agnostic target basis translation pass.
+//! Target-basis validation and translation.
 //!
 //! This module provides:
-//! - [`validate_universality`]: validates that a gate set is quantum-universal
-//!   (i.e., can approximate any unitary to arbitrary precision) before any
-//!   compilation is attempted.
-//! - [`TargetBasisPass`]: a data-driven translation pass that rewrites every
-//!   gate in a circuit into an equivalent sequence drawn exclusively from the
-//!   caller-supplied target basis.
+//! - [`validate_universality`], a conservative recognizer for common universal
+//!   gate-set families;
+//! - [`TargetBasisPass`], an early, best-effort named-gate rewrite pass; and
+//! - [`BasisClosurePass`], the final lowering step that guarantees the emitted
+//!   circuit contains only gates from a supported target basis.
 //!
-//! No vendor-specific knowledge is hard-coded here. The pass reads a set of
-//! gate name strings (e.g. `{"rz", "cx"}` or `{"rx", "cz"}`) and builds an
-//! equivalence library at construction time from that set.
+//! Mathematical universality and implemented synthesis support are deliberately
+//! separate checks. For example, `{H, T, CX}` is universal, but Q-Rust does not
+//! yet implement approximate Clifford+T synthesis for arbitrary rotations, so
+//! it is not accepted by [`BasisClosurePass`]. The exact output families
+//! currently supported are `{U, CX/CZ}`, `{RZ, RX, CX/CZ}`,
+//! `{RZ, SX, CX/CZ}`, and `{RZ, H, CX/CZ}` (additional named gates may
+//! also be present).
 
 use crate::error::{QRustError, Result};
 use crate::ir::{Circuit, GateType, Operation};
@@ -23,57 +26,74 @@ use std::f64::consts::PI;
 // Universality validation
 // ---------------------------------------------------------------------------
 
-/// The minimum requirements for a quantum-universal gate set:
-/// 1. At least one *entangling* 2-qubit gate capable of creating entanglement.
-/// 2. At least one *continuous* single-qubit rotation gate (or a non-Clifford
-///    discrete gate such as T) whose repeated use densely covers SU(2).
-///
-/// A Clifford-only set such as `{H, S, CX}` is NOT universal because it can
-/// only generate the finite Clifford group, not all unitaries.
-///
-/// Known entangling gates:
+/// Entanglers recognized by the conservative universality preflight.
 const ENTANGLING_GATES: &[&str] = &[
-    "cx", "cnot", "cz", "cy", "ch", "csx", "ecr", "iswap", "dcx", "rzz", "rxx", "ryy", "ccx",
-    "crx", "cry", "crz",
+    "cx", "cz", "cy", "ch", "csx", "ecr", "iswap", "dcx", "rzz", "rxx", "ryy", "crx", "cry", "crz",
 ];
 
-/// Known single-qubit gates that provide non-Clifford / continuous coverage of SU(2):
-const UNIVERSAL_1Q_GATES: &[&str] = &[
-    // Continuous rotations (any non-zero irrational angle is dense in SU(2))
-    "rz", "rx", "ry", // Universal 1-qubit gate families
-    "u", "u3", "u2", "p",
-    // Non-Clifford discrete gates (T / Tdg lift Clifford to universal when
-    // combined with H and S)
-    "t", "tdg",
-];
+fn canonical_gate_name(name: &str) -> String {
+    match name.to_ascii_lowercase().as_str() {
+        "cnot" => "cx".into(),
+        "u3" => "u".into(),
+        "u1" | "p" => "rz".into(),
+        other => other.into(),
+    }
+}
 
-/// Validates that `basis` is quantum-universal.
+fn canonical_basis(basis: &HashSet<String>) -> HashSet<String> {
+    basis.iter().map(|name| canonical_gate_name(name)).collect()
+}
+
+fn sorted_basis(basis: &HashSet<String>) -> Vec<String> {
+    let mut names: Vec<_> = basis.iter().cloned().collect();
+    names.sort();
+    names
+}
+
+/// Conservatively validates that `basis` matches a known universal family.
 ///
-/// Returns `Ok(())` when the gate set passes both checks, or a descriptive
-/// [`QRustError::NonUniversalBasisGateSet`] when either check fails.
+/// This is not an exhaustive decision procedure. It recognizes an entangler
+/// together with one of the following single-qubit resources:
+///
+/// - an arbitrary `U`/`U3` gate;
+/// - rotations about two distinct axes;
+/// - arbitrary `RZ` plus `H` or `SX`; or
+/// - the discrete Clifford+T pair `H` and `T`/`Tdg`.
+///
+/// A single continuous axis is insufficient: `{RZ, CX}`, for example, cannot
+/// prepare an arbitrary one-qubit state. A Clifford-only set such as
+/// `{H, S, CX}` is also rejected.
 ///
 /// # Examples
 /// ```rust
 /// use q_rust::transpiler::target_basis::validate_universality;
 /// use std::collections::HashSet;
 ///
-/// let basis: HashSet<String> = ["rz", "cx"].iter().map(|s| s.to_string()).collect();
+/// let basis: HashSet<String> = ["rz", "rx", "cx"].iter().map(|s| s.to_string()).collect();
 /// assert!(validate_universality(&basis).is_ok());
 ///
 /// let clifford_only: HashSet<String> = ["h", "s", "cx"].iter().map(|s| s.to_string()).collect();
 /// assert!(validate_universality(&clifford_only).is_err());
 /// ```
 pub fn validate_universality(basis: &HashSet<String>) -> Result<()> {
-    let lower: HashSet<String> = basis.iter().map(|s| s.to_lowercase()).collect();
+    let lower = canonical_basis(basis);
+    let basis_names = sorted_basis(&lower);
 
     let has_entangler = ENTANGLING_GATES.iter().any(|&g| lower.contains(g));
-
-    let has_universal_1q = UNIVERSAL_1Q_GATES.iter().any(|&g| lower.contains(g));
+    let rotation_axes = ["rx", "ry", "rz"]
+        .iter()
+        .filter(|&&axis| lower.contains(axis))
+        .count();
+    let has_universal_1q = lower.contains("u")
+        || rotation_axes >= 2
+        || (lower.contains("rz") && (lower.contains("h") || lower.contains("sx")))
+        || (lower.contains("rx") && lower.contains("h"))
+        || (lower.contains("h") && (lower.contains("t") || lower.contains("tdg")));
 
     if !has_entangler {
         return Err(QRustError::NonUniversalBasisGateSet {
             reason: format!(
-                "no entangling 2-qubit gate found in basis {lower:?}; \
+                "no entangling 2-qubit gate found in basis {basis_names:?}; \
                  need at least one of {ENTANGLING_GATES:?}"
             ),
         });
@@ -82,9 +102,9 @@ pub fn validate_universality(basis: &HashSet<String>) -> Result<()> {
     if !has_universal_1q {
         return Err(QRustError::NonUniversalBasisGateSet {
             reason: format!(
-                "no continuous or non-Clifford single-qubit gate found in basis {lower:?}; \
-                 a Clifford-only set cannot approximate all unitaries. \
-                 Add at least one of {UNIVERSAL_1Q_GATES:?}"
+                "single-qubit gates in basis {basis_names:?} do not match a recognized \
+                 universal family; provide U, two independent rotation axes, \
+                 RZ with H/SX, or H with T/Tdg"
             ),
         });
     }
@@ -131,7 +151,7 @@ impl ParamSpec {
 /// Each rule is only included when ALL its output gate names appear in the
 /// basis — ensuring we only add rules that terminate.
 fn build_equivalence_library(basis: &HashSet<String>) -> Vec<RewriteRule> {
-    let lower: HashSet<String> = basis.iter().map(|s| s.to_lowercase()).collect();
+    let lower = canonical_basis(basis);
 
     let has = |g: &str| lower.contains(g);
 
@@ -187,9 +207,8 @@ fn build_equivalence_library(basis: &HashSet<String>) -> Vec<RewriteRule> {
             from: "tdg",
             ops: vec![("rz", vec![0], vec![ParamSpec::Const(-PI / 4.0)])],
         });
-        // RY(θ) = Rz(-π/2) · Rx(θ) · Rz(π/2)  [exact, verified]
-        // Rz(-π/2) = [[1,0],[0,-i]], Rx(θ) = [[c,-is],[-is,c]]
-        // Product = Rz(-π/2)·Rx(θ)·Rz(π/2) = [[c,s],[-s,c]] = RY(θ) ✓
+        // In matrix order, RY(θ) = Rz(π/2) · Rx(θ) · Rz(-π/2).
+        // Operations below are stored in circuit order (rightmost first).
         rules.push(RewriteRule {
             from: "ry",
             ops: vec![
@@ -199,15 +218,16 @@ fn build_equivalence_library(basis: &HashSet<String>) -> Vec<RewriteRule> {
             ],
         });
         // U(θ,φ,λ) ZYZ form: Rz(φ) · Ry(θ) · Rz(λ)
-        // Substituting Ry(θ) = Rz(-π/2) · Rx(θ) · Rz(π/2) gives:
-        //   = Rz(φ - π/2) · Rx(θ) · Rz(λ + π/2)
+        // Substituting Ry(θ) = Rz(π/2) · Rx(θ) · Rz(-π/2) gives:
+        //   = Rz(φ + π/2) · Rx(θ) · Rz(λ - π/2)
+        // Operations are stored in circuit order (rightmost matrix first).
         // params[0]=θ, params[1]=φ, params[2]=λ
         rules.push(RewriteRule {
             from: "u",
             ops: vec![
-                ("rz", vec![0], vec![ParamSpec::Sum(2, PI / 2.0)]), // Rz(λ + π/2) first
-                ("rx", vec![0], vec![ParamSpec::Passthrough(0)]),   // Rx(θ)
-                ("rz", vec![0], vec![ParamSpec::Sum(1, -PI / 2.0)]), // Rz(φ - π/2) last
+                ("rz", vec![0], vec![ParamSpec::Sum(2, -PI / 2.0)]), // Rz(λ - π/2) first
+                ("rx", vec![0], vec![ParamSpec::Passthrough(0)]),    // Rx(θ)
+                ("rz", vec![0], vec![ParamSpec::Sum(1, PI / 2.0)]),  // Rz(φ + π/2) last
             ],
         });
     }
@@ -288,15 +308,12 @@ fn build_equivalence_library(basis: &HashSet<String>) -> Vec<RewriteRule> {
 // TargetBasisPass
 // ---------------------------------------------------------------------------
 
-/// Translates every gate in the input circuit into an equivalent sequence of
-/// gates drawn from `basis`. The pass is purely data-driven: no vendor-specific
-/// knowledge is hard-coded.
+/// Applies early, exact named-gate rewrites selected by `basis`.
 ///
-/// Construction validates that `basis` is quantum-universal; an error is
-/// returned if it is not. This guarantees that the pass can always make
-/// progress (even gates without explicit rules can be handled downstream by
-/// the KAK synthesis pass, which targets `{U, CX}` — both of which must be
-/// expressible in any universal basis).
+/// This pass intentionally does **not** promise basis closure: unmatched gates
+/// are retained for analytic decomposition/KAK, and some rewrites introduce
+/// temporary gates such as `H`. Run [`BasisClosurePass`] after decomposition to
+/// obtain and validate a circuit containing only target-basis gates.
 #[derive(Debug, Clone)]
 pub struct TargetBasisPass {
     pub basis: HashSet<String>,
@@ -306,7 +323,9 @@ impl TargetBasisPass {
     /// Creates a new `TargetBasisPass` and validates universality.
     pub fn new(basis: HashSet<String>) -> Result<Self> {
         validate_universality(&basis)?;
-        Ok(Self { basis })
+        Ok(Self {
+            basis: canonical_basis(&basis),
+        })
     }
 }
 
@@ -316,7 +335,7 @@ impl Pass for TargetBasisPass {
     }
 
     fn run(&self, circuit: &Circuit, _props: &mut PropertySet) -> Circuit {
-        let lower: HashSet<String> = self.basis.iter().map(|s| s.to_lowercase()).collect();
+        let lower = canonical_basis(&self.basis);
         let lib = build_equivalence_library(&self.basis);
 
         let mut out = Circuit::new(circuit.num_qubits, circuit.num_cbits);
@@ -349,7 +368,8 @@ impl Pass for TargetBasisPass {
                             });
                         }
                     } else {
-                        // No rule found — pass through and let KAK handle residuals.
+                        // No early rule: a later decomposition/synthesis pass
+                        // handles the residual gate before basis closure.
                         out.add_op(op.clone());
                     }
                 }
@@ -359,6 +379,174 @@ impl Pass for TargetBasisPass {
 
         out
     }
+}
+
+// ---------------------------------------------------------------------------
+// Final basis closure
+// ---------------------------------------------------------------------------
+
+/// Validates that Q-Rust has an exact final lowering for `basis`.
+///
+/// Universality alone is not enough: `{H, T, CX}` is universal only with an
+/// approximation algorithm, which is outside the current implementation.
+pub fn validate_exact_translation_support(basis: &HashSet<String>) -> Result<()> {
+    validate_universality(basis)?;
+    let basis = canonical_basis(basis);
+
+    if !basis.contains("cx") && !basis.contains("cz") {
+        return Err(QRustError::UntranslatableGate {
+            gate: "cx".into(),
+            basis: sorted_basis(&basis),
+        });
+    }
+
+    let has_exact_1q = basis.contains("u")
+        || (basis.contains("rz") && basis.contains("rx"))
+        || (basis.contains("rz") && basis.contains("sx"))
+        || (basis.contains("rz") && basis.contains("h"));
+    if !has_exact_1q {
+        return Err(QRustError::UntranslatableGate {
+            gate: "u".into(),
+            basis: sorted_basis(&basis),
+        });
+    }
+
+    Ok(())
+}
+
+fn gate(name: GateType, qubits: Vec<usize>, params: Vec<f64>) -> Operation {
+    Operation::Gate {
+        name,
+        qubits,
+        params,
+    }
+}
+
+fn lower_u_to_basis(q: usize, params: &[f64], basis: &HashSet<String>) -> Vec<Operation> {
+    let theta = params.first().copied().unwrap_or(0.0);
+    let phi = params.get(1).copied().unwrap_or(0.0);
+    let lambda = params.get(2).copied().unwrap_or(0.0);
+
+    if basis.contains("u") {
+        return vec![gate(GateType::U, vec![q], vec![theta, phi, lambda])];
+    }
+
+    if basis.contains("rz") && basis.contains("rx") {
+        return vec![
+            gate(GateType::RZ, vec![q], vec![lambda - PI / 2.0]),
+            gate(GateType::RX, vec![q], vec![theta]),
+            gate(GateType::RZ, vec![q], vec![phi + PI / 2.0]),
+        ];
+    }
+
+    if basis.contains("rz") && basis.contains("sx") {
+        return vec![
+            gate(GateType::RZ, vec![q], vec![lambda]),
+            gate(GateType::SX, vec![q], vec![]),
+            gate(GateType::RZ, vec![q], vec![theta + PI]),
+            gate(GateType::SX, vec![q], vec![]),
+            gate(GateType::RZ, vec![q], vec![phi + PI]),
+        ];
+    }
+
+    // H RZ(theta) H = RX(theta), up to global phase.
+    vec![
+        gate(GateType::RZ, vec![q], vec![lambda - PI / 2.0]),
+        gate(GateType::H, vec![q], vec![]),
+        gate(GateType::RZ, vec![q], vec![theta]),
+        gate(GateType::H, vec![q], vec![]),
+        gate(GateType::RZ, vec![q], vec![phi + PI / 2.0]),
+    ]
+}
+
+fn close_operation(op: &Operation, basis: &HashSet<String>) -> Vec<Operation> {
+    match op {
+        Operation::Gate {
+            name: GateType::U,
+            qubits,
+            params,
+        } if qubits.len() == 1 => lower_u_to_basis(qubits[0], params, basis),
+        Operation::Gate {
+            name: GateType::CX,
+            qubits,
+            ..
+        } if qubits.len() == 2 && !basis.contains("cx") && basis.contains("cz") => {
+            let h = [PI / 2.0, 0.0, PI];
+            let mut out = lower_u_to_basis(qubits[1], &h, basis);
+            out.push(gate(GateType::CZ, qubits.clone(), vec![]));
+            out.extend(lower_u_to_basis(qubits[1], &h, basis));
+            out
+        }
+        Operation::Conditional { condition, op } => close_operation(op, basis)
+            .into_iter()
+            .map(|inner| Operation::Conditional {
+                condition: condition.clone(),
+                op: Box::new(inner),
+            })
+            .collect(),
+        other => vec![other.clone()],
+    }
+}
+
+/// Final exact lowering from the internal `{U, CX}` representation to a
+/// supported target basis.
+#[derive(Debug, Clone)]
+pub struct BasisClosurePass {
+    pub basis: HashSet<String>,
+}
+
+impl BasisClosurePass {
+    pub fn new(basis: HashSet<String>) -> Result<Self> {
+        validate_exact_translation_support(&basis)?;
+        Ok(Self {
+            basis: canonical_basis(&basis),
+        })
+    }
+}
+
+impl Pass for BasisClosurePass {
+    fn name(&self) -> &str {
+        "BasisClosurePass"
+    }
+
+    fn run(&self, circuit: &Circuit, _props: &mut PropertySet) -> Circuit {
+        let mut out = Circuit::new(circuit.num_qubits, circuit.num_cbits);
+        out.custom_gates = circuit.custom_gates.clone();
+        for op in &circuit.operations {
+            for lowered in close_operation(op, &self.basis) {
+                out.add_op(lowered);
+            }
+        }
+        out
+    }
+}
+
+/// Checks that every emitted gate is a member of `basis`.
+pub fn validate_circuit_basis(circuit: &Circuit, basis: &HashSet<String>) -> Result<()> {
+    let basis = canonical_basis(basis);
+
+    fn check_op(op: &Operation, basis: &HashSet<String>) -> Option<String> {
+        match op {
+            Operation::Gate { name, .. } => {
+                let name = canonical_gate_name(name.to_qasm_name());
+                (!basis.contains(&name)).then_some(name)
+            }
+            Operation::Conditional { op, .. } => check_op(op, basis),
+            _ => None,
+        }
+    }
+
+    if let Some(gate) = circuit
+        .operations
+        .iter()
+        .find_map(|op| check_op(op, &basis))
+    {
+        return Err(QRustError::UntranslatableGate {
+            gate,
+            basis: sorted_basis(&basis),
+        });
+    }
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -374,13 +562,24 @@ mod tests {
     }
 
     #[test]
-    fn test_universality_accepts_rz_cx() {
-        assert!(validate_universality(&basis(&["rz", "cx"])).is_ok());
+    fn test_universality_rejects_single_rotation_axis() {
+        assert!(validate_universality(&basis(&["rz", "cx"])).is_err());
     }
 
     #[test]
-    fn test_universality_accepts_rx_cz() {
-        assert!(validate_universality(&basis(&["rx", "cz"])).is_ok());
+    fn test_universality_accepts_two_rotation_axes() {
+        assert!(validate_universality(&basis(&["rz", "rx", "cz"])).is_ok());
+    }
+
+    #[test]
+    fn test_universality_accepts_ibm_style_basis() {
+        assert!(validate_universality(&basis(&["rz", "sx", "x", "cx"])).is_ok());
+    }
+
+    #[test]
+    fn test_universality_accepts_rz_h_basis() {
+        assert!(validate_universality(&basis(&["rz", "h", "cz"])).is_ok());
+        assert!(validate_exact_translation_support(&basis(&["rz", "h", "cz"])).is_ok());
     }
 
     #[test]
@@ -390,8 +589,13 @@ mod tests {
 
     #[test]
     fn test_universality_accepts_h_t_cx() {
-        // H, T (non-Clifford), CX — the classic Solovay-Kitaev basis.
+        // Mathematical universality is distinct from implemented exact
+        // Clifford+T approximation support.
         assert!(validate_universality(&basis(&["h", "t", "cx"])).is_ok());
+        assert!(matches!(
+            validate_exact_translation_support(&basis(&["h", "t", "cx"])),
+            Err(QRustError::UntranslatableGate { .. })
+        ));
     }
 
     #[test]
@@ -467,6 +671,68 @@ mod tests {
             "expected CX in {names:?}"
         );
         assert!(names.contains(&"h".to_string()), "expected H in {names:?}");
+    }
+
+    #[test]
+    fn test_basis_closure_rz_rx_cx_is_closed_and_equivalent() {
+        use crate::simulator::{circuit_to_unitary, unitary_fidelity};
+
+        let mut c = Circuit::new(2, 0);
+        c.add_op(gate(GateType::U, vec![0], vec![0.7, -0.2, 1.1]));
+        c.add_op(gate(GateType::CX, vec![0, 1], vec![]));
+
+        let pass = BasisClosurePass::new(basis(&["rz", "rx", "cx"])).unwrap();
+        let mut props = PropertySet::new();
+        let out = pass.run(&c, &mut props);
+        validate_circuit_basis(&out, &pass.basis).unwrap();
+        let fid = unitary_fidelity(&circuit_to_unitary(&c), &circuit_to_unitary(&out));
+        assert!((fid - 1.0).abs() < 1e-9, "fidelity = {fid}");
+    }
+
+    #[test]
+    fn test_basis_closure_rz_sx_cx_is_closed_and_equivalent() {
+        use crate::simulator::{circuit_to_unitary, unitary_fidelity};
+
+        let mut c = Circuit::new(2, 0);
+        c.add_op(gate(GateType::U, vec![0], vec![0.7, -0.2, 1.1]));
+        c.add_op(gate(GateType::CX, vec![0, 1], vec![]));
+
+        let pass = BasisClosurePass::new(basis(&["rz", "sx", "x", "cx"])).unwrap();
+        let mut props = PropertySet::new();
+        let out = pass.run(&c, &mut props);
+        validate_circuit_basis(&out, &pass.basis).unwrap();
+        let fid = unitary_fidelity(&circuit_to_unitary(&c), &circuit_to_unitary(&out));
+        assert!((fid - 1.0).abs() < 1e-9, "fidelity = {fid}");
+    }
+
+    #[test]
+    fn test_basis_closure_rz_h_cx_is_closed_and_equivalent() {
+        use crate::simulator::{circuit_to_unitary, unitary_fidelity};
+
+        let mut c = Circuit::new(2, 0);
+        c.add_op(gate(GateType::U, vec![0], vec![0.7, -0.2, 1.1]));
+        c.add_op(gate(GateType::CX, vec![0, 1], vec![]));
+
+        let pass = BasisClosurePass::new(basis(&["rz", "h", "cx"])).unwrap();
+        let mut props = PropertySet::new();
+        let out = pass.run(&c, &mut props);
+        validate_circuit_basis(&out, &pass.basis).unwrap();
+        let fid = unitary_fidelity(&circuit_to_unitary(&c), &circuit_to_unitary(&out));
+        assert!((fid - 1.0).abs() < 1e-9, "fidelity = {fid}");
+    }
+
+    #[test]
+    fn test_basis_closure_can_rebase_cx_to_cz() {
+        use crate::simulator::{circuit_to_unitary, unitary_fidelity};
+
+        let mut c = Circuit::new(2, 0);
+        c.add_op(gate(GateType::CX, vec![0, 1], vec![]));
+        let pass = BasisClosurePass::new(basis(&["u", "cz"])).unwrap();
+        let mut props = PropertySet::new();
+        let out = pass.run(&c, &mut props);
+        validate_circuit_basis(&out, &pass.basis).unwrap();
+        let fid = unitary_fidelity(&circuit_to_unitary(&c), &circuit_to_unitary(&out));
+        assert!((fid - 1.0).abs() < 1e-9, "fidelity = {fid}");
     }
 
     #[test]

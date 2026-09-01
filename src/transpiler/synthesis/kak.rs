@@ -7,7 +7,7 @@
 //! Weyl-chamber branching:
 //! - 0 CX : all interaction coefficients below tolerance (local unitary).
 //! - 2 CX : exactly one coefficient non-zero (implemented as CX·RZ·CX with
-//!           basis-change sandwiches for the X and Y cases).
+//!   basis-change sandwiches for the X and Y cases).
 //! - 6 CX : general case (three independent XX/YY/ZZ sub-circuits, each 2 CX).
 //!
 //! The optimal circuit counts from Shende et al. 2004 are 0/1/2/3 CX; reaching

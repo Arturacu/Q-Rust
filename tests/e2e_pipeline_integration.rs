@@ -1,19 +1,14 @@
-//! [E2E-NEW-FEATURE] End-to-end integration test for thesis Section 4.3.
+//! End-to-end integration tests for parsing, transpilation, emission, and
+//! verification.
 //!
-//! Mirrors the thesis' GHZ walkthrough: read QASM file → parse →
-//! transpile → emit QASM → re-parse.
-//!
-//! Note on verification: post-routing, qubit indices in the transpiled
-//! circuit are *physical*, not logical, so a direct `verify_equivalence`
-//! between the source and the transpiled circuit only matches when SABRE
-//! picks the identity layout. We therefore verify equivalence on the
-//! pre-routing pipeline (no backend) and treat the routed pipeline as a
-//! structural-correctness check (parses, round-trips, matches op count).
+//! Routed circuits are checked through the layouts returned in
+//! [`q_rust::transpiler::TranspilationReport`].
 
 use q_rust::backend::Backend;
 use q_rust::parser::parse_qasm;
+use q_rust::transpiler::target_basis::validate_circuit_basis;
 use q_rust::transpiler::{transpile, transpile_with_report, TranspilerConfig};
-use q_rust::verify::{verify_equivalence, Verdict};
+use q_rust::verify::{verify_equivalence, verify_equivalence_with_layout, Verdict};
 
 const GHZ_QASM: &str = r#"
 OPENQASM 2.0;
@@ -69,16 +64,22 @@ fn test_e2e_full_pipeline_ghz_no_backend_verifiable() {
 
 #[test]
 fn test_e2e_full_pipeline_ghz_with_backend_structural() {
-    // Same as above but with a backend — verifies the routed pipeline
-    // produces a parseable, well-formed circuit. We do *not* verify
-    // unitary equivalence here because qubit indices are physical.
+    // Same as above but with a backend: verify through the router's recorded
+    // layouts, then confirm that emitted QASM remains parseable.
     let circuit = parse_qasm(GHZ_QASM).expect("parse");
     let cfg = TranspilerConfig::builder()
         .optimization_level(3)
         .decompose_basis(true)
         .backend(Backend::linear(3))
         .build();
-    let transpiled = transpile(&circuit, Some(cfg)).expect("transpile");
+    let (transpiled, report) =
+        transpile_with_report(&circuit, Some(cfg)).expect("transpile with report");
+
+    let initial = report.initial_layout.as_deref().expect("initial layout");
+    let final_layout = report.final_layout.as_deref().expect("final layout");
+    let verdict = verify_equivalence_with_layout(&circuit, &transpiled, initial, final_layout)
+        .expect("layout-aware verification");
+    assert!(verdict.is_equivalent(), "{}", verdict.describe());
 
     assert!(!transpiled.operations.is_empty());
     let emitted = transpiled.to_qasm(None);
@@ -88,7 +89,42 @@ fn test_e2e_full_pipeline_ghz_with_backend_structural() {
 }
 
 #[test]
-fn test_e2e_with_report_thesis_fig_4_1_annotations() {
+fn test_builtin_ibm_backend_emits_only_native_basis() {
+    let circuit = parse_qasm(GHZ_QASM).expect("parse");
+    let backend = Backend::ibm_quito();
+    let expected_basis = backend.basis_gates.clone();
+    let cfg = TranspilerConfig::builder()
+        .optimization_level(2)
+        .decompose_basis(true)
+        .backend(backend)
+        .build();
+    let (transpiled, report) =
+        transpile_with_report(&circuit, Some(cfg)).expect("transpile with IBM basis");
+
+    validate_circuit_basis(&transpiled, &expected_basis).expect("native-basis closure");
+    assert!(
+        transpiled.operations.iter().any(|op| matches!(
+            op,
+            q_rust::ir::Operation::Gate {
+                name: q_rust::ir::GateType::SX,
+                ..
+            }
+        )),
+        "the input H should lower through the IBM RZ/SX basis"
+    );
+
+    let verdict = verify_equivalence_with_layout(
+        &circuit,
+        &transpiled,
+        report.initial_layout.as_deref().expect("initial layout"),
+        report.final_layout.as_deref().expect("final layout"),
+    )
+    .expect("layout-aware verification");
+    assert!(verdict.is_equivalent(), "{}", verdict.describe());
+}
+
+#[test]
+fn test_e2e_with_report_stable_stage_annotations() {
     let circuit = parse_qasm(GHZ_QASM).expect("parse");
     let cfg = TranspilerConfig::builder()
         .optimization_level(2)

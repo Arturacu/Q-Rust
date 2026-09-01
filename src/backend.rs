@@ -81,7 +81,7 @@ impl Backend {
         backend
     }
 
-    /// [E2E-NEW-FEATURE] Loads a backend from a JSON file path. Convenience
+    /// Loads a backend from a JSON file path. Convenience
     /// wrapper around `from_config + serde_json::from_str + fs::read_to_string`.
     ///
     /// # Errors
@@ -398,8 +398,8 @@ mod tests {
         assert_eq!(gd[0][4], 2);
     }
 
-    /// [E2E-NEW-FEATURE] Built-in IBM backends are constructed
-    /// programmatically (no fixture file dependency).
+    /// Built-in IBM backends are constructed programmatically, without a
+    /// fixture-file dependency.
     #[test]
     fn test_ibm_quito_builtin() {
         let b = Backend::ibm_quito();

@@ -93,12 +93,17 @@ impl PassManager {
     /// in the pipeline can populate analysis data the predicate consults.
     ///
     /// # Example
-    /// ```ignore
-    /// pm.add_pass(Box::new(profiler::CircuitProfilerPass));
+    /// ```no_run
+    /// use q_rust::transpiler::optimization::InverseCancellationPass;
+    /// use q_rust::transpiler::pass::PassManager;
+    /// use q_rust::transpiler::profiler::{CircuitProfilerPass, ProfileReport};
+    ///
+    /// let mut pm = PassManager::new();
+    /// pm.add_pass(Box::new(CircuitProfilerPass));
     /// pm.add_conditional(
-    ///     Box::new(optimization::InverseCancellationPass),
+    ///     Box::new(InverseCancellationPass),
     ///     |ps| {
-    ///         ps.get::<profiler::ProfileReport>("profile_report")
+    ///         ps.get::<ProfileReport>("profile_report")
     ///             .map(|r| !r.can_bypass_inverse_cancellation())
     ///             .unwrap_or(true)
     ///     },

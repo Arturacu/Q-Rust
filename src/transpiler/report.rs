@@ -1,8 +1,7 @@
-//! [E2E-NEW-FEATURE] Per-stage transpilation report.
+//! Per-stage transpilation report.
 //!
-//! Tracks gate count, two-qubit gate count, and depth as the circuit
-//! flows through the pipeline, mirroring thesis Figure 4.1's dashed
-//! per-stage annotations ("Fewer gates", "SWAPs inserted", "{U,CX} only").
+//! Tracks gate count, two-qubit gate count, depth, and (when routing runs)
+//! the initial/final logical-to-physical layouts.
 //!
 //! Stage names are stable strings (`"1. parsed"`, `"2. optimized"`,
 //! `"3. routed+decomposed"` or `"3. decomposed"`) so the CLI smoke
@@ -48,6 +47,10 @@ impl StageSnapshot {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct TranspilationReport {
     pub stages: Vec<StageSnapshot>,
+    /// Physical location of each logical input qubit, when routing ran.
+    pub initial_layout: Option<Vec<usize>>,
+    /// Physical location of each logical output qubit, when routing ran.
+    pub final_layout: Option<Vec<usize>>,
 }
 
 impl TranspilationReport {

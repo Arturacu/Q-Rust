@@ -8,6 +8,7 @@ use q_rust::simulator::{circuit_to_unitary, extract_logical_unitary, unitary_fid
 use q_rust::transpiler::pass::Pass;
 use q_rust::transpiler::property_set::PropertySet;
 use q_rust::transpiler::routing::{BeamSabrePass, LookaheadStrategy};
+use q_rust::transpiler::target_basis::validate_circuit_basis;
 use q_rust::transpiler::{transpile, TranspilerConfig};
 use std::collections::HashSet;
 
@@ -31,6 +32,7 @@ fn load_circuit(fixture: &str) -> Circuit {
 fn verify_basis_only(label: &str, circuit: &Circuit, target_basis: HashSet<String>) {
     let u_orig = circuit_to_unitary(circuit);
     let b = Backend::all_to_all(circuit.num_qubits);
+    let expected_basis = target_basis.clone();
 
     let cfg = TranspilerConfig::builder()
         .optimization_level(2)
@@ -41,6 +43,8 @@ fn verify_basis_only(label: &str, circuit: &Circuit, target_basis: HashSet<Strin
 
     let compiled =
         transpile(circuit, Some(cfg)).unwrap_or_else(|e| panic!("[{label}] transpile failed: {e}"));
+    validate_circuit_basis(&compiled, &expected_basis)
+        .unwrap_or_else(|e| panic!("[{label}] output basis is not closed: {e}"));
 
     let u_out = circuit_to_unitary(&compiled);
     let fid = unitary_fidelity(&u_orig, &u_out);
@@ -52,9 +56,9 @@ fn verify_basis_only(label: &str, circuit: &Circuit, target_basis: HashSet<Strin
 
 fn verify_routed(label: &str, circuit: &Circuit, backend: &Backend, target_basis: HashSet<String>) {
     let u_orig = circuit_to_unitary(circuit);
+    let expected_basis = target_basis.clone();
 
-    // Loop 3 review §"Build break": added `lookahead_strategy` field.
-    // Default is classical SABRE, matching pre-loop-3 behavior.
+    // Keep the router's default classical-SABRE lookahead strategy explicit.
     let router = BeamSabrePass {
         backend: backend.clone(),
         beam_width: 4,
@@ -81,6 +85,8 @@ fn verify_routed(label: &str, circuit: &Circuit, backend: &Backend, target_basis
         .build();
     let translated = transpile(&routed, Some(cfg))
         .unwrap_or_else(|e| panic!("[{label}] basis translation failed: {e}"));
+    validate_circuit_basis(&translated, &expected_basis)
+        .unwrap_or_else(|e| panic!("[{label}] output basis is not closed: {e}"));
 
     let mut padded = translated.clone();
     padded.num_qubits = backend.num_qubits;
@@ -440,7 +446,7 @@ fn test_gateset_rejects_no_entangler() {
 }
 
 #[test]
-fn test_gateset_accepts_solovay_kitaev_basis() {
+fn test_gateset_rejects_unimplemented_clifford_t_lowering() {
     let c = load_circuit("bell_state.qasm");
     let b = Backend::all_to_all(2);
     let cfg = TranspilerConfig::builder()
@@ -449,11 +455,15 @@ fn test_gateset_accepts_solovay_kitaev_basis() {
         .backend(b)
         .target_basis(["h", "t", "cx"].iter().map(|s| s.to_string()))
         .build();
-    assert!(transpile(&c, Some(cfg)).is_ok());
+    let result = transpile(&c, Some(cfg));
+    assert!(
+        matches!(result, Err(QRustError::UntranslatableGate { .. })),
+        "Clifford+T is universal, but exact arbitrary-angle synthesis is not implemented: {result:?}"
+    );
 }
 
 #[test]
-fn test_gateset_accepts_rz_cx() {
+fn test_gateset_rejects_single_rotation_axis() {
     let c = load_circuit("bell_state.qasm");
     let b = Backend::all_to_all(2);
     let cfg = TranspilerConfig::builder()
@@ -462,7 +472,10 @@ fn test_gateset_accepts_rz_cx() {
         .backend(b)
         .target_basis(["rz", "cx"].iter().map(|s| s.to_string()))
         .build();
-    assert!(transpile(&c, Some(cfg)).is_ok());
+    assert!(matches!(
+        transpile(&c, Some(cfg)),
+        Err(QRustError::NonUniversalBasisGateSet { .. })
+    ));
 }
 
 // ===========================================================================

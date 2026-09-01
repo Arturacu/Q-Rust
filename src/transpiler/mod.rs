@@ -30,21 +30,25 @@ use std::collections::HashSet;
 #[derive(Clone, Debug)]
 #[non_exhaustive]
 pub struct TranspilerConfig {
-    /// If `true`, decompose every non-basis gate into the target basis as
-    /// the final stage of the pipeline.
+    /// If `true`, decompose to the internal `{U, CX}` representation and
+    /// enforce exact closure over the resolved target basis.
     pub decompose_basis: bool,
     /// Optimization level (clamped to `[0, 3]` by the builder).
     /// - 0: no optimization passes.
     /// - 1: peephole crystallization + parameter simplification.
     /// - 2: + rotation merging, cross-conjugation, inverse cancellation,
     ///   commutation cancellation, layout (10 trials × 3 iters), routing.
-    /// - 3: + harder routing (beam=8) and post-routing fusion.
+    /// - 3: + layout (50 trials × 5 iters), harder routing (beam=8,
+    ///   branch=5, 4 bidirectional iterations), and post-routing fusion.
     pub optimization_level: u8,
     /// Optional hardware backend. When set, layout, routing, and CX-direction
     /// passes are added to the pipeline.
     pub backend: Option<crate::backend::Backend>,
     /// Target gate set to translate into after all other passes complete.
-    /// When `None`, falls back to the backend's `basis_gates` if any.
+    /// When `None`, falls back to the backend's `basis_gates` if any. Exact
+    /// closure currently supports `U`, `RZ+RX`, `RZ+SX`, or `RZ+H` with CX
+    /// or CZ; unsupported universal sets return an error rather than leaking
+    /// gates.
     pub target_basis: Option<HashSet<String>>,
     /// Routing lookahead heuristic. Defaults to classical SABRE
     /// (`Static { weight: 0.5 }`); `DynamicV2` enables the SABRE-v2
@@ -82,7 +86,8 @@ pub struct TranspilerConfigBuilder {
 }
 
 impl TranspilerConfigBuilder {
-    /// Enable or disable basis decomposition. Default: `true`.
+    /// Enable or disable decomposition and target-basis closure. Default:
+    /// `true`.
     pub fn decompose_basis(mut self, v: bool) -> Self {
         self.decompose_basis = Some(v);
         self
@@ -97,8 +102,8 @@ impl TranspilerConfigBuilder {
         self.backend = Some(backend);
         self
     }
-    /// Set the target basis gate set explicitly. Overrides the backend's
-    /// `basis_gates` when both are present.
+    /// Set the target basis explicitly, overriding the backend's `basis_gates`.
+    /// See [`target_basis::BasisClosurePass`] for exact supported families.
     pub fn target_basis(mut self, basis: impl IntoIterator<Item = impl Into<String>>) -> Self {
         self.target_basis = Some(basis.into_iter().map(|s| s.into()).collect());
         self
@@ -239,6 +244,12 @@ impl Pass for KakSynthesisPass {
 }
 
 #[derive(Debug, Clone)]
+/// Compatibility wrapper that closes a circuit over a backend's basis.
+///
+/// New code should prefer [`target_basis::BasisClosurePass::new`], whose
+/// constructor is fallible. Because [`Pass::run`] cannot return an error, this
+/// wrapper leaves unsupported input unchanged and records the error string as
+/// `"native_basis_translation_error"` in the property set.
 pub struct NativeBasisTranslationPass {
     pub backend: crate::backend::Backend,
 }
@@ -248,65 +259,14 @@ impl Pass for NativeBasisTranslationPass {
         "NativeBasisTranslationPass"
     }
 
-    fn run(&self, circuit: &Circuit, _property_set: &mut property_set::PropertySet) -> Circuit {
-        let native_u = self.backend.basis_gates.contains("u")
-            || self.backend.basis_gates.contains("u3")
-            || self.backend.basis_gates.contains("U");
-        if native_u || self.backend.basis_gates.is_empty() {
-            return circuit.clone();
-        }
-
-        let has_rz = self.backend.basis_gates.contains("rz");
-        let has_sx = self.backend.basis_gates.contains("sx");
-        if !has_rz || !has_sx {
-            return circuit.clone();
-        }
-
-        let mut out = Circuit::new(circuit.num_qubits, circuit.num_cbits);
-        out.custom_gates = circuit.custom_gates.clone();
-        let pi = std::f64::consts::PI;
-
-        for op in &circuit.operations {
-            match op {
-                Operation::Gate {
-                    name: GateType::U,
-                    qubits,
-                    params,
-                } if qubits.len() == 1 && params.len() >= 3 => {
-                    let theta = params[0];
-                    let phi = params[1];
-                    let lambda = params[2];
-                    let q = qubits[0];
-                    out.add_op(Operation::Gate {
-                        name: GateType::RZ,
-                        qubits: vec![q],
-                        params: vec![lambda - pi],
-                    });
-                    out.add_op(Operation::Gate {
-                        name: GateType::Custom("sx".into()),
-                        qubits: vec![q],
-                        params: vec![],
-                    });
-                    out.add_op(Operation::Gate {
-                        name: GateType::RZ,
-                        qubits: vec![q],
-                        params: vec![theta],
-                    });
-                    out.add_op(Operation::Gate {
-                        name: GateType::Custom("sx".into()),
-                        qubits: vec![q],
-                        params: vec![],
-                    });
-                    out.add_op(Operation::Gate {
-                        name: GateType::RZ,
-                        qubits: vec![q],
-                        params: vec![phi - pi],
-                    });
-                }
-                other => out.add_op(other.clone()),
+    fn run(&self, circuit: &Circuit, property_set: &mut property_set::PropertySet) -> Circuit {
+        match target_basis::BasisClosurePass::new(self.backend.basis_gates.clone()) {
+            Ok(pass) => pass.run(circuit, property_set),
+            Err(error) => {
+                property_set.insert("native_basis_translation_error", error.to_string());
+                circuit.clone()
             }
         }
-        out
     }
 }
 
@@ -321,6 +281,16 @@ enum Stage {
     /// (level-3) passes — i.e. everything that depends on a backend or
     /// target-basis being known.
     LayoutAndLower,
+}
+
+fn resolved_target_basis(config: &TranspilerConfig) -> Option<HashSet<String>> {
+    config.target_basis.clone().or_else(|| {
+        config
+            .backend
+            .as_ref()
+            .filter(|backend| !backend.basis_gates.is_empty())
+            .map(|backend| backend.basis_gates.clone())
+    })
 }
 
 /// Builds and runs a slice of the pipeline. Splitting `build_pass_manager`
@@ -394,31 +364,27 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
             // Target-basis translation runs BEFORE BasisDecompositionPass so the
             // equivalence rules operate on original named gates (H, CZ, SWAP, etc.)
             // rather than their U-gate expansions.
-            let resolved_basis: Option<HashSet<String>> =
-                config.target_basis.clone().or_else(|| {
-                    config
-                        .backend
-                        .as_ref()
-                        .filter(|b| !b.basis_gates.is_empty())
-                        .map(|b| b.basis_gates.clone())
-                });
-            if let Some(ref basis) = resolved_basis {
-                let tb_pass = target_basis::TargetBasisPass::new(basis.clone())?;
-                pm.add_pass(Box::new(tb_pass));
-            }
-
             if config.decompose_basis {
+                let resolved_basis = resolved_target_basis(config);
+                if let Some(ref basis) = resolved_basis {
+                    pm.add_pass(Box::new(target_basis::TargetBasisPass::new(basis.clone())?));
+                }
+
                 pm.add_pass(Box::new(decomposition::BasisDecompositionPass));
                 pm.add_pass(Box::new(KakSynthesisPass));
-            }
 
-            if config.optimization_level >= 3 {
-                pm.add_pass(Box::new(optimization::GateFusionPass));
-                pm.add_pass(Box::new(optimization::SwapSimplificationPass));
-                pm.add_pass(Box::new(optimization::InverseCancellationPass));
-                pm.add_pass(Box::new(
-                    optimization::ParameterSimplificationPass::default(),
-                ));
+                if config.optimization_level >= 3 {
+                    pm.add_pass(Box::new(optimization::GateFusionPass));
+                    pm.add_pass(Box::new(optimization::SwapSimplificationPass));
+                    pm.add_pass(Box::new(optimization::InverseCancellationPass));
+                    pm.add_pass(Box::new(
+                        optimization::ParameterSimplificationPass::default(),
+                    ));
+                }
+
+                if let Some(basis) = resolved_basis {
+                    pm.add_pass(Box::new(target_basis::BasisClosurePass::new(basis)?));
+                }
             }
         }
     }
@@ -431,13 +397,20 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Result<
     let mut opt_pm = build_pass_manager_for(&config, Stage::Optimize)?;
     let after_opt = opt_pm.run(circuit);
     let mut lower_pm = build_pass_manager_for(&config, Stage::LayoutAndLower)?;
-    Ok(lower_pm.run(&after_opt))
+    let output = lower_pm.run(&after_opt);
+    if config.decompose_basis {
+        if let Some(basis) = resolved_target_basis(&config) {
+            target_basis::validate_circuit_basis(&output, &basis)?;
+        }
+    }
+    Ok(output)
 }
 
-/// [E2E-NEW-FEATURE] Like [`transpile`], but additionally returns a
+/// Like [`transpile`], but additionally returns a
 /// [`TranspilationReport`] describing per-stage circuit metrics.
 ///
 /// Captures three checkpoints — input, post-optimization, and final —
+/// plus the initial/final layouts recorded by the router, when present,
 /// and is guaranteed to produce the **same final circuit as
 /// [`transpile`]** for the same input/config (the pipeline is split, not
 /// re-run). More granular per-pass tracking would require reworking
@@ -456,12 +429,25 @@ pub fn transpile_with_report(
 
     let mut lower_pm = build_pass_manager_for(&config, Stage::LayoutAndLower)?;
     let final_circuit = lower_pm.run(&after_opt);
+    if config.decompose_basis {
+        if let Some(basis) = resolved_target_basis(&config) {
+            target_basis::validate_circuit_basis(&final_circuit, &basis)?;
+        }
+    }
     let final_label = if config.backend.is_some() {
         "3. routed+decomposed"
     } else {
         "3. decomposed"
     };
     report.push(StageSnapshot::capture(final_label, &final_circuit));
+    report.initial_layout = lower_pm
+        .property_set
+        .get::<Vec<usize>>("initial_layout")
+        .cloned();
+    report.final_layout = lower_pm
+        .property_set
+        .get::<Vec<usize>>("final_layout")
+        .cloned();
 
     Ok((final_circuit, report))
 }
@@ -591,8 +577,8 @@ mod tests {
         assert_eq!(ps.get::<usize>("kak_fallback_invocations"), Some(&0));
     }
 
-    /// [E2E-NEW-FEATURE] Report-producing variant returns a non-empty report
-    /// with three stable-named stages.
+    /// Report-producing variant returns a non-empty report with three
+    /// stable-named stages.
     #[test]
     fn test_transpile_with_report_produces_report() {
         let mut c = Circuit::new(2, 0);
@@ -617,7 +603,7 @@ mod tests {
         assert_eq!(report.format_lines().len(), 4);
     }
 
-    /// [E2E-NEW-FEATURE] Critical: `transpile_with_report` must produce the
+    /// `transpile_with_report` must produce the
     /// same final circuit as `transpile`. This pins the contract that the
     /// pipeline is split, not run twice (which would yield different
     /// outputs whenever a pass uses non-determinism or a property-set key
