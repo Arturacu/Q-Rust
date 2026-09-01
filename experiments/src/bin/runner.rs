@@ -236,7 +236,7 @@ fn stage_routing(
 }
 
 /// Stage 4: target-basis translation + basis decomposition + KAK synthesis.
-/// We force the basis to {u, cx} (the only set Q-Rust can actually emit).
+/// The benchmark fixes `{u, cx}` as the common cross-tool comparison basis.
 fn stage_basis_decomp(circuit: &Circuit, ps: &mut PropertySet) -> Result<Circuit, String> {
     let basis: std::collections::HashSet<String> =
         ["u", "cx"].iter().map(|s| s.to_string()).collect();

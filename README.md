@@ -2,9 +2,9 @@
 
 A modular quantum transpiler and OpenQASM 2.0 compiler written in Rust.
 
-Q-Rust takes a quantum circuit — parsed from OpenQASM 2.0 or built programmatically — runs it through a configurable **optimization → layout → routing → synthesis → basis-translation** pipeline, and emits a circuit targeting a chosen hardware backend or basis-gate set. It is designed for researchers, compiler engineers, and tooling authors who want a strongly-typed, panic-free Rust alternative to Python-centric transpiler stacks, with first-class support for IBM heavy-hex devices, custom topologies, and analytic synthesis (ZYZ, KAK).
+Q-Rust takes a quantum circuit — parsed from OpenQASM 2.0 or built programmatically — runs it through a configurable **optimization → layout → routing → synthesis → basis-translation** pipeline, and emits a circuit targeting a chosen hardware backend or basis-gate set. It is designed for researchers, compiler engineers, and tooling authors who want a strongly typed, memory-safe Rust implementation with custom topologies and analytic synthesis (ZYZ, KAK).
 
-Q-Rust is a library first (`use qrust::...`) and a CLI second (`qrust circuit.qasm`). It ships with a unitary + state-vector simulator and a verification harness so you can check transpiled circuits for equivalence against the input, either exactly (≤14 qubits) or statistically via Haar sampling (≤22 qubits).
+Q-Rust is a library first (`use q_rust::...`) and a CLI second (`qrust circuit.qasm`). It ships with a unitary + state-vector simulator and a verification harness: direct comparisons are exact through 14 qubits and use seeded Haar-state sampling through 22 qubits; routed comparisons are layout-aware and sample through 20 physical qubits. Statistical verdicts are reproducible finite-sample evidence, not proofs.
 
 ---
 
@@ -16,6 +16,7 @@ Q-Rust is a library first (`use qrust::...`) and a CLI second (`qrust circuit.qa
 - [Directory layout](#directory-layout)
 - [Usage examples](#usage-examples)
 - [Configuration](#configuration)
+- [Current capability boundaries](#current-capability-boundaries)
 - [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
@@ -81,32 +82,34 @@ A `CircuitProfilerPass` (analysis-only) populates a `ProfileReport` for inspecti
 ### Synthesis (ZYZ, KAK)
 
 - **`ZyzSynthesizer`** — exact analytic 1-qubit synthesis.
-- **`KakSynthesizer`** — exact analytic 2-qubit synthesis using the Cartan/KAK decomposition (Shende et al. 2004). Implements Weyl-chamber branching: 0 CX for local unitaries, 2 CX when only one interaction coefficient is non-zero, 6 CX for the general case. Optimal synthesis (0/1/2/3 CX) is left as future work.
+- **`KakSynthesizer`** — exact analytic 2-qubit synthesis using a Cartan/KAK factorization. The current axis-by-axis construction emits 0 CX for local unitaries, 2 CX when one interaction coefficient is non-zero, and up to 6 CX in the general case. CX-optimal 0/1/2/3-CX resynthesis is not implemented.
 - **`QsdSynthesizer`** — dispatcher to ZYZ (N=1) or KAK (N=2); N ≥ 3 is not implemented and returns `None`.
 - **`NelderMead1qSynthesizer`** — numerical 1q synthesis via Nelder–Mead over a ZYZ ansatz; falls through to KAK for 2q inputs.
 
 ### Routing & layout (SABRE)
 
-- **`SabreLayoutPass`** — bidirectional iterative layout with Fisher–Yates seed permutations (10 trials × 3 iterations at opt-2; 10 × 5 at opt-3).
+- **`SabreLayoutPass`** — bidirectional iterative layout with Fisher–Yates seed permutations (10 trials × 3 iterations at opt-2; 50 × 5 at opt-3).
 - **`BeamSabrePass`** — beam-search SABRE router with two lookahead strategies:
   - `LookaheadStrategy::Static { weight }` — classical SABRE (Li et al. 2019).
   - `LookaheadStrategy::DynamicV2` — SABRE-v2 (Li et al. 2023).
 - Fast-path for fully-connected backends (zero SWAPs).
 - `Layout::from_l2p` is a validating constructor that rejects non-injective mappings.
 
-### Basis translation (multi-vendor)
+### Basis translation
 
-- **`TargetBasisPass`** with universality validation — rejects Clifford-only sets.
+- **`TargetBasisPass`** — applies early named-gate rewrites after a conservative universality preflight.
+- **`BasisClosurePass`** — performs final exact lowering and rejects any residual gate outside the requested basis.
 - **`CxDirectionPass`** — flips CX direction with H sandwiches when needed.
 - **`BasisDecompositionPass`** — uses analytic decompositions from `GateDefinition`.
+- Exact output closure is implemented for `{U, CX/CZ}`, `{RZ, RX, CX/CZ}`, `{RZ, SX, CX/CZ}`, and `{RZ, H, CX/CZ}` families. `{H, T, CX}` is mathematically universal but requires an approximation algorithm that Q-Rust does not yet provide, so arbitrary-angle circuits targeting it are rejected rather than silently emitted in another basis.
 - Built-in backends: `linear-N`, `grid-RxC`, `ring-N`, `star-N`, `tree-N`, `all2all-N`, `ibm_quito`, `ibm_nairobi`, plus `Backend::from_json_file(path)` for custom hardware.
 
 ### Testing & validation
 
 - **Unitary simulator** (≤14q exact) and **state-vector evolution** (≤24q).
-- **Verification harness** (`verify_equivalence`): auto-selects exact unitary fidelity (≤14q) → Haar sampling (14 < n ≤ 22) → `Verdict::Unverifiable` (>22q).
-- **Transpilation report** (`transpile_with_report`) — per-stage circuit metrics.
-- 100+ unit + integration tests, including a fidelity-verified algorithm suite (Bell, GHZ, QFT, Grover, Deutsch–Jozsa, Bernstein–Vazirani, VQE, QPE).
+- **Verification harness**: `verify_equivalence` auto-selects exact process fidelity (≤14q) → sampled output-state fidelity (14 < n ≤ 22) → `Verdict::Unverifiable`; `verify_equivalence_with_layout` handles routed permutations and ancilla padding (sampling capped at 20 physical qubits).
+- **Transpilation report** (`transpile_with_report`) — per-stage circuit metrics plus initial/final layouts when routing runs.
+- 200+ unit + integration tests, including a fidelity- and basis-closure-checked algorithm suite (Bell, GHZ, QFT, Grover, Deutsch–Jozsa, Bernstein–Vazirani, VQE, QPE).
 
 ---
 
@@ -160,7 +163,7 @@ The pipeline architecture follows the same decomposition used by Qiskit's transp
 ├── Cargo.toml
 ├── src/
 │   ├── lib.rs              # crate root, module map, doctest
-│   ├── error.rs            # unified QRustError (15 variants)
+│   ├── error.rs            # unified QRustError
 │   ├── backend.rs          # topology + basis-gate descriptions
 │   ├── parser/             # OpenQASM 2.0 (nom)
 │   ├── ir/                 # Circuit, Operation, GateType, registry
@@ -171,7 +174,7 @@ The pipeline architecture follows the same decomposition used by Qiskit's transp
 │   │   ├── routing.rs      # BeamSabrePass + lookahead strategies
 │   │   ├── synthesis/      # ZYZ, KAK, QSD, numerical, qsearch
 │   │   ├── decomposition.rs
-│   │   ├── target_basis.rs # multi-vendor basis translation
+│   │   ├── target_basis.rs # validation, rewrites, exact basis closure
 │   │   ├── dag.rs          # DAG IR + scheduling
 │   │   ├── profiler.rs     # CircuitProfilerPass
 │   │   └── report.rs       # TranspilationReport
@@ -242,7 +245,7 @@ qrust circuit.qasm --backend ibm_quito --opt 3 --report
 # Custom backend, custom basis, file output
 qrust circuit.qasm --backend my_device.json --basis rz,sx,cx --output out.qasm
 
-# Verify equivalence after transpilation (≤22 qubits)
+# Verify equivalence after transpilation (direct ≤22q; routed ≤20 physical q)
 qrust circuit.qasm --opt 3 --verify
 ```
 
@@ -254,7 +257,7 @@ CLI flags:
 | `--backend SPEC` | Backend specifier (see below) |
 | `--basis g1,g2,...` | Comma-separated target basis gates |
 | `--report` | Print per-stage metrics |
-| `--verify` | Run `verify_equivalence` against the input |
+| `--verify` | Verify against the input, accounting for routing layouts when present |
 | `--no-decompose` | Skip basis decomposition |
 | `--output PATH` | Write QASM to PATH (default: stdout) |
 
@@ -265,8 +268,8 @@ Backend specifiers: `linear-N`, `grid-RxC`, `ring-N`, `star-N`, `tree-N`, `all2a
 ```rust
 use q_rust::backend::Backend;
 use q_rust::parser::parse_qasm;
-use q_rust::transpiler::{transpile, TranspilerConfig};
-use q_rust::{verify_equivalence, Verdict};
+use q_rust::transpiler::{transpile_with_report, TranspilerConfig};
+use q_rust::{verify_equivalence_with_layout, Verdict};
 
 fn main() -> Result<(), q_rust::QRustError> {
     let input = r#"
@@ -284,20 +287,29 @@ fn main() -> Result<(), q_rust::QRustError> {
         .decompose_basis(true)
         .backend(Backend::ibm_quito())
         .build();
-    let transpiled = transpile(&original, Some(cfg))?;
+    let (transpiled, report) = transpile_with_report(&original, Some(cfg))?;
+    let initial = report.initial_layout.as_deref().expect("backend layout");
+    let final_layout = report.final_layout.as_deref().expect("backend layout");
 
-    match verify_equivalence(&original, &transpiled)? {
+    match verify_equivalence_with_layout(
+        &original,
+        &transpiled,
+        initial,
+        final_layout,
+    )? {
         Verdict::ExactlyEquivalent { fidelity } => {
             println!("✓ exact match, fidelity = {fidelity:.6}");
         }
         Verdict::StatisticallyEquivalent { samples, .. } => {
             println!("✓ statistical match over {samples} Haar samples");
         }
-        Verdict::NotEquivalent { reason } => panic!("regression: {reason}"),
+        Verdict::NotEquivalent { fidelity, method } => {
+            panic!("regression ({method}): fidelity = {fidelity}")
+        }
         Verdict::Unverifiable { reason } => println!("skipped: {reason}"),
     }
 
-    println!("{}", transpiled.to_qasm());
+    println!("{}", transpiled.to_qasm(None));
     Ok(())
 }
 ```
@@ -329,7 +341,7 @@ use q_rust::transpiler::TranspilerConfig;
 
 let cfg = TranspilerConfig::builder()
     .optimization_level(2)      // 0 = none, 3 = aggressive
-    .decompose_basis(true)      // run TargetBasisPass
+    .decompose_basis(true)      // decompose and enforce target-basis closure
     .backend(Backend::linear(4))
     .build();
 ```
@@ -342,6 +354,11 @@ The main knobs:
 | `decompose_basis` | bool | Whether to translate to the backend's basis |
 | `backend` | `Backend` | Coupling map + basis gates for layout/routing |
 | `lookahead_strategy` | `Static` / `DynamicV2` | Routing heuristic |
+
+When both a backend basis and an explicit `target_basis` are supplied, the
+explicit basis wins. Gate aliases are normalized (`cnot` → `cx`, `u3` → `u`,
+`u1`/`p` → `rz`). Unsupported exact targets return an error before the circuit
+is emitted.
 
 ### Custom pass pipelines
 
@@ -362,6 +379,17 @@ Library code is silent by default. Set `Q_RUST_LOG` to any non-empty value other
 ```bash
 Q_RUST_LOG=1 cargo run --bin qrust -- circuit.qasm
 ```
+
+---
+
+## Current capability boundaries
+
+- **Two-qubit synthesis is exact but not CX-optimal.** Generic KAK output may use six CX gates; a 0/1/2/3-CX optimal construction remains future work.
+- **Basis universality does not imply implemented lowering.** Exact closure currently covers the four one-qubit families listed above with CX or CZ. Approximate Clifford+T synthesis is not implemented.
+- **Statistical verification is not a certificate.** It reports the minimum observed output-state fidelity over seeded Haar samples. Exact mode uses normalized Hilbert–Schmidt/process fidelity and is invariant under global phase.
+- **Routed verification needs layout metadata.** Use `transpile_with_report` with `verify_equivalence_with_layout`, or use the CLI's `--verify` flag, which does this automatically.
+- **General synthesis stops at two qubits.** The QSD dispatcher returns `None` for `n ≥ 3`; named gates such as CCX use explicit templates.
+- **Backend presets are static descriptions.** The Quito and Nairobi constructors provide topology/basis fixtures; they do not query live calibrations or submit hardware jobs.
 
 ---
 
@@ -397,6 +425,24 @@ Test layout:
 - `tests/cli_smoke_test.rs` — `qrust` binary, gated `#[ignore]`.
 
 The library has zero `unsafe` blocks. The `try_*` variants of public APIs return `Result` and are the preferred entry points; infallible wrappers (`decompose_basis`, `unroll_custom_gates`) fall back to returning the original circuit on error and emit a diagnostic via `Q_RUST_LOG`.
+
+### Reproducing the cross-tool benchmarks
+
+The benchmark harness pins the Python toolchain used for Qiskit, Cirq, tket,
+plotting, and memory sampling:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r experiments/requirements.txt
+cargo build --workspace --release
+python3 experiments/bench_runner.py
+python3 experiments/bench_baselines.py
+```
+
+Generated JSON, CSV, LaTeX, and figure payloads under `experiments/results/`
+are intentionally ignored; the runner code, pinned dependencies, fixture
+manifest, and OpenQASM 2.0 fixtures are version-controlled.
 
 ---
 

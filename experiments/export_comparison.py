@@ -34,6 +34,7 @@ RESULTS = os.path.join(HERE, "results")
 
 TOOLS = ["qrust", "qiskit", "tket", "cirq"]
 OTHERS = ["qiskit", "tket", "cirq"]
+TIE_BAND = 0.04
 TOOL_LABEL = {"qrust": "Q-Rust", "qiskit": "Qiskit", "tket": "tket", "cirq": "Cirq"}
 TOOL_COLOR = {"qrust": "#2563eb", "qiskit": "#dc2626", "tket": "#16a34a", "cirq": "#9333ea"}
 FAMILY_ORDER = ["ghz", "qft", "adder", "clifford", "qaoa", "bv", "ising", "wstate", "graphstate"]
@@ -256,10 +257,10 @@ def t_winloss(data):
             if r is None:
                 cells.append("--")
                 continue
-            if r < 0.98:
+            if r < 1.0 - TIE_BAND:
                 wins += 1
                 cells.append(f"\\textbf{{{r:.2f}}}")
-            elif r <= 1.02:
+            elif r <= 1.0 + TIE_BAND:
                 ties += 1
                 cells.append(f"{r:.2f}")
             else:
@@ -268,7 +269,7 @@ def t_winloss(data):
         rows.append([FAMILY_LABEL[fam]] + cells)
     cap = (f"Q-Rust CX-count ratio vs.\\ the best of Qiskit/tket/Cirq, by circuit "
            f"family $\\times$ topology at O3 (geometric mean over sizes). "
-           f"Values $<1$ (bold) = Q-Rust wins; $\\approx 1$ = tie; $>1$ = trails. "
+           f"Bold values are Q-Rust wins beyond the $\\pm4\\%$ tie band. "
            f"Across {wins + ties + losses} combinations: {wins} wins, {ties} ties, "
            f"{losses} losses.")
     return tabular(cap, "tab:cmp_winloss",
@@ -321,7 +322,7 @@ def _draw_heatmap(ax, data, against, title, show_cbar=True, fig=None):
         for j in range(len(topos)):
             if M[i, j] == M[i, j]:  # not NaN
                 total += 1
-                wins += M[i, j] < 0.98
+                wins += M[i, j] < 1.0 - TIE_BAND
                 ax.text(j, i, f"{M[i, j]:.2f}", ha="center", va="center",
                         fontsize=7, color="black")
     ax.set_title(f"{title}  ({wins}/{total} wins)", fontsize=10)

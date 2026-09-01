@@ -7,7 +7,7 @@ collects one structured record per cell:
   Circuits     all fixtures in experiments/fixtures/manifest.json
   Topologies   ibm_quito (5q), ibm_nairobi (7q), all_to_all (ideal), grid_4x4 (16q)
   Opt levels   O0, O1, O2, O3
-  Target basis {U, CX}   (the only set Q-Rust currently emits)
+  Target basis {U, CX}   (the common cross-tool comparison level)
 
 Plus the cleanup ablation: every QFT fixture is additionally run at O3 with
 Stage-5 (post-routing cleanup) bypassed, so the cleanup delta can be measured

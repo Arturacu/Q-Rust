@@ -38,6 +38,7 @@ experiments/*
 !experiments/Cargo.toml
 !experiments/src/
 !experiments/*.py
+!experiments/requirements.txt
 !experiments/fixtures/
 !experiments/fixtures/*.qasm
 

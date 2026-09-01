@@ -57,6 +57,7 @@ TOPO_LABEL = {"all_to_all": "All-to-all", "linear": "Linear", "ring": "Ring", "s
               "grid_4x4": "Grid $4{\\times}4$", "ibm_nairobi": "Nairobi", "ibm_quito": "Quito"}
 TOOLS = ["qrust", "qiskit", "tket", "cirq"]
 OTHERS = ["qiskit", "tket", "cirq"]
+TIE_BAND = 0.04  # Ratios in [0.96, 1.04] are ties.
 TOOL_LABEL = {"qrust": "Q-Rust", "qiskit": "Qiskit", "tket": "t$\\vert$ket$\\rangle$", "cirq": "Cirq"}
 
 
@@ -287,7 +288,7 @@ def t_cmp_winloss(d, meta):
             r = grid.get((fam, tp))
             if r is None:
                 cells.append("--")
-            elif r < 0.98:
+            elif r < 1.0 - TIE_BAND:
                 cells.append(f"\\textbf{{{r:.2f}}}")
             else:
                 cells.append(f"{r:.2f}")
@@ -407,8 +408,8 @@ def t_cmp_depth(d, meta):
     write("tab_cmp_depth.tex",
           tabular("lrr", ["Family", "Depth ratio", "Total-gate ratio"], rows))
     # also print win/tie/loss for the prose (XX/YY)
-    wins = sum(1 for v in dg.values() if v < 0.98)
-    ties = sum(1 for v in dg.values() if 0.98 <= v <= 1.02)
+    wins = sum(1 for v in dg.values() if v < 1.0 - TIE_BAND)
+    ties = sum(1 for v in dg.values() if 1.0 - TIE_BAND <= v <= 1.0 + TIE_BAND)
     print(f"    [depth] vs-best: {wins} wins, {ties} ties, {len(dg) - wins - ties} losses "
           f"of {len(dg)} combos")
 
@@ -455,8 +456,8 @@ def _draw_ratio_heatmap(ax, d, meta, tool, big=False):
         for j in range(len(topos)):
             if M[i, j] == M[i, j]:
                 n += 1
-                tie = 0.98 <= M[i, j] <= 1.02
-                wins += M[i, j] < 0.98
+                tie = 1.0 - TIE_BAND <= M[i, j] <= 1.0 + TIE_BAND
+                wins += M[i, j] < 1.0 - TIE_BAND
                 ax.text(j, i, f"{M[i, j]:.2f}", ha="center", va="center", fontsize=fs,
                         color="0.5" if tie else "black")
             else:
@@ -490,21 +491,40 @@ def fig_cmp_vs(d, meta, tool):
 
 
 def fig_cmp_tradeoff(d, meta):
-    """The all-with-all summary: mean CX quality vs median compile time, one
-    marker per tool. Bottom-left is ideal (few gates, fast)."""
-    keys = {kk for (kk, t) in d}
+    """All-tools summary over the common successful benchmark instances.
+
+    Quality is the geometric mean of cell-level tool/Q-Rust CX ratios; time is
+    the median of each cell's median-over-sizes compile time. Restricting the
+    input to instances completed by every tool prevents missing cells from
+    changing the workload, while cell-level aggregation prevents families with
+    more fixture widths from receiving disproportionate weight.
+    """
+    common_keys = [
+        k for k in meta
+        if all(
+            d.get((k, tool), {}).get("cx", 0) > 0
+            and d.get((k, tool), {}).get("ms", 0) > 0
+            for tool in TOOLS
+        )
+    ]
+    if not common_keys:
+        raise ValueError("no benchmark instances succeeded for all tools")
+
+    common_cells = {(meta[k]["family"], k[1]) for k in common_keys}
     pts = {}
     for tool in TOOLS:
-        cxr, ms = [], []
-        for k in keys:
-            q = d.get((k, "qrust"))
-            o = d.get((k, tool))
-            if q and o and q.get("cx", 0) > 0 and o.get("cx"):
-                cxr.append(o["cx"] / q["cx"])
-            if o and o.get("ms"):
-                ms.append(o["ms"])
-        quality = statistics.geometric_mean(cxr) if cxr else 1.0
-        pts[tool] = (quality, statistics.median(ms))
+        quality_by_cell = defaultdict(list)
+        times_by_cell = defaultdict(list)
+        for k in common_keys:
+            cell = (meta[k]["family"], k[1])
+            quality_by_cell[cell].append(d[(k, tool)]["cx"] / d[(k, "qrust")]["cx"])
+            times_by_cell[cell].append(d[(k, tool)]["ms"])
+
+        cell_quality = [statistics.geometric_mean(values)
+                        for values in quality_by_cell.values()]
+        cell_medians = [statistics.median(values) for values in times_by_cell.values()]
+        pts[tool] = (statistics.geometric_mean(cell_quality),
+                     statistics.median(cell_medians))
     fig, ax = plt.subplots(figsize=(7.2, 5.0))
     for tool, (x, y) in pts.items():
         ax.scatter(x, y, s=150, color=TOOL_COLOR[tool], marker=MARK[tool],
@@ -512,9 +532,10 @@ def fig_cmp_tradeoff(d, meta):
         ax.annotate(_tlab(tool), (x, y), textcoords="offset points", xytext=(9, 5), fontsize=11)
     ax.axvline(1.0, color="0.6", ls="--", lw=1, label="Q-Rust reference")
     ax.set_yscale("log")
-    ax.set_xlabel("Mean CX relative to Q-Rust  (left = fewer two-qubit gates)")
-    ax.set_ylabel("Median compile time (ms, log)  (down = faster)")
-    ax.set_title("Quality--speed trade-off across all 63 combinations")
+    ax.set_xlabel("Geometric-mean CX ratio to Q-Rust  (left = fewer two-qubit gates)")
+    ax.set_ylabel("Median cell-level compile time (ms, log)  (down = faster)")
+    ax.set_title("Quality--speed trade-off on common successful cells "
+                 f"({len(common_keys)} instances; {len(common_cells)} cells)")
     ax.grid(True, which="both", alpha=0.25)
     fig.tight_layout()
     save_fig(fig, "fig_cmp_tradeoff")
@@ -527,11 +548,11 @@ def fig_cmp_record(d, meta):
     for tool in OTHERS:
         grid, _, _ = _ratio_grid(d, meta, against=tool)
         labels.append(_tlab(tool))
-        W.append(sum(v < 0.98 for v in grid.values()))
-        T.append(sum(0.98 <= v <= 1.02 for v in grid.values()))
-        L.append(sum(v > 1.02 for v in grid.values()))
+        W.append(sum(v < 1.0 - TIE_BAND for v in grid.values()))
+        T.append(sum(1.0 - TIE_BAND <= v <= 1.0 + TIE_BAND for v in grid.values()))
+        L.append(sum(v > 1.0 + TIE_BAND for v in grid.values()))
     ax.barh(labels, W, color="#2ca02c", label="Q-Rust fewer CX")
-    ax.barh(labels, T, left=W, color="#b0b0b0", label="tie (within 4%)")
+    ax.barh(labels, T, left=W, color="#b0b0b0", label="tie (within $\\pm$4%)")
     ax.barh(labels, L, left=[a + b for a, b in zip(W, T)], color="#d62728", label="Q-Rust more CX")
     for i, (w, t, l) in enumerate(zip(W, T, L)):
         ax.text(w / 2, i, str(w), ha="center", va="center", fontsize=9, color="white")
