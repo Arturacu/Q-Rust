@@ -82,7 +82,7 @@ A `CircuitProfilerPass` (analysis-only) populates a `ProfileReport` for inspecti
 ### Synthesis (ZYZ, KAK)
 
 - **`ZyzSynthesizer`** — exact analytic 1-qubit synthesis.
-- **`KakSynthesizer`** — exact analytic 2-qubit synthesis using a Cartan/KAK factorization. The current axis-by-axis construction emits 0 CX for local unitaries, 2 CX when one interaction coefficient is non-zero, and up to 6 CX in the general case. CX-optimal 0/1/2/3-CX resynthesis is not implemented.
+- **`KakSynthesizer`** — analytic 2-qubit synthesis using a Cartan/KAK factorization. The current axis-by-axis construction emits two CX gates per non-zero interaction coefficient (0, 2, 4, or 6 CX). Every candidate is checked against the input under process fidelity before it is returned; numerical failures therefore fail closed. CX-optimal 0/1/2/3-CX resynthesis is not implemented.
 - **`QsdSynthesizer`** — dispatcher to ZYZ (N=1) or KAK (N=2); N ≥ 3 is not implemented and returns `None`.
 - **`NelderMead1qSynthesizer`** — numerical 1q synthesis via Nelder–Mead over a ZYZ ansatz; falls through to KAK for 2q inputs.
 
