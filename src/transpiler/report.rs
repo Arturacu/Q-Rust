@@ -60,6 +60,9 @@ pub struct TranspilationReport {
     pub initial_layout: Option<Vec<usize>>,
     /// Physical location of each logical output qubit, when routing ran.
     pub final_layout: Option<Vec<usize>>,
+    /// Cheap block-synthesis counters, when that cleanup pass ran. These do
+    /// not enable per-pass clocks or diagnostic circuit captures.
+    pub two_qubit_block_stats: Option<super::block_synthesis::TwoQubitBlockStats>,
 }
 
 impl TranspilationReport {

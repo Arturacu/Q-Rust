@@ -47,6 +47,7 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "elide_output_permutations",
         "orient_swaps",
         "profile_passes",
+        "two_qubit_block_synthesis",
     ] {
         if request.get(field).is_some() && request[field].as_bool().is_none() {
             return Err(format!("{field} must be a boolean"));
@@ -78,6 +79,9 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "elide_output_permutations":search.elide_output_permutations, "orient_swaps":search.orient_swaps,
         "tie_breaking":"deterministic lexicographic", "layout_start_seeds":"0..layout_trials"
     });
+    let block_synthesis_enabled = request["two_qubit_block_synthesis"]
+        .as_bool()
+        .unwrap_or(true);
     let started = Instant::now();
     let mut backend = Backend::new(topology, width);
     backend.set_coupling_map(edges.iter().flat_map(|&(a, b)| [(a, b), (b, a)]));
@@ -85,6 +89,7 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         .routing_search(search)
         .optimization_level(3)
         .profile_passes(request["profile_passes"].as_bool().unwrap_or(false))
+        .two_qubit_block_synthesis(block_synthesis_enabled)
         .backend(backend)
         .target_basis(["u", "cx"])
         .build();
@@ -95,6 +100,15 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "pass":p.output.stage, "elapsed_ns":p.elapsed_ns, "layout_route_evaluations":p.layout_route_evaluations, "operations":p.output.num_ops,
         "two_qubit_gates":p.output.num_2q_gates, "swaps":p.output.num_swaps, "depth":p.output.depth
     })).collect();
+    let block_stats = report.two_qubit_block_stats.as_ref().map(|s| {
+        json!({
+            "blocks_considered":s.blocks_considered, "synthesis_attempted":s.synthesis_attempted,
+            "pure_cx_fast_paths":s.pure_cx_fast_paths, "accepted":s.accepted,
+            "cx_removed":s.cx_removed, "rejected_numerical":s.rejected_numerical,
+            "rejected_no_cx_improvement":s.rejected_no_cx_improvement,
+            "residual_sum":s.residual_sum, "max_residual":s.max_residual
+        })
+    });
     let initial = report
         .initial_layout
         .unwrap_or_else(|| (0..logical).collect());
@@ -106,7 +120,8 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "out_qasm":output.to_qasm(None), "output_qubits":output.num_qubits,
         "initial_layout":initial[..logical].to_vec(), "final_layout":final_layout[..logical].to_vec(),
         "seed_used":false, "pass_diagnostics":pass_diagnostics, "effective_search":effective_search,
-        "pipeline":"Q-Rust public transpile_with_report O3; U/CX; canonical layout/routing and cleanup; deterministic candidate ties and seeded layout starts"
+        "two_qubit_block_synthesis":block_synthesis_enabled, "two_qubit_block_stats":block_stats,
+        "pipeline":"Q-Rust public transpile_with_report O3; U/CX; canonical layout/routing and cleanup; deterministic candidate ties and seeded layout starts; optional post-routing two-qubit block synthesis"
     }))
 }
 
@@ -131,5 +146,40 @@ fn main() {
         {
             break;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn request() -> Value {
+        json!({
+            "qasm":"OPENQASM 2.0; include \"qelib1.inc\"; qreg q[2]; cx q[0], q[1];",
+            "topology":"line", "physical_width":2, "n_logical":2, "edges":[[0,1]]
+        })
+    }
+
+    #[test]
+    fn block_synthesis_override_has_strict_types_and_effective_metadata() {
+        for bad in [json!("false"), json!(0), Value::Null] {
+            let mut input = request();
+            input["two_qubit_block_synthesis"] = bad;
+            assert!(compile_one(&input)
+                .unwrap_err()
+                .contains("must be a boolean"));
+        }
+        for enabled in [false, true] {
+            let mut input = request();
+            input["two_qubit_block_synthesis"] = json!(enabled);
+            let result = compile_one(&input).unwrap();
+            assert_eq!(result["two_qubit_block_synthesis"], json!(enabled));
+            assert_eq!(!result["two_qubit_block_stats"].is_null(), enabled);
+            assert_eq!(result["pass_diagnostics"], json!([]));
+        }
+        assert_eq!(
+            compile_one(&request()).unwrap()["two_qubit_block_synthesis"],
+            json!(true)
+        );
     }
 }

@@ -64,7 +64,7 @@ q-rust = "0.3"
 
 ### Optimization passes
 
-An 8-pass, barrier-aware optimization pipeline:
+Composable, barrier-aware optimization passes:
 
 | Pass | Purpose |
 |---|---|
@@ -76,15 +76,25 @@ An 8-pass, barrier-aware optimization pipeline:
 | `CrossConjugationPass` | Push rotations through Cliffords |
 | `ParameterSimplificationPass` | Fold parameter expressions |
 | `GateCrystallizationPass` | Collapse to canonical forms |
+| `TwoQubitBlockSynthesisPass` | Resynthesize dependency-safe U/CX blocks after routing at level 3 |
 
 A `CircuitProfilerPass` (analysis-only) populates a `ProfileReport` for inspection.
 
 ### Synthesis (ZYZ, KAK)
 
 - **`ZyzSynthesizer`** — exact analytic 1-qubit synthesis.
-- **`KakSynthesizer`** — analytic 2-qubit synthesis using a Cartan/KAK factorization. The current axis-by-axis construction emits two CX gates per non-zero interaction coefficient (0, 2, 4, or 6 CX). Every candidate is checked against the input under process fidelity before it is returned; numerical failures therefore fail closed. CX-optimal 0/1/2/3-CX resynthesis is not implemented.
+- **`KakSynthesizer`** — analytic 2-qubit synthesis using a Cartan/KAK factorization and a joint construction with at most three CX gates. Local, CNOT-equivalent and two-CX families use reduced constructions. Every returned candidate passes a shared-phase Frobenius residual check; a failed reduced construction retries the untruncated three-CX network, and numerical failures return `None`.
 - **`QsdSynthesizer`** — dispatcher to ZYZ (N=1) or KAK (N=2); N ≥ 3 is not implemented and returns `None`.
 - **`NelderMead1qSynthesizer`** — numerical 1q synthesis via Nelder–Mead over a ZYZ ansatz; falls through to KAK for 2q inputs.
+
+At optimization level 3, `TwoQubitBlockSynthesisPass` collects lowered U/CX
+blocks after routing and accepts only strict CX reductions. It preserves wire
+dependencies, barriers and layouts, independently checks each emitted block
+with a phase-aligned Frobenius residual of at most `1e-10`, and limits the sum
+of accepted residuals to `1e-9`. This numerical budget covers this pass, not
+later basis conversion or serialization. Disable it with
+`.two_qubit_block_synthesis(false)` for a matched ablation. Pure CX blocks use
+an exact six-element binary-linear-map lookup instead of numerical synthesis.
 
 ### Routing & layout (SABRE)
 
@@ -384,7 +394,7 @@ Q_RUST_LOG=1 cargo run --bin qrust -- circuit.qasm
 
 ## Current capability boundaries
 
-- **Two-qubit synthesis is exact but not CX-optimal.** Generic KAK output may use six CX gates; a 0/1/2/3-CX optimal construction remains future work.
+- **Local synthesis does not establish whole-circuit optimality.** KAK uses at most three CX gates on successful two-qubit synthesis. Block collection is conservative, numerical failures retain the original block, and routing can still dominate output cost. The established two-qubit CX bound is not a global optimality guarantee.
 - **Basis universality does not imply implemented lowering.** Exact closure currently covers the four one-qubit families listed above with CX or CZ. Approximate Clifford+T synthesis is not implemented.
 - **Statistical verification is not a certificate.** It reports the minimum observed output-state fidelity over seeded Haar samples. Full-operator numerical mode uses normalized Hilbert–Schmidt/process fidelity and is invariant under global phase.
 - **Routed verification needs layout metadata.** Use `transpile_with_report` with `verify_equivalence_with_layout`, or use the CLI's `--verify` flag, which does this automatically.
@@ -422,6 +432,7 @@ Test layout:
 - `tests/routing_suite.rs`, `tests/transpiler_suite.rs` — pass-level coverage.
 - `tests/e2e_known_circuits.rs` — fidelity-verified algorithm suite.
 - `tests/e2e_pipeline_integration.rs` — parse → transpile → emit → re-parse.
+- `tests/two_qubit_block_regressions.rs` — independent analytic all-input checks for synthesis, dependency boundaries, routed isometries and W/QFT reductions.
 - `tests/cli_smoke_test.rs` — `qrust` binary, gated `#[ignore]`.
 
 The library has zero `unsafe` blocks. The `try_*` variants of public APIs return `Result` and are the preferred entry points; infallible wrappers (`decompose_basis`, `unroll_custom_gates`) fall back to returning the original circuit on error and emit a diagnostic via `Q_RUST_LOG`.

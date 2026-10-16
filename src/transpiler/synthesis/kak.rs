@@ -4,23 +4,26 @@
 //! `U = (A1 ⊗ A0) · exp(i(x X⊗X + y Y⊗Y + z Z⊗Z)) · (B1 ⊗ B0)`,
 //! synthesizing the result as an explicit gate sequence.
 //!
-//! The non-local term is emitted axis by axis. Each non-zero Cartan
-//! coefficient costs two CX gates, so this construction uses 0, 2, 4, or 6 CX.
-//!
-//! The optimal circuit counts from Shende et al. 2004 are 0/1/2/3 CX; reaching
-//! those requires a combined synthesis of the full interaction term rather than
-//! decomposing X, Y, Z axes independently. Optimal synthesis is left as future work.
+//! The interaction is synthesized jointly with at most three CX gates. Local,
+//! CNOT-equivalent, and two-CX families use fewer entanglers. The constructions
+//! are established Cartan synthesis, not a new decomposition theorem:
+//! Vatan & Williams, PRA 69, 032315 (2004), arXiv:quant-ph/0308006;
+//! Shende, Bullock & Markov, PRA 70, 012310 (2004), arXiv:quant-ph/0308045.
+//! Every returned circuit passes a phase-aligned operator-residual check.
 
+use crate::ir::gate_def::GateDefinition;
 use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::synthesis::Synthesizer;
 use nalgebra::{DMatrix, DVector};
 use num_complex::Complex;
 
-const CARTAN_ZERO_TOL: f64 = 1e-7;
-const INPUT_UNITARITY_TOL: f64 = 1e-8;
-const DECOMPOSITION_TOL: f64 = 1e-6;
-const OUTPUT_FIDELITY_TOL: f64 = 1e-9;
-const MAX_PHASE_LIFT: i32 = 2;
+// Classification only. A reduced-count candidate must also pass the tighter
+// residual bound; otherwise retry the untruncated three-CX construction.
+const CARTAN_ZERO_TOL: f64 = 1e-12;
+const REDUCED_RESIDUAL_TOL: f64 = 1e-12;
+const INPUT_UNITARITY_TOL: f64 = 1e-11;
+const DECOMPOSITION_TOL: f64 = 1e-11;
+const OUTPUT_RESIDUAL_TOL: f64 = 1e-10;
 
 fn complex_matrix_is_finite(matrix: &DMatrix<Complex<f64>>) -> bool {
     matrix
@@ -76,8 +79,8 @@ fn magic_basis() -> DMatrix<Complex<f64>> {
 /// Simultaneously diagonalise two commuting real-symmetric matrices.
 ///
 /// Diagonalising only one matrix is insufficient when it has repeated
-/// eigenvalues. Within each degenerate eigenspace of `a`, we therefore
-/// diagonalise the restriction of `b`.
+/// eigenvalues. Within each degenerate eigenspace of a real projection,
+/// diagonalise the restriction of `b` and check both original matrices.
 fn simultaneous_diagonalizer(a: &DMatrix<f64>, b: &DMatrix<f64>) -> Option<DMatrix<f64>> {
     if a.shape() != b.shape()
         || a.nrows() != a.ncols()
@@ -95,227 +98,111 @@ fn simultaneous_diagonalizer(a: &DMatrix<f64>, b: &DMatrix<f64>) -> Option<DMatr
         return None;
     }
 
-    let eig_a = a.clone().symmetric_eigen();
-    let mut order: Vec<usize> = (0..a.nrows()).collect();
-    order.sort_by(|left, right| eig_a.eigenvalues[*left].total_cmp(&eig_a.eigenvalues[*right]));
+    // A single projection can have an almost-colliding spectrum even when
+    // the complex eigenvalues are well separated (cosines coincide near 0
+    // and π, for example). Try deterministic real projections, validating
+    // against both original matrices after resolving repeated eigenspaces.
+    // Usually the first projection suffices; the alternatives avoid dividing
+    // by an artificially tiny real eigenvalue gap.
+    for weight in [std::f64::consts::SQRT_2, 0.0, 1.0, -1.0] {
+        let projection = a + b * weight;
+        let eig = projection.symmetric_eigen();
+        let mut order: Vec<usize> = (0..a.nrows()).collect();
+        order.sort_by(|left, right| eig.eigenvalues[*left].total_cmp(&eig.eigenvalues[*right]));
 
-    let mut eigenvalues = Vec::with_capacity(a.nrows());
-    let mut basis = DMatrix::<f64>::zeros(a.nrows(), a.ncols());
-    for (new_index, old_index) in order.into_iter().enumerate() {
-        eigenvalues.push(eig_a.eigenvalues[old_index]);
-        basis.set_column(new_index, &eig_a.eigenvectors.column(old_index));
-    }
-
-    let mut start = 0;
-    while start < eigenvalues.len() {
-        let reference = eigenvalues[start];
-        let mut end = start + 1;
-        while end < eigenvalues.len()
-            && (eigenvalues[end] - reference).abs() <= DECOMPOSITION_TOL * scale
-        {
-            end += 1;
+        let mut eigenvalues = Vec::with_capacity(a.nrows());
+        let mut basis = DMatrix::<f64>::zeros(a.nrows(), a.ncols());
+        for (new_index, old_index) in order.into_iter().enumerate() {
+            eigenvalues.push(eig.eigenvalues[old_index]);
+            basis.set_column(new_index, &eig.eigenvectors.column(old_index));
         }
 
-        if end - start > 1 {
-            let subspace = basis.columns(start, end - start).into_owned();
-            let projected_b = subspace.transpose() * b * &subspace;
-            let eig_b = projected_b.symmetric_eigen();
-            let rotated = subspace * eig_b.eigenvectors;
-            for column in 0..(end - start) {
-                basis.set_column(start + column, &rotated.column(column));
+        let mut start = 0;
+        while start < eigenvalues.len() {
+            let reference = eigenvalues[start];
+            let mut end = start + 1;
+            while end < eigenvalues.len()
+                && (eigenvalues[end] - reference).abs() <= DECOMPOSITION_TOL * scale
+            {
+                end += 1;
+            }
+
+            if end - start > 1 {
+                let subspace = basis.columns(start, end - start).into_owned();
+                let projected_b = subspace.transpose() * b * &subspace;
+                let eig_b = projected_b.symmetric_eigen();
+                let rotated = subspace * eig_b.eigenvectors;
+                for column in 0..(end - start) {
+                    basis.set_column(start + column, &rotated.column(column));
+                }
+            }
+            start = end;
+        }
+
+        if basis.determinant() < 0.0 {
+            for row in 0..basis.nrows() {
+                basis[(row, 0)] *= -1.0;
             }
         }
-        start = end;
-    }
 
-    if basis.determinant() < 0.0 {
-        for row in 0..basis.nrows() {
-            basis[(row, 0)] *= -1.0;
+        let identity = DMatrix::<f64>::identity(basis.nrows(), basis.ncols());
+        let orthogonality = (&basis.transpose() * &basis - identity).norm();
+        let diagonal_a = basis.transpose() * a * &basis;
+        let diagonal_b = basis.transpose() * b * &basis;
+        if orthogonality <= DECOMPOSITION_TOL
+            && off_diagonal_norm(&diagonal_a) <= DECOMPOSITION_TOL / 2.0
+            && off_diagonal_norm(&diagonal_b) <= DECOMPOSITION_TOL / 2.0
+        {
+            return Some(basis);
         }
     }
-
-    let identity = DMatrix::<f64>::identity(basis.nrows(), basis.ncols());
-    let orthogonality = (&basis.transpose() * &basis - identity).norm();
-    let diagonal_a = basis.transpose() * a * &basis;
-    let diagonal_b = basis.transpose() * b * &basis;
-    if orthogonality > DECOMPOSITION_TOL * scale
-        || off_diagonal_norm(&diagonal_a) > DECOMPOSITION_TOL * scale
-        || off_diagonal_norm(&diagonal_b) > DECOMPOSITION_TOL * scale
-    {
-        return None;
-    }
-
-    Some(basis)
+    None
 }
 
-fn select_cartan_root(
-    u_magic: &DMatrix<Complex<f64>>,
-    r_magic: &DMatrix<Complex<f64>>,
-    diagonal_system: &DMatrix<Complex<f64>>,
-) -> Option<DMatrix<Complex<f64>>> {
+/// Principal square roots already give a Takagi factor, up to column signs.
+/// Fix the determinant with one sign; enumerating all 16 choices cannot improve
+/// the imaginary residual because changing a root just flips one real column.
+fn select_cartan_root(diagonal_system: &DMatrix<Complex<f64>>) -> Option<DMatrix<Complex<f64>>> {
     if complex_off_diagonal_norm(diagonal_system) > DECOMPOSITION_TOL {
         return None;
     }
-
-    let square_roots: Vec<Complex<f64>> = diagonal_system
+    let mut roots: Vec<Complex<f64>> = diagonal_system
         .diagonal()
         .iter()
-        .map(|value| value.sqrt())
+        .map(|value| Complex::from_polar(1.0, value.arg() / 2.0))
         .collect();
-    if square_roots
-        .iter()
-        .any(|value| !value.re.is_finite() || !value.im.is_finite())
-    {
+    let determinant = roots.iter().product::<Complex<f64>>();
+    if (determinant + Complex::new(1.0, 0.0)).norm() < DECOMPOSITION_TOL {
+        roots[3] = -roots[3];
+    } else if (determinant - Complex::new(1.0, 0.0)).norm() > DECOMPOSITION_TOL {
         return None;
     }
-
-    let mut best: Option<(f64, f64, DMatrix<Complex<f64>>)> = None;
-    for mask in 0..16 {
-        let diagonal: Vec<Complex<f64>> = square_roots
-            .iter()
-            .enumerate()
-            .map(|(bit, value)| {
-                if (mask >> bit) & 1 == 1 {
-                    -*value
-                } else {
-                    *value
-                }
-            })
-            .collect();
-        let determinant = diagonal.iter().product::<Complex<f64>>();
-        if (determinant - Complex::new(1.0, 0.0)).norm() > DECOMPOSITION_TOL {
-            continue;
-        }
-
-        let candidate = DMatrix::from_diagonal(&DVector::from_vec(diagonal.clone()));
-        let local = u_magic * r_magic * candidate.adjoint();
-        let imaginary_residual = local
-            .iter()
-            .map(|value| value.im.powi(2))
-            .sum::<f64>()
-            .sqrt();
-        let principal_phase_norm = diagonal.iter().map(|value| value.arg().abs()).sum::<f64>();
-        if !imaginary_residual.is_finite() || !principal_phase_norm.is_finite() {
-            continue;
-        }
-
-        let replace = match &best {
-            None => true,
-            Some((best_residual, best_phase_norm, _)) => {
-                imaginary_residual < *best_residual - INPUT_UNITARITY_TOL
-                    || ((imaginary_residual - *best_residual).abs() <= INPUT_UNITARITY_TOL
-                        && principal_phase_norm < *best_phase_norm)
-            }
-        };
-        if replace {
-            best = Some((imaginary_residual, principal_phase_norm, candidate));
-        }
-    }
-
-    let (residual, _, root) = best?;
-    (residual <= DECOMPOSITION_TOL).then_some(root)
+    Some(DMatrix::from_diagonal(&DVector::from_vec(roots)))
 }
 
-#[derive(Clone, Copy)]
-struct CartanChoice {
-    permutation: [usize; 4],
-    coordinates: [f64; 3],
-    nonzero_coordinates: usize,
-    max_magnitude: f64,
-    total_magnitude: f64,
+/// Recover one valid Cartan representative without exhaustive phase lifts.
+/// For magic-basis phases d0..d3, x=(d0+d1)/2, y=(d1+d3)/2,
+/// z=(d0+d3)/2 reproduces all four eigenvalues: the fourth phase differs
+/// only by the determinant's integer multiple of 2π.
+fn cartan_coordinates(diagonal: &DMatrix<Complex<f64>>) -> [f64; 3] {
+    let phase = |i| diagonal[(i, i)].arg();
+    [
+        (phase(0) + phase(1)) / 2.0,
+        (phase(1) + phase(3)) / 2.0,
+        (phase(0) + phase(3)) / 2.0,
+    ]
 }
 
-fn cartan_choice_is_better(candidate: &CartanChoice, current: &CartanChoice) -> bool {
-    candidate.nonzero_coordinates < current.nonzero_coordinates
-        || (candidate.nonzero_coordinates == current.nonzero_coordinates
-            && (candidate.max_magnitude < current.max_magnitude - INPUT_UNITARITY_TOL
-                || ((candidate.max_magnitude - current.max_magnitude).abs()
-                    <= INPUT_UNITARITY_TOL
-                    && candidate.total_magnitude < current.total_magnitude)))
-}
-
-/// Choose phase lifts and a Bell-basis ordering without changing the
-/// represented diagonal unitary. This avoids folding Cartan coordinates
-/// unless the corresponding local factors are transformed as well.
-fn select_cartan_coordinates(diagonal: &[Complex<f64>]) -> Option<CartanChoice> {
-    if diagonal.len() != 4
-        || diagonal
-            .iter()
-            .any(|value| !value.re.is_finite() || !value.im.is_finite())
-    {
-        return None;
+/// One shared global phase; no fidelity-to-amplitude conversion or
+/// per-column phase alignment. The unnormalized Frobenius residual also
+/// upper-bounds the error of every normalized input state.
+fn phase_aligned_residual(target: &DMatrix<Complex<f64>>, actual: &DMatrix<Complex<f64>>) -> f64 {
+    let overlap = (actual.adjoint() * target).trace();
+    if !overlap.re.is_finite() || !overlap.im.is_finite() || overlap.norm() == 0.0 {
+        return f64::INFINITY;
     }
-
-    let phases: Vec<f64> = diagonal.iter().map(|value| value.arg()).collect();
-    let tau = std::f64::consts::TAU;
-    let winding = (phases.iter().sum::<f64>() / tau).round() as i32;
-    if (phases.iter().sum::<f64>() - f64::from(winding) * tau).abs() > DECOMPOSITION_TOL {
-        return None;
-    }
-
-    let mut best: Option<CartanChoice> = None;
-    for p0 in 0..4 {
-        for p1 in 0..4 {
-            if p1 == p0 {
-                continue;
-            }
-            for p2 in 0..4 {
-                if p2 == p0 || p2 == p1 {
-                    continue;
-                }
-                for p3 in 0..4 {
-                    if p3 == p0 || p3 == p1 || p3 == p2 {
-                        continue;
-                    }
-                    let permutation = [p0, p1, p2, p3];
-                    for k0 in -MAX_PHASE_LIFT..=MAX_PHASE_LIFT {
-                        for k1 in -MAX_PHASE_LIFT..=MAX_PHASE_LIFT {
-                            for k2 in -MAX_PHASE_LIFT..=MAX_PHASE_LIFT {
-                                let k3 = -winding - k0 - k1 - k2;
-                                if !(-MAX_PHASE_LIFT..=MAX_PHASE_LIFT).contains(&k3) {
-                                    continue;
-                                }
-                                let lifts = [k0, k1, k2, k3];
-                                let lifted: [f64; 4] = std::array::from_fn(|index| {
-                                    phases[permutation[index]] + f64::from(lifts[index]) * tau
-                                });
-                                if lifted.iter().sum::<f64>().abs() > DECOMPOSITION_TOL {
-                                    continue;
-                                }
-
-                                let x = (lifted[0] + lifted[1]) / 2.0;
-                                let y = (lifted[1] + lifted[3]) / 2.0;
-                                let z = (lifted[0] + lifted[3]) / 2.0;
-                                let coordinates = [x, y, z];
-                                let magnitudes = [x.abs(), y.abs(), z.abs()];
-                                let candidate = CartanChoice {
-                                    permutation,
-                                    coordinates,
-                                    nonzero_coordinates: magnitudes
-                                        .iter()
-                                        .filter(|value| **value > CARTAN_ZERO_TOL)
-                                        .count(),
-                                    max_magnitude: magnitudes
-                                        .into_iter()
-                                        .max_by(f64::total_cmp)
-                                        .unwrap_or(0.0),
-                                    total_magnitude: magnitudes.into_iter().sum(),
-                                };
-                                let replace = match best.as_ref() {
-                                    None => true,
-                                    Some(current) => cartan_choice_is_better(&candidate, current),
-                                };
-                                if replace {
-                                    best = Some(candidate);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    best
+    let phase = overlap / overlap.norm();
+    (target - actual * phase).norm()
 }
 
 fn real_orthogonal_component(matrix: &DMatrix<Complex<f64>>) -> Option<DMatrix<f64>> {
@@ -347,37 +234,147 @@ fn add_gate(circuit: &mut Circuit, name: GateType, qubits: &[usize], params: &[f
     });
 }
 
-fn emit_xx(circuit: &mut Circuit, angle: f64) {
-    add_gate(circuit, GateType::H, &[0], &[]);
-    add_gate(circuit, GateType::H, &[1], &[]);
-    add_gate(circuit, GateType::CX, &[0, 1], &[]);
-    add_gate(circuit, GateType::RZ, &[1], &[-2.0 * angle]);
-    add_gate(circuit, GateType::CX, &[0, 1], &[]);
-    add_gate(circuit, GateType::H, &[0], &[]);
-    add_gate(circuit, GateType::H, &[1], &[]);
-}
-
-fn emit_yy(circuit: &mut Circuit, angle: f64) {
+fn emit_three_cx(circuit: &mut Circuit, [x, y, z]: [f64; 3]) {
+    // Joint Cartan network (Vatan–Williams three-entangler construction,
+    // in an equivalent RX/RY/RZ local frame). Valid for arbitrary angles.
     let half_pi = std::f64::consts::FRAC_PI_2;
     add_gate(circuit, GateType::RX, &[0], &[half_pi]);
-    add_gate(circuit, GateType::RX, &[1], &[half_pi]);
     add_gate(circuit, GateType::CX, &[0, 1], &[]);
-    add_gate(circuit, GateType::RZ, &[1], &[-2.0 * angle]);
-    add_gate(circuit, GateType::CX, &[0, 1], &[]);
-    add_gate(circuit, GateType::RX, &[0], &[-half_pi]);
+    add_gate(circuit, GateType::RX, &[0], &[half_pi - 2.0 * x]);
+    add_gate(circuit, GateType::RY, &[1], &[half_pi - 2.0 * y]);
+    add_gate(circuit, GateType::CX, &[1, 0], &[]);
     add_gate(circuit, GateType::RX, &[1], &[-half_pi]);
+    add_gate(circuit, GateType::RZ, &[1], &[half_pi - 2.0 * z]);
+    add_gate(circuit, GateType::CX, &[0, 1], &[]);
 }
 
-fn emit_zz(circuit: &mut Circuit, angle: f64) {
+fn emit_two_cx(circuit: &mut Circuit, x: f64, y: f64) {
+    // CX conjugates X(control) to XX and Y(target) to ZY. The outer
+    // control RX rotations turn ZY into YY, yielding exp(i(xXX+yYY)).
+    let half_pi = std::f64::consts::FRAC_PI_2;
+    add_gate(circuit, GateType::RX, &[0], &[half_pi]);
     add_gate(circuit, GateType::CX, &[0, 1], &[]);
-    add_gate(circuit, GateType::RZ, &[1], &[-2.0 * angle]);
+    add_gate(circuit, GateType::RX, &[0], &[-2.0 * x]);
+    add_gate(circuit, GateType::RY, &[1], &[-2.0 * y]);
     add_gate(circuit, GateType::CX, &[0, 1], &[]);
+    add_gate(circuit, GateType::RX, &[0], &[-half_pi]);
+}
+
+fn pair_frame(circuit: &mut Circuit, axis: usize, inverse: bool) {
+    // Frame ZZ as XX (H) or YY (RX). Both Pauli signs cancel in P⊗P.
+    for q in 0..2 {
+        match axis {
+            0 => add_gate(circuit, GateType::H, &[q], &[]),
+            1 => add_gate(
+                circuit,
+                GateType::RX,
+                &[q],
+                &[if inverse {
+                    -std::f64::consts::FRAC_PI_2
+                } else {
+                    std::f64::consts::FRAC_PI_2
+                }],
+            ),
+            _ => {}
+        }
+    }
+}
+
+fn emit_reduced_cartan(circuit: &mut Circuit, coordinates: [f64; 3]) {
+    let active: Vec<_> = (0..3)
+        .filter(|&i| coordinates[i].abs() > CARTAN_ZERO_TOL)
+        .collect();
+    if active.is_empty() {
+        return;
+    }
+    if active.len() == 1 {
+        let axis = active[0];
+        let angle = coordinates[axis];
+        if (angle.abs() - std::f64::consts::FRAC_PI_4).abs() <= CARTAN_ZERO_TOL {
+            // exp(±iπZZ/4) is CZ with local Z quarter turns, up to phase.
+            pair_frame(circuit, axis, false);
+            add_gate(circuit, GateType::H, &[1], &[]);
+            add_gate(circuit, GateType::CX, &[0, 1], &[]);
+            add_gate(circuit, GateType::H, &[1], &[]);
+            for q in 0..2 {
+                add_gate(
+                    circuit,
+                    GateType::RZ,
+                    &[q],
+                    &[-angle.signum() * std::f64::consts::FRAC_PI_2],
+                );
+            }
+            pair_frame(circuit, axis, true);
+            return;
+        }
+    }
+    if active.len() <= 2 {
+        // Move a zero coefficient to ZZ using a local frame, then use the
+        // exact two-CX XX+YY network. No input-state assumptions are made.
+        if coordinates[2].abs() <= CARTAN_ZERO_TOL {
+            emit_two_cx(circuit, coordinates[0], coordinates[1]);
+        } else if coordinates[0].abs() <= CARTAN_ZERO_TOL {
+            pair_frame(circuit, 0, false);
+            emit_two_cx(circuit, coordinates[2], coordinates[1]);
+            pair_frame(circuit, 0, true);
+        } else {
+            pair_frame(circuit, 1, false);
+            emit_two_cx(circuit, coordinates[0], coordinates[2]);
+            pair_frame(circuit, 1, true);
+        }
+    } else {
+        emit_three_cx(circuit, coordinates);
+    }
+}
+
+/// Stable U parameters: atan2 retains tiny off-diagonal rotations that acos
+/// of a rounded |u00| can lose. Singular endpoints are handled separately.
+fn append_local(circuit: &mut Circuit, qubit: usize, matrix: &DMatrix<Complex<f64>>) {
+    let (theta, phi, lambda, _) = super::zyz::zyz_decomposition([
+        [matrix[(0, 0)], matrix[(0, 1)]],
+        [matrix[(1, 0)], matrix[(1, 1)]],
+    ]);
+    add_gate(circuit, GateType::U, &[qubit], &[theta, phi, lambda]);
+}
+
+fn fuse_local_gates(circuit: &Circuit) -> Circuit {
+    let mut output = Circuit::new(2, 0);
+    let identity = DMatrix::<Complex<f64>>::identity(2, 2);
+    let mut pending = [identity.clone(), identity.clone()];
+    let flush = |q: usize, pending: &mut [DMatrix<Complex<f64>>; 2], output: &mut Circuit| {
+        if phase_aligned_residual(&identity, &pending[q]) > 4.0 * f64::EPSILON {
+            append_local(output, q, &pending[q]);
+        }
+        pending[q] = identity.clone();
+    };
+    for op in &circuit.operations {
+        if let Operation::Gate {
+            name,
+            qubits,
+            params,
+        } = op
+        {
+            if qubits.len() == 1 {
+                let q = qubits[0];
+                pending[q] = name.unitary(params) * &pending[q];
+            } else {
+                flush(0, &mut pending, &mut output);
+                flush(1, &mut pending, &mut output);
+                output.add_op(op.clone());
+            }
+        }
+    }
+    flush(0, &mut pending, &mut output);
+    flush(1, &mut pending, &mut output);
+    output
 }
 
 /// Exact two-qubit (Cartan/KAK) synthesizer.
 ///
-/// Input unitarity, decomposition structure, tensor factors, and final process
-/// fidelity are checked before a circuit is returned. Numerical failures yield
+/// Input unitarity, decomposition structure, tensor factors, and final
+/// phase-aligned operator residual are checked before returning U/CX output.
+/// Reduced-count classifications are checked at a tighter residual tolerance
+/// and retried without coordinate truncation if necessary. Numerical failures yield
 /// `None` through the [`Synthesizer`] contract.
 #[derive(Debug, Clone, Copy)]
 pub struct KakSynthesizer;
@@ -412,25 +409,15 @@ impl Synthesizer for KakSynthesizer {
         let r_magic = r_magic_real.map(|x| Complex::new(x, 0.0));
 
         let diagonal_system = r_magic.transpose() * m_sys * &r_magic;
-        let n_magic = select_cartan_root(&u_magic, &r_magic, &diagonal_system)?;
-        let diagonal: Vec<Complex<f64>> = n_magic.diagonal().iter().copied().collect();
-        let choice = select_cartan_coordinates(&diagonal)?;
-        let [x, y, z] = choice.coordinates;
-
-        let mut r_perm = DMatrix::zeros(4, 4);
-        let mut n_perm_diag = Vec::with_capacity(4);
-        for ii in 0..4 {
-            let old = choice.permutation[ii];
-            r_perm.set_column(ii, &r_magic.column(old));
-            n_perm_diag.push(n_magic[(old, old)]);
-        }
-        let mut r_magic = r_perm;
-        let n_magic = DMatrix::from_diagonal(&DVector::from_vec(n_perm_diag));
-        if r_magic.determinant().re < 0.0 {
-            for ii in 0..4 {
-                r_magic[(ii, 0)] *= -1.0;
-            }
-        }
+        let n_magic = select_cartan_root(&diagonal_system)?;
+        let raw_coordinates = cartan_coordinates(&n_magic);
+        // exp(i(a+kπ/2)P⊗P) = i^k(P⊗P)^k exp(iaP⊗P).
+        // Retain these local Pauli factors explicitly; coordinate folding
+        // without them would silently change the represented unitary.
+        let half_pi = std::f64::consts::FRAC_PI_2;
+        let shifts: [i32; 3] = raw_coordinates.map(|a| (a / half_pi).round() as i32);
+        let coordinates: [f64; 3] =
+            std::array::from_fn(|i| raw_coordinates[i] - f64::from(shifts[i]) * half_pi);
         let l_magic = u_magic.clone() * r_magic.clone() * n_magic.adjoint();
         let l_magic = real_orthogonal_component(&l_magic)?.map(|value| Complex::new(value, 0.0));
 
@@ -440,37 +427,38 @@ impl Synthesizer for KakSynthesizer {
         let (a0, a1) = decompose_tensor_product(&l_comp)?;
         let (b0, b1) = decompose_tensor_product(&r_comp)?;
 
-        use crate::transpiler::synthesis::zyz::zyz_decomposition;
-        fn to_array(m: DMatrix<Complex<f64>>) -> [[Complex<f64>; 2]; 2] {
-            [[m[(0, 0)], m[(0, 1)]], [m[(1, 0)], m[(1, 1)]]]
+        for reduced in [true, false] {
+            let mut circuit = Circuit::new(2, 0);
+            append_local(&mut circuit, 1, &b0);
+            append_local(&mut circuit, 0, &b1);
+            if reduced {
+                emit_reduced_cartan(&mut circuit, coordinates);
+            } else {
+                emit_three_cx(&mut circuit, coordinates);
+            }
+            for (axis, shift) in shifts.iter().enumerate() {
+                if shift.rem_euclid(2) != 0 {
+                    let pauli = [GateType::X, GateType::Y, GateType::Z][axis].clone();
+                    for q in 0..2 {
+                        add_gate(&mut circuit, pauli.clone(), &[q], &[]);
+                    }
+                }
+            }
+            append_local(&mut circuit, 1, &a0);
+            append_local(&mut circuit, 0, &a1);
+            let circuit = fuse_local_gates(&circuit);
+            let synthesized = crate::simulator::try_circuit_to_unitary(&circuit).ok()?;
+            let residual = phase_aligned_residual(unitary, &synthesized);
+            let tolerance = if reduced {
+                REDUCED_RESIDUAL_TOL
+            } else {
+                OUTPUT_RESIDUAL_TOL
+            };
+            if residual <= tolerance {
+                return Some(circuit);
+            }
         }
-        let (a0_t, a0_p, a0_l, _) = zyz_decomposition(to_array(a0));
-        let (a1_t, a1_p, a1_l, _) = zyz_decomposition(to_array(a1));
-        let (b0_t, b0_p, b0_l, _) = zyz_decomposition(to_array(b0));
-        let (b1_t, b1_p, b1_l, _) = zyz_decomposition(to_array(b1));
-
-        let nx = x.abs() > CARTAN_ZERO_TOL;
-        let ny = y.abs() > CARTAN_ZERO_TOL;
-        let nz = z.abs() > CARTAN_ZERO_TOL;
-
-        let mut circuit = Circuit::new(2, 0);
-        add_gate(&mut circuit, GateType::U, &[1], &[b0_t, b0_p, b0_l]);
-        add_gate(&mut circuit, GateType::U, &[0], &[b1_t, b1_p, b1_l]);
-        if nx {
-            emit_xx(&mut circuit, x);
-        }
-        if ny {
-            emit_yy(&mut circuit, y);
-        }
-        if nz {
-            emit_zz(&mut circuit, z);
-        }
-        add_gate(&mut circuit, GateType::U, &[1], &[a0_t, a0_p, a0_l]);
-        add_gate(&mut circuit, GateType::U, &[0], &[a1_t, a1_p, a1_l]);
-
-        let synthesized = crate::simulator::try_circuit_to_unitary(&circuit).ok()?;
-        let fidelity = crate::simulator::unitary_fidelity(unitary, &synthesized);
-        (fidelity >= 1.0 - OUTPUT_FIDELITY_TOL).then_some(circuit)
+        None
     }
 }
 
@@ -540,9 +528,7 @@ fn decompose_tensor_product(
         return None;
     }
     let reconstructed = tensor_product_2x2(&a, &b);
-    let trace = (u.adjoint() * reconstructed).trace();
-    let fidelity = trace.norm_sqr() / 16.0;
-    (fidelity >= 1.0 - DECOMPOSITION_TOL).then_some((a, b))
+    (phase_aligned_residual(u, &reconstructed) <= OUTPUT_RESIDUAL_TOL).then_some((a, b))
 }
 
 fn tensor_product_2x2(
@@ -566,7 +552,7 @@ fn tensor_product_2x2(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::simulator::{circuit_to_unitary, unitary_fidelity};
+    use crate::simulator::circuit_to_unitary;
 
     fn count_cx(c: &Circuit) -> usize {
         c.operations
@@ -585,11 +571,18 @@ mod tests {
 
     fn assert_synthesis_fidelity(target: &DMatrix<Complex<f64>>, circuit: &Circuit) {
         let actual = circuit_to_unitary(circuit);
-        let fidelity = unitary_fidelity(target, &actual);
+        let residual = phase_aligned_residual(target, &actual);
         assert!(
-            fidelity >= 1.0 - 1e-9,
-            "KAK synthesis fidelity {fidelity:.12} is below tolerance"
+            residual <= OUTPUT_RESIDUAL_TOL,
+            "KAK phase-aligned operator residual {residual:.3e} exceeds tolerance"
         );
+        assert!(circuit.operations.iter().all(|op| matches!(
+            op,
+            Operation::Gate {
+                name: GateType::U | GateType::CX,
+                ..
+            }
+        )));
     }
 
     fn add_u(circuit: &mut Circuit, qubit: usize, theta: f64, phi: f64, lambda: f64) {
@@ -635,7 +628,7 @@ mod tests {
             ],
         );
         let circuit = s.synthesize(&cnot, &[]).unwrap();
-        assert_eq!(count_cx(&circuit), 2);
+        assert_eq!(count_cx(&circuit), 1);
         assert_synthesis_fidelity(&cnot, &circuit);
     }
 
@@ -666,7 +659,7 @@ mod tests {
 
         let target = circuit_to_unitary(&source);
         let circuit = KakSynthesizer.synthesize(&target, &[]).unwrap();
-        assert_eq!(count_cx(&circuit), 6);
+        assert_eq!(count_cx(&circuit), 3);
         assert_synthesis_fidelity(&target, &circuit);
     }
 
@@ -711,13 +704,13 @@ mod tests {
             let circuit = KakSynthesizer
                 .synthesize(&target, &[])
                 .unwrap_or_else(|| panic!("KAK synthesis rejected deterministic case {case}"));
-            assert!(count_cx(&circuit) <= 6);
+            assert!(count_cx(&circuit) <= 3);
             assert_synthesis_fidelity(&target, &circuit);
         }
     }
 
     #[test]
-    fn test_kak_two_axis_interaction_uses_four_cx() {
+    fn test_kak_two_axis_interaction_uses_two_cx() {
         let mut source = Circuit::new(2, 0);
         source.add_op(Operation::Gate {
             name: GateType::RXX,
@@ -732,7 +725,7 @@ mod tests {
         let target = circuit_to_unitary(&source);
 
         let circuit = KakSynthesizer.synthesize(&target, &[]).unwrap();
-        assert_eq!(count_cx(&circuit), 4);
+        assert_eq!(count_cx(&circuit), 2);
         assert_synthesis_fidelity(&target, &circuit);
     }
 
@@ -750,6 +743,174 @@ mod tests {
         let basis = simultaneous_diagonalizer(&a, &b).unwrap();
         assert!(off_diagonal_norm(&(basis.transpose() * a * &basis)) <= DECOMPOSITION_TOL);
         assert!(off_diagonal_norm(&(basis.transpose() * b * &basis)) <= DECOMPOSITION_TOL);
+    }
+
+    // Targets below are built directly from analytic matrices, independently
+    // of both the emitted network and the simulator's gate decompositions.
+    fn analytic_local(theta: f64, phi: f64, lambda: f64) -> DMatrix<Complex<f64>> {
+        let (sin, cos) = (theta / 2.0).sin_cos();
+        DMatrix::from_row_slice(
+            2,
+            2,
+            &[
+                Complex::new(cos, 0.0),
+                -Complex::from_polar(sin, lambda),
+                Complex::from_polar(sin, phi),
+                Complex::from_polar(cos, phi + lambda),
+            ],
+        )
+    }
+
+    fn analytic_cartan(coordinates: [f64; 3]) -> DMatrix<Complex<f64>> {
+        let identity = DMatrix::<Complex<f64>>::identity(4, 4);
+        let mut output = identity.clone();
+        for (axis, angle) in coordinates.into_iter().enumerate() {
+            let mut pauli = DMatrix::<Complex<f64>>::zeros(4, 4);
+            for col in 0..4 {
+                let row = if axis == 2 { col } else { col ^ 3 };
+                let sign = match axis {
+                    0 => 1.0,
+                    1 => {
+                        if col == 0 || col == 3 {
+                            -1.0
+                        } else {
+                            1.0
+                        }
+                    }
+                    _ => {
+                        if col == 0 || col == 3 {
+                            1.0
+                        } else {
+                            -1.0
+                        }
+                    }
+                };
+                pauli[(row, col)] = Complex::new(sign, 0.0);
+            }
+            output = (&identity * Complex::new(angle.cos(), 0.0)
+                + pauli * Complex::new(0.0, angle.sin()))
+                * output;
+        }
+        output
+    }
+
+    fn dressed_cartan(coordinates: [f64; 3], phase: f64) -> DMatrix<Complex<f64>> {
+        let before = tensor_product_2x2(
+            &analytic_local(0.39, -0.67, 0.51),
+            &analytic_local(-0.87, 0.23, 1.11),
+        );
+        let after = tensor_product_2x2(
+            &analytic_local(1.03, 0.19, -0.43),
+            &analytic_local(-0.33, -0.91, 0.71),
+        );
+        after * analytic_cartan(coordinates) * before * Complex::from_polar(1.0, phase)
+    }
+
+    #[test]
+    fn analytic_reduced_families_and_noncanonical_angles() {
+        let h = std::f64::consts::FRAC_PI_2;
+        let q = std::f64::consts::FRAC_PI_4;
+        let cases = [
+            ([0.0, 0.0, 0.0], 0),
+            ([h, -h, 2.0 * h], 0),
+            ([q, 0.0, 0.0], 1),
+            ([0.0, -q, 0.0], 1),
+            ([0.0, 0.0, q + h], 1),
+            ([0.34, 0.0, 0.0], 2),
+            ([0.0, -0.23, 0.17], 2),
+            ([0.27, 0.0, -0.31], 2),
+            ([0.42 + h, -0.14 - h, h], 2),
+            ([q, q, 0.0], 2), // iSWAP interaction class.
+            ([q, q, q], 3),   // SWAP interaction class.
+            ([0.22, -0.37, 0.16], 3),
+            ([1.91, -2.73, 3.27], 3),
+        ];
+        for (case, (coordinates, expected_cx)) in cases.into_iter().enumerate() {
+            for phase in [0.0, 0.29, -2.7, std::f64::consts::PI] {
+                let target = dressed_cartan(coordinates, phase);
+                let circuit = KakSynthesizer
+                    .synthesize(&target, &[])
+                    .unwrap_or_else(|| panic!("rejected analytic case {case}, phase {phase}"));
+                assert_eq!(count_cx(&circuit), expected_cx, "analytic case {case}");
+                assert_synthesis_fidelity(&target, &circuit);
+            }
+        }
+    }
+
+    #[test]
+    fn degenerate_spectra_and_threshold_neighbors() {
+        let q = std::f64::consts::FRAC_PI_4;
+        let cases = [
+            [0.23, 0.23, 0.23],
+            [0.23, 0.23, 0.0],
+            [0.23, -0.23, 0.23],
+            [q, q, q - 1e-9],
+            [q + 2e-11, 0.0, 0.0],
+            [q - 2e-11, 0.0, 0.0],
+            [1e-8, 2e-8, 3e-8],
+            [1e-5, 2e-5, -3e-5],
+            [0.27, -0.19, 2e-11],
+            [0.27, -0.19, -2e-11],
+            [0.27, -0.19, 8e-13],
+            [0.27, -0.19, -8e-13],
+            [0.0, 0.0, 8e-13],
+            [0.0, 0.0, -8e-13],
+        ];
+        for (case, coordinates) in cases.into_iter().enumerate() {
+            let target = dressed_cartan(coordinates, 0.67);
+            let circuit = KakSynthesizer
+                .synthesize(&target, &[])
+                .unwrap_or_else(|| panic!("rejected near-degenerate case {case}: {coordinates:?}"));
+            assert!(count_cx(&circuit) <= 3);
+            assert_synthesis_fidelity(&target, &circuit);
+            assert!(phase_aligned_residual(&target, &circuit_to_unitary(&circuit)) < 1e-12);
+        }
+    }
+
+    fn uniform(state: &mut u64) -> f64 {
+        *state = state
+            .wrapping_mul(6_364_136_223_846_793_005)
+            .wrapping_add(1);
+        // Open interval, suitable for the Box–Muller logarithm.
+        ((*state >> 11) as f64 + 0.5) / ((1_u64 << 53) as f64)
+    }
+
+    fn gaussian(state: &mut u64) -> Complex<f64> {
+        let radius = (-2.0 * uniform(state).ln()).sqrt();
+        Complex::from_polar(radius, std::f64::consts::TAU * uniform(state))
+    }
+
+    fn haar_unitary(state: &mut u64) -> DMatrix<Complex<f64>> {
+        // Independent complex Gaussian QR (positive real column norms).
+        let mut output = DMatrix::<Complex<f64>>::zeros(4, 4);
+        for col in 0..4 {
+            let mut column = DVector::from_fn(4, |_, _| gaussian(state));
+            for _ in 0..2 {
+                // Reorthogonalize to keep the oracle well conditioned.
+                for previous in 0..col {
+                    let basis = output.column(previous);
+                    let projection = basis.dotc(&column);
+                    column -= basis * projection;
+                }
+            }
+            column /= Complex::new(column.norm(), 0.0);
+            output.set_column(col, &column);
+        }
+        output
+    }
+
+    #[test]
+    fn seeded_haar_unitaries_have_three_cx_and_small_operator_residual() {
+        let mut state = 0x4841_4152_5355_3401;
+        for case in 0..256 {
+            let target = haar_unitary(&mut state);
+            assert!(is_unitary(&target, 1e-14));
+            let circuit = KakSynthesizer
+                .synthesize(&target, &[])
+                .unwrap_or_else(|| panic!("rejected Haar case {case}"));
+            assert_eq!(count_cx(&circuit), 3);
+            assert_synthesis_fidelity(&target, &circuit);
+        }
     }
 
     #[test]

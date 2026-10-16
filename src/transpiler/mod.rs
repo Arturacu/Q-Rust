@@ -3,6 +3,7 @@
 //! See [`transpile`] for the canonical entry point and
 //! [`TranspilerConfig::builder`] for configuring the pipeline.
 
+pub mod block_synthesis;
 pub mod dag;
 pub mod decomposition;
 pub mod layout;
@@ -74,13 +75,18 @@ pub struct TranspilerConfig {
     /// Run the level-3 post-routing optimization passes. Disable for cleanup
     /// ablations without changing the canonical lowering/validation pipeline.
     pub post_routing_cleanup: bool,
+    /// Resynthesize dependency-safe two-qubit U/CX blocks during level-3
+    /// post-routing cleanup. Accept only strict CX reductions within a
+    /// phase-aligned numerical error budget. Disable for matched ablations.
+    pub two_qubit_block_synthesis: bool,
     /// Optimization level (clamped to `[0, 3]` by the builder).
     /// - 0: no optimization passes.
     /// - 1: peephole crystallization + parameter simplification.
     /// - 2: + rotation merging, cross-conjugation, inverse cancellation,
     ///   commutation cancellation, layout (10 trials × 3 iters), routing.
     /// - 3: layout (10 trials × 3 iters), harder routing (beam=8,
-    ///   branch=5, 4 bidirectional iterations), and post-routing fusion.
+    ///   branch=5, 4 bidirectional iterations), post-routing fusion, and
+    ///   conservative two-qubit block resynthesis when basis lowering is on.
     ///   Use `routing_search` to increase the layout search budget.
     pub optimization_level: u8,
     /// Optional hardware backend. When set, layout, routing, and CX-direction
@@ -105,6 +111,7 @@ impl Default for TranspilerConfig {
             profile_passes: false,
             routing_search: RoutingSearchConfig::default(),
             post_routing_cleanup: true,
+            two_qubit_block_synthesis: true,
             optimization_level: 1,
             backend: None,
             target_basis: None,
@@ -127,6 +134,7 @@ pub struct TranspilerConfigBuilder {
     profile_passes: Option<bool>,
     routing_search: Option<RoutingSearchConfig>,
     post_routing_cleanup: Option<bool>,
+    two_qubit_block_synthesis: Option<bool>,
     optimization_level: Option<u8>,
     backend: Option<crate::backend::Backend>,
     target_basis: Option<HashSet<String>>,
@@ -153,6 +161,11 @@ impl TranspilerConfigBuilder {
     /// Enable level-3 post-routing cleanup (default: true).
     pub fn post_routing_cleanup(mut self, enabled: bool) -> Self {
         self.post_routing_cleanup = Some(enabled);
+        self
+    }
+    /// Enable two-qubit block resynthesis in level-3 cleanup (default: true).
+    pub fn two_qubit_block_synthesis(mut self, enabled: bool) -> Self {
+        self.two_qubit_block_synthesis = Some(enabled);
         self
     }
     /// Set the optimization level. Clamped to `[0, 3]` at `build()` time.
@@ -190,6 +203,9 @@ impl TranspilerConfigBuilder {
             post_routing_cleanup: self
                 .post_routing_cleanup
                 .unwrap_or(default.post_routing_cleanup),
+            two_qubit_block_synthesis: self
+                .two_qubit_block_synthesis
+                .unwrap_or(default.two_qubit_block_synthesis),
             optimization_level: level,
             backend: self.backend,
             target_basis: self.target_basis,
@@ -733,6 +749,12 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                     pm.add_pass(Box::new(
                         optimization::ParameterSimplificationPass::default(),
                     ));
+                    if config.two_qubit_block_synthesis {
+                        // Operate on the already routed U/CX sequence, keeping
+                        // the placement problem fixed. Direction repair and
+                        // final target closure still run after synthesis.
+                        pm.add_pass(Box::new(block_synthesis::TwoQubitBlockSynthesisPass));
+                    }
                 }
 
                 // SWAP/controlled-gate lowering and cleanup can create fresh
@@ -842,6 +864,10 @@ pub fn transpile_with_report(
     report.final_layout = lower_pm
         .property_set
         .get::<Vec<usize>>("final_layout")
+        .cloned();
+    report.two_qubit_block_stats = lower_pm
+        .property_set
+        .get::<block_synthesis::TwoQubitBlockStats>("two_qubit_block_stats")
         .cloned();
 
     Ok((final_circuit, report))

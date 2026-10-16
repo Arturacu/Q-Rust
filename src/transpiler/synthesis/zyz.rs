@@ -19,22 +19,34 @@ pub fn zyz_decomposition(u: Unitary2x2) -> (f64, f64, f64, f64) {
     let v10 = u[1][0];
     let v11 = u[1][1];
 
-    let mag_v00 = v00.norm().min(1.0);
-    let theta = 2.0 * mag_v00.acos();
+    // atan2 preserves tiny off-diagonal rotations when |v00| rounds to 1.
+    // acos(|v00|) would lose these rotations and amplify rounding near zero.
+    let mag_v00 = v00.norm();
+    let mag_v10 = v10.norm();
+    let theta = 2.0 * mag_v10.atan2(mag_v00);
     let (gamma, phi, lambda);
 
-    if theta.abs() < 1e-10 {
+    if mag_v10 < 4.0 * f64::EPSILON {
         gamma = v00.arg();
         lambda = 0.0;
         phi = v11.arg() - gamma;
-    } else if (theta - PI).abs() < 1e-10 {
+    } else if mag_v00 < 4.0 * f64::EPSILON {
         lambda = 0.0;
         gamma = v01.arg() - PI;
         phi = v10.arg() - gamma;
     } else {
         gamma = v00.arg();
         phi = v10.arg() - gamma;
-        lambda = v01.arg() - gamma - PI;
+        // Near a diagonal unitary, independent phases of two tiny noisy
+        // off-diagonal entries do not reliably determine phi+lambda. Fix
+        // the large diagonal entries directly; near the other endpoint,
+        // use the large off-diagonal entries instead. For exact unitaries
+        // these formulas are identical modulo 2π.
+        lambda = if mag_v00 >= mag_v10 {
+            v11.arg() - v10.arg()
+        } else {
+            (-v01).arg() - gamma
+        };
     }
 
     (
@@ -99,6 +111,48 @@ mod tests {
 
     fn c(re: f64, im: f64) -> Complex<f64> {
         Complex::new(re, im)
+    }
+
+    #[test]
+    fn reconstructs_tiny_rotations_and_near_pi_with_shared_phase() {
+        for theta in [1e-13, -1e-11, 1e-9, 1e-7, PI - 1e-11, PI + 1e-9] {
+            let phase = Complex::from_polar(1.0, 0.71);
+            let mut target = u_to_matrix(theta, -0.83, 1.27);
+            for row in &mut target {
+                for entry in row {
+                    *entry *= phase;
+                }
+            }
+            let (t, p, l, g) = zyz_decomposition(target);
+            let actual = u_to_matrix(t, p, l);
+            let global = Complex::from_polar(1.0, g);
+            let residual = (0..2)
+                .flat_map(|i| {
+                    (0..2).map(move |j| (target[i][j] - actual[i][j] * global).norm_sqr())
+                })
+                .sum::<f64>()
+                .sqrt();
+            assert!(residual < 2e-15, "theta={theta}, residual={residual}");
+        }
+    }
+
+    #[test]
+    fn tiny_roundoff_entries_do_not_corrupt_large_diagonal_phases() {
+        // A nearly diagonal local tensor factor found by the W-transfer
+        // regression. Its off-diagonal relative error is large despite its
+        // absolute error being at floating-point roundoff scale.
+        let target = [
+            [c(6.12e-17, 1.0 + 4e-16), c(-1.138e-15, -8.33e-17)],
+            [c(1.138e-15, 8.33e-17), c(4.98e-17, -1.0 + 3e-16)],
+        ];
+        let (theta, phi, lambda, gamma) = zyz_decomposition(target);
+        let actual = u_to_matrix(theta, phi, lambda);
+        let global = Complex::from_polar(1.0, gamma);
+        let residual = (0..2)
+            .flat_map(|i| (0..2).map(move |j| (target[i][j] - actual[i][j] * global).norm_sqr()))
+            .sum::<f64>()
+            .sqrt();
+        assert!(residual < 2e-15, "near-diagonal residual {residual}");
     }
 
     #[test]

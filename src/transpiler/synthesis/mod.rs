@@ -65,7 +65,7 @@ mod tests {
     fn test_global_synthesizer_routes_2q() {
         let id4 = DMatrix::<Complex<f64>>::identity(4, 4);
         let circ = GlobalSynthesizer.synthesize(&id4, &[]).unwrap();
-        assert_eq!(circ.operations.len(), 4);
+        assert!(circ.operations.is_empty());
     }
 
     #[test]
