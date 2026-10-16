@@ -44,6 +44,9 @@ experiments/*
 !experiments/BLOCK_SYNTHESIS_INVESTIGATION.md
 !experiments/block_results_20261016.json
 !experiments/block_cells_20261016.csv
+!experiments/QFT_W_REFINEMENT.md
+!experiments/qft_w_results_20261016.json
+!experiments/qft_w_cells_20261016.csv
 !experiments/routing_results_20261016.json
 !experiments/routing_cells_20261016.csv
 !experiments/validation/

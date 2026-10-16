@@ -458,16 +458,20 @@ The library has zero `unsafe` blocks. The `try_*` variants of public APIs return
 
 ### Reproducing the cross-tool benchmarks
 
-The latest [two-qubit block investigation](experiments/BLOCK_SYNTHESIS_INVESTIGATION.md)
-reports W-state CX reductions, the remaining QFT gap, correctness checks and
-the measured compilation/depth trade-offs.
+The latest [QFT/W refinement](experiments/QFT_W_REFINEMENT.md) reports improved
+QFT routing/cancellation boundaries, W-state depth cleanup, independent
+correctness checks and the measured quality/runtime trade-offs. It retains
+all adverse cases and two separately planned before/after sessions.
+
+The earlier [two-qubit block investigation](experiments/BLOCK_SYNTHESIS_INVESTIGATION.md)
+records the preceding block-only implementation and its historical results.
 
 Use the [repeated comparison study](experiments/COMPARISON_STUDY.md) for the
 corrected fixtures, pinned current dependencies, matched U/CX targets, seven
 interleaved trials and independent validation of every saved output:
 
-The [routing investigation](experiments/ROUTING_INVESTIGATION.md) reports the
-current rerun, fresh before/after measurements, alternative Cirq/TKET recipes,
+The earlier [routing investigation](experiments/ROUTING_INVESTIGATION.md) reports
+its frozen before/after measurements, alternative Cirq/TKET recipes,
 and remaining quality regressions. Its compact results and primary cell table
 are version-controlled; complete raw campaigns accompany the investigation.
 
