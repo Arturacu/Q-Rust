@@ -439,6 +439,10 @@ The library has zero `unsafe` blocks. The `try_*` variants of public APIs return
 
 ### Reproducing the cross-tool benchmarks
 
+The latest [two-qubit block investigation](experiments/BLOCK_SYNTHESIS_INVESTIGATION.md)
+reports W-state CX reductions, the remaining QFT gap, correctness checks and
+the measured compilation/depth trade-offs.
+
 Use the [repeated comparison study](experiments/COMPARISON_STUDY.md) for the
 corrected fixtures, pinned current dependencies, matched U/CX targets, seven
 interleaved trials and independent validation of every saved output:

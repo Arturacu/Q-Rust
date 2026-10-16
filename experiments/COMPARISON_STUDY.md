@@ -11,6 +11,10 @@ tie handling, a smaller configurable placement budget and new exact cleanup;
 its completed rerun is reported separately there, including all measured
 outputs' validation and sensitivity to alternative competitor recipes.
 
+The latest [two-qubit block investigation](BLOCK_SYNTHESIS_INVESTIGATION.md)
+reports the following synthesis change, its isolated overhead, remaining QFT
+gap and fresh four-compiler comparison. Historical data below are unchanged.
+
 ## Reproduction
 
 Use Python 3.12 and a clean virtual environment. The complete dependency lock is

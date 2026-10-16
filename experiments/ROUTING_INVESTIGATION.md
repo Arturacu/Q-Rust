@@ -5,6 +5,10 @@ Its purpose is to explain QFT/linear-routing losses and test generic changes
 while preserving the same arbitrary-input, clean-ancilla and layout contract.
 The original study and original competitor adapters remain reproducible.
 
+The subsequent [two-qubit block investigation](BLOCK_SYNTHESIS_INVESTIGATION.md)
+adds guarded resynthesis, fresh comparisons and a retained session repeat.
+The measurements below remain the historical routing baseline.
+
 ## Measured results, 16 October 2026
 
 The frozen compiler/harness commit is
