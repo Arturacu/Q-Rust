@@ -61,7 +61,7 @@ def load():
         # Use transpile-only time (exclude QASM parsing) to match the baselines,
         # which parse before starting their timer.
         t = r["timing_us"]
-        transpile_us = t["total"] - t["parse"]
+        transpile_us = t["transpile"] if "transpile" in t else t["total"] - t["parse"]
         data[(r["fixture"], r["topology"], "qrust")] = {
             "cx": r["post"]["cx"], "depth": r["post"]["depth"],
             "compile_ms": transpile_us / 1000.0,

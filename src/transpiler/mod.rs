@@ -18,8 +18,8 @@ pub mod target_basis;
 
 pub use report::{StageSnapshot, TranspilationReport};
 
-use crate::error::Result;
-use crate::ir::{Circuit, GateType, Operation};
+use crate::error::{QRustError, Result};
+use crate::ir::{Circuit, GateDefinition, GateType, Operation};
 use pass::{Pass, PassManager};
 use std::collections::HashSet;
 
@@ -33,6 +33,9 @@ pub struct TranspilerConfig {
     /// If `true`, decompose to the internal `{U, CX}` representation and
     /// enforce exact closure over the resolved target basis.
     pub decompose_basis: bool,
+    /// Run the level-3 post-routing optimization passes. Disable for cleanup
+    /// ablations without changing the canonical lowering/validation pipeline.
+    pub post_routing_cleanup: bool,
     /// Optimization level (clamped to `[0, 3]` by the builder).
     /// - 0: no optimization passes.
     /// - 1: peephole crystallization + parameter simplification.
@@ -60,6 +63,7 @@ impl Default for TranspilerConfig {
     fn default() -> Self {
         Self {
             decompose_basis: true,
+            post_routing_cleanup: true,
             optimization_level: 1,
             backend: None,
             target_basis: None,
@@ -79,6 +83,7 @@ impl TranspilerConfig {
 #[derive(Clone, Debug, Default)]
 pub struct TranspilerConfigBuilder {
     decompose_basis: Option<bool>,
+    post_routing_cleanup: Option<bool>,
     optimization_level: Option<u8>,
     backend: Option<crate::backend::Backend>,
     target_basis: Option<HashSet<String>>,
@@ -90,6 +95,11 @@ impl TranspilerConfigBuilder {
     /// `true`.
     pub fn decompose_basis(mut self, v: bool) -> Self {
         self.decompose_basis = Some(v);
+        self
+    }
+    /// Enable level-3 post-routing cleanup (default: true).
+    pub fn post_routing_cleanup(mut self, enabled: bool) -> Self {
+        self.post_routing_cleanup = Some(enabled);
         self
     }
     /// Set the optimization level. Clamped to `[0, 3]` at `build()` time.
@@ -122,6 +132,9 @@ impl TranspilerConfigBuilder {
             .min(3);
         TranspilerConfig {
             decompose_basis: self.decompose_basis.unwrap_or(default.decompose_basis),
+            post_routing_cleanup: self
+                .post_routing_cleanup
+                .unwrap_or(default.post_routing_cleanup),
             optimization_level: level,
             backend: self.backend,
             target_basis: self.target_basis,
@@ -268,6 +281,15 @@ impl Pass for NativeBasisTranslationPass {
             }
         }
     }
+
+    fn try_run(
+        &self,
+        circuit: &Circuit,
+        property_set: &mut property_set::PropertySet,
+    ) -> Result<Circuit> {
+        target_basis::BasisClosurePass::new(self.backend.basis_gates.clone())?
+            .try_run(circuit, property_set)
+    }
 }
 
 /// Stage groups that the pipeline is partitioned into. This split is what
@@ -291,6 +313,264 @@ fn resolved_target_basis(config: &TranspilerConfig) -> Option<HashSet<String>> {
             .filter(|backend| !backend.basis_gates.is_empty())
             .map(|backend| backend.basis_gates.clone())
     })
+}
+
+/// Validate public, mutable IR before any pass can index operands or use
+/// default values for missing parameters. This is also used by simulation.
+pub(crate) fn validate_circuit_structure(circuit: &Circuit) -> Result<()> {
+    fn check_gate(
+        circuit: &Circuit,
+        name: &GateType,
+        qubits: &[usize],
+        params: &[f64],
+        active_custom: &mut HashSet<String>,
+    ) -> Result<()> {
+        let (arity, parameter_count) = match name {
+            GateType::Custom(name) => {
+                let def = circuit
+                    .custom_gates
+                    .get(name)
+                    .ok_or_else(|| QRustError::UnknownGate(name.clone()))?;
+                (def.qubits.len(), def.params.len())
+            }
+            GateType::Barrier => {
+                return Err(QRustError::InvalidConfig(
+                    "represent barriers as Operation::Barrier, not as a gate".into(),
+                ))
+            }
+            GateType::U => (1, 3),
+            GateType::RX
+            | GateType::RY
+            | GateType::RZ
+            | GateType::CRX
+            | GateType::CRY
+            | GateType::CRZ
+            | GateType::RXX
+            | GateType::RYY
+            | GateType::RZZ => (name.num_qubits(), 1),
+            _ => (name.num_qubits(), 0),
+        };
+        if qubits.len() != arity || params.len() != parameter_count {
+            return Err(QRustError::InvalidConfig(format!(
+                "gate {name} requires {arity} qubits and {parameter_count} parameters; got {} and {}",
+                qubits.len(), params.len()
+            )));
+        }
+        if params.iter().any(|v| !v.is_finite()) {
+            return Err(QRustError::InvalidConfig(format!(
+                "gate {name} has non-finite parameters"
+            )));
+        }
+        if qubits.iter().any(|&q| q >= circuit.num_qubits)
+            || qubits.iter().copied().collect::<HashSet<_>>().len() != qubits.len()
+        {
+            return Err(QRustError::InvalidConfig(format!(
+                "gate {name} has invalid or repeated qubits"
+            )));
+        }
+        if let GateType::Custom(custom) = name {
+            if !active_custom.insert(custom.clone()) {
+                return Err(QRustError::Decomposition(format!(
+                    "recursive custom gate {custom}"
+                )));
+            }
+            let def = circuit
+                .custom_gates
+                .get(custom)
+                .expect("definition checked above");
+            if def.qubits.iter().collect::<HashSet<_>>().len() != def.qubits.len()
+                || def.params.iter().collect::<HashSet<_>>().len() != def.params.len()
+            {
+                return Err(QRustError::Decomposition(format!(
+                    "duplicate formal arguments in custom gate {custom}"
+                )));
+            }
+            let scope = def
+                .params
+                .iter()
+                .cloned()
+                .zip(params.iter().copied())
+                .collect();
+            for statement in &def.body {
+                let crate::ir::ast::ParsedStatement::Gate(subname, operands, expressions) =
+                    statement
+                else {
+                    return Err(QRustError::Unsupported(format!(
+                        "non-gate statement in custom gate {custom}"
+                    )));
+                };
+                let mut subqubits = Vec::with_capacity(operands.len());
+                for (formal, index) in operands {
+                    if index.is_some() {
+                        return Err(QRustError::Decomposition(format!(
+                            "indexed formal qubit in custom gate {custom}"
+                        )));
+                    }
+                    let position = def
+                        .qubits
+                        .iter()
+                        .position(|q| q == formal)
+                        .ok_or_else(|| QRustError::Undefined(formal.clone()))?;
+                    subqubits.push(qubits[position]);
+                }
+                let subparams: Vec<f64> = expressions
+                    .iter()
+                    .map(|e| e.evaluate_with_scope(&scope))
+                    .collect::<Result<_>>()?;
+                let subgate = subname
+                    .parse::<GateType>()
+                    .unwrap_or_else(|_| GateType::Custom(subname.clone()));
+                check_gate(circuit, &subgate, &subqubits, &subparams, active_custom)?;
+            }
+            active_custom.remove(custom);
+        }
+        Ok(())
+    }
+
+    fn check_op(circuit: &Circuit, op: &Operation) -> Result<()> {
+        if op.qubits().iter().any(|&q| q >= circuit.num_qubits) {
+            return Err(QRustError::InvalidConfig(
+                "operation qubit index exceeds circuit width".into(),
+            ));
+        }
+        match op {
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } => check_gate(circuit, name, qubits, params, &mut HashSet::new()),
+            Operation::Measure { cbit, .. } if *cbit >= circuit.num_cbits => {
+                Err(QRustError::InvalidConfig(
+                    "measurement classical index exceeds circuit width".into(),
+                ))
+            }
+            Operation::Conditional { op, .. } => check_op(circuit, op),
+            _ => Ok(()),
+        }
+    }
+    for op in &circuit.operations {
+        check_op(circuit, op)?;
+    }
+    Ok(())
+}
+
+/// Supported compilation domain: gates/barriers followed by terminal readout.
+/// Reject unsupported dynamics before optimization can erase their effects.
+pub(crate) fn validate_static_semantics(circuit: &Circuit) -> Result<()> {
+    let mut measured = false;
+    for op in &circuit.operations {
+        match op {
+            Operation::Measure { .. } => measured = true,
+            Operation::Gate { .. } if measured => {
+                return Err(QRustError::Unsupported(
+                    "mid-circuit measurement: compilation supports terminal measurements only"
+                        .into(),
+                ))
+            }
+            Operation::Reset { .. } | Operation::Conditional { .. } => {
+                return Err(QRustError::Unsupported(
+                    "reset and classical conditional operations are not supported by the compiler"
+                        .into(),
+                ))
+            }
+            _ => {}
+        }
+    }
+    Ok(())
+}
+
+fn validate_input(circuit: &Circuit, config: &TranspilerConfig) -> Result<()> {
+    validate_circuit_structure(circuit)?;
+    validate_static_semantics(circuit)?;
+    if let Some(backend) = &config.backend {
+        if circuit.num_qubits > backend.num_qubits {
+            return Err(QRustError::InsufficientQubits {
+                circuit: circuit.num_qubits,
+                backend: backend.num_qubits,
+            });
+        }
+    }
+    Ok(())
+}
+
+/// Independent postcondition after every pass, including basis closure.
+fn validate_output(circuit: &Circuit, config: &TranspilerConfig) -> Result<()> {
+    validate_input(circuit, config)?;
+    if let Some(backend) = &config.backend {
+        for op in &circuit.operations {
+            if let Operation::Gate { name, qubits, .. } = op {
+                if qubits.len() > 2 || matches!(name, GateType::Custom(_)) {
+                    return Err(QRustError::Unsupported(format!(
+                        "hardware output contains unresolved gate {name}"
+                    )));
+                }
+                if qubits.len() == 2 {
+                    if !backend.is_adjacent(qubits[0], qubits[1]) {
+                        return Err(QRustError::Routing(format!(
+                            "output gate {name} uses nonadjacent qubits {} and {}",
+                            qubits[0], qubits[1]
+                        )));
+                    }
+                    // Symmetric gates can use either orientation. Directed
+                    // controlled gates must match the ordered hardware edge.
+                    if !matches!(
+                        name,
+                        GateType::CZ
+                            | GateType::SWAP
+                            | GateType::RXX
+                            | GateType::RYY
+                            | GateType::RZZ
+                            | GateType::ISwap
+                    ) && !backend.has_directed_edge(qubits[0], qubits[1])
+                    {
+                        return Err(QRustError::Routing(format!(
+                            "output gate {name} uses unsupported direction {} -> {}",
+                            qubits[0], qubits[1]
+                        )));
+                    }
+                }
+            }
+        }
+    }
+    // A disabled lowering pass is no permission to return an illegal gate set.
+    if config.decompose_basis || config.backend.is_some() {
+        if let Some(basis) = resolved_target_basis(config) {
+            target_basis::validate_circuit_basis(circuit, &basis)?;
+        }
+    }
+    Ok(())
+}
+
+fn split_terminal_readout(circuit: &Circuit) -> (Circuit, &[Operation]) {
+    let split = circuit
+        .operations
+        .iter()
+        .position(|op| matches!(op, Operation::Measure { .. }))
+        .unwrap_or(circuit.operations.len());
+    let mut prefix = circuit.clone();
+    prefix.operations.truncate(split);
+    (prefix, &circuit.operations[split..])
+}
+
+fn restore_terminal_readout(
+    mut circuit: Circuit,
+    terminal: &[Operation],
+    layout: Option<&Vec<usize>>,
+) -> Circuit {
+    let physical = |q: usize| layout.map_or(q, |mapping| mapping[q]);
+    for op in terminal {
+        match op {
+            Operation::Measure { qubit, cbit } => circuit.add_op(Operation::Measure {
+                qubit: physical(*qubit),
+                cbit: *cbit,
+            }),
+            Operation::Barrier { qubits } => circuit.add_op(Operation::Barrier {
+                qubits: qubits.iter().map(|&q| physical(q)).collect(),
+            }),
+            _ => unreachable!("terminal readout is validated before compilation"),
+        }
+    }
+    circuit
 }
 
 /// Builds and runs a slice of the pipeline. Splitting `build_pass_manager`
@@ -353,9 +633,6 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                     bidir_iterations: bidir_iters,
                     lookahead_strategy: config.lookahead_strategy,
                 }));
-                pm.add_pass(Box::new(decomposition::CxDirectionPass {
-                    backend: backend.clone(),
-                }));
                 // Fold any trailing SWAPs (e.g. the QFT bit-reversal network)
                 // into the output layout rather than emitting them as gates.
                 pm.add_pass(Box::new(optimization::TrailingSwapElisionPass));
@@ -373,7 +650,7 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 pm.add_pass(Box::new(decomposition::BasisDecompositionPass));
                 pm.add_pass(Box::new(KakSynthesisPass));
 
-                if config.optimization_level >= 3 {
+                if config.optimization_level >= 3 && config.post_routing_cleanup {
                     pm.add_pass(Box::new(optimization::GateFusionPass));
                     pm.add_pass(Box::new(optimization::SwapSimplificationPass));
                     pm.add_pass(Box::new(optimization::InverseCancellationPass));
@@ -382,9 +659,23 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                     ));
                 }
 
+                // SWAP/controlled-gate lowering and cleanup can create fresh
+                // CX gates. Correct their direction only after these passes.
+                if let Some(backend) = &config.backend {
+                    pm.add_pass(Box::new(decomposition::CxDirectionPass {
+                        backend: backend.clone(),
+                    }));
+                    // Direction repair introduces H gates; lower only these
+                    // remaining named gates to U before final basis closure.
+                    pm.add_pass(Box::new(decomposition::BasisDecompositionPass));
+                }
                 if let Some(basis) = resolved_basis {
                     pm.add_pass(Box::new(target_basis::BasisClosurePass::new(basis)?));
                 }
+            } else if let Some(backend) = &config.backend {
+                pm.add_pass(Box::new(decomposition::CxDirectionPass {
+                    backend: backend.clone(),
+                }));
             }
         }
     }
@@ -392,17 +683,27 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
     Ok(pm)
 }
 
+/// Compile a well-formed circuit and validate the final gate basis and hardware
+/// constraints. Supports unitary gates and barriers with optional terminal
+/// measurements; reset, conditional operations, and mid-circuit measurement
+/// currently return [`QRustError::Unsupported`] before any transformation.
 pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Result<Circuit> {
     let config = config.unwrap_or_default();
+    validate_input(circuit, &config)?;
+    // Optimize only the unitary prefix. Independent measurements must not be
+    // pulled earlier by DAG scheduling, and their classical write order must
+    // survive routing and trailing-SWAP elision unchanged.
+    let (prefix, terminal) = split_terminal_readout(circuit);
     let mut opt_pm = build_pass_manager_for(&config, Stage::Optimize)?;
-    let after_opt = opt_pm.run(circuit);
+    let after_opt = opt_pm.try_run(&prefix)?;
     let mut lower_pm = build_pass_manager_for(&config, Stage::LayoutAndLower)?;
-    let output = lower_pm.run(&after_opt);
-    if config.decompose_basis {
-        if let Some(basis) = resolved_target_basis(&config) {
-            target_basis::validate_circuit_basis(&output, &basis)?;
-        }
-    }
+    let lowered = lower_pm.try_run(&after_opt)?;
+    let output = restore_terminal_readout(
+        lowered,
+        terminal,
+        lower_pm.property_set.get::<Vec<usize>>("final_layout"),
+    );
+    validate_output(&output, &config)?;
     Ok(output)
 }
 
@@ -420,20 +721,26 @@ pub fn transpile_with_report(
     config: Option<TranspilerConfig>,
 ) -> Result<(Circuit, TranspilationReport)> {
     let config = config.unwrap_or_default();
+    validate_input(circuit, &config)?;
+    let (prefix, terminal) = split_terminal_readout(circuit);
     let mut report = TranspilationReport::new();
     report.push(StageSnapshot::capture("1. parsed", circuit));
 
     let mut opt_pm = build_pass_manager_for(&config, Stage::Optimize)?;
-    let after_opt = opt_pm.run(circuit);
-    report.push(StageSnapshot::capture("2. optimized", &after_opt));
+    let after_opt = opt_pm.try_run(&prefix)?;
+    report.push(StageSnapshot::capture(
+        "2. optimized",
+        &restore_terminal_readout(after_opt.clone(), terminal, None),
+    ));
 
     let mut lower_pm = build_pass_manager_for(&config, Stage::LayoutAndLower)?;
-    let final_circuit = lower_pm.run(&after_opt);
-    if config.decompose_basis {
-        if let Some(basis) = resolved_target_basis(&config) {
-            target_basis::validate_circuit_basis(&final_circuit, &basis)?;
-        }
-    }
+    let lowered = lower_pm.try_run(&after_opt)?;
+    let final_circuit = restore_terminal_readout(
+        lowered,
+        terminal,
+        lower_pm.property_set.get::<Vec<usize>>("final_layout"),
+    );
+    validate_output(&final_circuit, &config)?;
     let final_label = if config.backend.is_some() {
         "3. routed+decomposed"
     } else {

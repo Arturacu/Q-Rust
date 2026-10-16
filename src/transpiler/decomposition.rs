@@ -365,6 +365,15 @@ impl crate::transpiler::pass::Pass for BasisDecompositionPass {
     ) -> Circuit {
         try_decompose_basis(circuit).unwrap_or_else(|_| circuit.clone())
     }
+
+    fn try_run(
+        &self,
+        circuit: &Circuit,
+        _property_set: &mut crate::transpiler::property_set::PropertySet,
+    ) -> Result<Circuit> {
+        crate::transpiler::validate_circuit_structure(circuit)?;
+        try_decompose_basis(circuit)
+    }
 }
 
 /// Decomposes every gate acting on **more than two qubits** (e.g. the native
@@ -417,6 +426,27 @@ impl crate::transpiler::pass::Pass for HighArityDecompositionPass {
             Self::expand(op, &mut out);
         }
         out
+    }
+
+    fn try_run(
+        &self,
+        circuit: &Circuit,
+        property_set: &mut crate::transpiler::property_set::PropertySet,
+    ) -> Result<Circuit> {
+        crate::transpiler::validate_circuit_structure(circuit)?;
+        let unrolled = try_unroll_custom_gates(circuit)?;
+        crate::transpiler::validate_circuit_structure(&unrolled)?;
+        let out = self.run(&unrolled, property_set);
+        if out
+            .operations
+            .iter()
+            .any(|op| matches!(op, Operation::Gate { qubits, .. } if qubits.len() > 2))
+        {
+            return Err(QRustError::Decomposition(
+                "high-arity gate remains before routing".into(),
+            ));
+        }
+        Ok(out)
     }
 }
 

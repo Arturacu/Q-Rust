@@ -21,8 +21,10 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all -- --check
       - name: Clippy
-        run: cargo clippy --all-targets -- -D warnings
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
       - name: Build
         run: cargo build --verbose
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test --workspace --all-features --verbose
+      - name: Validate benchmark generators and harness
+        run: python3 -m unittest discover -s experiments -p 'test_*.py'

@@ -10,12 +10,13 @@ collects one structured record per cell:
   Target basis {U, CX}   (the common cross-tool comparison level)
 
 Plus the cleanup ablation: every QFT fixture is additionally run at O3 with
-Stage-5 (post-routing cleanup) bypassed, so the cleanup delta can be measured
-against the standard O3 (cleanup-enabled) run.
+post-routing cleanup bypassed. These are independent randomized compilations,
+not paired observations of the same routed circuit.
 
 Each cell captures: pre/post gate-CX-depth counts, CX reduction %, total and
-per-stage µs timings, peak RSS (getrusage from the runner; psutil cross-check),
-and the layout-aware verification verdict + fidelity.
+parse/transpile µs timings, peak RSS (getrusage before verification; optional
+psutil polling includes verification), and layout-aware numerical evidence.
+Every raw trial retains its own output, layout, hashes, verdict, and timing.
 
 Usage:
     python3 experiments/bench_runner.py --dry-run      # ghz_3, all opts, quito
@@ -24,6 +25,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import copy
+import hashlib
+from collections import Counter
 import json
 import os
 import statistics
@@ -79,6 +83,7 @@ def _run_once(runner: str, fx: dict, topology: str, opt: int,
         "--nominal-n", str(fx["nominal_n"]),
         "--topology", topology,
         "--opt", str(opt),
+        "--emit-qasm",
     ]
     if not cleanup:
         cmd.append("--no-cleanup")
@@ -93,13 +98,19 @@ def _run_once(runner: str, fx: dict, topology: str, opt: int,
         try:
             p = psutil.Process(proc.pid)
             peak = 0
-            while proc.poll() is None:
+            while True:
                 try:
                     rss = p.memory_info().rss
                     peak = max(peak, rss)
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+                try:
+                    # Drain stdout while polling: emitted QASM can exceed the
+                    # pipe buffer, so waiting for exit first can deadlock.
+                    stdout, stderr = proc.communicate(timeout=0.01)
                     break
-                time.sleep(0.002)
+                except subprocess.TimeoutExpired:
+                    pass
             psutil_peak = peak or None
         except psutil.NoSuchProcess:
             pass
@@ -125,35 +136,48 @@ def _run_once(runner: str, fx: dict, topology: str, opt: int,
         }
     if psutil_peak is not None:
         rec["peak_rss_psutil_bytes"] = psutil_peak
+    with open(os.path.join(HERE, fx["file"]), "rb") as source:
+        rec["input_sha256"] = hashlib.sha256(source.read()).hexdigest()
+    if "out_qasm" in rec:
+        rec["output_sha256"] = hashlib.sha256(rec["out_qasm"].encode()).hexdigest()
     return rec
 
 
 def run_one(runner, fx, topology, opt, cleanup, ablation, reps=1, no_verify=False):
     """Run a cell `reps` times and return a record with median metrics.
 
-    Q-Rust's SABRE layout/routing is randomized (no fixed seed), so a single
-    measurement of CX/depth/time is noisy (~±2-4%). For a defensible comparison
-    we repeat each cell and report the median, plus min/max for the headline CX
-    count and total time so variance is visible.
+    Q-Rust's SABRE layout/routing is randomized. Preserve every attempt and
+    report successful-trial medians with CX min/max. Any failure prevents an
+    overall success status; summaries are not a replacement for raw evidence.
     """
+    if reps < 1:
+        raise ValueError("reps must be positive")
     runs = [_run_once(runner, fx, topology, opt, cleanup, ablation, no_verify) for _ in range(reps)]
     ok = [r for r in runs if r.get("status") == "ok"]
-    if not ok:
-        return runs[0]
-    base = dict(ok[0])  # keep verification, layout, ids from a representative run
-    if reps > 1:
-        med = statistics.median
-        cxs = [r["post"]["cx"] for r in ok]
-        for key in ("cx", "depth", "gates", "two_q", "swaps"):
-            base["post"][key] = med([r["post"][key] for r in ok])
-        if "pre_cleanup" in base:
-            for key in ("cx", "depth", "gates"):
-                base["pre_cleanup"][key] = med([r["pre_cleanup"][key] for r in ok])
-        for key in ("parse", "logic_opt", "routing", "basis_decomp", "cleanup", "total"):
-            base["timing_us"][key] = med([r["timing_us"][key] for r in ok])
-        base["post"]["cx_min"] = min(cxs)
-        base["post"]["cx_max"] = max(cxs)
-        base["reps"] = len(ok)
+    # Aggregate numbers do not describe a particular circuit. Keep every actual
+    # output, layout, verdict and timing together in its original trial.
+    base = copy.deepcopy(runs[0])
+    for key in ("out_qasm", "output_sha256", "initial_layout", "final_layout", "pre_cleanup"):
+        base.pop(key, None)
+    base["trials"] = copy.deepcopy(runs)
+    base["reps"] = reps
+    base["successful_reps"] = len(ok)
+    base["trial_status_counts"] = dict(Counter(r.get("status", "unknown") for r in runs))
+    all_verified = len(ok) == reps and all(r.get("verification", {}).get("verified") for r in runs)
+    base["status"] = "ok" if all_verified else ("partial_failure" if ok else runs[0].get("status", "error"))
+    base["verification"] = {"verified": all_verified, "verdict_class": "AllTrialsPassed" if all_verified else "NotAllTrialsPassed",
+                            "method": "individual trial evidence retained under trials"}
+    if ok:
+        base["post"] = {key: statistics.median(r["post"][key] for r in ok)
+                        for key in ok[0]["post"] if all(key in r["post"] for r in ok)}
+        base["timing_us"] = {key: statistics.median(r["timing_us"][key] for r in ok)
+                             for key in ok[0]["timing_us"] if all(key in r["timing_us"] for r in ok)}
+        base["post"]["cx_min"] = min(r["post"]["cx"] for r in ok)
+        base["post"]["cx_max"] = max(r["post"]["cx"] for r in ok)
+        for metric, pre_key in (("cx", "cx"), ("two_q", "two_q"), ("depth", "depth")):
+            before = base.get("pre", {}).get(pre_key, 0)
+            base[f"{metric}_reduction_pct"] = 100 * (before - base["post"][metric]) / before if before else None
+        base["aggregation"] = "median over successful trials; failures retained and counted"
     return base
 
 
@@ -200,6 +224,8 @@ def main() -> None:
                     help="comma-separated family filter (default: all)")
     ap.add_argument("--no-verify", action="store_true",
                     help="skip equivalence verification (faster; for CX/depth-only sweeps)")
+    ap.add_argument("--max-qubits", type=int, default=None,
+                    help="limit fixture width for a bounded validation run")
     args = ap.parse_args()
     opt_levels = [int(x) for x in args.opts.split(",")]
     topologies = [t.strip() for t in args.topologies.split(",")]
@@ -209,6 +235,8 @@ def main() -> None:
         sys.exit(f"runner not found: {args.runner}\nBuild it: cargo build --release -p qrust-bench")
 
     manifest = load_manifest()
+    if args.max_qubits is not None:
+        manifest = [f for f in manifest if f["num_qubits"] <= args.max_qubits]
     if fam_filter:
         manifest = [f for f in manifest if f["family"] in fam_filter]
     cells = build_matrix(manifest, args.dry_run, topologies, opt_levels)
@@ -218,10 +246,20 @@ def main() -> None:
     records = []
     skipped = 0
     t0 = time.time()
+    checkpoint = None
+    if not args.dry_run:
+        os.makedirs(args.output_dir, exist_ok=True)
+        checkpoint = os.path.join(args.output_dir, f"{args.out_prefix}trials.jsonl")
+        # Refuse to overwrite a prior run's evidence.
+        with open(checkpoint, "x"):
+            pass
     for idx, (fx, topology, opt, cleanup, ablation) in enumerate(cells, 1):
         rec = run_one(args.runner, fx, topology, opt, cleanup, ablation,
                       reps=args.reps, no_verify=args.no_verify)
         records.append(rec)
+        if checkpoint:
+            with open(checkpoint, "a") as fh:
+                fh.write(json.dumps(rec) + "\n")
         status = rec.get("status", "?")
         if status == "skipped_too_wide":
             skipped += 1
@@ -258,7 +296,7 @@ CSV_COLUMNS = [
     "pre_gates", "pre_cx", "pre_two_q", "pre_depth",
     "post_gates", "post_cx", "post_two_q", "post_swaps", "post_depth", "post_qubits",
     "cx_reduction_pct", "two_q_reduction_pct", "depth_reduction_pct",
-    "parse_us", "logic_opt_us", "routing_us", "basis_decomp_us", "cleanup_us", "total_us",
+    "parse_us", "transpile_us", "logic_opt_us", "routing_us", "basis_decomp_us", "cleanup_us", "total_us",
     "peak_rss_bytes", "peak_rss_psutil_bytes",
     "verdict_class", "fidelity", "verified", "verify_method",
 ]
@@ -288,7 +326,7 @@ def write_csv(records: list[dict], path: str) -> None:
                 g(post, "gates"), g(post, "cx"), g(post, "two_q"), g(post, "swaps"),
                 g(post, "depth"), g(post, "num_qubits"),
                 g(r, "cx_reduction_pct"), g(r, "two_q_reduction_pct"), g(r, "depth_reduction_pct"),
-                g(tim, "parse"), g(tim, "logic_opt"), g(tim, "routing"),
+                g(tim, "parse"), g(tim, "transpile"), g(tim, "logic_opt"), g(tim, "routing"),
                 g(tim, "basis_decomp"), g(tim, "cleanup"), g(tim, "total"),
                 g(r, "peak_rss_bytes"), g(r, "peak_rss_psutil_bytes"),
                 g(ver, "verdict_class"), g(ver, "fidelity"), g(ver, "verified"), g(ver, "method"),

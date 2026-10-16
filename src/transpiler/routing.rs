@@ -26,6 +26,20 @@ use std::collections::HashSet;
 /// SABRE relative-score heuristic. Per Li et al. 2019, ASPLOS, §III.B.
 pub const DEFAULT_LOOKAHEAD_WEIGHT: f64 = 0.5;
 
+/// Routing SWAPs use undirected connectivity; native CX direction is repaired
+/// separately, after all entangling-gate lowering has completed.
+pub(crate) fn undirected_backend(backend: &Backend) -> Backend {
+    let mut graph = backend.clone();
+    let edges: Vec<_> = (0..backend.num_qubits)
+        .flat_map(|a| {
+            (0..backend.num_qubits)
+                .filter_map(move |b| (a != b && backend.is_adjacent(a, b)).then_some((a, b)))
+        })
+        .collect();
+    graph.set_coupling_map(edges);
+    graph
+}
+
 /// Strategy for combining front-layer and extended-layer scores during
 /// the SABRE swap-selection heuristic.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -588,6 +602,87 @@ impl Default for BeamSabrePass {
 
 impl BeamSabrePass {
     pub fn try_run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Result<Circuit> {
+        crate::transpiler::validate_circuit_structure(circuit)?;
+        crate::transpiler::validate_static_semantics(circuit)?;
+        if circuit.num_qubits > self.backend.num_qubits {
+            return Err(QRustError::InsufficientQubits {
+                circuit: circuit.num_qubits,
+                backend: self.backend.num_qubits,
+            });
+        }
+        if circuit.operations.iter().any(|op| matches!(op,
+            Operation::Gate { name, qubits, .. } if qubits.len() > 2 || matches!(name, GateType::Custom(_))
+        )) {
+            return Err(QRustError::Unsupported("unroll custom and high-arity gates before routing".into()));
+        }
+        let requested_layout =
+            if let Some(l2p) = property_set.get::<Vec<usize>>("sabre_initial_layout") {
+                if l2p.len() != circuit.num_qubits {
+                    return Err(QRustError::Routing(
+                        "initial layout length does not match circuit width".into(),
+                    ));
+                }
+                Layout::from_l2p(l2p.clone(), self.backend.num_qubits)?
+            } else {
+                Layout::trivial(circuit.num_qubits, self.backend.num_qubits)
+            };
+
+        // A barrier is a scheduling boundary. Route each unitary segment in
+        // order while carrying its final placement into the next segment.
+        // Later segments must not freely choose a new initial placement.
+        if circuit.operations.iter().any(Operation::is_barrier) {
+            let mut output = Circuit::new(self.backend.num_qubits, circuit.num_cbits);
+            output.custom_gates = circuit.custom_gates.clone();
+            let mut initial = requested_layout.logical_to_physical.clone();
+            let mut current = initial.clone();
+            let mut first = true;
+            let mut swaps = 0usize;
+            let mut start = 0usize;
+            for boundary in 0..=circuit.operations.len() {
+                if boundary < circuit.operations.len() && !circuit.operations[boundary].is_barrier()
+                {
+                    continue;
+                }
+                let mut segment = Circuit::new(circuit.num_qubits, circuit.num_cbits);
+                segment.custom_gates = circuit.custom_gates.clone();
+                segment.operations = circuit.operations[start..boundary].to_vec();
+                let mut properties = PropertySet::new();
+                properties.insert("sabre_initial_layout", current.clone());
+                let mut segment_pass = self.clone();
+                if !first {
+                    segment_pass.bidir_iterations = 1;
+                }
+                let routed = segment_pass.try_run(&segment, &mut properties)?;
+                if first {
+                    initial = properties
+                        .get::<Vec<usize>>("initial_layout")
+                        .unwrap()
+                        .clone();
+                    first = false;
+                }
+                current = properties
+                    .get::<Vec<usize>>("final_layout")
+                    .unwrap()
+                    .clone();
+                swaps += properties
+                    .get::<usize>("swaps_inserted")
+                    .copied()
+                    .unwrap_or(0);
+                output.operations.extend(routed.operations);
+                if boundary < circuit.operations.len() {
+                    if let Operation::Barrier { qubits } = &circuit.operations[boundary] {
+                        output.add_op(Operation::Barrier {
+                            qubits: qubits.iter().map(|&q| current[q]).collect(),
+                        });
+                    }
+                }
+                start = boundary + 1;
+            }
+            property_set.insert("initial_layout", initial);
+            property_set.insert("final_layout", current);
+            property_set.insert("swaps_inserted", swaps);
+            return Ok(output);
+        }
         let has_2q = circuit.operations.iter().any(|op| {
             if let Operation::Gate { qubits, .. } = op {
                 qubits.len() >= 2
@@ -595,44 +690,51 @@ impl BeamSabrePass {
                 false
             }
         });
-        if !has_2q {
-            return Ok(circuit.clone());
-        }
-
         if self.beam_width < 1 || self.branch_factor < 1 || self.bidir_iterations < 1 {
             return Err(QRustError::InvalidConfig(format!(
                 "BeamSabrePass: beam_width={}, branch_factor={}, bidir_iterations={} (all must be >= 1)",
                 self.beam_width, self.branch_factor, self.bidir_iterations
             )));
         }
-        if circuit.num_qubits > self.backend.num_qubits {
-            return Err(QRustError::InsufficientQubits {
-                circuit: circuit.num_qubits,
-                backend: self.backend.num_qubits,
-            });
-        }
-
-        if self.backend.is_fully_connected() {
-            let trivial = Layout::trivial(circuit.num_qubits, self.backend.num_qubits);
-            property_set.insert("initial_layout", trivial.logical_to_physical.clone());
-            property_set.insert("final_layout", trivial.logical_to_physical.clone());
+        if !has_2q || self.backend.is_fully_connected() {
+            property_set.insert(
+                "initial_layout",
+                requested_layout.logical_to_physical.clone(),
+            );
+            property_set.insert("final_layout", requested_layout.logical_to_physical.clone());
             property_set.insert("swaps_inserted", 0_usize);
-            return Ok(circuit.clone());
+            let width = requested_layout
+                .logical_to_physical
+                .iter()
+                .copied()
+                .max()
+                .map_or(circuit.num_qubits, |q| circuit.num_qubits.max(q + 1));
+            let mut output = Circuit::new(width, circuit.num_cbits);
+            output.custom_gates = circuit.custom_gates.clone();
+            for op in &circuit.operations {
+                if let Operation::Gate {
+                    name,
+                    qubits,
+                    params,
+                } = op
+                {
+                    output.add_op(Operation::Gate {
+                        name: name.clone(),
+                        qubits: qubits.iter().map(|&q| requested_layout.l2p(q)).collect(),
+                        params: params.clone(),
+                    });
+                } else {
+                    emit_non_gate_op(op, &requested_layout, &mut output);
+                }
+            }
+            return Ok(output);
         }
 
-        let dist = self.backend.shortest_path_matrix();
+        let connectivity = undirected_backend(&self.backend);
+        let dist = connectivity.shortest_path_matrix();
         let (gates, preds, single_q_ops) = build_gate_graph(circuit);
 
-        let mut best_layout =
-            if let Some(l2p) = property_set.get::<Vec<usize>>("sabre_initial_layout") {
-                Layout::from_l2p(l2p.clone(), self.backend.num_qubits).map_err(|e| {
-                    QRustError::Routing(format!(
-                        "invalid sabre_initial_layout from earlier pass: {e}"
-                    ))
-                })?
-            } else {
-                Layout::trivial(circuit.num_qubits, self.backend.num_qubits)
-            };
+        let mut best_layout = requested_layout;
 
         let mut best_beam: Option<Beam> = None;
         let mut best_cost = f64::MAX;
@@ -674,7 +776,7 @@ impl BeamSabrePass {
             let fwd = beam_sabre_forward(
                 &gates,
                 &preds,
-                &self.backend,
+                &connectivity,
                 &dist,
                 &current_initial,
                 self.beam_width,
@@ -698,7 +800,7 @@ impl BeamSabrePass {
                 let bwd = beam_sabre_forward(
                     &reversed_gates,
                     &reversed_preds,
-                    &self.backend,
+                    &connectivity,
                     &dist,
                     &fwd_best.layout,
                     self.beam_width,
@@ -743,6 +845,10 @@ impl BeamSabrePass {
 impl Pass for BeamSabrePass {
     fn name(&self) -> &str {
         "BeamSabrePass"
+    }
+
+    fn try_run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Result<Circuit> {
+        BeamSabrePass::try_run(self, circuit, property_set)
     }
 
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {

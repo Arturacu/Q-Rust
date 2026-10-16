@@ -4,7 +4,7 @@ A modular quantum transpiler and OpenQASM 2.0 compiler written in Rust.
 
 Q-Rust takes a quantum circuit — parsed from OpenQASM 2.0 or built programmatically — runs it through a configurable **optimization → layout → routing → synthesis → basis-translation** pipeline, and emits a circuit targeting a chosen hardware backend or basis-gate set. It is designed for researchers, compiler engineers, and tooling authors who want a strongly typed, memory-safe Rust implementation with custom topologies and analytic synthesis (ZYZ, KAK).
 
-Q-Rust is a library first (`use q_rust::...`) and a CLI second (`qrust circuit.qasm`). It ships with a unitary + state-vector simulator and a verification harness: direct comparisons are exact through 14 qubits and use seeded Haar-state sampling through 22 qubits; routed comparisons are layout-aware and sample through 20 physical qubits. Statistical verdicts are reproducible finite-sample evidence, not proofs.
+Q-Rust is a library first (`use q_rust::...`) and a CLI second (`qrust circuit.qasm`). It ships with a unitary + state-vector simulator and a verification harness: direct comparisons use full floating-point operators through 14 qubits and use seeded Haar-state sampling through 22 qubits; routed comparisons are layout-aware and sample through 20 physical qubits. Both full-operator and sampled verdicts are numerical evidence, not formal proofs. Verification supports static circuits and matching terminal readout maps; reset, mid-circuit measurement, and classical control return errors. Use `VerificationConfig` to lower the dense budget for your available memory.
 
 ---
 
@@ -106,8 +106,8 @@ A `CircuitProfilerPass` (analysis-only) populates a `ProfileReport` for inspecti
 
 ### Testing & validation
 
-- **Unitary simulator** (≤14q exact) and **state-vector evolution** (≤24q).
-- **Verification harness**: `verify_equivalence` auto-selects exact process fidelity (≤14q) → sampled output-state fidelity (14 < n ≤ 22) → `Verdict::Unverifiable`; `verify_equivalence_with_layout` handles routed permutations and ancilla padding (sampling capped at 20 physical qubits).
+- **Unitary simulator** (≤14q dense floating-point operators) and **state-vector evolution** (≤24q).
+- **Verification harness**: `verify_equivalence` auto-selects full-operator numerical process fidelity (≤14q) → sampled output-state fidelity (14 < n ≤ 22) → `Verdict::Unverifiable`; `verify_equivalence_with_layout` handles routed permutations and ancilla padding (sampling capped at 20 physical qubits).
 - **Transpilation report** (`transpile_with_report`) — per-stage circuit metrics plus initial/final layouts when routing runs.
 - 200+ unit + integration tests, including a fidelity- and basis-closure-checked algorithm suite (Bell, GHZ, QFT, Grover, Deutsch–Jozsa, Bernstein–Vazirani, VQE, QPE).
 
@@ -386,7 +386,7 @@ Q_RUST_LOG=1 cargo run --bin qrust -- circuit.qasm
 
 - **Two-qubit synthesis is exact but not CX-optimal.** Generic KAK output may use six CX gates; a 0/1/2/3-CX optimal construction remains future work.
 - **Basis universality does not imply implemented lowering.** Exact closure currently covers the four one-qubit families listed above with CX or CZ. Approximate Clifford+T synthesis is not implemented.
-- **Statistical verification is not a certificate.** It reports the minimum observed output-state fidelity over seeded Haar samples. Exact mode uses normalized Hilbert–Schmidt/process fidelity and is invariant under global phase.
+- **Statistical verification is not a certificate.** It reports the minimum observed output-state fidelity over seeded Haar samples. Full-operator numerical mode uses normalized Hilbert–Schmidt/process fidelity and is invariant under global phase.
 - **Routed verification needs layout metadata.** Use `transpile_with_report` with `verify_equivalence_with_layout`, or use the CLI's `--verify` flag, which does this automatically.
 - **General synthesis stops at two qubits.** The QSD dispatcher returns `None` for `n ≥ 3`; named gates such as CCX use explicit templates.
 - **Backend presets are static descriptions.** The Quito and Nairobi constructors provide topology/basis fixtures; they do not query live calibrations or submit hardware jobs.

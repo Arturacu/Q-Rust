@@ -656,7 +656,10 @@ fn rotation_merge_segment(circuit: &Circuit) -> Circuit {
                 _ => None,
             };
             if let (Some((sn, sq, sp)), Some((dn, dq, dp))) = (src_info, dst_info) {
-                if sq == dq && sn == dn {
+                // A direct DAG edge on one operand is insufficient for a
+                // controlled rotation: another operand may have an intervening
+                // noncommuting gate. Require adjacency on every affected wire.
+                if sq == dq && sn == dn && is_strictly_adjacent(&dag, src, dst, &sq) {
                     let new_theta = sp[0] + dp[0];
                     dag.graph[src] = DAGNode::Op(Operation::Gate {
                         name: sn,
@@ -874,20 +877,33 @@ fn are_inverses(op1: &Operation, op2: &Operation) -> bool {
                 | (GateType::Tdg, GateType::T) => true,
                 (GateType::RX, GateType::RX)
                 | (GateType::RY, GateType::RY)
-                | (GateType::RZ, GateType::RZ)
-                | (GateType::CRX, GateType::CRX)
+                | (GateType::RZ, GateType::RZ) => {
+                    rotation_angles_cancel(p1, p2, 2.0 * std::f64::consts::PI)
+                }
+                (GateType::CRX, GateType::CRX)
                 | (GateType::CRY, GateType::CRY)
-                | (GateType::CRZ, GateType::CRZ) => match (p1.first(), p2.first()) {
-                    (Some(a), Some(b)) => {
-                        (a + b).abs() < 1e-9 || (a + b - 2.0 * std::f64::consts::PI).abs() < 1e-9
-                    }
-                    _ => false,
-                },
+                | (GateType::CRZ, GateType::CRZ) => {
+                    // R(2π)=-I is a global phase only for an uncontrolled
+                    // rotation. Controlling it yields Z on the control wire.
+                    rotation_angles_cancel(p1, p2, 4.0 * std::f64::consts::PI)
+                }
                 _ => false,
             }
         }
         _ => false,
     }
+}
+
+fn rotation_angles_cancel(first: &[f64], second: &[f64], period: f64) -> bool {
+    let ([a], [b]) = (first, second) else {
+        return false;
+    };
+    let sum = a + b;
+    if !sum.is_finite() {
+        return false;
+    }
+    let remainder = sum.rem_euclid(period);
+    remainder.min(period - remainder) < 1e-9
 }
 
 /// Elides trailing `SWAP` gates by folding them into the output layout.

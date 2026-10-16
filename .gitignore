@@ -31,16 +31,21 @@ target
 benchmark/
 qasm_dumps/
 *.qasm
+!tests/fixtures/*.qasm
 
 # Benchmark harness: version-control code and fixtures only. Everything
 # else under experiments/ (generated outputs, local documents) is untracked.
 experiments/*
 !experiments/Cargo.toml
+!experiments/CORRECTNESS_REPAIR.md
+!experiments/validation/
+!experiments/validation/*.json
 !experiments/src/
 !experiments/*.py
 !experiments/requirements.txt
 !experiments/fixtures/
 !experiments/fixtures/*.qasm
+!experiments/fixtures/manifest.json
 
 # Agent working state — never commit.
 .claude/

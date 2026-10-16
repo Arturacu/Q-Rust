@@ -114,10 +114,10 @@
     "family": "qft",
     "nominal_n": 3,
     "num_qubits": 3,
-    "source_gates": 7,
+    "source_gates": 10,
     "source_2q_gates": 4,
     "source_cx_gates": 0,
-    "notes": "Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.",
+    "notes": "QFT with q[0] least significant: exact controlled phases via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.",
     "file": "fixtures/qft_3.qasm"
   },
   {
@@ -125,10 +125,10 @@
     "family": "qft",
     "nominal_n": 5,
     "num_qubits": 5,
-    "source_gates": 17,
+    "source_gates": 27,
     "source_2q_gates": 12,
     "source_cx_gates": 0,
-    "notes": "Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.",
+    "notes": "QFT with q[0] least significant: exact controlled phases via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.",
     "file": "fixtures/qft_5.qasm"
   },
   {
@@ -136,10 +136,10 @@
     "family": "qft",
     "nominal_n": 7,
     "num_qubits": 7,
-    "source_gates": 31,
+    "source_gates": 52,
     "source_2q_gates": 24,
     "source_cx_gates": 0,
-    "notes": "Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.",
+    "notes": "QFT with q[0] least significant: exact controlled phases via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.",
     "file": "fixtures/qft_7.qasm"
   },
   {
@@ -147,10 +147,10 @@
     "family": "qft",
     "nominal_n": 8,
     "num_qubits": 8,
-    "source_gates": 40,
+    "source_gates": 68,
     "source_2q_gates": 32,
     "source_cx_gates": 0,
-    "notes": "Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.",
+    "notes": "QFT with q[0] least significant: exact controlled phases via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.",
     "file": "fixtures/qft_8.qasm"
   },
   {
@@ -158,10 +158,10 @@
     "family": "qft",
     "nominal_n": 10,
     "num_qubits": 10,
-    "source_gates": 60,
+    "source_gates": 105,
     "source_2q_gates": 50,
     "source_cx_gates": 0,
-    "notes": "Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.",
+    "notes": "QFT with q[0] least significant: exact controlled phases via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.",
     "file": "fixtures/qft_10.qasm"
   },
   {
@@ -169,10 +169,10 @@
     "family": "qft",
     "nominal_n": 12,
     "num_qubits": 12,
-    "source_gates": 84,
+    "source_gates": 150,
     "source_2q_gates": 72,
     "source_cx_gates": 0,
-    "notes": "Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.",
+    "notes": "QFT with q[0] least significant: exact controlled phases via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.",
     "file": "fixtures/qft_12.qasm"
   },
   {
@@ -180,10 +180,10 @@
     "family": "qft",
     "nominal_n": 14,
     "num_qubits": 14,
-    "source_gates": 112,
+    "source_gates": 203,
     "source_2q_gates": 98,
     "source_cx_gates": 0,
-    "notes": "Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.",
+    "notes": "QFT with q[0] least significant: exact controlled phases via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.",
     "file": "fixtures/qft_14.qasm"
   },
   {
@@ -191,10 +191,10 @@
     "family": "qft",
     "nominal_n": 18,
     "num_qubits": 18,
-    "source_gates": 180,
+    "source_gates": 333,
     "source_2q_gates": 162,
     "source_cx_gates": 0,
-    "notes": "Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.",
+    "notes": "QFT with q[0] least significant: exact controlled phases via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.",
     "file": "fixtures/qft_18.qasm"
   },
   {
@@ -202,10 +202,10 @@
     "family": "qft",
     "nominal_n": 22,
     "num_qubits": 22,
-    "source_gates": 264,
+    "source_gates": 495,
     "source_2q_gates": 242,
     "source_cx_gates": 0,
-    "notes": "Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.",
+    "notes": "QFT with q[0] least significant: exact controlled phases via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.",
     "file": "fixtures/qft_22.qasm"
   },
   {
@@ -532,10 +532,10 @@
     "family": "wstate",
     "nominal_n": 5,
     "num_qubits": 5,
-    "source_gates": 17,
-    "source_2q_gates": 8,
-    "source_cx_gates": 8,
-    "notes": "W-state preparation via a ry/cx cascade.",
+    "source_gates": 21,
+    "source_2q_gates": 12,
+    "source_cx_gates": 12,
+    "notes": "W-state from |0...0>: initial X, then controlled-RY and reverse-CX excitation transfers (expanded into ry/cx).",
     "file": "fixtures/wstate_5.qasm"
   },
   {
@@ -543,10 +543,10 @@
     "family": "wstate",
     "nominal_n": 7,
     "num_qubits": 7,
-    "source_gates": 25,
-    "source_2q_gates": 12,
-    "source_cx_gates": 12,
-    "notes": "W-state preparation via a ry/cx cascade.",
+    "source_gates": 31,
+    "source_2q_gates": 18,
+    "source_cx_gates": 18,
+    "notes": "W-state from |0...0>: initial X, then controlled-RY and reverse-CX excitation transfers (expanded into ry/cx).",
     "file": "fixtures/wstate_7.qasm"
   },
   {
@@ -554,10 +554,10 @@
     "family": "wstate",
     "nominal_n": 10,
     "num_qubits": 10,
-    "source_gates": 37,
-    "source_2q_gates": 18,
-    "source_cx_gates": 18,
-    "notes": "W-state preparation via a ry/cx cascade.",
+    "source_gates": 46,
+    "source_2q_gates": 27,
+    "source_cx_gates": 27,
+    "notes": "W-state from |0...0>: initial X, then controlled-RY and reverse-CX excitation transfers (expanded into ry/cx).",
     "file": "fixtures/wstate_10.qasm"
   },
   {
@@ -565,10 +565,10 @@
     "family": "wstate",
     "nominal_n": 12,
     "num_qubits": 12,
-    "source_gates": 45,
-    "source_2q_gates": 22,
-    "source_cx_gates": 22,
-    "notes": "W-state preparation via a ry/cx cascade.",
+    "source_gates": 56,
+    "source_2q_gates": 33,
+    "source_cx_gates": 33,
+    "notes": "W-state from |0...0>: initial X, then controlled-RY and reverse-CX excitation transfers (expanded into ry/cx).",
     "file": "fixtures/wstate_12.qasm"
   },
   {
@@ -576,10 +576,10 @@
     "family": "wstate",
     "nominal_n": 14,
     "num_qubits": 14,
-    "source_gates": 53,
-    "source_2q_gates": 26,
-    "source_cx_gates": 26,
-    "notes": "W-state preparation via a ry/cx cascade.",
+    "source_gates": 66,
+    "source_2q_gates": 39,
+    "source_cx_gates": 39,
+    "notes": "W-state from |0...0>: initial X, then controlled-RY and reverse-CX excitation transfers (expanded into ry/cx).",
     "file": "fixtures/wstate_14.qasm"
   },
   {

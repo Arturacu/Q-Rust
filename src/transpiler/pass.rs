@@ -25,6 +25,17 @@ pub trait Pass {
     /// Runs the pass, possibly reading or writing properties.
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit;
 
+    /// Fallible execution for compiler pipelines. Existing infallible passes
+    /// inherit this adapter; passes that can fail must override it so failures
+    /// cannot be mistaken for a successfully transformed circuit.
+    fn try_run(
+        &self,
+        circuit: &Circuit,
+        property_set: &mut PropertySet,
+    ) -> crate::error::Result<Circuit> {
+        Ok(self.run(circuit, property_set))
+    }
+
     /// Returns `true` if this pass only reads the circuit (does not
     /// transform it). Default: `false` (transformation pass).
     ///
@@ -135,6 +146,24 @@ impl PassManager {
             }
         }
         current
+    }
+
+    /// Runs passes in order and stops immediately on the first error.
+    pub fn try_run(&mut self, circuit: &Circuit) -> crate::error::Result<Circuit> {
+        let mut current = circuit.clone();
+        for entry in &self.entries {
+            match entry {
+                PassEntry::Always(pass) => {
+                    current = pass.try_run(&current, &mut self.property_set)?;
+                }
+                PassEntry::Conditional { pass, predicate } => {
+                    if predicate(&self.property_set) {
+                        current = pass.try_run(&current, &mut self.property_set)?;
+                    }
+                }
+            }
+        }
+        Ok(current)
     }
 
     /// Returns the number of registered entries (conditional + unconditional).

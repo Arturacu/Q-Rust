@@ -145,14 +145,19 @@ fn greedy_sabre_cost(
                 (delta, swap)
             })
             .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap())
-            .map(|(_, s)| s)
-            .expect("no SWAP candidates on a connected graph");
+            .map(|(_, s)| s);
+        let Some(best_swap) = best_swap else {
+            // A disconnected candidate placement is not a valid layout.
+            // Let other trials compete; the checked router reports failure
+            // if no complete placement is found.
+            return (f64::INFINITY, layout);
+        };
 
         layout.swap_physical(best_swap.0, best_swap.1);
         cost += SWAP_COST;
         swap_count += 1;
         if swap_count > max_swaps {
-            break;
+            return (f64::INFINITY, layout);
         }
     }
     (cost, layout)
@@ -260,6 +265,26 @@ impl Pass for SabreLayoutPass {
         "SabreLayoutPass"
     }
 
+    fn try_run(
+        &self,
+        circuit: &Circuit,
+        property_set: &mut PropertySet,
+    ) -> crate::error::Result<Circuit> {
+        crate::transpiler::validate_circuit_structure(circuit)?;
+        if self.num_trials == 0 || self.num_iterations == 0 {
+            return Err(crate::error::QRustError::InvalidConfig(
+                "SABRE layout requires at least one trial and iteration".into(),
+            ));
+        }
+        if circuit.num_qubits > self.backend.num_qubits {
+            return Err(crate::error::QRustError::InsufficientQubits {
+                circuit: circuit.num_qubits,
+                backend: self.backend.num_qubits,
+            });
+        }
+        Ok(self.run(circuit, property_set))
+    }
+
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {
         let has_2q = circuit.operations.iter().any(|op| {
             if let Operation::Gate { qubits, .. } = op {
@@ -276,7 +301,8 @@ impl Pass for SabreLayoutPass {
 
         let num_logical = circuit.num_qubits;
         let num_physical = self.backend.num_qubits;
-        let dist = self.backend.shortest_path_matrix();
+        let connectivity = crate::transpiler::routing::undirected_backend(&self.backend);
+        let dist = connectivity.shortest_path_matrix();
         let fwd_gates = build_2q_graph(circuit);
         let fwd_preds = pred_counts(&fwd_gates);
         let rev_gates = reverse_graph(&fwd_gates, num_logical);
@@ -284,7 +310,7 @@ impl Pass for SabreLayoutPass {
 
         let trivial = Layout::trivial(num_logical, num_physical);
         let (trivial_cost, _) =
-            greedy_sabre_cost(&fwd_gates, &fwd_preds, &self.backend, &dist, &trivial);
+            greedy_sabre_cost(&fwd_gates, &fwd_preds, &connectivity, &dist, &trivial);
         let mut best_cost = trivial_cost;
         let mut best_layout = trivial.clone();
 
@@ -297,14 +323,14 @@ impl Pass for SabreLayoutPass {
 
             for _ in 0..self.num_iterations {
                 let (_, fwd_final) =
-                    greedy_sabre_cost(&fwd_gates, &fwd_preds, &self.backend, &dist, &layout);
+                    greedy_sabre_cost(&fwd_gates, &fwd_preds, &connectivity, &dist, &layout);
                 let (_, bwd_final) =
-                    greedy_sabre_cost(&rev_gates, &rev_preds, &self.backend, &dist, &fwd_final);
+                    greedy_sabre_cost(&rev_gates, &rev_preds, &connectivity, &dist, &fwd_final);
                 layout = bwd_final;
             }
 
             let (final_cost, _) =
-                greedy_sabre_cost(&fwd_gates, &fwd_preds, &self.backend, &dist, &layout);
+                greedy_sabre_cost(&fwd_gates, &fwd_preds, &connectivity, &dist, &layout);
             if final_cost < best_cost {
                 best_cost = final_cost;
                 best_layout = layout;
