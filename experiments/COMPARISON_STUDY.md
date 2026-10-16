@@ -8,7 +8,8 @@ replace the separate correctness regression suites.
 The recorded numerical study below uses the compiler before the subsequent
 [routing investigation](ROUTING_INVESTIGATION.md). Current O3 has deterministic
 tie handling, a smaller configurable placement budget and new exact cleanup;
-its rerun must be reported separately from those historical measurements.
+its completed rerun is reported separately there, including all measured
+outputs' validation and sensitivity to alternative competitor recipes.
 
 ## Reproduction
 

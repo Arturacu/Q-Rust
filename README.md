@@ -432,6 +432,11 @@ Use the [repeated comparison study](experiments/COMPARISON_STUDY.md) for the
 corrected fixtures, pinned current dependencies, matched U/CX targets, seven
 interleaved trials and independent validation of every saved output:
 
+The [routing investigation](experiments/ROUTING_INVESTIGATION.md) reports the
+current rerun, fresh before/after measurements, alternative Cirq/TKET recipes,
+and remaining quality regressions. Its compact results and primary cell table
+are version-controlled; complete raw campaigns accompany the investigation.
+
 ```bash
 python3.12 -m venv .venv-comparison
 .venv-comparison/bin/python -m pip install -r experiments/requirements-comparison.txt

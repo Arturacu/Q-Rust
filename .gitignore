@@ -41,6 +41,8 @@ experiments/*
 !experiments/CORRECTNESS_REPAIR.md
 !experiments/COMPARISON_STUDY.md
 !experiments/ROUTING_INVESTIGATION.md
+!experiments/routing_results_20261016.json
+!experiments/routing_cells_20261016.csv
 !experiments/validation/
 !experiments/validation/*.json
 !experiments/src/
