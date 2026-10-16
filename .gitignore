@@ -28,6 +28,7 @@ target
 
 # Benchmark and temporary execution artifacts
 .venv/
+.venv-comparison/
 benchmark/
 qasm_dumps/
 *.qasm
@@ -38,11 +39,13 @@ qasm_dumps/
 experiments/*
 !experiments/Cargo.toml
 !experiments/CORRECTNESS_REPAIR.md
+!experiments/COMPARISON_STUDY.md
 !experiments/validation/
 !experiments/validation/*.json
 !experiments/src/
 !experiments/*.py
 !experiments/requirements.txt
+!experiments/requirements-comparison.txt
 !experiments/fixtures/
 !experiments/fixtures/*.qasm
 !experiments/fixtures/manifest.json

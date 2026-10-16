@@ -44,7 +44,7 @@ The library keeps its historical default dense threshold of fourteen qubits for 
 
 Source-level `two_q` counters historically count gates acting on at least two qubits (including CCX); output U/CX counts are native two-qubit costs. Source-to-output reduction percentages are not an optimality measure. Cleanup-disabled runs are independent randomized compilations, not paired observations of one routed circuit. Kernel RSS is captured before verification; optional psutil polling observes the whole process and can include simulator memory. Timings include canonical report construction and are not yet a controlled cross-tool performance claim.
 
-Qiskit is used here as an independent correctness oracle. Qiskit/Cirq/TKET performance baselines were not rerun in this repair. A publication comparison still needs frozen versions and targets, repeated trials, timeout/failure denominators, and independent validation of every output that contributes to a quality claim.
+Qiskit was used in this repair as an independent correctness oracle. The subsequent [repeated comparison study](COMPARISON_STUDY.md) reran Qiskit, Cirq and TKET with frozen versions, matched targets, seven interleaved trials per case and independent validation of every saved output. Its results and limitations are separate from the historical repair sweeps below.
 
 ## Recorded results
 

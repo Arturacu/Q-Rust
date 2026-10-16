@@ -428,21 +428,28 @@ The library has zero `unsafe` blocks. The `try_*` variants of public APIs return
 
 ### Reproducing the cross-tool benchmarks
 
-The benchmark harness pins the Python toolchain used for Qiskit, Cirq, tket,
-plotting, and memory sampling:
+Use the [repeated comparison study](experiments/COMPARISON_STUDY.md) for the
+corrected fixtures, pinned current dependencies, matched U/CX targets, seven
+interleaved trials and independent validation of every saved output:
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -r experiments/requirements.txt
-cargo build --workspace --release
-python3 experiments/bench_runner.py
-python3 experiments/bench_baselines.py
+python3.12 -m venv .venv-comparison
+.venv-comparison/bin/python -m pip install -r experiments/requirements-comparison.txt
+cargo build --release -p qrust-bench --bin comparison_runner
+.venv-comparison/bin/python experiments/comparison_study.py time experiments/results/NEW_COMPARISON \
+  --binary target/release/comparison_runner
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv-comparison/bin/python \
+  experiments/comparison_study.py validate experiments/results/NEW_COMPARISON
+.venv-comparison/bin/python experiments/analyze_comparison_study.py experiments/results/NEW_COMPARISON
 ```
 
 Generated JSON, CSV, LaTeX, and figure payloads under `experiments/results/`
 are intentionally ignored; the runner code, pinned dependencies, fixture
-manifest, and OpenQASM 2.0 fixtures are version-controlled.
+manifest, and OpenQASM 2.0 fixtures are version-controlled. The older
+`bench_baselines.py` results are historical and are superseded for publication
+claims. Compilation speed, CX count and depth are separate metrics; this study
+does not establish mathematical optimality or a causal programming-language
+advantage.
 
 ---
 

@@ -1,0 +1,475 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-16T07:04:39Z",
+  "master_seed": 20261015,
+  "trials": 7,
+  "warmups_per_cell_tool": 1,
+  "timeout_seconds": 60,
+  "compiler_commit": "5fd95609dc75f224cb8fd1f86a1f135b926b9fa1",
+  "versions": {
+    "qiskit": "2.5.2",
+    "cirq-core": "1.7.0",
+    "pytket": "2.18.5",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "machine": "arm64",
+  "logical_cpu_count": 8,
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1",
+    "RAYON_NUM_THREADS": "1",
+    "QISKIT_NUM_PROCS": "1",
+    "QISKIT_PARALLEL": "FALSE",
+    "PYTHONHASHSEED": "20261015"
+  },
+  "machine_note": "Apple M3; 8 physical and logical CPU cores; 8 GiB RAM; single-thread environment caps; no affinity or frequency control",
+  "qrust_binary_sha256": "0bdb19b68565d5bd006804fa28ef2169b80de318b6ea22557ad50a3130f1756c",
+  "source_sha256": {
+    "experiments/comparison_cirq.py": "f193a7d77a9ad936e16eac4fa1c423706a6d94fe4ae24c595f698d97456e2229",
+    "experiments/comparison_validation.py": "55de70f9fe47d9fcaeb1497bd04b377e5582afc9289e6948dc6c32ebe5bda6d4",
+    "experiments/comparison_study.py": "2ab4b0014c2b0d9214972785a68445e6c86a50316712dd087df95d6aac2f489c",
+    "experiments/comparison_qiskit_tket.py": "9fa37aaa09208ed2178d17a2c2fdb1e1a52b98a5e75ec5c11a0a9abbbb855d7a",
+    "experiments/src/bin/comparison_runner.rs": "fb632c7b7553995bf0454d77326d7571de92c064df80732fffa9ed576cc8f2d2",
+    "experiments/bench_baselines.py": "9ff44a2391d02af1334daac6c42ded7e643de35fe69e81fef55c377c90251f9e",
+    "Cargo.lock": "3a6b3cd79c36f8cd1e90ba4e6bd79b6b58c85d3aded71b5130779e0c8ba91473"
+  },
+  "timing_boundary": "Warm in-process API: input clone, configuration and compiler passes included; imports, source parsing, serialization, IPC and validation excluded. parse_ns separately retained.",
+  "target": "Arbitrary one-qubit U3 and CX, bidirectional ideal connectivity. Free input/output permutation. Clean zero ancillas, arbitrary logical input.",
+  "normalization": "Every tool receives identical exact CRZ and RZZ expansion into RZ/CX. CCX remains for timed lowering. Validation compares against the original unnormalized fixture.",
+  "validation": "Independent NumPy analytic gate simulator. Full isometry through six physical qubits; otherwise three basis, uniform and four seeded Haar inputs. One shared global phase; full physical amplitudes; residual threshold 1e-7. Not proof or hardware fidelity.",
+  "sampling_limit": "51 in-house fixtures <=14 logical qubits, nine families; no external holdout. Seven repetitions are not seven independent circuits. Preset recipes have unequal search effort.",
+  "runtime_limit": "Single host, single thread environment caps, no CPU affinity/frequency control. Q-Rust internal routing RNG is not externally seedable. Qiskit uses recorded seeds; Cirq/TKET recipes are deterministic.",
+  "fixture_sources": {
+    "adder_10": {
+      "source_sha256": "0bc69f6e7f70c17493d91c533cfa83e0efc35f578cbbeb9a5fc45b17da685b36",
+      "normalized_sha256": "0bc69f6e7f70c17493d91c533cfa83e0efc35f578cbbeb9a5fc45b17da685b36"
+    },
+    "adder_12": {
+      "source_sha256": "e5162e776210bb32cb3fc734f5d4b51ad60267c3f36e4156203acf51a3d3eebe",
+      "normalized_sha256": "e5162e776210bb32cb3fc734f5d4b51ad60267c3f36e4156203acf51a3d3eebe"
+    },
+    "adder_4": {
+      "source_sha256": "9c7bcd2495d48f97adf92258bf59cb28fbd17f6c161e59a752e3db411532e4d5",
+      "normalized_sha256": "9c7bcd2495d48f97adf92258bf59cb28fbd17f6c161e59a752e3db411532e4d5"
+    },
+    "adder_6": {
+      "source_sha256": "bc3daaa69b92e7b735ad336c8d78eb961b62a7e00289ba31223154fbb84b92f6",
+      "normalized_sha256": "bc3daaa69b92e7b735ad336c8d78eb961b62a7e00289ba31223154fbb84b92f6"
+    },
+    "adder_8": {
+      "source_sha256": "fc65aa226b375de398f0027c73525e229576d617b2e8b1e10f9c2c8c8de98d83",
+      "normalized_sha256": "fc65aa226b375de398f0027c73525e229576d617b2e8b1e10f9c2c8c8de98d83"
+    },
+    "bv_10": {
+      "source_sha256": "38de87b1b76bddc262959e1774a33fecb26e42400f4e9909eb9ff738e07289a3",
+      "normalized_sha256": "38de87b1b76bddc262959e1774a33fecb26e42400f4e9909eb9ff738e07289a3"
+    },
+    "bv_12": {
+      "source_sha256": "48871d0c2db299636c95f975fc9cbb6bee3cca3ba071e5c528e0ff889fa4b909",
+      "normalized_sha256": "48871d0c2db299636c95f975fc9cbb6bee3cca3ba071e5c528e0ff889fa4b909"
+    },
+    "bv_14": {
+      "source_sha256": "4012e408411ddf9c40b98658c86795080c3a7392757dc926f84263ba3c7cee19",
+      "normalized_sha256": "4012e408411ddf9c40b98658c86795080c3a7392757dc926f84263ba3c7cee19"
+    },
+    "bv_5": {
+      "source_sha256": "968648608404f8c6b14ca440ebf4131eb63e42cc14ef4ddd9d5af8a9890a6b75",
+      "normalized_sha256": "968648608404f8c6b14ca440ebf4131eb63e42cc14ef4ddd9d5af8a9890a6b75"
+    },
+    "bv_7": {
+      "source_sha256": "76de8c0e8b0d29463a7bfa91ecb80384dcf6fcb90872b1de52380f9184378cca",
+      "normalized_sha256": "76de8c0e8b0d29463a7bfa91ecb80384dcf6fcb90872b1de52380f9184378cca"
+    },
+    "bv_8": {
+      "source_sha256": "6910754dbbde7b8da7fa5876ad0a9fd26047e596b51c1c22678c24b3df4aab09",
+      "normalized_sha256": "6910754dbbde7b8da7fa5876ad0a9fd26047e596b51c1c22678c24b3df4aab09"
+    },
+    "clifford_10": {
+      "source_sha256": "c5c77801eefd2e11d700c748420f3ed14db9c5c8636504b256dd36379748a64d",
+      "normalized_sha256": "c5c77801eefd2e11d700c748420f3ed14db9c5c8636504b256dd36379748a64d"
+    },
+    "clifford_10b": {
+      "source_sha256": "6199360e71d7a56a679232f8e623fb75d84731b9410a534e8575a1160c18371a",
+      "normalized_sha256": "6199360e71d7a56a679232f8e623fb75d84731b9410a534e8575a1160c18371a"
+    },
+    "clifford_12": {
+      "source_sha256": "7f1a99e05bf29f6283db1c4f22f634f093bd656bd6f0639510741d8a48b8dc03",
+      "normalized_sha256": "7f1a99e05bf29f6283db1c4f22f634f093bd656bd6f0639510741d8a48b8dc03"
+    },
+    "clifford_5": {
+      "source_sha256": "8611e4cbb8ded01860716eeaae845bb1b457babb4246b9da3e608a94f8cef3fb",
+      "normalized_sha256": "8611e4cbb8ded01860716eeaae845bb1b457babb4246b9da3e608a94f8cef3fb"
+    },
+    "clifford_5b": {
+      "source_sha256": "5a75d54dbefbc12d279ddcc045204ece0f1276250ffded01fcfef8243b6f8e0a",
+      "normalized_sha256": "5a75d54dbefbc12d279ddcc045204ece0f1276250ffded01fcfef8243b6f8e0a"
+    },
+    "clifford_7": {
+      "source_sha256": "0b88ecdaf59ab85a81c6bf3d17fde85433ef5aa34674ad6e46e7f0a6ee60ce0d",
+      "normalized_sha256": "0b88ecdaf59ab85a81c6bf3d17fde85433ef5aa34674ad6e46e7f0a6ee60ce0d"
+    },
+    "ghz_10": {
+      "source_sha256": "333b239dcdd31b1e79d677f78794212098ff5070c48fea182cdbd7fa3843151b",
+      "normalized_sha256": "333b239dcdd31b1e79d677f78794212098ff5070c48fea182cdbd7fa3843151b"
+    },
+    "ghz_12": {
+      "source_sha256": "0b69ea4a273aa0e88198b5fe0a7e5eab61b6256d480ed041d28645eca357c67f",
+      "normalized_sha256": "0b69ea4a273aa0e88198b5fe0a7e5eab61b6256d480ed041d28645eca357c67f"
+    },
+    "ghz_14": {
+      "source_sha256": "df485376003464a96c92803742a2f3832686123aacc94948f4da312440ee1a33",
+      "normalized_sha256": "df485376003464a96c92803742a2f3832686123aacc94948f4da312440ee1a33"
+    },
+    "ghz_3": {
+      "source_sha256": "8928e3ba6304814a3e25b0f178cc935915c9ae08ead1b35ba399ba44e3230fbd",
+      "normalized_sha256": "8928e3ba6304814a3e25b0f178cc935915c9ae08ead1b35ba399ba44e3230fbd"
+    },
+    "ghz_5": {
+      "source_sha256": "c8bf9b50a07358992ff90ba74f4ec4f29a1937fc040848c8515ef4527fd263e4",
+      "normalized_sha256": "c8bf9b50a07358992ff90ba74f4ec4f29a1937fc040848c8515ef4527fd263e4"
+    },
+    "ghz_7": {
+      "source_sha256": "be112aef7bc788bdce1eb8625be9db7823f51bd65247dab0286dfd79d7a3b64f",
+      "normalized_sha256": "be112aef7bc788bdce1eb8625be9db7823f51bd65247dab0286dfd79d7a3b64f"
+    },
+    "ghz_8": {
+      "source_sha256": "85be776479b48b9f88656dd66c5853b7f03dc940b9d8a71d99310e0b650ea044",
+      "normalized_sha256": "85be776479b48b9f88656dd66c5853b7f03dc940b9d8a71d99310e0b650ea044"
+    },
+    "graphstate_10": {
+      "source_sha256": "a07fc9eee405640c9372ef9dc37768a1c3746e10a06cdd0d828f7c990370676b",
+      "normalized_sha256": "a07fc9eee405640c9372ef9dc37768a1c3746e10a06cdd0d828f7c990370676b"
+    },
+    "graphstate_12": {
+      "source_sha256": "f9b002ebfd3ffa4dc4bfd5e2371f9be7522471338f61d465db2c4d994b84e278",
+      "normalized_sha256": "f9b002ebfd3ffa4dc4bfd5e2371f9be7522471338f61d465db2c4d994b84e278"
+    },
+    "graphstate_14": {
+      "source_sha256": "b838de589e7195b5e646e5ca386abd7eeb4f1fafe18d67604c86de6faa9f5b17",
+      "normalized_sha256": "b838de589e7195b5e646e5ca386abd7eeb4f1fafe18d67604c86de6faa9f5b17"
+    },
+    "graphstate_5": {
+      "source_sha256": "86860ffc8c817e7551cddb009d10b8078daa5464012ae92e8c688a9e729fd431",
+      "normalized_sha256": "86860ffc8c817e7551cddb009d10b8078daa5464012ae92e8c688a9e729fd431"
+    },
+    "graphstate_7": {
+      "source_sha256": "6310629ade58c2b31e63e113937e59a51cebf75ac79a3ea2c89afbeac0810247",
+      "normalized_sha256": "6310629ade58c2b31e63e113937e59a51cebf75ac79a3ea2c89afbeac0810247"
+    },
+    "ising_10": {
+      "source_sha256": "8cdb8c777ca3e4fc8af126ac41c93027e9249f2c113873af7868d6e878371b4c",
+      "normalized_sha256": "5af82d0b096d174cdc5e42ad199e5676cc626f99aad214ff7057259622e09ee2"
+    },
+    "ising_12": {
+      "source_sha256": "4f19b2bec5be542859101eb84bb48bdf15f86b9f589a70918bdd02c93e9e5584",
+      "normalized_sha256": "24e9e80fca805889a024cf5cc657ccc5c5406b17646cfa01db3b8cb1b181e26c"
+    },
+    "ising_14": {
+      "source_sha256": "232ea0cfb4717dd9ef807a820c5e1541b32a383ed45d29b3d5a47c30e556ddf1",
+      "normalized_sha256": "2d6c9f833f7978a80dd77b9aa811e75d097b994a56d2a071a627ef6b9a969c1b"
+    },
+    "ising_5": {
+      "source_sha256": "2a1129276923ce1a08490268157cdb8a4c9ffd23e1a69835b476209177db93c9",
+      "normalized_sha256": "049b97445a400b87c30d77771d3566c99c16846e9531b5f4a36f7dfcb1a9d467"
+    },
+    "ising_7": {
+      "source_sha256": "d3d90cbeda1d1ace21d4d5e9be5f423d4ecd6330cc22051ee1b4b4b35f99380a",
+      "normalized_sha256": "813ecace8d1d296d96392cb41e3ae6a55fc1747efccfad2466a59d3a97971bfa"
+    },
+    "qaoa_10": {
+      "source_sha256": "83ae79e112f85e1156fd77ec3cbe53822a0df5b6eeb83ae28ae2bc7fae772d2c",
+      "normalized_sha256": "bf18b39c9565e9b7abcb412c466d2a532a0d5c79e13de1bef98e96c8760db994"
+    },
+    "qaoa_12": {
+      "source_sha256": "31f10be4ce3c8c7a7cf91b36e95a33b2655d39b45864ef689a8a755985c044d8",
+      "normalized_sha256": "6173f48c8fd3fcfbba68c17e44ebecb10fe4b2a4406d06e96135e9cbe99fc41a"
+    },
+    "qaoa_14": {
+      "source_sha256": "783dad1c5bf1844f01c373c77dfe0e0124f203c2decb9f870101749a8f38d5b8",
+      "normalized_sha256": "28913189a0cee79b7187a7c2d6f02f8fb870337cf83592c9e05ca192623ea40b"
+    },
+    "qaoa_5": {
+      "source_sha256": "410f09f1b127f1cf4c9e61b49161d36cee5389e246825ca65adb7370b916812c",
+      "normalized_sha256": "fa745e67b67e4d10ad471c86357d78ac93530b1e97c396edc513104266dd46b8"
+    },
+    "qaoa_7": {
+      "source_sha256": "12e3f8e9f72073cefb792238ddf5c89bb60e65235bcbb3b2337b0f2cfb7dbd31",
+      "normalized_sha256": "0554bf8767b71935f54f55848ce23ae154deba05cab2d41564f1ff94a588db70"
+    },
+    "qft_10": {
+      "source_sha256": "204ef553e682ae744e0fe55f8a053f7f4e2d50f0c9bae35d2e9c0845c9324e46",
+      "normalized_sha256": "579697e120cf53c4842db5ebfb2c8bef4063e4a000c5169cec20c00c46cd67fa"
+    },
+    "qft_12": {
+      "source_sha256": "100cd9014abd4d9f2dcc4a9a370d7a9ff52e98ccd7c2b8f026ee2ff80baf56b1",
+      "normalized_sha256": "4356d64f0025af98ff817c2e73f8d2e7da47cdebd313d3080da6e3262c0a5d32"
+    },
+    "qft_14": {
+      "source_sha256": "bfe47c00a95b53e3ec45057303481dc26ce26f74a0dd5a79e47dd2c89fee7c77",
+      "normalized_sha256": "88dd10129a7f779d4eee5d95e34b8c6f4cc6c01716b262b85170e16e50052b14"
+    },
+    "qft_3": {
+      "source_sha256": "c6c89eec6ffdf0d15f4da3f780bcdb03938c945895634e77eb5886f69b12c4b0",
+      "normalized_sha256": "282ad94e1b4d85c1d8f588dc74e68139407a85af5db6f4118e9a23dd4b120079"
+    },
+    "qft_5": {
+      "source_sha256": "25079ead220fc1a6a7f32992297fc8a02b4e17d08e480fcc839277dfefb804b7",
+      "normalized_sha256": "2248a8bcee876b154cde732ebe5fb4de32d8072f3d82ab8f4937f9ae1c842f23"
+    },
+    "qft_7": {
+      "source_sha256": "38c88526f1e6f20bd78dbe96036d9934e3fe18aaadf72ca51b9ca2eddce17c99",
+      "normalized_sha256": "b3abcc22841ccfca1681c997acda2149315b17541c343f60651d77d936c357ca"
+    },
+    "qft_8": {
+      "source_sha256": "137b674c378210963b78e5c337753fa5acca0a15901cb2470c4524b7f4aa4d27",
+      "normalized_sha256": "2d5932eb8d66b96d6079f462a1eef32f7591421c4c99c6125aafa85f624272e1"
+    },
+    "wstate_10": {
+      "source_sha256": "7a07d88d0270c01e43f9b2fc64eb60ffc07bfb679a4cad3ff48b6fc8255f88b4",
+      "normalized_sha256": "7a07d88d0270c01e43f9b2fc64eb60ffc07bfb679a4cad3ff48b6fc8255f88b4"
+    },
+    "wstate_12": {
+      "source_sha256": "ed6e05e80e780157e5d70a7a2934707b11f0306d6041d8ecc4078cf81c66ded2",
+      "normalized_sha256": "ed6e05e80e780157e5d70a7a2934707b11f0306d6041d8ecc4078cf81c66ded2"
+    },
+    "wstate_14": {
+      "source_sha256": "d307ce0e88e7f8373f92c98243ad1739d467230f8110fd18091ee76d8aa5f0f7",
+      "normalized_sha256": "d307ce0e88e7f8373f92c98243ad1739d467230f8110fd18091ee76d8aa5f0f7"
+    },
+    "wstate_5": {
+      "source_sha256": "a7da8b51dd77dbc965ad2e7ee9799449adf14f96e39dff9c4be1726b5c017de7",
+      "normalized_sha256": "a7da8b51dd77dbc965ad2e7ee9799449adf14f96e39dff9c4be1726b5c017de7"
+    },
+    "wstate_7": {
+      "source_sha256": "2b3a4572c5a13b230c7625d77603f1376f0dc9134545b9291ddf298dc39a1a32",
+      "normalized_sha256": "2b3a4572c5a13b230c7625d77603f1376f0dc9134545b9291ddf298dc39a1a32"
+    }
+  },
+  "audit": {
+    "schema": 1,
+    "audit_utc": "2026-10-16T07:19:36.557200+00:00",
+    "passed": true,
+    "errors": [],
+    "scope": {
+      "fixtures": 51,
+      "cases": 123,
+      "tools": 4,
+      "trials_per_case_tool": 7,
+      "measured_records": 3444,
+      "warmup_records": 492,
+      "independently_checked_semantic_artifacts": 920
+    },
+    "artifact_sha256": {
+      "protocol.json": "a50c84c3609633958532fc50c930f132ccdffe5184c4a98a2165100489fcd87a",
+      "timed.jsonl": "67475ad18fa35d12c7dcb343eb2cf0d205496d3ef161111f44b9c38b1616a6ca",
+      "validated.jsonl": "6ebcc9972e66be4b19b21b71dd53bd717c722c0da6cf1b3cef849513ba533795",
+      "warmup.jsonl": "c033bf7252cb25fdae3fc5fd95b3dfa02e13b50a91266ec845ead2b10779168e"
+    },
+    "measured_source_hashes_still_match": {
+      "experiments/comparison_cirq.py": true,
+      "experiments/comparison_validation.py": true,
+      "experiments/comparison_study.py": false,
+      "experiments/comparison_qiskit_tket.py": true,
+      "experiments/src/bin/comparison_runner.rs": true,
+      "experiments/bench_baselines.py": true,
+      "Cargo.lock": true
+    },
+    "per_tool": {
+      "qrust": {
+        "measured_records": 861,
+        "status_counts": {
+          "compiled": 861
+        },
+        "unique_semantic_artifacts": 346,
+        "evidence_counts": {
+          "sampled_isometry": 679,
+          "full_isometry": 182
+        },
+        "max_input_residual": 3.684337819654577e-10,
+        "max_ancilla_leakage_probability": 2.55351295663786e-14,
+        "errors": 0,
+        "timeouts": 0
+      },
+      "qiskit": {
+        "measured_records": 861,
+        "status_counts": {
+          "compiled": 861
+        },
+        "unique_semantic_artifacts": 340,
+        "evidence_counts": {
+          "sampled_isometry": 679,
+          "full_isometry": 182
+        },
+        "max_input_residual": 5.4875121598208304e-14,
+        "max_ancilla_leakage_probability": 1.0880185641326534e-14,
+        "errors": 0,
+        "timeouts": 0
+      },
+      "cirq": {
+        "measured_records": 861,
+        "status_counts": {
+          "compiled": 861
+        },
+        "unique_semantic_artifacts": 123,
+        "evidence_counts": {
+          "sampled_isometry": 679,
+          "full_isometry": 182
+        },
+        "max_input_residual": 9.14660170826146e-13,
+        "max_ancilla_leakage_probability": 7.105427357601002e-15,
+        "errors": 0,
+        "timeouts": 0
+      },
+      "tket": {
+        "measured_records": 861,
+        "status_counts": {
+          "compiled": 861
+        },
+        "unique_semantic_artifacts": 123,
+        "evidence_counts": {
+          "sampled_isometry": 679,
+          "full_isometry": 182
+        },
+        "max_input_residual": 9.212485361217615e-15,
+        "max_ancilla_leakage_probability": 4.9960036108132044e-15,
+        "errors": 0,
+        "timeouts": 0
+      }
+    },
+    "unique_artifact_evidence_counts": {
+      "sampled_isometry": 768,
+      "full_isometry": 152
+    },
+    "total_unique_validation_seconds": 17.544570642,
+    "validation_seed": 349273674580,
+    "validation_tolerance": 1e-07,
+    "audit_checks": [
+      "exact protocol coverage and no duplicate measured record IDs",
+      "one successful warmup for every cell/tool",
+      "source,normalized-input,output and recorded-code hashes",
+      "raw measured records preserved byte-value-equivalently in enrichment",
+      "recomputed semantic cache keys and repeated-key evidence consistency",
+      "positive measured compile durations and expected trial seeds",
+      "output width matches target",
+      "all shared gate/CX/depth metrics independently recomputed from serialized outputs",
+      "correct dense/sampled classification, input counts, seed,tolerance and residual criterion"
+    ],
+    "independent_stat_spotchecks": {
+      "qiskit": {
+        "paired_cases": 123,
+        "geomean_speedup_baseline_over_qrust": 1.5958264170631662,
+        "median_speedup_baseline_over_qrust": 2.0790043751268583,
+        "geomean_cx_ratio_qrust_over_baseline": 1.1095407613199946,
+        "geomean_two_q_depth_ratio_qrust_over_baseline": 1.0911637832017367,
+        "qrust_cx_win_tie_loss": {
+          "tie": 65,
+          "loss": 52,
+          "win": 6
+        }
+      },
+      "cirq": {
+        "paired_cases": 123,
+        "geomean_speedup_baseline_over_qrust": 51.685624166678764,
+        "median_speedup_baseline_over_qrust": 57.01596501113526,
+        "geomean_cx_ratio_qrust_over_baseline": 0.8514284919290248,
+        "geomean_two_q_depth_ratio_qrust_over_baseline": 0.8480166858163867,
+        "qrust_cx_win_tie_loss": {
+          "win": 64,
+          "loss": 26,
+          "tie": 33
+        }
+      },
+      "tket": {
+        "paired_cases": 123,
+        "geomean_speedup_baseline_over_qrust": 146.59760897652487,
+        "median_speedup_baseline_over_qrust": 176.21255854482084,
+        "geomean_cx_ratio_qrust_over_baseline": 0.9846819836417449,
+        "geomean_two_q_depth_ratio_qrust_over_baseline": 0.9852085026701013,
+        "qrust_cx_win_tie_loss": {
+          "loss": 31,
+          "win": 34,
+          "tie": 58
+        }
+      }
+    },
+    "analysis_summary_spotcheck": {
+      "passed": true,
+      "summary_sha256": "5ef213dd9b1620dd5050db6b56f2d05b01b79f92821e5fcf35375f67d7b93666",
+      "geomean_and_median_ratio_checks": 468,
+      "groups": "aggregate, all three topologies, all nine families",
+      "metrics": [
+        "compile_ns",
+        "parse_compile_ns",
+        "gate_count",
+        "cx_count",
+        "depth",
+        "two_q_depth"
+      ],
+      "near_best_counts_independently_recomputed": {
+        "cx_count": {
+          "at_best": 62,
+          "within_5_percent": 67,
+          "within_10_percent": 75
+        },
+        "depth": {
+          "at_best": 78,
+          "within_5_percent": 82,
+          "within_10_percent": 95
+        },
+        "two_q_depth": {
+          "at_best": 54,
+          "within_5_percent": 60,
+          "within_10_percent": 68
+        }
+      },
+      "confidence_intervals": "not independently recomputed in this audit; point estimates and denominators checked against raw trial medians"
+    },
+    "limitations": [
+      "No simulations rerun in this audit; it verifies coverage and integrity of the previously performed numerical checks.",
+      "Full-isometry evidence is numerical, not a formal proof. Larger circuits use finite statevector samples.",
+      "Repeated trials and cached identical artifacts are not independent circuit workloads.",
+      "Isometry overlap is correctness evidence, not hardware fidelity or output optimization quality."
+    ],
+    "source_provenance": {
+      "measured_source_snapshot": "timing_source_snapshot",
+      "snapshot_hash_checks": {
+        "experiments/comparison_cirq.py": true,
+        "experiments/comparison_validation.py": true,
+        "experiments/comparison_study.py": true,
+        "experiments/comparison_qiskit_tket.py": true,
+        "experiments/src/bin/comparison_runner.rs": true,
+        "experiments/bench_baselines.py": true,
+        "Cargo.lock": true
+      },
+      "postmeasurement_changes": [
+        {
+          "path": "experiments/comparison_study.py",
+          "measured_sha256": "2ab4b0014c2b0d9214972785a68445e6c86a50316712dd087df95d6aac2f489c",
+          "current_sha256": "b0d24436013b241250f4153b275ff522a893f10d23d7eb0e032d3bd40bae5388",
+          "change": "Validation input file now opened with a context manager. The compiler timing functions, adapters and validator are byte-for-byte unchanged.",
+          "exact_diff_verified": true
+        }
+      ]
+    }
+  },
+  "build_and_tests": {
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)\nbinary: rustc\ncommit-hash: ed61e7d7e242494fb7057f2657300d9e77bb4fcb\ncommit-date: 2025-11-07\nhost: aarch64-apple-darwin\nrelease: 1.91.1\nLLVM version: 21.1.2\n",
+    "cargo": "cargo 1.91.1 (ea2d97820 2025-10-10)\n",
+    "release_profile": "opt-level=3; lto=thin; codegen-units=1",
+    "timing_elapsed_seconds": 759.9,
+    "python_experiment_tests": 61,
+    "python_tests_passed": true,
+    "new_rust_worker_clippy": "passed with -D warnings",
+    "prior_unchanged_core_tests": {
+      "rust_workspace_all_features": 305,
+      "cli_ignored": 4
+    },
+    "timing_source_snapshot": "timing_source_snapshot; all hashes verified against protocol.json"
+  }
+}
