@@ -23,6 +23,44 @@ _GATE = re.compile(r"([a-z][a-z0-9]*)(?:\(([^)]+)\))?\s+(.+);")
 _QUBIT = re.compile(r"q\[(\d+)\]")
 
 
+def assert_fixture_matches(actual: str, expected: str) -> None:
+    """Require the same instructions, allowing only tiny libm angle rounding.
+
+    Python delegates acos/sqrt to platform libm, so regenerated W-state angles
+    need not have identical final decimal digits on macOS and Linux. Four ULPs
+    allow a few final-bit differences in these composed calculations without a
+    broad absolute tolerance: around a one-radian angle this is below 1e-15,
+    and the allowance shrinks with the small QFT angles. This checks fixture
+    synchronization only; the independent analytic state/matrix tests below
+    still establish the intended algorithm-level semantics.
+    """
+    actual_lines, expected_lines = actual.splitlines(), expected.splitlines()
+    if len(actual_lines) != len(expected_lines):
+        raise AssertionError("fixture instruction count differs")
+    for line_number, (left, right) in enumerate(zip(actual_lines, expected_lines), 1):
+        parsed_left, parsed_right = _GATE.fullmatch(left), _GATE.fullmatch(right)
+        if parsed_left is None or parsed_right is None:
+            if left != right:
+                raise AssertionError(f"fixture declaration/structure differs at line {line_number}")
+            continue
+        left_gate, left_params, left_operands = parsed_left.groups()
+        right_gate, right_params, right_operands = parsed_right.groups()
+        if (left_gate, left_operands) != (right_gate, right_operands):
+            raise AssertionError(f"fixture gate/order/operands differ at line {line_number}")
+        left_values = [float(p) for p in left_params.split(",")] if left_params is not None else []
+        right_values = [float(p) for p in right_params.split(",")] if right_params is not None else []
+        if len(left_values) != len(right_values):
+            raise AssertionError(f"fixture parameter arity differs at line {line_number}")
+        for parameter, (a, b) in enumerate(zip(left_values, right_values)):
+            if not (math.isfinite(a) and math.isfinite(b)):
+                raise AssertionError(f"non-finite fixture angle at line {line_number}")
+            if abs(a - b) > 4 * max(math.ulp(a), math.ulp(b)):
+                raise AssertionError(
+                    f"fixture angle differs by more than four ULPs at line {line_number}, "
+                    f"parameter {parameter}: {a!r} != {b!r}"
+                )
+
+
 def simulate(qasm: str, n: int, basis: int = 0) -> list[complex]:
     """Apply the fixture's QASM gates to one basis vector, without Q-Rust."""
     state = [0j] * (1 << n)
@@ -130,7 +168,7 @@ class AlgorithmFixtureTests(unittest.TestCase):
             with self.subTest(n=n):
                 qasm = (fixture_dir / f"qft_{n}.qasm").read_text()
                 self.assert_fourier_transform(qasm, n)
-                self.assertEqual(qasm, make_qft(n).qasm())
+                assert_fixture_matches(qasm, make_qft(n).qasm())
 
     def test_stored_w_state_fixtures_have_no_vacuum_or_multiple_excitations(self) -> None:
         for n in (5, 7, 10, 12, 14):
@@ -144,7 +182,7 @@ class AlgorithmFixtureTests(unittest.TestCase):
             generator = make_qft if metadata["family"] == "qft" else make_wstate
             fixture = generator(metadata["nominal_n"])
             with self.subTest(fixture=fixture.name):
-                self.assertEqual((Path(FIXTURE_DIR) / f"{fixture.name}.qasm").read_text(), fixture.qasm())
+                assert_fixture_matches((Path(FIXTURE_DIR) / f"{fixture.name}.qasm").read_text(), fixture.qasm())
                 for field in ("source_gates", "source_2q_gates", "source_cx_gates", "num_qubits", "notes"):
                     self.assertEqual(metadata[field], getattr(fixture, field), field)
 
@@ -154,6 +192,51 @@ class AlgorithmFixtureTests(unittest.TestCase):
                 with self.subTest(generator=generator.__name__, n=n):
                     with self.assertRaises(ValueError):
                         generator(n)
+
+
+class FixtureSynchronizationTests(unittest.TestCase):
+    @staticmethod
+    def fixture(angle: float) -> str:
+        return f'OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[2];\nry({angle:.17g}) q[1];\ncx q[0],q[1];\n'
+
+    def test_accepts_a_few_ulp_of_platform_angle_rounding(self) -> None:
+        for angle in (1.1071487177940904, -1.1071487177940904, 0.000003):
+            for direction in (-math.inf, math.inf):
+                changed = angle
+                for steps in range(5):
+                    with self.subTest(angle=angle, direction=direction, ulps=steps):
+                        assert_fixture_matches(self.fixture(changed), self.fixture(angle))
+                    changed = math.nextafter(changed, direction)
+
+    def test_rejects_angle_changes_beyond_the_rounding_allowance(self) -> None:
+        angle = 1.1071487177940904
+        changed = angle
+        for _ in range(8):
+            changed = math.nextafter(changed, math.inf)
+        for wrong in (changed, angle + 1e-10, angle + 0.01):
+            with self.subTest(angle=wrong), self.assertRaises(AssertionError):
+                assert_fixture_matches(self.fixture(wrong), self.fixture(angle))
+
+    def test_rejects_gate_order_arity_operands_and_declaration_changes(self) -> None:
+        original = self.fixture(1.0)
+        changes = [
+            original.replace("ry(1)", "rz(1)"),
+            original.replace("ry(1)", "ry(1,0)"),
+            original.replace("ry(1) q[1]", "ry(1) q[0]"),
+            original.replace("cx q[0],q[1]", "cx q[1],q[0]"),
+            original.replace("cx q[0],q[1]", "cx q[0],q[1],q[0]"),
+            original.replace("ry(1) q[1];\ncx q[0],q[1];", "cx q[0],q[1];\nry(1) q[1];"),
+            original.replace("cx q[0],q[1];\n", ""),
+            original.replace("qreg q[2]", "qreg q[3]"),
+        ]
+        for changed in changes:
+            with self.subTest(changed=changed), self.assertRaises(AssertionError):
+                assert_fixture_matches(changed, original)
+
+    def test_rejects_nonfinite_angles_even_when_both_strings_match(self) -> None:
+        for angle in (math.nan, math.inf, -math.inf):
+            with self.subTest(angle=angle), self.assertRaises(AssertionError):
+                assert_fixture_matches(self.fixture(angle), self.fixture(angle))
 
 
 if __name__ == "__main__":
