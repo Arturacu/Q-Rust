@@ -77,6 +77,8 @@ Composable, barrier-aware optimization passes:
 | `ParameterSimplificationPass` | Fold parameter expressions |
 | `GateCrystallizationPass` | Collapse to canonical forms |
 | `TwoQubitBlockSynthesisPass` | Resynthesize dependency-safe U/CX blocks after routing at level 3 |
+| `RecoverPhaseGadgetsPass` | Recover exact CX–RZ–CX parity rotations before level-3 hardware routing |
+| `PostBlockFusionPass` | Fuse local U runs after block synthesis with independent numerical guards |
 
 A `CircuitProfilerPass` (analysis-only) populates a `ProfileReport` for inspection.
 
@@ -104,6 +106,22 @@ an exact six-element binary-linear-map lookup instead of numerical synthesis.
   - `LookaheadStrategy::DynamicV2` — SABRE-v2 (Li et al. 2023).
 - Fast-path for fully-connected backends (zero SWAPs).
 - `Layout::from_l2p` is a validating constructor that rejects non-injective mappings.
+
+At level 3 with a backend, exact parity-rotation recovery and diagonal-aware
+routing preserve interaction structure through layout search. Non-diagonal
+operations and barriers retain their dependencies; diagonal epochs are capped
+at 64 interactions per wire to bound dependency growth. Disable recovery with
+`.recover_phase_gadgets(false)` and diagonal scheduling through
+`RoutingSearchConfig::commute_diagonal` for separate ablations. These established
+rewrites can improve routing and cancellation boundaries, but heuristic routing
+can also produce worse results on individual circuits.
+
+After level-3 block synthesis, local U runs are fused without crossing a touching
+CX or a non-U/CX boundary. Each replacement is checked against an independent
+analytic matrix with a phase-aligned Frobenius residual of at most `1e-12` and
+a circuit-wide accepted-residual budget of `1e-10`. These are floating-point
+guards, not formal rounding-error certificates. Disable this step with
+`.post_block_fusion(false)`. Reports expose recovery and local-fusion counters.
 
 ### Basis translation
 
@@ -433,6 +451,7 @@ Test layout:
 - `tests/e2e_known_circuits.rs` — fidelity-verified algorithm suite.
 - `tests/e2e_pipeline_integration.rs` — parse → transpile → emit → re-parse.
 - `tests/two_qubit_block_regressions.rs` — independent analytic all-input checks for synthesis, dependency boundaries, routed isometries and W/QFT reductions.
+- `tests/qft_w_refinement_regressions.rs` — independent Fourier/W operators, directed ancilla routing, commuting fences, long diagonal epochs, readout mappings and local-fusion guards.
 - `tests/cli_smoke_test.rs` — `qrust` binary, gated `#[ignore]`.
 
 The library has zero `unsafe` blocks. The `try_*` variants of public APIs return `Result` and are the preferred entry points; infallible wrappers (`decompose_basis`, `unroll_custom_gates`) fall back to returning the original circuit on error and emit a diagnostic via `Q_RUST_LOG`.

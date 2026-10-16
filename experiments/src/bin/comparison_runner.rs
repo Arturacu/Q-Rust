@@ -48,6 +48,9 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "orient_swaps",
         "profile_passes",
         "two_qubit_block_synthesis",
+        "recover_phase_gadgets",
+        "commute_diagonal",
+        "post_block_fusion",
     ] {
         if request.get(field).is_some() && request[field].as_bool().is_none() {
             return Err(format!("{field} must be a boolean"));
@@ -72,16 +75,22 @@ fn compile_one(request: &Value) -> Result<Value, String> {
     if let Some(value) = request["orient_swaps"].as_bool() {
         search.orient_swaps = value;
     }
+    if let Some(value) = request["commute_diagonal"].as_bool() {
+        search.commute_diagonal = value;
+    }
     let effective_search = json!({
         "layout_trials":search.layout_trials.unwrap_or(10),
         "layout_iterations":search.layout_iterations.unwrap_or(3),
         "lookahead_size":search.lookahead_size, "rank_progress":search.rank_progress,
         "elide_output_permutations":search.elide_output_permutations, "orient_swaps":search.orient_swaps,
+        "commute_diagonal":search.commute_diagonal,
         "tie_breaking":"deterministic lexicographic", "layout_start_seeds":"0..layout_trials"
     });
     let block_synthesis_enabled = request["two_qubit_block_synthesis"]
         .as_bool()
         .unwrap_or(true);
+    let phase_recovery_enabled = request["recover_phase_gadgets"].as_bool().unwrap_or(true);
+    let post_block_fusion_enabled = request["post_block_fusion"].as_bool().unwrap_or(true);
     let started = Instant::now();
     let mut backend = Backend::new(topology, width);
     backend.set_coupling_map(edges.iter().flat_map(|&(a, b)| [(a, b), (b, a)]));
@@ -90,6 +99,8 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         .optimization_level(3)
         .profile_passes(request["profile_passes"].as_bool().unwrap_or(false))
         .two_qubit_block_synthesis(block_synthesis_enabled)
+        .recover_phase_gadgets(phase_recovery_enabled)
+        .post_block_fusion(post_block_fusion_enabled)
         .backend(backend)
         .target_basis(["u", "cx"])
         .build();
@@ -109,6 +120,14 @@ fn compile_one(request: &Value) -> Result<Value, String> {
             "residual_sum":s.residual_sum, "max_residual":s.max_residual
         })
     });
+    let fusion_stats = report.post_block_fusion_stats.as_ref().map(|s| {
+        json!({
+            "runs_attempted":s.runs_attempted, "accepted":s.accepted,
+            "u_gates_removed":s.u_gates_removed, "rejected_numerical":s.rejected_numerical,
+            "rejected_budget":s.rejected_budget, "residual_sum":s.residual_sum,
+            "max_residual":s.max_residual
+        })
+    });
     let initial = report
         .initial_layout
         .unwrap_or_else(|| (0..logical).collect());
@@ -121,7 +140,9 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "initial_layout":initial[..logical].to_vec(), "final_layout":final_layout[..logical].to_vec(),
         "seed_used":false, "pass_diagnostics":pass_diagnostics, "effective_search":effective_search,
         "two_qubit_block_synthesis":block_synthesis_enabled, "two_qubit_block_stats":block_stats,
-        "pipeline":"Q-Rust public transpile_with_report O3; U/CX; canonical layout/routing and cleanup; deterministic candidate ties and seeded layout starts; optional post-routing two-qubit block synthesis"
+        "recover_phase_gadgets":phase_recovery_enabled, "post_block_fusion":post_block_fusion_enabled,
+        "phase_gadgets_recovered":report.phase_gadgets_recovered, "post_block_fusion_stats":fusion_stats,
+        "pipeline":"Q-Rust public transpile_with_report O3; U/CX; optional exact phase recovery and diagonal routing dependencies; deterministic candidate ties and seeded layout starts; optional post-routing two-qubit block synthesis and checked local fusion"
     }))
 }
 
@@ -181,5 +202,33 @@ mod tests {
             compile_one(&request()).unwrap()["two_qubit_block_synthesis"],
             json!(true)
         );
+    }
+
+    #[test]
+    fn refinement_controls_reject_non_booleans_and_record_explicit_values() {
+        for field in [
+            "recover_phase_gadgets",
+            "commute_diagonal",
+            "post_block_fusion",
+        ] {
+            for bad in [json!("false"), json!(0), Value::Null] {
+                let mut input = request();
+                input[field] = bad;
+                assert!(compile_one(&input)
+                    .unwrap_err()
+                    .contains("must be a boolean"));
+            }
+            for enabled in [false, true] {
+                let mut input = request();
+                input[field] = json!(enabled);
+                let result = compile_one(&input).unwrap();
+                let effective = if field == "commute_diagonal" {
+                    &result["effective_search"][field]
+                } else {
+                    &result[field]
+                };
+                assert_eq!(effective, &json!(enabled));
+            }
+        }
     }
 }

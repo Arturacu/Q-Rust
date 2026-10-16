@@ -108,6 +108,7 @@ fn all_search_ablation_policies_preserve_arbitrary_inputs() {
                     rank_progress,
                     elide_output_permutations,
                     orient_swaps: true,
+                    commute_diagonal: true,
                 };
                 let config = TranspilerConfig::builder()
                     .optimization_level(3)

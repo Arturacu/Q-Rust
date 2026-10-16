@@ -7,9 +7,11 @@ pub mod block_synthesis;
 pub mod dag;
 pub mod decomposition;
 pub mod layout;
+pub mod local_cleanup;
 pub mod optimization;
 pub mod pass;
 pub mod pauli_tracker;
+pub mod phase_gadgets;
 pub mod profiler;
 pub mod property_set;
 pub mod report;
@@ -42,6 +44,9 @@ pub struct RoutingSearchConfig {
     pub elide_output_permutations: bool,
     /// Orient equivalent SWAP decompositions to expose adjacent CX cancellation.
     pub orient_swaps: bool,
+    /// At level 3, allow diagonal interactions to commute through diagonal
+    /// wire segments while retaining non-diagonal and barrier dependencies.
+    pub commute_diagonal: bool,
 }
 
 impl Default for RoutingSearchConfig {
@@ -53,6 +58,7 @@ impl Default for RoutingSearchConfig {
             rank_progress: true,
             elide_output_permutations: true,
             orient_swaps: true,
+            commute_diagonal: true,
         }
     }
 }
@@ -79,6 +85,12 @@ pub struct TranspilerConfig {
     /// post-routing cleanup. Accept only strict CX reductions within a
     /// phase-aligned numerical error budget. Disable for matched ablations.
     pub two_qubit_block_synthesis: bool,
+    /// Recover exact lowered CX-RZ-CX parity rotations before level-3
+    /// optimization when a backend is present. Disable for routing ablations.
+    pub recover_phase_gadgets: bool,
+    /// Fuse checked local U runs after level-3 two-qubit block synthesis.
+    /// Disable to isolate the local-gate and depth cost of block replacements.
+    pub post_block_fusion: bool,
     /// Optimization level (clamped to `[0, 3]` by the builder).
     /// - 0: no optimization passes.
     /// - 1: peephole crystallization + parameter simplification.
@@ -112,6 +124,8 @@ impl Default for TranspilerConfig {
             routing_search: RoutingSearchConfig::default(),
             post_routing_cleanup: true,
             two_qubit_block_synthesis: true,
+            recover_phase_gadgets: true,
+            post_block_fusion: true,
             optimization_level: 1,
             backend: None,
             target_basis: None,
@@ -135,6 +149,8 @@ pub struct TranspilerConfigBuilder {
     routing_search: Option<RoutingSearchConfig>,
     post_routing_cleanup: Option<bool>,
     two_qubit_block_synthesis: Option<bool>,
+    recover_phase_gadgets: Option<bool>,
+    post_block_fusion: Option<bool>,
     optimization_level: Option<u8>,
     backend: Option<crate::backend::Backend>,
     target_basis: Option<HashSet<String>>,
@@ -166,6 +182,16 @@ impl TranspilerConfigBuilder {
     /// Enable two-qubit block resynthesis in level-3 cleanup (default: true).
     pub fn two_qubit_block_synthesis(mut self, enabled: bool) -> Self {
         self.two_qubit_block_synthesis = Some(enabled);
+        self
+    }
+    /// Recover exact phase gadgets before level-3 routing (default: true).
+    pub fn recover_phase_gadgets(mut self, enabled: bool) -> Self {
+        self.recover_phase_gadgets = Some(enabled);
+        self
+    }
+    /// Fuse adjacent local runs after block synthesis (default: true).
+    pub fn post_block_fusion(mut self, enabled: bool) -> Self {
+        self.post_block_fusion = Some(enabled);
         self
     }
     /// Set the optimization level. Clamped to `[0, 3]` at `build()` time.
@@ -206,6 +232,10 @@ impl TranspilerConfigBuilder {
             two_qubit_block_synthesis: self
                 .two_qubit_block_synthesis
                 .unwrap_or(default.two_qubit_block_synthesis),
+            recover_phase_gadgets: self
+                .recover_phase_gadgets
+                .unwrap_or(default.recover_phase_gadgets),
+            post_block_fusion: self.post_block_fusion.unwrap_or(default.post_block_fusion),
             optimization_level: level,
             backend: self.backend,
             target_basis: self.target_basis,
@@ -657,9 +687,22 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
     );
     pm.property_set
         .insert("routing_rank_progress", config.routing_search.rank_progress);
+    pm.property_set.insert(
+        "routing_commute_diagonal",
+        config.optimization_level >= 3 && config.routing_search.commute_diagonal,
+    );
 
     match stage {
         Stage::Optimize => {
+            if config.optimization_level >= 3
+                && config.backend.is_some()
+                && config.recover_phase_gadgets
+            {
+                // Recover exact parity rotations before crystallization turns
+                // RZ angles into named phase gates, retaining their two-wire
+                // interaction structure throughout layout and routing.
+                pm.add_pass(Box::new(phase_gadgets::RecoverPhaseGadgetsPass));
+            }
             if config.optimization_level >= 1 {
                 pm.add_pass(Box::new(optimization::GateCrystallizationPass {
                     epsilon: 1e-9,
@@ -754,6 +797,9 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                         // the placement problem fixed. Direction repair and
                         // final target closure still run after synthesis.
                         pm.add_pass(Box::new(block_synthesis::TwoQubitBlockSynthesisPass));
+                        if config.post_block_fusion {
+                            pm.add_pass(Box::new(local_cleanup::PostBlockFusionPass));
+                        }
                     }
                 }
 
@@ -868,6 +914,14 @@ pub fn transpile_with_report(
     report.two_qubit_block_stats = lower_pm
         .property_set
         .get::<block_synthesis::TwoQubitBlockStats>("two_qubit_block_stats")
+        .cloned();
+    report.phase_gadgets_recovered = opt_pm
+        .property_set
+        .get::<usize>("phase_gadgets_recovered")
+        .copied();
+    report.post_block_fusion_stats = lower_pm
+        .property_set
+        .get::<local_cleanup::PostBlockFusionStats>("post_block_fusion_stats")
         .cloned();
 
     Ok((final_circuit, report))

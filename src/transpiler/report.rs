@@ -63,6 +63,10 @@ pub struct TranspilationReport {
     /// Cheap block-synthesis counters, when that cleanup pass ran. These do
     /// not enable per-pass clocks or diagnostic circuit captures.
     pub two_qubit_block_stats: Option<super::block_synthesis::TwoQubitBlockStats>,
+    /// Exact CX-RZ-CX patterns recovered before routing, when enabled.
+    pub phase_gadgets_recovered: Option<usize>,
+    /// Numerical local-fusion counters, without detailed profiling clocks.
+    pub post_block_fusion_stats: Option<super::local_cleanup::PostBlockFusionStats>,
 }
 
 impl TranspilationReport {

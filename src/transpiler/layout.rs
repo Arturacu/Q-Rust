@@ -10,41 +10,14 @@ use crate::backend::Backend;
 use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::pass::Pass;
 use crate::transpiler::property_set::PropertySet;
-use crate::transpiler::routing::{extended_layer, Layout};
+use crate::transpiler::routing::{
+    build_gate_graph, extended_layer, reverse_gate_graph, Layout, TwoQGate,
+};
 #[cfg(test)]
 use std::collections::HashSet;
 
-#[derive(Clone, Debug)]
-struct TwoQGate {
-    logical_qubits: [usize; 2],
-    successors: Vec<usize>,
-}
-
-fn build_2q_graph(circuit: &Circuit) -> Vec<TwoQGate> {
-    let mut gates: Vec<TwoQGate> = Vec::new();
-    let mut last_on_qubit: Vec<Option<usize>> = vec![None; circuit.num_qubits];
-    for op in &circuit.operations {
-        if let Operation::Gate { qubits, .. } = op {
-            if qubits.len() >= 2 {
-                let idx = gates.len();
-                gates.push(TwoQGate {
-                    logical_qubits: [qubits[0], qubits[1]],
-                    successors: Vec::new(),
-                });
-                for &q in &qubits[..2] {
-                    if let Some(prev) = last_on_qubit[q] {
-                        gates[prev].successors.push(idx);
-                    }
-                    last_on_qubit[q] = Some(idx);
-                }
-            }
-        }
-    }
-    gates
-}
-
-fn pred_counts(gates: &[TwoQGate]) -> Vec<u16> {
-    let mut counts = vec![0u16; gates.len()];
+fn pred_counts(gates: &[TwoQGate]) -> Vec<usize> {
+    let mut counts = vec![0usize; gates.len()];
     for g in gates {
         for &s in &g.successors {
             counts[s] += 1;
@@ -53,30 +26,11 @@ fn pred_counts(gates: &[TwoQGate]) -> Vec<u16> {
     counts
 }
 
-fn reverse_graph(gates: &[TwoQGate], num_qubits: usize) -> Vec<TwoQGate> {
-    let mut reversed: Vec<TwoQGate> = Vec::new();
-    let mut last_on_qubit: Vec<Option<usize>> = vec![None; num_qubits];
-    for gate in gates.iter().rev() {
-        let idx = reversed.len();
-        reversed.push(TwoQGate {
-            logical_qubits: gate.logical_qubits,
-            successors: Vec::new(),
-        });
-        for &q in &gate.logical_qubits {
-            if let Some(prev) = last_on_qubit[q] {
-                reversed[prev].successors.push(idx);
-            }
-            last_on_qubit[q] = Some(idx);
-        }
-    }
-    reversed
-}
-
 const SWAP_COST: f64 = 3.0;
 
 fn greedy_sabre_cost(
     gates: &[TwoQGate],
-    preds: &[u16],
+    preds: &[usize],
     backend: &Backend,
     dist: &[Vec<usize>],
     initial_layout: &Layout,
@@ -303,10 +257,25 @@ impl Pass for SabreLayoutPass {
                 backend: self.backend.num_qubits,
             });
         }
-        Ok(self.run(circuit, property_set))
+        property_set.remove::<String>("sabre_layout_error");
+        Ok(self.discover(circuit, property_set))
     }
 
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {
+        match self.try_run(circuit, property_set) {
+            Ok(output) => output,
+            Err(error) => {
+                property_set.remove::<Vec<usize>>("sabre_initial_layout");
+                property_set.remove::<usize>("layout_route_evaluations");
+                property_set.insert("sabre_layout_error", error.to_string());
+                circuit.clone()
+            }
+        }
+    }
+}
+
+impl SabreLayoutPass {
+    fn discover(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {
         let has_2q = circuit.operations.iter().any(|op| {
             if let Operation::Gate { qubits, .. } = op {
                 qubits.len() >= 2
@@ -324,9 +293,13 @@ impl Pass for SabreLayoutPass {
         let num_physical = self.backend.num_qubits;
         let connectivity = crate::transpiler::routing::undirected_backend(&self.backend);
         let dist = connectivity.shortest_path_matrix();
-        let fwd_gates = build_2q_graph(circuit);
+        let commute_diagonal = property_set
+            .get::<bool>("routing_commute_diagonal")
+            .copied()
+            .unwrap_or(false);
+        let (fwd_gates, _, _) = build_gate_graph(circuit, commute_diagonal);
         let fwd_preds = pred_counts(&fwd_gates);
-        let rev_gates = reverse_graph(&fwd_gates, num_logical);
+        let rev_gates = reverse_gate_graph(&fwd_gates);
         let rev_preds = pred_counts(&rev_gates);
 
         let lookahead_size = property_set
@@ -422,6 +395,63 @@ fn random_layout(num_logical: usize, num_physical: usize, seed: u64) -> Layout {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn direct_layout_run_validates_local_operands_and_search_dimensions() {
+        let mut circuit = Circuit::new(2, 0);
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::U,
+            qubits: vec![99],
+            params: vec![0.2, 0.3, 0.4],
+        });
+        for pass in [
+            SabreLayoutPass {
+                backend: Backend::linear(2),
+                num_trials: 1,
+                num_iterations: 1,
+            },
+            SabreLayoutPass {
+                backend: Backend::linear(2),
+                num_trials: 0,
+                num_iterations: 1,
+            },
+            SabreLayoutPass {
+                backend: Backend::linear(2),
+                num_trials: 1,
+                num_iterations: 0,
+            },
+            SabreLayoutPass {
+                backend: Backend::linear(1),
+                num_trials: 1,
+                num_iterations: 1,
+            },
+        ] {
+            let mut properties = PropertySet::new();
+            let output = pass.run(&circuit, &mut properties);
+            assert_eq!(output.operations, circuit.operations);
+            assert!(properties.get::<String>("sabre_layout_error").is_some());
+            assert!(pass.try_run(&circuit, &mut properties).is_err());
+        }
+        circuit.operations.pop();
+        for (trials, iterations, width) in [(0, 1, 2), (1, 0, 2), (1, 1, 1)] {
+            let pass = SabreLayoutPass {
+                backend: Backend::linear(width),
+                num_trials: trials,
+                num_iterations: iterations,
+            };
+            let mut properties = PropertySet::new();
+            assert_eq!(
+                pass.run(&circuit, &mut properties).operations,
+                circuit.operations
+            );
+            assert!(properties.get::<String>("sabre_layout_error").is_some());
+        }
+    }
 
     #[test]
     fn zero_swap_lower_bound_stops_all_remaining_layout_trials() {
