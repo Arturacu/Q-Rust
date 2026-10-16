@@ -40,6 +40,7 @@ experiments/*
 !experiments/Cargo.toml
 !experiments/CORRECTNESS_REPAIR.md
 !experiments/COMPARISON_STUDY.md
+!experiments/ROUTING_INVESTIGATION.md
 !experiments/validation/
 !experiments/validation/*.json
 !experiments/src/

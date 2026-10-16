@@ -5,6 +5,11 @@ Cirq and TKET recipes. It supersedes historical performance comparisons that did
 not preserve and independently validate each measured artifact. It does not
 replace the separate correctness regression suites.
 
+The recorded numerical study below uses the compiler before the subsequent
+[routing investigation](ROUTING_INVESTIGATION.md). Current O3 has deterministic
+tie handling, a smaller configurable placement budget and new exact cleanup;
+its rerun must be reported separately from those historical measurements.
+
 ## Reproduction
 
 Use Python 3.12 and a clean virtual environment. The complete dependency lock is
@@ -44,8 +49,10 @@ against the original unnormalized fixture, so normalization is also checked.
 Each tool runs in a persistent process, with one warm-up per case and seven
 measured trials. Case order and within-trial tool order are shuffled with seed
 20261015. Compilation requests are sequential. Qiskit receives a recorded
-transpiler seed. Q-Rust's internal randomized routing has no exposed seed; Cirq
-and TKET use deterministic recipes. Seven trials do not equalize algorithmic
+transpiler seed. The original Q-Rust study had nondeterministic routing ties;
+the revised compiler has deterministic ties and fixed internal layout seeds,
+recorded in its worker output. Cirq and TKET use deterministic recipes.
+Seven trials do not equalize algorithmic
 search effort. Environment variables cap common numerical and native worker
 pools at one thread; processor affinity and frequency are not fixed.
 

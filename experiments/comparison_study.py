@@ -150,7 +150,7 @@ def timing(args):
         "normalization": "Every tool receives identical exact CRZ and RZZ expansion into RZ/CX. CCX remains for timed lowering. Validation compares against the original unnormalized fixture.",
         "validation": "Independent NumPy analytic gate simulator. Full isometry through six physical qubits; otherwise three basis, uniform and four seeded Haar inputs. One shared global phase; full physical amplitudes; residual threshold 1e-7. Not proof or hardware fidelity.",
         "sampling_limit": "51 in-house fixtures <=14 logical qubits, nine families; no external holdout. Seven repetitions are not seven independent circuits. Preset recipes have unequal search effort.",
-        "runtime_limit": "Single host, single thread environment caps, no CPU affinity/frequency control. Q-Rust internal routing RNG is not externally seedable. Qiskit uses recorded seeds; Cirq/TKET recipes are deterministic.",
+        "runtime_limit": "Single host, single thread environment caps, no CPU affinity/frequency control. Q-Rust's actual seed and search policy is described in each worker pipeline record; a requested seed is not assumed to be used. Qiskit uses recorded seeds; Cirq/TKET recipes are deterministic.",
     }
     (outdir / "protocol.json").write_text(json.dumps(protocol, indent=2) + "\n")
     rng = random.Random(MASTER_SEED)

@@ -166,6 +166,39 @@ impl PassManager {
         Ok(current)
     }
 
+    /// Run the same pass sequence and collect diagnostics outside benchmark runs.
+    /// Metric capture is deliberately opt-in because counting gates/depth takes time.
+    pub fn try_run_profiled(
+        &mut self,
+        circuit: &Circuit,
+    ) -> crate::error::Result<(Circuit, Vec<super::report::PassDiagnostic>)> {
+        let mut current = circuit.clone();
+        let mut diagnostics = Vec::new();
+        for entry in &self.entries {
+            let pass = match entry {
+                PassEntry::Always(pass) => pass,
+                PassEntry::Conditional { pass, predicate } => {
+                    if !predicate(&self.property_set) {
+                        continue;
+                    }
+                    pass
+                }
+            };
+            let started = std::time::Instant::now();
+            current = pass.try_run(&current, &mut self.property_set)?;
+            let elapsed_ns = started.elapsed().as_nanos() as u64;
+            diagnostics.push(super::report::PassDiagnostic {
+                elapsed_ns,
+                layout_route_evaluations: self
+                    .property_set
+                    .get::<usize>("layout_route_evaluations")
+                    .copied(),
+                output: super::report::StageSnapshot::capture(pass.name(), &current),
+            });
+        }
+        Ok((current, diagnostics))
+    }
+
     /// Returns the number of registered entries (conditional + unconditional).
     ///
     /// # Example

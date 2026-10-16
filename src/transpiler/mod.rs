@@ -16,12 +16,45 @@ pub mod routing;
 pub mod synthesis;
 pub mod target_basis;
 
-pub use report::{StageSnapshot, TranspilationReport};
+pub use report::{PassDiagnostic, StageSnapshot, TranspilationReport};
 
 use crate::error::{QRustError, Result};
 use crate::ir::{Circuit, GateDefinition, GateType, Operation};
 use pass::{Pass, PassManager};
 use std::collections::HashSet;
+
+/// Independently configurable routing policies for reproducible search ablations.
+#[derive(Clone, Debug)]
+pub struct RoutingSearchConfig {
+    /// Override the optimization-level layout trial budget.
+    pub layout_trials: Option<usize>,
+    /// Override the optimization-level forward/backward layout iterations.
+    pub layout_iterations: Option<usize>,
+    /// Number of successor interactions in the extended layer. The static
+    /// heuristic normalizes each layer by its size. Zero selects the legacy
+    /// immediate-successor layer and unnormalized score for ablations.
+    pub lookahead_size: usize,
+    /// Rank beam survivors by executed gates and remaining distance, after
+    /// duplicate routing states have been collapsed.
+    pub rank_progress: bool,
+    /// Extract terminal logical permutations before layout and routing.
+    pub elide_output_permutations: bool,
+    /// Orient equivalent SWAP decompositions to expose adjacent CX cancellation.
+    pub orient_swaps: bool,
+}
+
+impl Default for RoutingSearchConfig {
+    fn default() -> Self {
+        Self {
+            layout_trials: None,
+            layout_iterations: None,
+            lookahead_size: 20,
+            rank_progress: true,
+            elide_output_permutations: true,
+            orient_swaps: true,
+        }
+    }
+}
 
 /// Top-level transpiler configuration.
 ///
@@ -33,6 +66,11 @@ pub struct TranspilerConfig {
     /// If `true`, decompose to the internal `{U, CX}` representation and
     /// enforce exact closure over the resolved target basis.
     pub decompose_basis: bool,
+    /// Collect per-pass timings and output metrics in `transpile_with_report`.
+    /// Disabled for normal compilation and performance measurements.
+    pub profile_passes: bool,
+    pub routing_search: RoutingSearchConfig,
+
     /// Run the level-3 post-routing optimization passes. Disable for cleanup
     /// ablations without changing the canonical lowering/validation pipeline.
     pub post_routing_cleanup: bool,
@@ -41,8 +79,9 @@ pub struct TranspilerConfig {
     /// - 1: peephole crystallization + parameter simplification.
     /// - 2: + rotation merging, cross-conjugation, inverse cancellation,
     ///   commutation cancellation, layout (10 trials × 3 iters), routing.
-    /// - 3: + layout (50 trials × 5 iters), harder routing (beam=8,
+    /// - 3: layout (10 trials × 3 iters), harder routing (beam=8,
     ///   branch=5, 4 bidirectional iterations), and post-routing fusion.
+    ///   Use `routing_search` to increase the layout search budget.
     pub optimization_level: u8,
     /// Optional hardware backend. When set, layout, routing, and CX-direction
     /// passes are added to the pipeline.
@@ -63,6 +102,8 @@ impl Default for TranspilerConfig {
     fn default() -> Self {
         Self {
             decompose_basis: true,
+            profile_passes: false,
+            routing_search: RoutingSearchConfig::default(),
             post_routing_cleanup: true,
             optimization_level: 1,
             backend: None,
@@ -83,6 +124,8 @@ impl TranspilerConfig {
 #[derive(Clone, Debug, Default)]
 pub struct TranspilerConfigBuilder {
     decompose_basis: Option<bool>,
+    profile_passes: Option<bool>,
+    routing_search: Option<RoutingSearchConfig>,
     post_routing_cleanup: Option<bool>,
     optimization_level: Option<u8>,
     backend: Option<crate::backend::Backend>,
@@ -95,6 +138,16 @@ impl TranspilerConfigBuilder {
     /// `true`.
     pub fn decompose_basis(mut self, v: bool) -> Self {
         self.decompose_basis = Some(v);
+        self
+    }
+    /// Configure independent routing search policies and budgets.
+    pub fn routing_search(mut self, options: RoutingSearchConfig) -> Self {
+        self.routing_search = Some(options);
+        self
+    }
+    /// Enable per-pass diagnostic capture (default: false).
+    pub fn profile_passes(mut self, enabled: bool) -> Self {
+        self.profile_passes = Some(enabled);
         self
     }
     /// Enable level-3 post-routing cleanup (default: true).
@@ -132,6 +185,8 @@ impl TranspilerConfigBuilder {
             .min(3);
         TranspilerConfig {
             decompose_basis: self.decompose_basis.unwrap_or(default.decompose_basis),
+            profile_passes: self.profile_passes.unwrap_or(false),
+            routing_search: self.routing_search.unwrap_or_default(),
             post_routing_cleanup: self
                 .post_routing_cleanup
                 .unwrap_or(default.post_routing_cleanup),
@@ -580,6 +635,12 @@ fn restore_terminal_readout(
 /// optimization a second time.
 fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<PassManager> {
     let mut pm = PassManager::new();
+    pm.property_set.insert(
+        "routing_lookahead_size",
+        config.routing_search.lookahead_size,
+    );
+    pm.property_set
+        .insert("routing_rank_progress", config.routing_search.rank_progress);
 
     match stage {
         Stage::Optimize => {
@@ -608,17 +669,23 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 // operations before routing: the SWAP router cannot make a
                 // 3-qubit interaction adjacent and would otherwise corrupt the
                 // gate. Standard transpiler ordering (decompose, then route).
+                if config.routing_search.elide_output_permutations {
+                    pm.add_pass(Box::new(optimization::ExtractOutputPermutationPass));
+                }
                 pm.add_pass(Box::new(decomposition::HighArityDecompositionPass));
 
                 if config.optimization_level >= 2 {
-                    let (num_trials, num_iterations) = match config.optimization_level {
-                        2 => (10, 3),
-                        _ => (50, 5),
-                    };
+                    // More trials remain available explicitly. On the
+                    // development corpus, 10×3 matched 50×5 output exactly;
+                    // this is a search-budget choice, not a universal bound.
+                    let (num_trials, num_iterations) = (10, 3);
                     pm.add_pass(Box::new(layout::SabreLayoutPass {
                         backend: backend.clone(),
-                        num_trials,
-                        num_iterations,
+                        num_trials: config.routing_search.layout_trials.unwrap_or(num_trials),
+                        num_iterations: config
+                            .routing_search
+                            .layout_iterations
+                            .unwrap_or(num_iterations),
                     }));
                 }
                 let (beam_width, branch_factor, bidir_iters) = match config.optimization_level {
@@ -636,6 +703,9 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 // Fold any trailing SWAPs (e.g. the QFT bit-reversal network)
                 // into the output layout rather than emitting them as gates.
                 pm.add_pass(Box::new(optimization::TrailingSwapElisionPass));
+                if config.routing_search.elide_output_permutations {
+                    pm.add_pass(Box::new(optimization::ApplyOutputPermutationPass));
+                }
             }
 
             // Target-basis translation runs BEFORE BasisDecompositionPass so the
@@ -643,6 +713,12 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
             // rather than their U-gate expansions.
             if config.decompose_basis {
                 let resolved_basis = resolved_target_basis(config);
+                if config.optimization_level >= 3
+                    && config.post_routing_cleanup
+                    && config.routing_search.orient_swaps
+                {
+                    pm.add_pass(Box::new(optimization::OrientSwapDecompositionPass));
+                }
                 if let Some(ref basis) = resolved_basis {
                     pm.add_pass(Box::new(target_basis::TargetBasisPass::new(basis.clone())?));
                 }
@@ -714,8 +790,8 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Result<
 /// plus the initial/final layouts recorded by the router, when present,
 /// and is guaranteed to produce the **same final circuit as
 /// [`transpile`]** for the same input/config (the pipeline is split, not
-/// re-run). More granular per-pass tracking would require reworking
-/// [`PassManager`] (deferred to G-PM-01).
+/// re-run). Set `profile_passes` to collect per-pass timing and gate metrics
+/// separately from performance measurements.
 pub fn transpile_with_report(
     circuit: &Circuit,
     config: Option<TranspilerConfig>,
@@ -727,14 +803,26 @@ pub fn transpile_with_report(
     report.push(StageSnapshot::capture("1. parsed", circuit));
 
     let mut opt_pm = build_pass_manager_for(&config, Stage::Optimize)?;
-    let after_opt = opt_pm.try_run(&prefix)?;
+    let after_opt = if config.profile_passes {
+        let (output, diagnostic) = opt_pm.try_run_profiled(&prefix)?;
+        report.pass_diagnostics.extend(diagnostic);
+        output
+    } else {
+        opt_pm.try_run(&prefix)?
+    };
     report.push(StageSnapshot::capture(
         "2. optimized",
         &restore_terminal_readout(after_opt.clone(), terminal, None),
     ));
 
     let mut lower_pm = build_pass_manager_for(&config, Stage::LayoutAndLower)?;
-    let lowered = lower_pm.try_run(&after_opt)?;
+    let lowered = if config.profile_passes {
+        let (output, diagnostic) = lower_pm.try_run_profiled(&after_opt)?;
+        report.pass_diagnostics.extend(diagnostic);
+        output
+    } else {
+        lower_pm.try_run(&after_opt)?
+    };
     let final_circuit = restore_terminal_readout(
         lowered,
         terminal,

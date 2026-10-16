@@ -1,7 +1,7 @@
 //! Iterative SABRE-based layout discovery.
 //!
 //! Leverages BeamSABRE-style routing with cheap greedy scoring to discover
-//! near-optimal initial qubit placements via repeated forward/backward
+//! candidate low-cost initial qubit placements via repeated forward/backward
 //! passes. When the circuit's interaction graph is a subgraph of the hardware
 //! topology, this often converges to a zero-SWAP layout.
 
@@ -10,7 +10,8 @@ use crate::backend::Backend;
 use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::pass::Pass;
 use crate::transpiler::property_set::PropertySet;
-use crate::transpiler::routing::Layout;
+use crate::transpiler::routing::{extended_layer, Layout};
+#[cfg(test)]
 use std::collections::HashSet;
 
 #[derive(Clone, Debug)]
@@ -79,6 +80,7 @@ fn greedy_sabre_cost(
     backend: &Backend,
     dist: &[Vec<usize>],
     initial_layout: &Layout,
+    lookahead_size: usize,
 ) -> (f64, Layout) {
     if gates.is_empty() {
         return (0.0, initial_layout.clone());
@@ -93,6 +95,9 @@ fn greedy_sabre_cost(
 
     let max_swaps = total * dist.len() * 3;
     let mut swap_count = 0usize;
+    let neighbors: Vec<_> = (0..backend.num_qubits)
+        .map(|p| backend.neighbors(p))
+        .collect();
 
     while executed < total {
         loop {
@@ -124,27 +129,38 @@ fn greedy_sabre_cost(
             break;
         }
 
-        let mut candidates: HashSet<(usize, usize)> = HashSet::new();
+        let extended = extended_layer(&front, gates, &remaining, lookahead_size, |g| &g.successors);
+        let mut candidates = Vec::new();
         for &g in &front {
             let p0 = layout.l2p(gates[g].logical_qubits[0]);
             let p1 = layout.l2p(gates[g].logical_qubits[1]);
-            for n in backend.neighbors(p0) {
+            for &n in &neighbors[p0] {
                 let edge = if p0 < n { (p0, n) } else { (n, p0) };
-                candidates.insert(edge);
+                candidates.push(edge);
             }
-            for n in backend.neighbors(p1) {
+            for &n in &neighbors[p1] {
                 let edge = if p1 < n { (p1, n) } else { (n, p1) };
-                candidates.insert(edge);
+                candidates.push(edge);
             }
         }
 
+        candidates.sort_unstable();
+        candidates.dedup();
         let best_swap = candidates
             .iter()
             .map(|&swap| {
-                let delta = relative_score(&layout, swap, &front, gates, dist);
+                let delta = relative_score(
+                    &layout,
+                    swap,
+                    &front,
+                    gates,
+                    dist,
+                    &extended,
+                    lookahead_size > 0,
+                );
                 (delta, swap)
             })
-            .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap())
+            .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap().then_with(|| a.1.cmp(&b.1)))
             .map(|(_, s)| s);
         let Some(best_swap) = best_swap else {
             // A disconnected candidate placement is not a valid layout.
@@ -169,17 +185,15 @@ fn relative_score(
     front: &[usize],
     gates: &[TwoQGate],
     dist: &[Vec<usize>],
+    extended: &[usize],
+    normalize: bool,
 ) -> f64 {
     let (pa, pb) = swap;
     let mut delta = 0.0;
-    let mut extended_layer = HashSet::new();
 
     for &g in front {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
-        for &succ in &gates[g].successors {
-            extended_layer.insert(succ);
-        }
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
             continue;
         }
@@ -201,8 +215,15 @@ fn relative_score(
         delta += dist[np0][np1] as f64 - old;
     }
 
-    let lookahead_weight = 0.5;
-    for g in extended_layer {
+    if normalize {
+        delta /= front.len().max(1) as f64;
+    }
+    let lookahead_weight = if normalize {
+        0.5 / extended.len().max(1) as f64
+    } else {
+        0.5
+    };
+    for &g in extended {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
@@ -308,13 +329,29 @@ impl Pass for SabreLayoutPass {
         let rev_gates = reverse_graph(&fwd_gates, num_logical);
         let rev_preds = pred_counts(&rev_gates);
 
+        let lookahead_size = property_set
+            .get::<usize>("routing_lookahead_size")
+            .copied()
+            .unwrap_or(20);
         let trivial = Layout::trivial(num_logical, num_physical);
-        let (trivial_cost, _) =
-            greedy_sabre_cost(&fwd_gates, &fwd_preds, &connectivity, &dist, &trivial);
+        let (trivial_cost, _) = greedy_sabre_cost(
+            &fwd_gates,
+            &fwd_preds,
+            &connectivity,
+            &dist,
+            &trivial,
+            lookahead_size,
+        );
+        let mut evaluations = 1usize;
         let mut best_cost = trivial_cost;
         let mut best_layout = trivial.clone();
 
         for trial in 0..self.num_trials {
+            // Zero is a proven lower bound on SWAP count. Searching another
+            // placement cannot improve it (and used to waste hundreds of routes).
+            if best_cost == 0.0 {
+                break;
+            }
             let mut layout = if trial == 0 {
                 trivial.clone()
             } else {
@@ -322,21 +359,46 @@ impl Pass for SabreLayoutPass {
             };
 
             for _ in 0..self.num_iterations {
-                let (_, fwd_final) =
-                    greedy_sabre_cost(&fwd_gates, &fwd_preds, &connectivity, &dist, &layout);
-                let (_, bwd_final) =
-                    greedy_sabre_cost(&rev_gates, &rev_preds, &connectivity, &dist, &fwd_final);
+                evaluations += 2;
+                let (_, fwd_final) = greedy_sabre_cost(
+                    &fwd_gates,
+                    &fwd_preds,
+                    &connectivity,
+                    &dist,
+                    &layout,
+                    lookahead_size,
+                );
+                let (_, bwd_final) = greedy_sabre_cost(
+                    &rev_gates,
+                    &rev_preds,
+                    &connectivity,
+                    &dist,
+                    &fwd_final,
+                    lookahead_size,
+                );
+                let converged = layout.logical_to_physical == bwd_final.logical_to_physical;
                 layout = bwd_final;
+                if converged {
+                    break;
+                }
             }
 
-            let (final_cost, _) =
-                greedy_sabre_cost(&fwd_gates, &fwd_preds, &connectivity, &dist, &layout);
+            evaluations += 1;
+            let (final_cost, _) = greedy_sabre_cost(
+                &fwd_gates,
+                &fwd_preds,
+                &connectivity,
+                &dist,
+                &layout,
+                lookahead_size,
+            );
             if final_cost < best_cost {
                 best_cost = final_cost;
                 best_layout = layout;
             }
         }
 
+        property_set.insert("layout_route_evaluations", evaluations);
         property_set.insert(
             "sabre_initial_layout",
             best_layout.logical_to_physical.clone(),
@@ -360,6 +422,33 @@ fn random_layout(num_logical: usize, num_physical: usize, seed: u64) -> Layout {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn zero_swap_lower_bound_stops_all_remaining_layout_trials() {
+        let mut circuit = Circuit::new(8, 0);
+        for q in 0..7 {
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![q, q + 1],
+                params: vec![],
+            });
+        }
+        let pass = SabreLayoutPass {
+            backend: Backend::linear(8),
+            num_trials: 50,
+            num_iterations: 5,
+        };
+        let mut properties = PropertySet::new();
+        pass.try_run(&circuit, &mut properties).unwrap();
+        assert_eq!(
+            properties.get::<usize>("layout_route_evaluations"),
+            Some(&1)
+        );
+        assert_eq!(
+            properties.get::<Vec<usize>>("sabre_initial_layout"),
+            Some(&(0..8).collect())
+        );
+    }
 
     #[test]
     fn test_random_layout_valid() {

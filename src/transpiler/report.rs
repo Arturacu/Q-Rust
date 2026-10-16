@@ -43,10 +43,19 @@ impl StageSnapshot {
     }
 }
 
+/// Optional per-pass evidence. Timing excludes the following metric capture.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PassDiagnostic {
+    pub elapsed_ns: u64,
+    pub layout_route_evaluations: Option<usize>,
+    pub output: StageSnapshot,
+}
+
 /// Full transpilation report.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct TranspilationReport {
     pub stages: Vec<StageSnapshot>,
+    pub pass_diagnostics: Vec<PassDiagnostic>,
     /// Physical location of each logical input qubit, when routing ran.
     pub initial_layout: Option<Vec<usize>>,
     /// Physical location of each logical output qubit, when routing ran.

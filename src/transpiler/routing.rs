@@ -250,6 +250,45 @@ fn safe_dist(dist: &[Vec<usize>], a: usize, b: usize) -> f64 {
     }
 }
 
+/// Build a deterministic extended layer once per routing step, shared by every
+/// candidate score. Zero preserves the immediate-successor legacy policy.
+pub(crate) fn extended_layer<T>(
+    front: &[usize],
+    gates: &[T],
+    remaining: &[u16],
+    limit: usize,
+    successors: fn(&T) -> &[usize],
+) -> Vec<usize> {
+    if limit == 0 {
+        let mut layer: Vec<_> = front
+            .iter()
+            .flat_map(|&g| successors(&gates[g]).iter().copied())
+            .collect();
+        layer.sort_unstable();
+        layer.dedup();
+        return layer;
+    }
+    let mut deps = remaining.to_vec();
+    let mut queue = front.to_vec();
+    let mut layer = Vec::with_capacity(limit);
+    let mut cursor = 0;
+    while cursor < queue.len() && layer.len() < limit {
+        for &next in successors(&gates[queue[cursor]]) {
+            deps[next] -= 1;
+            if deps[next] == 0 {
+                queue.push(next);
+                layer.push(next);
+                if layer.len() == limit {
+                    break;
+                }
+            }
+        }
+        cursor += 1;
+    }
+    layer
+}
+
+#[allow(clippy::too_many_arguments)]
 fn relative_score(
     layout: &Layout,
     swap: (usize, usize),
@@ -257,18 +296,16 @@ fn relative_score(
     gates: &[TwoQGate],
     dist: &[Vec<usize>],
     strategy: LookaheadStrategy,
+    extended: &[usize],
+    normalize: bool,
 ) -> f64 {
     let (pa, pb) = swap;
     let mut delta_f = 0.0;
     let mut delta_e = 0.0;
-    let mut extended_layer: HashSet<usize> = HashSet::new();
 
     for &g in front {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
-        for &succ in &gates[g].successors {
-            extended_layer.insert(succ);
-        }
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
             continue;
         }
@@ -290,7 +327,7 @@ fn relative_score(
         delta_f += safe_dist(dist, np0, np1) - old;
     }
 
-    for &g in &extended_layer {
+    for &g in extended {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
@@ -314,13 +351,17 @@ fn relative_score(
         delta_e += safe_dist(dist, np0, np1) - old;
     }
 
+    if normalize && matches!(strategy, LookaheadStrategy::Static { .. }) {
+        delta_f /= front.len().max(1) as f64;
+        delta_e /= extended.len().max(1) as f64;
+    }
     match strategy {
         LookaheadStrategy::Static { weight } => delta_f + weight * delta_e,
         LookaheadStrategy::DynamicV2 => {
-            if front.is_empty() || extended_layer.is_empty() {
+            if front.is_empty() || extended.is_empty() {
                 return delta_f;
             }
-            let scaled_e = delta_e * (front.len() as f64 / extended_layer.len() as f64);
+            let scaled_e = delta_e * (front.len() as f64 / extended.len() as f64);
             delta_f.max(scaled_e)
         }
     }
@@ -341,11 +382,16 @@ fn beam_sabre_forward(
     beam_width: usize,
     branch_factor: usize,
     strategy: LookaheadStrategy,
+    lookahead_size: usize,
+    rank_progress: bool,
 ) -> Result<Vec<Beam>> {
     if gates.is_empty() {
         return Ok(vec![Beam::new(initial_layout.clone(), preds, 0)]);
     }
     let mut beams = vec![Beam::new(initial_layout.clone(), preds, gates.len())];
+    let neighbors: Vec<_> = (0..backend.num_qubits)
+        .map(|p| backend.neighbors(p))
+        .collect();
 
     loop {
         for beam in &mut beams {
@@ -364,20 +410,29 @@ fn beam_sabre_forward(
                 new_beams.push(beam.clone());
                 continue;
             }
-            let mut candidates: HashSet<(usize, usize)> = HashSet::new();
+            let extended = extended_layer(
+                &beam.front_layer,
+                gates,
+                &beam.remaining_deps,
+                lookahead_size,
+                |g| &g.successors,
+            );
+            let mut candidates = Vec::new();
             for &gate_idx in &beam.front_layer {
                 let g = &gates[gate_idx];
                 let p0 = beam.layout.l2p(g.logical_qubits[0]);
                 let p1 = beam.layout.l2p(g.logical_qubits[1]);
-                for n in backend.neighbors(p0) {
+                for &n in &neighbors[p0] {
                     let edge = if p0 < n { (p0, n) } else { (n, p0) };
-                    candidates.insert(edge);
+                    candidates.push(edge);
                 }
-                for n in backend.neighbors(p1) {
+                for &n in &neighbors[p1] {
                     let edge = if p1 < n { (p1, n) } else { (n, p1) };
-                    candidates.insert(edge);
+                    candidates.push(edge);
                 }
             }
+            candidates.sort_unstable();
+            candidates.dedup();
             let mut scored: Vec<(f64, (usize, usize))> = candidates
                 .iter()
                 .map(|&swap| {
@@ -388,23 +443,18 @@ fn beam_sabre_forward(
                         gates,
                         dist,
                         strategy,
+                        &extended,
+                        lookahead_size > 0,
                     );
                     (beam.cumulative_cost + SWAP_COST + delta, swap)
                 })
                 .collect();
-            scored.sort_by(|a, b| cmp_f64(a.0, b.0));
+            scored.sort_by(|a, b| cmp_f64(a.0, b.0).then_with(|| a.1.cmp(&b.1)));
             if scored.is_empty() {
                 // Beam is stuck (no path in disconnected topology). Drop it.
                 continue;
             }
-            let best_delta = relative_score(
-                &beam.layout,
-                scored[0].1,
-                &beam.front_layer,
-                gates,
-                dist,
-                strategy,
-            );
+            let best_delta = scored[0].0 - beam.cumulative_cost - SWAP_COST;
             let effective_branch = if best_delta >= 0.0 {
                 1
             } else {
@@ -419,7 +469,45 @@ fn beam_sabre_forward(
                 }
             }
         }
-        new_beams.sort_by(|a, b| cmp_f64(a.cumulative_cost, b.cumulative_cost));
+        if rank_progress {
+            for child in &mut new_beams {
+                execute_routable(child, gates, dist);
+            }
+            let distance = |beam: &Beam| -> usize {
+                beam.front_layer
+                    .iter()
+                    .map(|&g| {
+                        let [a, b] = gates[g].logical_qubits;
+                        dist[beam.layout.l2p(a)][beam.layout.l2p(b)]
+                    })
+                    .fold(0usize, usize::saturating_add)
+            };
+            new_beams.sort_by(|a, b| {
+                cmp_f64(a.cumulative_cost, b.cumulative_cost)
+                    .then_with(|| b.executed_count.cmp(&a.executed_count))
+                    .then_with(|| distance(a).cmp(&distance(b)))
+                    .then_with(|| {
+                        a.layout
+                            .logical_to_physical
+                            .cmp(&b.layout.logical_to_physical)
+                    })
+            });
+            let mut seen = HashSet::new();
+            new_beams.retain(|beam| {
+                seen.insert((
+                    beam.layout.logical_to_physical.clone(),
+                    beam.remaining_deps.clone(),
+                    beam.front_layer.clone(),
+                ))
+            });
+            // Every unfinished child has exhausted its free gates. It needs
+            // another SWAP, so cannot improve this completed child's cost.
+            if let Some(completed) = new_beams.iter().find(|b| b.complete) {
+                return Ok(vec![completed.clone()]);
+            }
+        } else {
+            new_beams.sort_by(|a, b| cmp_f64(a.cumulative_cost, b.cumulative_cost));
+        }
 
         // Extract witness BEFORE dropping stuck beams.
         let pre_prune_witness: Option<(usize, usize)> = beams
@@ -648,6 +736,12 @@ impl BeamSabrePass {
                 segment.operations = circuit.operations[start..boundary].to_vec();
                 let mut properties = PropertySet::new();
                 properties.insert("sabre_initial_layout", current.clone());
+                if let Some(value) = property_set.get::<usize>("routing_lookahead_size") {
+                    properties.insert("routing_lookahead_size", *value);
+                }
+                if let Some(value) = property_set.get::<bool>("routing_rank_progress") {
+                    properties.insert("routing_rank_progress", *value);
+                }
                 let mut segment_pass = self.clone();
                 if !first {
                     segment_pass.bidir_iterations = 1;
@@ -734,6 +828,14 @@ impl BeamSabrePass {
         let dist = connectivity.shortest_path_matrix();
         let (gates, preds, single_q_ops) = build_gate_graph(circuit);
 
+        let lookahead_size = property_set
+            .get::<usize>("routing_lookahead_size")
+            .copied()
+            .unwrap_or(20);
+        let rank_progress = property_set
+            .get::<bool>("routing_rank_progress")
+            .copied()
+            .unwrap_or(true);
         let mut best_layout = requested_layout;
 
         let mut best_beam: Option<Beam> = None;
@@ -782,6 +884,8 @@ impl BeamSabrePass {
                 self.beam_width,
                 self.branch_factor,
                 self.lookahead_strategy,
+                lookahead_size,
+                rank_progress,
             )?;
             let fwd_best = fwd
                 .iter()
@@ -806,6 +910,8 @@ impl BeamSabrePass {
                     self.beam_width,
                     self.branch_factor,
                     self.lookahead_strategy,
+                    lookahead_size,
+                    rank_progress,
                 )?;
                 let bwd_best = bwd
                     .iter()
@@ -878,6 +984,61 @@ mod tests {
             branch_factor: branch,
             bidir_iterations: bidir,
             lookahead_strategy: LookaheadStrategy::default(),
+        }
+    }
+
+    #[test]
+    fn extended_layer_sees_beyond_repeated_pair_and_counts_duplicate_dependencies() {
+        // CX(0,1), CX(0,1), CX(0,2): the old layer saw only the
+        // repeated first pair, hiding the next interaction partner.
+        let mut circuit = Circuit::new(3, 0);
+        for pair in [[0, 1], [0, 1], [0, 2]] {
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: pair.to_vec(),
+                params: vec![],
+            });
+        }
+        let (gates, preds, _) = build_gate_graph(&circuit);
+        assert_eq!(
+            extended_layer(&[0], &gates, &preds, 0, |g| &g.successors),
+            vec![1]
+        );
+        assert_eq!(
+            extended_layer(&[0], &gates, &preds, 20, |g| &g.successors),
+            vec![1, 2]
+        );
+        assert_eq!(
+            extended_layer(&[0], &gates, &preds, 1, |g| &g.successors),
+            vec![1]
+        );
+    }
+
+    #[test]
+    fn tied_routes_are_reproducible() {
+        let mut circuit = Circuit::new(5, 0);
+        for pair in [[0, 4], [1, 3], [0, 2], [2, 4], [0, 3]] {
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: pair.to_vec(),
+                params: vec![],
+            });
+        }
+        let pass = default_pass(Backend::linear(5), 4, 3, 2);
+        let mut first = PropertySet::new();
+        let expected = pass.try_run(&circuit, &mut first).unwrap();
+        for _ in 0..8 {
+            let mut properties = PropertySet::new();
+            let output = pass.try_run(&circuit, &mut properties).unwrap();
+            assert_eq!(output.operations, expected.operations);
+            assert_eq!(
+                properties.get::<Vec<usize>>("initial_layout"),
+                first.get::<Vec<usize>>("initial_layout")
+            );
+            assert_eq!(
+                properties.get::<Vec<usize>>("final_layout"),
+                first.get::<Vec<usize>>("final_layout")
+            );
         }
     }
 

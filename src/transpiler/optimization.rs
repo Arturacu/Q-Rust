@@ -3,6 +3,7 @@
 use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::dag::{DAGCircuit, DAGNode};
 use crate::transpiler::pass::Pass;
+use crate::transpiler::property_set::PropertySet;
 use crate::transpiler::synthesis::zyz::{u_to_matrix, zyz_decomposition};
 use petgraph::graph::NodeIndex;
 use petgraph::visit::EdgeRef;
@@ -904,6 +905,114 @@ fn rotation_angles_cancel(first: &[f64], second: &[f64], period: f64) -> bool {
     }
     let remainder = sum.rem_euclid(period);
     remainder.min(period - remainder) < 1e-9
+}
+
+/// Choose between the two exact three-CX decompositions of each SWAP.
+/// A neighboring CX on the same two wires cancels the matching endpoint CX.
+/// This is a local algebraic rewrite, not numerical two-qubit synthesis.
+#[derive(Debug, Clone, Copy)]
+pub struct OrientSwapDecompositionPass;
+
+impl Pass for OrientSwapDecompositionPass {
+    fn name(&self) -> &str {
+        "OrientSwapDecompositionPass"
+    }
+    fn run(&self, circuit: &Circuit, _: &mut PropertySet) -> Circuit {
+        let mut preference = vec![[0usize; 2]; circuit.operations.len()];
+        for reverse in [false, true] {
+            let mut nearest = vec![None; circuit.num_qubits];
+            for offset in 0..circuit.operations.len() {
+                let i = if reverse {
+                    circuit.operations.len() - 1 - offset
+                } else {
+                    offset
+                };
+                if let Operation::Gate { name, qubits, .. } = &circuit.operations[i] {
+                    if matches!(name, GateType::SWAP) && qubits.len() == 2 {
+                        let [a, b] = [qubits[0], qubits[1]];
+                        if let (Some(left), Some(right)) = (nearest[a], nearest[b]) {
+                            if left == right {
+                                if let Operation::Gate {
+                                    name: GateType::CX,
+                                    qubits: previous,
+                                    ..
+                                } = &circuit.operations[left]
+                                {
+                                    if previous == qubits {
+                                        preference[i][0] += 1;
+                                    } else if previous[0] == b && previous[1] == a {
+                                        preference[i][1] += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    for &q in qubits {
+                        nearest[q] = Some(i);
+                    }
+                } else {
+                    // Do not expose a cancellation across a scheduling or
+                    // nonunitary boundary, even on disjoint wires.
+                    nearest.fill(None);
+                }
+            }
+        }
+        let mut output = circuit.clone();
+        for (i, operation) in output.operations.iter_mut().enumerate() {
+            if preference[i][1] > preference[i][0] {
+                if let Operation::Gate {
+                    name: GateType::SWAP,
+                    qubits,
+                    ..
+                } = operation
+                {
+                    qubits.swap(0, 1);
+                }
+            }
+        }
+        output
+    }
+}
+
+/// Extract a logical terminal permutation before the router pays to realize it.
+/// The existing elision pass records inverse permutation `p[l]`; after routing,
+/// output logical wire `l` is read at the routed location of `p[l]`.
+#[derive(Debug, Clone, Copy)]
+pub struct ExtractOutputPermutationPass;
+
+impl Pass for ExtractOutputPermutationPass {
+    fn name(&self) -> &str {
+        "ExtractOutputPermutationPass"
+    }
+    fn run(&self, circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
+        properties.remove::<Vec<usize>>("logical_output_permutation");
+        let mut temporary = PropertySet::new();
+        let output = TrailingSwapElisionPass.run(circuit, &mut temporary);
+        if let Some(permutation) = temporary.get::<Vec<usize>>("final_layout") {
+            properties.insert("logical_output_permutation", permutation.clone());
+        }
+        output
+    }
+}
+
+/// Compose an extracted logical permutation with the physical output mapping.
+#[derive(Debug, Clone, Copy)]
+pub struct ApplyOutputPermutationPass;
+
+impl Pass for ApplyOutputPermutationPass {
+    fn name(&self) -> &str {
+        "ApplyOutputPermutationPass"
+    }
+    fn run(&self, circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
+        if let (Some(permutation), Some(layout)) = (
+            properties.remove::<Vec<usize>>("logical_output_permutation"),
+            properties.get::<Vec<usize>>("final_layout"),
+        ) {
+            let composed: Vec<usize> = permutation.iter().map(|&q| layout[q]).collect();
+            properties.insert("final_layout", composed);
+        }
+        circuit.clone()
+    }
 }
 
 /// Elides trailing `SWAP` gates by folding them into the output layout.

@@ -88,7 +88,7 @@ A `CircuitProfilerPass` (analysis-only) populates a `ProfileReport` for inspecti
 
 ### Routing & layout (SABRE)
 
-- **`SabreLayoutPass`** — bidirectional iterative layout with Fisher–Yates seed permutations (10 trials × 3 iterations at opt-2; 50 × 5 at opt-3).
+- **`SabreLayoutPass`** — bidirectional iterative layout with seeded Fisher–Yates permutations, deterministic ties and convergence/zero-SWAP stopping (10 trials × 3 iterations at opt-2 and opt-3; configurable through `RoutingSearchConfig`). O3 retains a larger routing beam and post-routing cleanup.
 - **`BeamSabrePass`** — beam-search SABRE router with two lookahead strategies:
   - `LookaheadStrategy::Static { weight }` — classical SABRE (Li et al. 2019).
   - `LookaheadStrategy::DynamicV2` — SABRE-v2 (Li et al. 2023).
