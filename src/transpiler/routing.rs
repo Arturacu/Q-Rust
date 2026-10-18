@@ -139,6 +139,26 @@ pub(crate) struct TwoQGate {
     pub(crate) successors: Vec<usize>,
 }
 
+/// A refined placement already visited by layout discovery. The score is a
+/// greedy estimate, not a lower bound on the eventual beam route.
+#[derive(Clone, Debug)]
+pub(crate) struct RefinedLayoutCandidate {
+    pub layout: Vec<usize>,
+    pub swap_cost: f64,
+}
+
+/// A complete, independently lowerable alternative to the unchanged incumbent
+/// route. Output-permutation composition and target lowering have not run yet.
+/// The caller must compare validated, lowered outputs before accepting one.
+#[derive(Clone, Debug)]
+pub(crate) struct RoutingOutputCandidate {
+    pub circuit: Circuit,
+    pub initial_layout: Vec<usize>,
+    pub final_layout: Vec<usize>,
+    pub swaps_inserted: usize,
+    pub origin: &'static str,
+}
+
 /// Exact, syntactic diagonal classification. In particular, a nearly-zero U
 /// angle is never rounded into this class.
 fn is_diagonal(name: &GateType, params: &[f64]) -> bool {
@@ -479,6 +499,7 @@ fn beam_sabre_forward(
     strategy: LookaheadStrategy,
     lookahead_size: usize,
     rank_progress: bool,
+    retain_completed_ties: bool,
 ) -> Result<Vec<Beam>> {
     if gates.is_empty() {
         return Ok(vec![Beam::new(initial_layout.clone(), preds, 0)]);
@@ -598,6 +619,14 @@ fn beam_sabre_forward(
             // Every unfinished child has exhausted its free gates. It needs
             // another SWAP, so cannot improve this completed child's cost.
             if let Some(completed) = new_beams.iter().find(|b| b.complete) {
+                if retain_completed_ties {
+                    let cost = completed.cumulative_cost;
+                    return Ok(new_beams
+                        .iter()
+                        .filter(|b| b.complete && b.cumulative_cost == cost)
+                        .cloned()
+                        .collect());
+                }
                 return Ok(vec![completed.clone()]);
             }
         } else {
@@ -785,6 +814,7 @@ impl Default for BeamSabrePass {
 
 impl BeamSabrePass {
     pub fn try_run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Result<Circuit> {
+        property_set.remove::<Vec<RoutingOutputCandidate>>("routing_output_candidates");
         crate::transpiler::validate_circuit_structure(circuit)?;
         crate::transpiler::validate_static_semantics(circuit)?;
         if circuit.num_qubits > self.backend.num_qubits {
@@ -938,11 +968,17 @@ impl BeamSabrePass {
             .get::<bool>("routing_rank_progress")
             .copied()
             .unwrap_or(true);
+        let retain_candidates = property_set
+            .get::<bool>("retain_routing_candidates")
+            .copied()
+            .unwrap_or(false);
         let mut best_layout = requested_layout;
 
         let mut best_beam: Option<Beam> = None;
         let mut best_cost = f64::MAX;
         let mut best_initial_layout = best_layout.clone();
+        let mut depth_candidate: Option<RoutingOutputCandidate> = None;
+        let mut visited_initial_layouts = Vec::new();
 
         let reversed_gates = reverse_gate_graph(&gates);
         let reversed_preds: Vec<usize> = {
@@ -957,6 +993,9 @@ impl BeamSabrePass {
 
         for iter in 0..self.bidir_iterations {
             let current_initial = best_layout.clone();
+            if retain_candidates {
+                visited_initial_layouts.push(current_initial.logical_to_physical.clone());
+            }
             let fwd = beam_sabre_forward(
                 &gates,
                 &preds,
@@ -968,6 +1007,7 @@ impl BeamSabrePass {
                 self.lookahead_strategy,
                 lookahead_size,
                 rank_progress,
+                retain_candidates,
             )?;
             let fwd_best = fwd
                 .iter()
@@ -981,6 +1021,34 @@ impl BeamSabrePass {
                 best_cost = fwd_best.cumulative_cost;
                 best_beam = Some(fwd_best.clone());
                 best_initial_layout = current_initial.clone();
+                depth_candidate = None;
+            }
+            if retain_candidates && fwd_best.cumulative_cost == best_cost {
+                for candidate in &fwd {
+                    if candidate.cumulative_cost != best_cost {
+                        continue;
+                    }
+                    let output = reconstruct_circuit(
+                        circuit,
+                        candidate,
+                        &current_initial,
+                        &gates,
+                        self.backend.num_qubits,
+                        &single_q_ops,
+                    );
+                    if depth_candidate
+                        .as_ref()
+                        .map_or(true, |previous| output.depth() < previous.circuit.depth())
+                    {
+                        depth_candidate = Some(RoutingOutputCandidate {
+                            circuit: output,
+                            initial_layout: current_initial.logical_to_physical.clone(),
+                            final_layout: candidate.layout.logical_to_physical.clone(),
+                            swaps_inserted: candidate.cumulative_cost as usize / 3,
+                            origin: "equal_swap_depth",
+                        });
+                    }
+                }
             }
             if iter + 1 < self.bidir_iterations {
                 let bwd = beam_sabre_forward(
@@ -994,6 +1062,7 @@ impl BeamSabrePass {
                     self.lookahead_strategy,
                     lookahead_size,
                     rank_progress,
+                    false,
                 )?;
                 let bwd_best = bwd
                     .iter()
@@ -1019,14 +1088,106 @@ impl BeamSabrePass {
         property_set.insert("final_layout", winning.layout.logical_to_physical.clone());
         property_set.insert("swaps_inserted", winning.cumulative_cost as usize / 3);
 
-        Ok(reconstruct_circuit(
+        let output = reconstruct_circuit(
             circuit,
             &winning,
             &best_initial_layout,
             &gates,
             self.backend.num_qubits,
             &single_q_ops,
-        ))
+        );
+        if retain_candidates {
+            let mut candidates = Vec::with_capacity(2);
+            if let Some(candidate) = depth_candidate {
+                if candidate.circuit != output
+                    || candidate.initial_layout != best_initial_layout.logical_to_physical
+                    || candidate.final_layout != winning.layout.logical_to_physical
+                {
+                    candidates.push(candidate);
+                }
+            }
+
+            // Spend at most one extra forward search on a refined placement
+            // that the greedy score considered close. One SWAP of slack is a
+            // bounded exploration policy, not a dominance or optimality proof.
+            // The incumbent trajectory and every candidate already visited by
+            // it are preserved, so this cannot redirect bidirectional search.
+            let alternate = property_set
+                .get::<Vec<RefinedLayoutCandidate>>("sabre_refined_layout_candidates")
+                .and_then(|layouts| {
+                    layouts
+                        .iter()
+                        .filter(|candidate| {
+                            candidate.layout.len() == circuit.num_qubits
+                                && candidate.swap_cost.is_finite()
+                                && candidate.swap_cost >= 0.0
+                                && candidate.swap_cost <= best_cost + SWAP_COST
+                                && !visited_initial_layouts.contains(&candidate.layout)
+                        })
+                        .min_by(|a, b| cmp_f64(a.swap_cost, b.swap_cost))
+                });
+            if let Some(alternate) = alternate {
+                if let Ok(initial) =
+                    Layout::from_l2p(alternate.layout.clone(), self.backend.num_qubits)
+                {
+                    if let Ok(routes) = beam_sabre_forward(
+                        &gates,
+                        &preds,
+                        &connectivity,
+                        &dist,
+                        &initial,
+                        self.beam_width,
+                        self.branch_factor,
+                        self.lookahead_strategy,
+                        lookahead_size,
+                        rank_progress,
+                        true,
+                    ) {
+                        let mut alternate_best: Option<RoutingOutputCandidate> = None;
+                        for route in routes {
+                            let routed = reconstruct_circuit(
+                                circuit,
+                                &route,
+                                &initial,
+                                &gates,
+                                self.backend.num_qubits,
+                                &single_q_ops,
+                            );
+                            let swaps = route.cumulative_cost as usize / 3;
+                            if alternate_best.as_ref().map_or(true, |previous| {
+                                (swaps, routed.depth())
+                                    < (previous.swaps_inserted, previous.circuit.depth())
+                            }) {
+                                alternate_best = Some(RoutingOutputCandidate {
+                                    circuit: routed,
+                                    initial_layout: initial.logical_to_physical.clone(),
+                                    final_layout: route.layout.logical_to_physical.clone(),
+                                    swaps_inserted: swaps,
+                                    origin: "refined_layout_forward",
+                                });
+                            }
+                        }
+                        if let Some(candidate) = alternate_best {
+                            let distinct = |other: &RoutingOutputCandidate| {
+                                other.circuit != candidate.circuit
+                                    || other.initial_layout != candidate.initial_layout
+                                    || other.final_layout != candidate.final_layout
+                            };
+                            if (candidate.circuit != output
+                                || candidate.initial_layout
+                                    != best_initial_layout.logical_to_physical
+                                || candidate.final_layout != winning.layout.logical_to_physical)
+                                && candidates.iter().all(distinct)
+                            {
+                                candidates.push(candidate);
+                            }
+                        }
+                    }
+                }
+            }
+            property_set.insert("routing_output_candidates", candidates);
+        }
+        Ok(output)
     }
 }
 
@@ -1265,6 +1426,163 @@ mod tests {
                 properties.get::<Vec<usize>>("final_layout"),
                 first.get::<Vec<usize>>("final_layout")
             );
+        }
+    }
+
+    #[test]
+    fn retained_routes_preserve_incumbent_and_have_valid_complete_mappings() {
+        let mut circuit = Circuit::new(5, 0);
+        for (i, pair) in [[0, 4], [1, 3], [0, 2], [2, 4], [0, 3]]
+            .into_iter()
+            .enumerate()
+        {
+            circuit.add_op(Operation::Gate {
+                name: GateType::CU1,
+                qubits: pair.to_vec(),
+                params: vec![0.13 * (i + 1) as f64],
+            });
+        }
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 4],
+            params: vec![],
+        });
+        let pass = default_pass(Backend::linear(5), 4, 3, 2);
+        let original = circuit_to_unitary(&circuit);
+        let mut saw_alternate = false;
+        for commute in [false, true] {
+            for rank_progress in [false, true] {
+                let mut ordinary = PropertySet::new();
+                let mut retained = PropertySet::new();
+                for properties in [&mut ordinary, &mut retained] {
+                    properties.insert("routing_commute_diagonal", commute);
+                    properties.insert("routing_rank_progress", rank_progress);
+                }
+                retained.insert("retain_routing_candidates", true);
+                retained.insert(
+                    "sabre_refined_layout_candidates",
+                    vec![
+                        RefinedLayoutCandidate {
+                            layout: vec![4, 3, 2, 1, 0],
+                            swap_cost: 0.0,
+                        },
+                        RefinedLayoutCandidate {
+                            layout: vec![1, 3, 0, 4, 2],
+                            swap_cost: 0.0,
+                        },
+                        RefinedLayoutCandidate {
+                            layout: vec![2, 4, 1, 0, 3],
+                            swap_cost: 0.0,
+                        },
+                    ],
+                );
+                let incumbent = pass.try_run(&circuit, &mut ordinary).unwrap();
+                assert_eq!(incumbent, pass.try_run(&circuit, &mut retained).unwrap());
+                for key in ["initial_layout", "final_layout"] {
+                    assert_eq!(
+                        ordinary.get::<Vec<usize>>(key),
+                        retained.get::<Vec<usize>>(key)
+                    );
+                }
+                assert_eq!(
+                    ordinary.get::<usize>("swaps_inserted"),
+                    retained.get::<usize>("swaps_inserted")
+                );
+                let candidates = retained
+                    .get::<Vec<RoutingOutputCandidate>>("routing_output_candidates")
+                    .unwrap();
+                assert!(candidates.len() <= 2);
+                assert!(
+                    candidates
+                        .iter()
+                        .filter(|c| c.origin == "refined_layout_forward")
+                        .count()
+                        <= 1
+                );
+                for candidate in candidates {
+                    saw_alternate |= candidate.origin == "refined_layout_forward";
+                    assert_eq!(candidate.initial_layout.len(), 5);
+                    assert_eq!(candidate.final_layout.len(), 5);
+                    assert_eq!(
+                        candidate.swaps_inserted,
+                        candidate
+                            .circuit
+                            .operations
+                            .iter()
+                            .filter(|op| matches!(
+                                op,
+                                Operation::Gate {
+                                    name: GateType::SWAP,
+                                    ..
+                                }
+                            ))
+                            .count()
+                    );
+                    for op in &candidate.circuit.operations {
+                        if let Operation::Gate { qubits, .. } = op {
+                            if qubits.len() == 2 {
+                                assert_eq!(qubits[0].abs_diff(qubits[1]), 1);
+                            }
+                        }
+                    }
+                    let logical = extract_logical_unitary(
+                        &circuit_to_unitary(&candidate.circuit),
+                        5,
+                        &candidate.initial_layout,
+                        &candidate.final_layout,
+                    );
+                    // Routing adds no phase: every input column must agree.
+                    assert!((&logical - &original).norm() < 1e-10);
+                }
+            }
+        }
+        assert!(
+            saw_alternate,
+            "the alternate-layout branch must be exercised"
+        );
+    }
+
+    #[test]
+    fn routing_candidates_are_cleared_across_disabled_barrier_and_error_runs() {
+        let pass = default_pass(Backend::linear(3), 4, 3, 2);
+        let stale = RoutingOutputCandidate {
+            circuit: Circuit::new(3, 0),
+            initial_layout: vec![0, 1, 2],
+            final_layout: vec![0, 1, 2],
+            swaps_inserted: 0,
+            origin: "stale",
+        };
+        let mut circuit = Circuit::new(3, 0);
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 2],
+            params: vec![],
+        });
+        for mode in 0..3 {
+            let mut properties = PropertySet::new();
+            properties.insert("retain_routing_candidates", mode != 0);
+            properties.insert("routing_output_candidates", vec![stale.clone()]);
+            let mut input = circuit.clone();
+            if mode == 1 {
+                input.add_op(Operation::Barrier {
+                    qubits: vec![0, 1, 2],
+                });
+            } else if mode == 2 {
+                input.add_op(Operation::Gate {
+                    name: GateType::CX,
+                    qubits: vec![0, 9],
+                    params: vec![],
+                });
+            }
+            assert_eq!(pass.try_run(&input, &mut properties).is_ok(), mode != 2);
+            assert!(properties
+                .get::<Vec<RoutingOutputCandidate>>("routing_output_candidates")
+                .is_none());
         }
     }
 
