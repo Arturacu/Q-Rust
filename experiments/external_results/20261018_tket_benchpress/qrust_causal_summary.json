@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "production_changed": false,
+  "historical_results_changed": false,
+  "fixture": "qasmbench__error_correctiond3_n5",
+  "topology": "all_to_all",
+  "official_output_identity_checks": [
+    {
+      "session": "session_01",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__5",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_01",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__1",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_01",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__0",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_01",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__4",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_01",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__6",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_01",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__3",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_01",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__2",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_02",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__2",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_02",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__1",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_02",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__5",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_02",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__3",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_02",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__6",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_02",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__0",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    },
+    {
+      "session": "session_02",
+      "id": "qasmbench__error_correctiond3_n5__all_to_all__qrust__4",
+      "output_sha256": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+      "artifact_sha256": "bc051b3bb60658f077581923ebfe544b2b67fa622de6aab535b74443dc810985"
+    }
+  ],
+  "full_unitary_validation": {
+    "compiled_output_checks": 26,
+    "input_columns_each": 32,
+    "passed": true,
+    "max_input_residual": 1.8469714166699742e-15,
+    "input_rewrite_checks": 14,
+    "max_rewrite_residual": 0.0
+  },
+  "isolated_two_qubit_block_checks": {
+    "count": 28,
+    "input_columns_each": 4,
+    "passed": true,
+    "observed_reductions": [
+      [
+        0,
+        3,
+        3
+      ],
+      [
+        1,
+        3,
+        3
+      ],
+      [
+        2,
+        2,
+        1
+      ],
+      [
+        3,
+        3,
+        3
+      ],
+      [
+        4,
+        3,
+        3
+      ],
+      [
+        5,
+        3,
+        3
+      ],
+      [
+        6,
+        3,
+        3
+      ],
+      [
+        7,
+        3,
+        3
+      ],
+      [
+        8,
+        3,
+        3
+      ],
+      [
+        9,
+        3,
+        3
+      ],
+      [
+        10,
+        3,
+        3
+      ],
+      [
+        11,
+        2,
+        1
+      ],
+      [
+        12,
+        3,
+        3
+      ],
+      [
+        13,
+        3,
+        3
+      ]
+    ]
+  },
+  "scalable_checker_independent_audit": {
+    "schema_version": 1,
+    "seed": 2026101807,
+    "checker_sha256": "bf93ce1e339c9e5bf9d5689ed8ea9308a7581c17b7dd3c5d422aec44e6e8a364",
+    "oracle_sha256": "55de70f9fe47d9fcaeb1497bd04b377e5582afc9289e6948dc6c32ebe5bda6d4",
+    "compiled_isometry_cases": 532,
+    "passed": true,
+    "positive": 266,
+    "negative": 266,
+    "canonical_generator_basis_trials": 40,
+    "clifford_representative_count": 24
+  },
+  "findings": [
+    {
+      "claim": "Current optimize/layout/route passes retain 49 input CX. No physical routing SWAPs or layout changes are responsible for this gap.",
+      "evidence": "frozen_controls.json rows[0].response.pass_diagnostics"
+    },
+    {
+      "claim": "Two-qubit block synthesis alone removes 2 CX. It considers 14 blocks: two with 2 CX and twelve with 3 CX. Two replacements are accepted; twelve fail the strict CX-improvement condition. None fails the numerical guard.",
+      "evidence": [
+        "frozen_controls.json",
+        "block_boundaries.json",
+        "isolated_block_controls.json"
+      ],
+      "qualification": "Block boundaries are reconstructed by a read-only transcription of production collection logic; count matches frozen compiler counters, not an instrumented block log."
+    },
+    {
+      "claim": "Eleven explicit seven-gate patterns encode SWAP, using (H tensor H) CX(a,b) (H tensor H) = CX(b,a) and the three-CX SWAP identity. Replacing only those exact patterns with named SWAP lets the unchanged compiler relabel logical wires before routing.",
+      "evidence": "swap_identity_controls.json matches and rows",
+      "individual_effect": "Each of eleven isolated replacements changes 47 CX to 44 CX."
+    },
+    {
+      "claim": "Replacing all eleven patterns yields 14 CX / depth 17 with final logical-to-physical map [0,1,4,3,2]. Disabling permutation elision returns 47 CX / depth 54. Merely reversing the middle CX without naming SWAP also retains 47 CX / depth 54.",
+      "evidence": [
+        "swap_identity_controls.json",
+        "permutation_controls.json"
+      ]
+    },
+    {
+      "claim": "Restoring output wire identity explicitly costs three additional CX, giving a numerically equivalent 17-CX / depth-20 circuit. Thus the gain is not explained solely by a free final output relabeling.",
+      "evidence": "permutation_controls.json rows[-1]",
+      "qualification": "The appended restoring swap is not optimized; this is an upper-bound construction, not an optimum."
+    },
+    {
+      "claim": "The compiler recognizes explicit SWAP operations for logical permutation extraction, but does not recover these encoded SWAPs before that pass. Its later two-wire synthesis operates after routing and accepts only strictly lower CX counts, so it cannot capture this representation-dependent opportunity.",
+      "source_locations": [
+        "src/transpiler/mod.rs build_pass_manager_for",
+        "src/transpiler/optimization.rs ExtractOutputPermutationPass",
+        "src/transpiler/block_synthesis.rs collect_block and strict cx_after >= cx_before rejection"
+      ]
+    }
+  ],
+  "limits": [
+    "These are untimed causal diagnostics on a single all-to-all Clifford fixture, not new speed benchmarks.",
+    "Recognition is a diagnostic source rewrite, not a production optimization or general recommended rewrite policy.",
+    "TKET's remaining gap requires Clifford transformations across the two-wire block boundaries; consult the separate TKET pass-trace controls.",
+    "Nine CX is an achieved heuristic output, not an established minimum."
+  ],
+  "artifact_sha256": {
+    "all_reversed_cx.input.qasm": "4a46bafe6d75ec9aae6fa820d413ec4d2b8f8cc1a6efa805757a2c8ccd539565",
+    "all_reversed_cx.output.qasm": "0a207f63ab8d861c8f56a94c5167eed2774835f24a6fd34db31ee37739dcb215",
+    "all_swaps.input.qasm": "899cb4f589a90e346fe2b847f02e9fec4b2a44b1c7916ae0a0598e7b10a438e4",
+    "all_swaps.output.qasm": "857f9cd4f0a9d79cd60a4fef65f6b620879f1ee2c213a92551f69b0d16ab872d",
+    "block_0_phase_0_fusion_0.qasm": "212a65e2f3f52b427b062875c8bc6d0078d62ed3cf728f805e46191a82cbbf08",
+    "block_0_phase_0_fusion_1.qasm": "212a65e2f3f52b427b062875c8bc6d0078d62ed3cf728f805e46191a82cbbf08",
+    "block_0_phase_1_fusion_0.qasm": "212a65e2f3f52b427b062875c8bc6d0078d62ed3cf728f805e46191a82cbbf08",
+    "block_0_phase_1_fusion_1.qasm": "212a65e2f3f52b427b062875c8bc6d0078d62ed3cf728f805e46191a82cbbf08",
+    "block_1_phase_0_fusion_0.qasm": "fdb4a1a31d64cc72e373694a886063550bd79360bc086c37e665fa0d0a876030",
+    "block_1_phase_0_fusion_1.qasm": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+    "block_1_phase_1_fusion_0.qasm": "fdb4a1a31d64cc72e373694a886063550bd79360bc086c37e665fa0d0a876030",
+    "block_1_phase_1_fusion_1.qasm": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+    "block_boundaries.json": "091d4f7affb88352432d1f8734ad68b1e3d40506891ba915aedc6bde5fe9ed24",
+    "block_boundaries.py": "45ba175c4935f5db7d4a4673a0ba8f8cd24dc93a13404835e4cc6e8ea8cb4fde",
+    "frozen_controls.json": "5cb0d02ac21f9c958ad8bc26339acee523c791748415d91c1be2d74912cc1ecf",
+    "independent_clifford_audit.json": "45882ed91a682cb4db423d1b4148180c23922ebfd59de97468cc687f19b1620e",
+    "independent_clifford_audit.py": "3e8763193416946043799970e412ae2efb8a83692f233979914fdb04cd8e441f",
+    "independent_clifford_audit_d4cf83c5f976.json": "bc4c8f21bc765b0046a2c4caff308efa8bd95aa8996b9886268870824e0328b4",
+    "isolated_block_controls.json": "bc7b3ddb53c024c1d0bc6f9611aa2f99bb2632285bac36d76977feecf2152d4e",
+    "isolated_block_controls.py": "6fedf5fcc82371d5702f178a4f683f83eb8e8a6001566756a5e0a5b302722896",
+    "permutation_controls.json": "76493cce8f3b60dff88603871659293d4d71007379bd519d765c8e34053d093a",
+    "permutation_controls.py": "560256b8a27694087dd0ac97a48d211297c518503cab874b5d1578bf9618b004",
+    "source.input.qasm": "ea3efd4dce6f40f7b996afae1f29d502a4fd20c0de0e5e4148683b9746102edd",
+    "source.output.qasm": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+    "source_no_elision.output.qasm": "e67f6c5a5078cc664ba4a64951f2af2258b8024a1859aba0819264154b070048",
+    "swap_identity_controls.json": "7f77430640f2b88ebbc7f6e73545f36a5045904e0e71b75715cd304981958abe",
+    "swap_identity_controls.py": "c7bda5e2c0c957843fb5f1a2ff858d27061adb9e6289e735bd513076296e43bb",
+    "swap_only_0.input.qasm": "c8e87d811f3658f18c68dcf8bdd329722997720f6a61a26ba62bac0241338dc1",
+    "swap_only_0.output.qasm": "c322ad22018352d7b69d987baf0e1e8dd5763957332e752a467ecca1b1f38717",
+    "swap_only_1.input.qasm": "fc2a6746df9fef45d4edb7018d4600606bb33db3ae40f30c7dfc32557c08d1f2",
+    "swap_only_1.output.qasm": "135acaa12911dc2f4e2b74ed5b3228354ed8d47926946293ac5ab34f18d3f5db",
+    "swap_only_10.input.qasm": "fae649002fe097c13a9ec36032fd3b94d043d40d2ffdd8c23955ce4396c0983d",
+    "swap_only_10.output.qasm": "d4a40f935b4e57f9239fde44da16f28d019f0509c9b46b776b888e3744894245",
+    "swap_only_2.input.qasm": "f9c78893eed75be458b752285fea99a495532378b3ed934402f58436c303cb4c",
+    "swap_only_2.output.qasm": "d9e1dfc0570a9fe462a7113d23e2f1e6180849ff355e1ddea4c59fe51f220378",
+    "swap_only_3.input.qasm": "398d90610a03a33d2ab69dc18864f190ced45344e0d9da4c247717591e8ef986",
+    "swap_only_3.output.qasm": "a0b922931070ca125f90fd66e8a849e45ffd881794459a9a97225b002c5e772c",
+    "swap_only_4.input.qasm": "f22c24a76831105f7e3deb9887887efb528d877617599828f663f30745545f90",
+    "swap_only_4.output.qasm": "1744d846ae1f2e2c3d1408631cd6e92a933979aec407aae0f8072d7eb7ef5576",
+    "swap_only_5.input.qasm": "fa505fd07c93dbbafa3c2da5a8b79ca4fbf7cbb0acddd703b548c04fdad03a3c",
+    "swap_only_5.output.qasm": "93c13ea19d0a1e2de0eed1321556d5e92e27b38fa027aaa61e1aa0e613b89ad1",
+    "swap_only_6.input.qasm": "cc1beabee60ed4e0dab981f098b0cae897688757d02a40c5a881a1df36013771",
+    "swap_only_6.output.qasm": "0dd2cf9178228e60323449a48b8b990f0ca44b3801158be10e55016b3767a7ff",
+    "swap_only_7.input.qasm": "18e38e27e0f9d69fe6b6ca66e630b92908e5dac9a677c3511847ea46103e7acf",
+    "swap_only_7.output.qasm": "bf0983a5535786a4b2bec68098135d1740c7dcf6b96a685db136508e2eeb5fb4",
+    "swap_only_8.input.qasm": "89c19fb0a3f66ffdcc02f6d06b3aaccbc5064fd9928d9835559a647ccaee0fc6",
+    "swap_only_8.output.qasm": "cbedc397c66e17a3bb906b49e7c0f72c1e7c958fde0d049deb2004c5aa76d930",
+    "swap_only_9.input.qasm": "8a92d5e8a9d2472a410bc273ffb1b493564d8f0ef88ee49cfef3784043cc43fc",
+    "swap_only_9.output.qasm": "3836cd182d76cb76f684a9243e8480aaef843d578e16633367d423de54524e29",
+    "swaps_no_elision.output.qasm": "0a207f63ab8d861c8f56a94c5167eed2774835f24a6fd34db31ee37739dcb215",
+    "swaps_with_elision.output.qasm": "857f9cd4f0a9d79cd60a4fef65f6b620879f1ee2c213a92551f69b0d16ab872d",
+    "swaps_with_elision_restored_identity_outputs.qasm": "d839956a18a04524ffb6505b4da25b7a831b1f869831d05c3c1175f85efc974d",
+    "trace_frozen.py": "914442ecbfe5c4226c5b1c1cbf8d0954a28ebfa9287c39a82977cd7aaaa25bc6"
+  }
+}

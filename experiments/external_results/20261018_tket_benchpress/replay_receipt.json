@@ -1,0 +1,40 @@
+{
+  "additional_tket_tests": 7,
+  "all_member_checksums_match": true,
+  "archive_sha256": "6dcbe750dab26c32d6aa92e9c4574a40af179925f65f49c1faf7c9c6c7120e2f",
+  "manifest_file_count": 878,
+  "matched_replay": {
+    "counts": {
+      "timed:cirq:blocked_by_warmup": 6,
+      "timed:cirq:passed": 24,
+      "timed:cirq:unverified_output": 18,
+      "timed:qiskit:passed": 24,
+      "timed:qiskit:unverified_output": 24,
+      "timed:qrust:passed": 36,
+      "timed:qrust:unverified_output": 12,
+      "timed:tket:blocked_by_warmup": 3,
+      "timed:tket:passed": 45,
+      "warmup:cirq:passed": 8,
+      "warmup:cirq:timeout": 2,
+      "warmup:cirq:unverified_output": 6,
+      "warmup:qiskit:passed": 8,
+      "warmup:qiskit:unverified_output": 8,
+      "warmup:qrust:passed": 12,
+      "warmup:qrust:unverified_output": 4,
+      "warmup:tket:passed": 15,
+      "warmup:tket:timeout": 1
+    },
+    "passed": true,
+    "protocol_sha256": "486d638da1ec3088aebcdeb8158951148cc0d64adf60a4b3492dacee3afc3682",
+    "rows_checked": 256,
+    "scope": "Receipt, schedule, input/output hashes, complete validation, common metrics, eligibility and all per-cell aggregates replay; no compilation or timing rerun.",
+    "unique_artifacts": 40
+  },
+  "matched_replay_byte_identical": true,
+  "native_artifacts_passed": 20,
+  "native_replay_byte_identical": true,
+  "qrust_compiled_requests": 53,
+  "qrust_derived_outputs": 1,
+  "qrust_portable_replay_passed": true,
+  "regression_tests": 227
+}

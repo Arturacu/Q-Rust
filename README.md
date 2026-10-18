@@ -469,6 +469,18 @@ The library has zero `unsafe` blocks. The `try_*` variants of public APIs return
 
 ### Reproducing the cross-tool benchmarks
 
+The [TKET Clifford investigation](experiments/TKET_CLIFFORD_INVESTIGATION.md)
+explains the five-qubit error-correction fixture's 47-versus-9 CX gap using
+reconstructed pass traces, controlled omissions and complete-input checks.
+Encoded SWAPs and Clifford rewrites across block boundaries account for the
+large difference; production Q-Rust remains unchanged.
+
+The [Benchpress pilot](experiments/BENCHPRESS_PILOT.md) executes selected native
+Benchpress workouts and a separate matched four-compiler extension with
+20–100-qubit Clifford circuits, square/heavy-hex targets and scalable semantic
+checks. It distinguishes full-input equivalence from prepared readout
+distributions, and offline device models from hardware measurements.
+
 The [candidate-retention follow-up](experiments/EXTERNAL_RETENTION_FOLLOWUP.md)
 recovers the Trotter-4, QFT-4 and PEA-5 line regressions and further improves
 AE/QPE output quality. The same 100-case comparison has no CX-count, total-depth
