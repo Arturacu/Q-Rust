@@ -46,15 +46,35 @@ def _complete_initial_layout(initial_map, logical_qubits, physical_qubits):
 
 
 def _to_cx(circuit, cirq):
-    """Perform the CZ-to-CX lowering and resulting one-qubit fusion."""
+    """Perform the CZ-to-CX lowering and resulting one-qubit fusion.
+
+    CZTargetGateset can retain a full CZ represented by another gate type (for
+    example the QASM importer's controlled U1). Recognize that case by its
+    two-qubit unitary, up to ONE global phase, rather than by its Python class.
+    This bounded canonicalization is part of compilation, never serialization.
+    """
+    cz_unitary = None
+
     def lower(op, _moment_index):
+        nonlocal cz_unitary
+        if len(op.qubits) != 2 or op.gate == cirq.CX:
+            return op
         if isinstance(op.gate, cirq.CZPowGate):
+            # Bound matrix error by |delta_angle|. Disable math.isclose's
+            # default relative tolerance: it is larger than our absolute
+            # synthesis tolerance and could silently round a fractional CZ.
             if not math.isclose(float(op.gate.exponent) % 2.0, 1.0,
-                                abs_tol=SYNTHESIS_ATOL):
+                                rel_tol=0.0, abs_tol=SYNTHESIS_ATOL / math.pi):
                 raise ValueError(f"Cirq emitted a fractional CZ: {op}")
-            control, target = op.qubits
-            return [cirq.H(target), cirq.CX(control, target), cirq.H(target)]
-        return op
+        else:
+            matrix = cirq.unitary(op, default=None)
+            if cz_unitary is None:
+                cz_unitary = cirq.unitary(cirq.CZ)
+            if matrix is None or not cirq.linalg.allclose_up_to_global_phase(
+                    matrix, cz_unitary, atol=SYNTHESIS_ATOL, rtol=0.0):
+                raise ValueError(f"Cirq emitted a two-qubit operation outside full CZ/CX: {op}")
+        control, target = op.qubits
+        return [cirq.H(target), cirq.CX(control, target), cirq.H(target)]
 
     lowered = cirq.map_operations_and_unroll(circuit, lower)
     return cirq.merge_single_qubit_gates_to_phxz(lowered, atol=SYNTHESIS_ATOL)

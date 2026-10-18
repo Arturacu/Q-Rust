@@ -30,6 +30,9 @@ pub enum GateType {
     CRX,
     CRY,
     CRZ,
+    /// Controlled phase: `diag(1, 1, 1, exp(i theta))`, as in qelib1.inc.
+    /// Unlike CRZ, this gate leaves both single-excitation states unchanged.
+    CU1,
     RXX,
     RYY,
     RZZ,
@@ -77,6 +80,7 @@ impl FromStr for GateType {
             "crx" => GateType::CRX,
             "cry" => GateType::CRY,
             "crz" => GateType::CRZ,
+            "cu1" => GateType::CU1,
             "ch" => GateType::CH,
             "csx" => GateType::CSX,
             "rxx" => GateType::RXX,
@@ -115,6 +119,7 @@ impl GateType {
             GateType::CRX => "crx",
             GateType::CRY => "cry",
             GateType::CRZ => "crz",
+            GateType::CU1 => "cu1",
             GateType::CH => "ch",
             GateType::CSX => "csx",
             GateType::RXX => "rxx",
@@ -151,6 +156,7 @@ impl GateType {
             GateType::CRX => "crx",
             GateType::CRY => "cry",
             GateType::CRZ => "crz",
+            GateType::CU1 => "cu1",
             GateType::CH => "ch",
             GateType::CSX => "csx",
             GateType::RXX => "rxx",

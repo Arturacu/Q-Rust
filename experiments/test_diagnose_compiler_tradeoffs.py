@@ -124,6 +124,19 @@ class TradeoffDiagnosticTests(unittest.TestCase):
         for field in ("out_qasm", "initial_layout", "final_layout"):
             self.assertEqual(actual[field], reference[field])
 
+    def test_both_cirq_synthesis_recipes_close_imported_full_cz_over_cx(self):
+        for recipe in ("cirq_original", "cirq_one_pass"):
+            for topology in ("all_to_all", "linear"):
+                with self.subTest(recipe=recipe, topology=topology):
+                    case = example(topology)
+                    case["qasm"] = ('OPENQASM 2.0;\ninclude "qelib1.inc";\nqreg q[3];\n'
+                                    'cu1(pi) q[2],q[0];\nh q[1];\ncx q[0],q[1];\n')
+                    case["source_qasm"] = case["qasm"]
+                    row = cirq_trial(case, recipe)
+                    self.validate(case, row)
+                    self.assertNotIn("cu1", row["out_qasm"])
+                    self.assertIn("cx", row["out_qasm"])
+
     def test_tket_original_matches_frozen_adapter(self):
         from comparison_qiskit_tket import compile_one
         case = example()

@@ -143,6 +143,7 @@ impl GateDefinition for GateType {
             | GateType::CRX
             | GateType::CRY
             | GateType::CRZ
+            | GateType::CU1
             | GateType::RXX
             | GateType::RYY
             | GateType::RZZ
@@ -315,6 +316,20 @@ impl GateDefinition for GateType {
                 ops.extend(GateType::RZ.decompose(&[b], &[-theta / 2.0])?);
                 ops.push(cx_gate(a, b));
             }
+            GateType::CU1 => {
+                let theta = params.first().copied().unwrap_or(0.0);
+                let (a, b) = (qubits[0], qubits[1]);
+                // qelib1's controlled U1 is a controlled phase, not CRZ.
+                // For bits a,b the accumulated phase is
+                // theta/2 * (a - (a XOR b) + b) = theta * a * b.
+                // Use exact U(0,0,lambda) phase gates so the control phase
+                // is retained, including at theta = 2*pi.
+                ops.push(u_gate(a, [0.0, 0.0, theta / 2.0]));
+                ops.push(cx_gate(a, b));
+                ops.push(u_gate(b, [0.0, 0.0, -theta / 2.0]));
+                ops.push(cx_gate(a, b));
+                ops.push(u_gate(b, [0.0, 0.0, theta / 2.0]));
+            }
 
             GateType::RXX => {
                 let theta = params.first().copied().unwrap_or(0.0);
@@ -394,6 +409,7 @@ impl GateDefinition for GateType {
             | GateType::Sdg
             | GateType::T
             | GateType::Tdg
+            | GateType::CU1
             | GateType::CZ => CommutationSignature::Diagonal(PauliBasis::Z),
             GateType::X | GateType::RX => CommutationSignature::Diagonal(PauliBasis::X),
             GateType::SX => CommutationSignature::Diagonal(PauliBasis::X),
