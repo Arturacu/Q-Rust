@@ -27,17 +27,17 @@ pub struct NumericalBudget {
     pub charged_error: f64,
 }
 
-pub(crate) fn transfer(source: &mut PropertySet, destination: &mut PropertySet) {
-    if let Some(budget) = source.remove::<NumericalBudget>(KEY) {
-        destination.insert(KEY, *budget);
-    }
-}
-
 pub(crate) fn snapshot(properties: &PropertySet) -> NumericalBudget {
     properties
         .get::<NumericalBudget>(KEY)
         .cloned()
         .unwrap_or_default()
+}
+
+/// Fork the common-prefix ledger for an alternative compilation. Each branch
+/// starts with the same spent budget; only the selected branch is reported.
+pub(crate) fn fork(source: &PropertySet, destination: &mut PropertySet) {
+    destination.insert(KEY, snapshot(source));
 }
 
 pub(crate) fn reserve(
@@ -167,8 +167,52 @@ mod tests {
         }
         let mut lower = PropertySet::new();
         let before = snapshot(&properties);
-        transfer(&mut properties, &mut lower);
+        fork(&properties, &mut lower);
         assert_eq!(snapshot(&lower), before);
+        assert_eq!(snapshot(&properties), before);
         assert!(!reserve(&mut lower, 1e-10, 1e-10, 1));
+    }
+
+    #[test]
+    fn alternative_branches_retain_prefix_spending_without_sharing_new_debits() {
+        let mut prefix = PropertySet::new();
+        for _ in 0..8 {
+            assert!(reserve(&mut prefix, 1e-10, 1e-10, 1));
+        }
+        let common = snapshot(&prefix);
+        let mut first = PropertySet::new();
+        let mut second = PropertySet::new();
+        fork(&prefix, &mut first);
+        fork(&prefix, &mut second);
+        assert_eq!(snapshot(&prefix), common);
+        assert_eq!(snapshot(&first), common);
+        assert_eq!(snapshot(&second), common);
+
+        assert!(reserve(&mut first, 1e-10, 1e-10, 1));
+        assert!(!reserve(&mut first, 1e-10, 1e-10, 1));
+        assert_eq!(snapshot(&first).accepted, common.accepted + 1);
+        assert_eq!(snapshot(&first).rejected, common.rejected + 1);
+        // Trying and rejecting the first branch cannot spend the second
+        // branch's allowance, or reset the common prefix's earlier charge.
+        assert_eq!(snapshot(&second), common);
+        assert!(reserve(&mut second, 1e-10, 1e-10, 1));
+        assert!(!reserve(&mut second, 1e-10, 1e-10, 1));
+        assert_eq!(snapshot(&first), snapshot(&second));
+        assert_eq!(snapshot(&prefix), common);
+    }
+
+    #[test]
+    fn fork_replaces_only_the_destination_budget_even_for_an_unspent_prefix() {
+        let prefix = PropertySet::new();
+        let mut destination = PropertySet::new();
+        destination.insert("initial_layout", vec![2usize, 0, 1]);
+        assert!(reserve(&mut destination, 1e-10, 1e-10, 1));
+        fork(&prefix, &mut destination);
+        assert_eq!(snapshot(&destination), NumericalBudget::default());
+        assert_eq!(
+            destination.get::<Vec<usize>>("initial_layout"),
+            Some(&vec![2, 0, 1])
+        );
+        assert!(prefix.get::<NumericalBudget>(KEY).is_none());
     }
 }

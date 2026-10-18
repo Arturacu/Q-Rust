@@ -4,6 +4,7 @@
 //! [`TranspilerConfig::builder`] for configuring the pipeline.
 
 pub mod block_synthesis;
+mod candidate_selection;
 pub mod dag;
 pub mod decomposition;
 pub mod layout;
@@ -78,6 +79,10 @@ pub struct TranspilerConfig {
     /// Disabled for normal compilation and performance measurements.
     pub profile_passes: bool,
     pub routing_search: RoutingSearchConfig,
+    /// At level 3, retain a bounded set of routing alternatives and accept
+    /// only final-output Pareto improvements in two-qubit count and depths.
+    /// Disable for a matched comparison with the single-route pipeline.
+    pub retain_routing_candidates: bool,
 
     /// Run the level-3 post-routing optimization passes. Disable for cleanup
     /// ablations without changing the canonical lowering/validation pipeline.
@@ -123,6 +128,7 @@ impl Default for TranspilerConfig {
             decompose_basis: true,
             profile_passes: false,
             routing_search: RoutingSearchConfig::default(),
+            retain_routing_candidates: true,
             post_routing_cleanup: true,
             two_qubit_block_synthesis: true,
             recover_phase_gadgets: true,
@@ -148,6 +154,7 @@ pub struct TranspilerConfigBuilder {
     decompose_basis: Option<bool>,
     profile_passes: Option<bool>,
     routing_search: Option<RoutingSearchConfig>,
+    retain_routing_candidates: Option<bool>,
     post_routing_cleanup: Option<bool>,
     two_qubit_block_synthesis: Option<bool>,
     recover_phase_gadgets: Option<bool>,
@@ -168,6 +175,11 @@ impl TranspilerConfigBuilder {
     /// Configure independent routing search policies and budgets.
     pub fn routing_search(mut self, options: RoutingSearchConfig) -> Self {
         self.routing_search = Some(options);
+        self
+    }
+    /// Compare bounded routing alternatives after lowering (default: true).
+    pub fn retain_routing_candidates(mut self, enabled: bool) -> Self {
+        self.retain_routing_candidates = Some(enabled);
         self
     }
     /// Enable per-pass diagnostic capture (default: false).
@@ -227,6 +239,9 @@ impl TranspilerConfigBuilder {
             decompose_basis: self.decompose_basis.unwrap_or(default.decompose_basis),
             profile_passes: self.profile_passes.unwrap_or(false),
             routing_search: self.routing_search.unwrap_or_default(),
+            retain_routing_candidates: self
+                .retain_routing_candidates
+                .unwrap_or(default.retain_routing_candidates),
             post_routing_cleanup: self
                 .post_routing_cleanup
                 .unwrap_or(default.post_routing_cleanup),
@@ -413,10 +428,10 @@ impl Pass for NativeBasisTranslationPass {
 enum Stage {
     /// Optimization passes (levels 1–2 entries).
     Optimize,
-    /// Layout, routing, basis translation, decomposition, and post-routing
-    /// (level-3) passes — i.e. everything that depends on a backend or
-    /// target-basis being known.
-    LayoutAndLower,
+    /// Layout and routing, stopping before output-permutation composition.
+    LayoutAndRoute,
+    /// Final maps, basis translation, decomposition and post-routing cleanup.
+    Lower,
 }
 
 fn resolved_target_basis(config: &TranspilerConfig) -> Option<HashSet<String>> {
@@ -705,6 +720,12 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
         "routing_commute_diagonal",
         config.optimization_level >= 3 && config.routing_search.commute_diagonal,
     );
+    pm.property_set.insert(
+        "retain_routing_candidates",
+        config.retain_routing_candidates
+            && config.optimization_level >= 3
+            && config.decompose_basis,
+    );
 
     match stage {
         Stage::Optimize => {
@@ -734,7 +755,7 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 ));
             }
         }
-        Stage::LayoutAndLower => {
+        Stage::LayoutAndRoute => {
             if let Some(ref backend) = config.backend {
                 // Multi-qubit gates (e.g. CCX) must be reduced to ≤2-qubit
                 // operations before routing: the SWAP router cannot make a
@@ -771,6 +792,10 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                     bidir_iterations: bidir_iters,
                     lookahead_strategy: config.lookahead_strategy,
                 }));
+            }
+        }
+        Stage::Lower => {
+            if config.backend.is_some() {
                 // Fold any trailing SWAPs (e.g. the QFT bit-reversal network)
                 // into the output layout rather than emitting them as gates.
                 pm.add_pass(Box::new(optimization::TrailingSwapElisionPass));
@@ -839,6 +864,178 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
     Ok(pm)
 }
 
+struct LoweredCandidate {
+    circuit: Circuit,
+    properties: property_set::PropertySet,
+}
+
+fn run_stage(
+    manager: &mut PassManager,
+    input: &Circuit,
+    profile: bool,
+    label: &str,
+    diagnostics: &mut Vec<PassDiagnostic>,
+) -> Result<Circuit> {
+    if profile {
+        let (output, mut entries) = manager.try_run_profiled(input)?;
+        if !label.is_empty() {
+            for entry in &mut entries {
+                entry.output.stage = format!("{label}::{}", entry.output.stage);
+            }
+        }
+        diagnostics.extend(entries);
+        Ok(output)
+    } else {
+        manager.try_run(input)
+    }
+}
+
+/// Lower each retained route from its own metadata checkpoint. In particular,
+/// rejected numerical rewrites must neither spend the winner's allowance nor
+/// reset the allowance already spent by the shared optimization prefix.
+fn lower_candidate(
+    circuit: &Circuit,
+    properties: property_set::PropertySet,
+    config: &TranspilerConfig,
+    terminal: &[Operation],
+    label: &str,
+    diagnostics: &mut Vec<PassDiagnostic>,
+) -> Result<LoweredCandidate> {
+    let mut manager = build_pass_manager_for(config, Stage::Lower)?;
+    manager.property_set = properties;
+    let lowered = run_stage(
+        &mut manager,
+        circuit,
+        config.profile_passes,
+        label,
+        diagnostics,
+    )?;
+    let output = restore_terminal_readout(
+        lowered,
+        terminal,
+        manager.property_set.get::<Vec<usize>>("final_layout"),
+    );
+    validate_output(&output, config)?;
+    Ok(LoweredCandidate {
+        circuit: output,
+        properties: manager.property_set,
+    })
+}
+
+fn route_and_lower(
+    after_opt: &Circuit,
+    prefix_properties: &property_set::PropertySet,
+    config: &TranspilerConfig,
+    terminal: &[Operation],
+    label: &str,
+    diagnostics: &mut Vec<PassDiagnostic>,
+) -> Result<Vec<LoweredCandidate>> {
+    let mut router = build_pass_manager_for(config, Stage::LayoutAndRoute)?;
+    numerical_policy::fork(prefix_properties, &mut router.property_set);
+    let routed = run_stage(
+        &mut router,
+        after_opt,
+        config.profile_passes,
+        label,
+        diagnostics,
+    )?;
+    let alternatives = router
+        .property_set
+        .remove::<Vec<routing::RoutingOutputCandidate>>("routing_output_candidates")
+        .map(|values| *values)
+        .unwrap_or_default();
+    // Only these properties are consumed by lowering. Other route-search
+    // diagnostics belong to the incumbent search, not to a challenger.
+    let alternatives: Vec<_> = alternatives
+        .into_iter()
+        .map(|alternative| {
+            let mut properties = property_set::PropertySet::new();
+            numerical_policy::fork(&router.property_set, &mut properties);
+            if let Some(permutation) = router
+                .property_set
+                .get::<Vec<usize>>("logical_output_permutation")
+            {
+                properties.insert("logical_output_permutation", permutation.clone());
+            }
+            properties.insert("initial_layout", alternative.initial_layout);
+            properties.insert("final_layout", alternative.final_layout);
+            properties.insert("swaps_inserted", alternative.swaps_inserted);
+            (alternative.circuit, properties, alternative.origin)
+        })
+        .collect();
+    let incumbent = lower_candidate(
+        &routed,
+        router.property_set,
+        config,
+        terminal,
+        label,
+        diagnostics,
+    )?;
+    let mut candidates = vec![incumbent];
+    for (circuit, properties, origin) in alternatives {
+        match lower_candidate(&circuit, properties, config, terminal, origin, diagnostics) {
+            Ok(candidate) => candidates.push(candidate),
+            Err(error) => warn_diagnostic(format_args!("discarded {origin} candidate: {error}")),
+        }
+    }
+    Ok(candidates)
+}
+
+fn finish_compilation(
+    after_opt: &Circuit,
+    prefix_properties: &property_set::PropertySet,
+    config: &TranspilerConfig,
+    terminal: &[Operation],
+    diagnostics: &mut Vec<PassDiagnostic>,
+) -> Result<LoweredCandidate> {
+    let mut candidates = route_and_lower(
+        after_opt,
+        prefix_properties,
+        config,
+        terminal,
+        "",
+        diagnostics,
+    )?;
+    let retain_local = config.retain_routing_candidates
+        && config.optimization_level >= 3
+        && config.decompose_basis
+        && config.routing_search.elide_output_permutations
+        && config.backend.as_ref().is_some_and(|backend| {
+            candidate_selection::has_connected_interior_swaps(after_opt, backend)
+        });
+    if retain_local {
+        let mut retained_config = config.clone();
+        retained_config.routing_search.elide_output_permutations = false;
+        // One independently compiled local sequence, with no nested portfolio.
+        retained_config.retain_routing_candidates = false;
+        match route_and_lower(
+            after_opt,
+            prefix_properties,
+            &retained_config,
+            terminal,
+            "retained-input",
+            diagnostics,
+        ) {
+            Ok(retained) => candidates.extend(retained),
+            Err(error) => warn_diagnostic(format_args!("discarded retained input: {error}")),
+        }
+    }
+    // Eligibility is always measured against the unmodified routing policy,
+    // not the previous challenger. Otherwise two incomparable improvements
+    // could make the result depend on which candidate happened to run first.
+    let mut best = 0;
+    for index in 1..candidates.len() {
+        if candidate_selection::prefer_output(
+            &candidates[index].circuit,
+            &candidates[best].circuit,
+            &candidates[0].circuit,
+        ) {
+            best = index;
+        }
+    }
+    Ok(candidates.swap_remove(best))
+}
+
 /// Compile a well-formed circuit and validate the final gate basis and hardware
 /// constraints. Supports unitary gates and barriers with optional terminal
 /// measurements; reset, conditional operations, and mid-circuit measurement
@@ -852,16 +1049,14 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Result<
     let (prefix, terminal) = split_terminal_readout(circuit);
     let mut opt_pm = build_pass_manager_for(&config, Stage::Optimize)?;
     let after_opt = opt_pm.try_run(&prefix)?;
-    let mut lower_pm = build_pass_manager_for(&config, Stage::LayoutAndLower)?;
-    numerical_policy::transfer(&mut opt_pm.property_set, &mut lower_pm.property_set);
-    let lowered = lower_pm.try_run(&after_opt)?;
-    let output = restore_terminal_readout(
-        lowered,
+    let output = finish_compilation(
+        &after_opt,
+        &opt_pm.property_set,
+        &config,
         terminal,
-        lower_pm.property_set.get::<Vec<usize>>("final_layout"),
-    );
-    validate_output(&output, &config)?;
-    Ok(output)
+        &mut Vec::new(),
+    )?;
+    Ok(output.circuit)
 }
 
 /// Like [`transpile`], but additionally returns a
@@ -896,48 +1091,41 @@ pub fn transpile_with_report(
         &restore_terminal_readout(after_opt.clone(), terminal, None),
     ));
 
-    let mut lower_pm = build_pass_manager_for(&config, Stage::LayoutAndLower)?;
-    numerical_policy::transfer(&mut opt_pm.property_set, &mut lower_pm.property_set);
-    let lowered = if config.profile_passes {
-        let (output, diagnostic) = lower_pm.try_run_profiled(&after_opt)?;
-        report.pass_diagnostics.extend(diagnostic);
-        output
-    } else {
-        lower_pm.try_run(&after_opt)?
-    };
-    let final_circuit = restore_terminal_readout(
-        lowered,
+    let selected = finish_compilation(
+        &after_opt,
+        &opt_pm.property_set,
+        &config,
         terminal,
-        lower_pm.property_set.get::<Vec<usize>>("final_layout"),
-    );
-    validate_output(&final_circuit, &config)?;
+        &mut report.pass_diagnostics,
+    )?;
+    let final_circuit = selected.circuit;
     let final_label = if config.backend.is_some() {
         "3. routed+decomposed"
     } else {
         "3. decomposed"
     };
     report.push(StageSnapshot::capture(final_label, &final_circuit));
-    report.initial_layout = lower_pm
-        .property_set
+    report.initial_layout = selected
+        .properties
         .get::<Vec<usize>>("initial_layout")
         .cloned();
-    report.final_layout = lower_pm
-        .property_set
+    report.final_layout = selected
+        .properties
         .get::<Vec<usize>>("final_layout")
         .cloned();
-    report.two_qubit_block_stats = lower_pm
-        .property_set
+    report.two_qubit_block_stats = selected
+        .properties
         .get::<block_synthesis::TwoQubitBlockStats>("two_qubit_block_stats")
         .cloned();
     report.phase_gadgets_recovered = opt_pm
         .property_set
         .get::<usize>("phase_gadgets_recovered")
         .copied();
-    report.post_block_fusion_stats = lower_pm
-        .property_set
+    report.post_block_fusion_stats = selected
+        .properties
         .get::<local_cleanup::PostBlockFusionStats>("post_block_fusion_stats")
         .cloned();
-    report.numerical_budget = numerical_policy::snapshot(&lower_pm.property_set);
+    report.numerical_budget = numerical_policy::snapshot(&selected.properties);
 
     Ok((final_circuit, report))
 }

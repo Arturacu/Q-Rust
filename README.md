@@ -116,6 +116,14 @@ at 64 interactions per wire to bound dependency growth. Disable recovery with
 rewrites can improve routing and cancellation boundaries, but heuristic routing
 can also produce worse results on individual circuits.
 
+At level 3 with basis decomposition, bounded candidate retention compares the
+canonical output with up to three alternatives after lowering: an equal-SWAP
+route, one refined placement, and an already-local input sequence when eligible.
+Selection cannot increase two-qubit count, total depth or two-qubit depth relative
+to the canonical output. Evaluating alternatives costs compilation time; disable
+it with `.retain_routing_candidates(false)`. This guard does not constrain total
+gate count or establish optimality.
+
 After level-3 block synthesis, local U runs are fused without crossing a touching
 CX or a non-U/CX boundary. Each replacement is checked against an independent
 analytic matrix with a phase-aligned Frobenius residual of at most `1e-12` and
@@ -382,6 +390,7 @@ The main knobs:
 | `decompose_basis` | bool | Whether to translate to the backend's basis |
 | `backend` | `Backend` | Coupling map + basis gates for layout/routing |
 | `lookahead_strategy` | `Static` / `DynamicV2` | Routing heuristic |
+| `retain_routing_candidates` | bool, default true | Bounded level-3 quality search; extra compilation work |
 
 When both a backend basis and an explicit `target_basis` are supplied, the
 explicit basis wins. Gate aliases are normalized (`cnot` → `cx`, `u3` → `u`,
@@ -453,11 +462,20 @@ Test layout:
 - `tests/two_qubit_block_regressions.rs` — independent analytic all-input checks for synthesis, dependency boundaries, routed isometries and W/QFT reductions.
 - `tests/qft_w_refinement_regressions.rs` — independent Fourier/W operators, directed ancilla routing, commuting fences, long diagonal epochs, readout mappings and local-fusion guards.
 - `tests/cu1_routing_regressions.rs`, `tests/logical_swap_regressions.rs` — independent all-input checks for controlled-phase dependencies, internal wire permutations, custom/high-arity gates and routed readout mappings.
+- `tests/routing_candidate_regressions.rs` — local SWAP sequences, QFT/PEA quality bounds, independent all-input checks, directed/spare-wire mappings and report/plain parity.
 - `tests/cli_smoke_test.rs` — `qrust` binary, gated `#[ignore]`.
 
 The library has zero `unsafe` blocks. The `try_*` variants of public APIs return `Result` and are the preferred entry points; infallible wrappers (`decompose_basis`, `unroll_custom_gates`) fall back to returning the original circuit on error and emit a diagnostic via `Q_RUST_LOG`.
 
 ### Reproducing the cross-tool benchmarks
+
+The [candidate-retention follow-up](experiments/EXTERNAL_RETENTION_FOLLOWUP.md)
+recovers the Trotter-4, QFT-4 and PEA-5 line regressions and further improves
+AE/QPE output quality. The same 100-case comparison has no CX-count, total-depth
+or CX-depth regressions, but compilation is about 17% slower overall and three
+cases gain one total gate. The report includes controlled diagnostics, complete
+input checks for the focal outputs, and a separate replayable evidence archive;
+all earlier results remain unchanged.
 
 The [external routing follow-up](experiments/EXTERNAL_ROUTING_FOLLOWUP.md)
 investigates controlled-phase dependencies, logical SWAP absorption and repeated

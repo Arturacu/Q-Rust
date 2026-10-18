@@ -11,7 +11,7 @@ use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::pass::Pass;
 use crate::transpiler::property_set::PropertySet;
 use crate::transpiler::routing::{
-    build_gate_graph, extended_layer, reverse_gate_graph, Layout, TwoQGate,
+    build_gate_graph, extended_layer, reverse_gate_graph, Layout, RefinedLayoutCandidate, TwoQGate,
 };
 use std::collections::HashMap;
 #[cfg(test)]
@@ -331,6 +331,8 @@ impl Pass for SabreLayoutPass {
                 property_set.remove::<usize>("layout_route_evaluations");
                 property_set.remove::<usize>("layout_route_cache_hits");
                 property_set.remove::<usize>("layout_route_requests");
+                property_set
+                    .remove::<Vec<RefinedLayoutCandidate>>("sabre_refined_layout_candidates");
                 property_set.insert("sabre_layout_error", error.to_string());
                 circuit.clone()
             }
@@ -354,6 +356,12 @@ impl SabreLayoutPass {
         property_set.remove::<usize>("layout_route_evaluations");
         property_set.remove::<usize>("layout_route_cache_hits");
         property_set.remove::<usize>("layout_route_requests");
+        property_set.remove::<Vec<RefinedLayoutCandidate>>("sabre_refined_layout_candidates");
+        let retain_candidates = property_set
+            .get::<bool>("retain_routing_candidates")
+            .copied()
+            .unwrap_or(false);
+        let mut refined_candidates = Vec::<RefinedLayoutCandidate>::new();
         let has_2q = circuit.operations.iter().any(|op| {
             if let Operation::Gate { qubits, .. } = op {
                 qubits.len() >= 2
@@ -428,6 +436,17 @@ impl SabreLayoutPass {
             }
 
             let (final_cost, _) = forward_routes.route(&layout);
+            if retain_candidates
+                && final_cost.is_finite()
+                && !refined_candidates
+                    .iter()
+                    .any(|candidate| candidate.layout == layout.logical_to_physical)
+            {
+                refined_candidates.push(RefinedLayoutCandidate {
+                    layout: layout.logical_to_physical.clone(),
+                    swap_cost: final_cost,
+                });
+            }
             if final_cost < best_cost {
                 best_cost = final_cost;
                 best_layout = layout;
@@ -439,6 +458,9 @@ impl SabreLayoutPass {
         property_set.insert("layout_route_evaluations", evaluations);
         property_set.insert("layout_route_cache_hits", hits);
         property_set.insert("layout_route_requests", evaluations + hits);
+        if retain_candidates {
+            property_set.insert("sabre_refined_layout_candidates", refined_candidates);
+        }
         property_set.insert(
             "sabre_initial_layout",
             best_layout.logical_to_physical.clone(),
@@ -473,6 +495,59 @@ mod tests {
             });
         }
         circuit
+    }
+
+    #[test]
+    fn retaining_refined_placements_preserves_exact_search_and_scoring_work() {
+        let pass = SabreLayoutPass {
+            backend: Backend::linear(4),
+            num_trials: 8,
+            num_iterations: 4,
+        };
+        let circuit = interacting_circuit();
+        let mut ordinary = PropertySet::new();
+        let mut retained = PropertySet::new();
+        retained.insert("retain_routing_candidates", true);
+        assert_eq!(
+            pass.try_run(&circuit, &mut ordinary).unwrap(),
+            pass.try_run(&circuit, &mut retained).unwrap()
+        );
+        assert_eq!(
+            ordinary.get::<Vec<usize>>("sabre_initial_layout"),
+            retained.get::<Vec<usize>>("sabre_initial_layout")
+        );
+        for key in [
+            "layout_route_evaluations",
+            "layout_route_cache_hits",
+            "layout_route_requests",
+        ] {
+            assert_eq!(ordinary.get::<usize>(key), retained.get::<usize>(key));
+        }
+        assert!(ordinary
+            .get::<Vec<RefinedLayoutCandidate>>("sabre_refined_layout_candidates")
+            .is_none());
+        let candidates = retained
+            .get::<Vec<RefinedLayoutCandidate>>("sabre_refined_layout_candidates")
+            .unwrap();
+        assert!(!candidates.is_empty());
+        assert!(candidates.len() <= pass.num_trials);
+        let mut seen = HashSet::new();
+        for candidate in candidates {
+            assert!(candidate.swap_cost.is_finite());
+            assert!(seen.insert(candidate.layout.clone()));
+            assert!(Layout::from_l2p(candidate.layout.clone(), 4).is_ok());
+        }
+        retained.insert("retain_routing_candidates", false);
+        pass.try_run(&circuit, &mut retained).unwrap();
+        assert!(retained
+            .get::<Vec<RefinedLayoutCandidate>>("sabre_refined_layout_candidates")
+            .is_none());
+        retained.insert("retain_routing_candidates", true);
+        pass.try_run(&circuit, &mut retained).unwrap();
+        pass.try_run(&Circuit::new(4, 0), &mut retained).unwrap();
+        assert!(retained
+            .get::<Vec<RefinedLayoutCandidate>>("sabre_refined_layout_candidates")
+            .is_none());
     }
 
     #[test]
