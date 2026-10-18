@@ -1,0 +1,4382 @@
+{
+  "all_workers_rss_limit_bytes": 3221225472,
+  "binary_sha256": "f2bfb51d945e4a959450022a4fac4921a30d3a888d8664fb12d6df59bf689a80",
+  "cases": [
+    {
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          11
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          12
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          15
+        ],
+        [
+          11,
+          12
+        ],
+        [
+          11,
+          16
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          12,
+          17
+        ],
+        [
+          13,
+          14
+        ],
+        [
+          13,
+          18
+        ],
+        [
+          14,
+          19
+        ],
+        [
+          15,
+          16
+        ],
+        [
+          15,
+          20
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          16,
+          21
+        ],
+        [
+          17,
+          18
+        ],
+        [
+          17,
+          22
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          18,
+          23
+        ],
+        [
+          19,
+          24
+        ],
+        [
+          20,
+          21
+        ],
+        [
+          21,
+          22
+        ],
+        [
+          22,
+          23
+        ],
+        [
+          23,
+          24
+        ]
+      ],
+      "family": "cat22",
+      "id": "cat22_square",
+      "n_logical": 22,
+      "physical_width": 25,
+      "qasm": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[22];\nh q[0];\ncx q[0],q[1];\ncx q[1],q[2];\ncx q[2],q[3];\ncx q[3],q[4];\ncx q[4],q[5];\ncx q[5],q[6];\ncx q[6],q[7];\ncx q[7],q[8];\ncx q[8],q[9];\ncx q[9],q[10];\ncx q[10],q[11];\ncx q[11],q[12];\ncx q[12],q[13];\ncx q[13],q[14];\ncx q[14],q[15];\ncx q[15],q[16];\ncx q[16],q[17];\ncx q[17],q[18];\ncx q[18],q[19];\ncx q[19],q[20];\ncx q[20],q[21];\n",
+      "qasm_sha256": "24546acb521019bfce4f08e47fb184dad4638f87b9d675fcbe2b8529a0f3c661",
+      "source": {
+        "expanded": {
+          "definition_expansions": {},
+          "expanded_source_gate_count": 22,
+          "global_phase": "discarded only as a whole-circuit equivalence convention"
+        },
+        "id": "cat22",
+        "input_gate_counts": {
+          "cx": 21,
+          "h": 1
+        },
+        "n_logical": 22,
+        "qasm_file": "cat22.qasm",
+        "qasm_sha256": "24546acb521019bfce4f08e47fb184dad4638f87b9d675fcbe2b8529a0f3c661",
+        "raw_sha256": "a7b6a6a5c83397281250f255ce303f34e90c65d3990ef5b3ecc96fc685083c1e",
+        "removed": {
+          "barriers": 1,
+          "terminal_measurements": 22
+        },
+        "source_path": "benchpress/qasm/qasmbench-medium/cat_state_n22/cat_state_n22.qasm"
+      },
+      "target_kind": "Benchpress FlexibleBackend topology; no calibration used in matched extension",
+      "topology": "square"
+    },
+    {
+      "edges": [
+        [
+          0,
+          25
+        ],
+        [
+          0,
+          37
+        ],
+        [
+          1,
+          37
+        ],
+        [
+          1,
+          38
+        ],
+        [
+          2,
+          38
+        ],
+        [
+          2,
+          39
+        ],
+        [
+          3,
+          39
+        ],
+        [
+          3,
+          40
+        ],
+        [
+          4,
+          40
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          5,
+          41
+        ],
+        [
+          6,
+          41
+        ],
+        [
+          6,
+          42
+        ],
+        [
+          7,
+          42
+        ],
+        [
+          7,
+          43
+        ],
+        [
+          8,
+          43
+        ],
+        [
+          8,
+          44
+        ],
+        [
+          9,
+          30
+        ],
+        [
+          9,
+          44
+        ],
+        [
+          10,
+          31
+        ],
+        [
+          10,
+          45
+        ],
+        [
+          11,
+          45
+        ],
+        [
+          11,
+          46
+        ],
+        [
+          12,
+          46
+        ],
+        [
+          12,
+          47
+        ],
+        [
+          13,
+          47
+        ],
+        [
+          13,
+          48
+        ],
+        [
+          14,
+          30
+        ],
+        [
+          14,
+          48
+        ],
+        [
+          15,
+          31
+        ],
+        [
+          15,
+          49
+        ],
+        [
+          16,
+          49
+        ],
+        [
+          16,
+          50
+        ],
+        [
+          17,
+          50
+        ],
+        [
+          17,
+          51
+        ],
+        [
+          18,
+          51
+        ],
+        [
+          18,
+          52
+        ],
+        [
+          19,
+          36
+        ],
+        [
+          19,
+          52
+        ],
+        [
+          20,
+          53
+        ],
+        [
+          21,
+          53
+        ],
+        [
+          21,
+          54
+        ],
+        [
+          22,
+          54
+        ],
+        [
+          22,
+          55
+        ],
+        [
+          23,
+          55
+        ],
+        [
+          23,
+          56
+        ],
+        [
+          24,
+          36
+        ],
+        [
+          24,
+          56
+        ],
+        [
+          26,
+          38
+        ],
+        [
+          26,
+          42
+        ],
+        [
+          27,
+          40
+        ],
+        [
+          27,
+          44
+        ],
+        [
+          28,
+          41
+        ],
+        [
+          28,
+          45
+        ],
+        [
+          29,
+          43
+        ],
+        [
+          29,
+          47
+        ],
+        [
+          32,
+          46
+        ],
+        [
+          32,
+          50
+        ],
+        [
+          33,
+          48
+        ],
+        [
+          33,
+          52
+        ],
+        [
+          34,
+          49
+        ],
+        [
+          34,
+          53
+        ],
+        [
+          35,
+          51
+        ],
+        [
+          35,
+          55
+        ]
+      ],
+      "family": "cat22",
+      "id": "cat22_heavy-hex",
+      "n_logical": 22,
+      "physical_width": 57,
+      "qasm": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[22];\nh q[0];\ncx q[0],q[1];\ncx q[1],q[2];\ncx q[2],q[3];\ncx q[3],q[4];\ncx q[4],q[5];\ncx q[5],q[6];\ncx q[6],q[7];\ncx q[7],q[8];\ncx q[8],q[9];\ncx q[9],q[10];\ncx q[10],q[11];\ncx q[11],q[12];\ncx q[12],q[13];\ncx q[13],q[14];\ncx q[14],q[15];\ncx q[15],q[16];\ncx q[16],q[17];\ncx q[17],q[18];\ncx q[18],q[19];\ncx q[19],q[20];\ncx q[20],q[21];\n",
+      "qasm_sha256": "24546acb521019bfce4f08e47fb184dad4638f87b9d675fcbe2b8529a0f3c661",
+      "source": {
+        "expanded": {
+          "definition_expansions": {},
+          "expanded_source_gate_count": 22,
+          "global_phase": "discarded only as a whole-circuit equivalence convention"
+        },
+        "id": "cat22",
+        "input_gate_counts": {
+          "cx": 21,
+          "h": 1
+        },
+        "n_logical": 22,
+        "qasm_file": "cat22.qasm",
+        "qasm_sha256": "24546acb521019bfce4f08e47fb184dad4638f87b9d675fcbe2b8529a0f3c661",
+        "raw_sha256": "a7b6a6a5c83397281250f255ce303f34e90c65d3990ef5b3ecc96fc685083c1e",
+        "removed": {
+          "barriers": 1,
+          "terminal_measurements": 22
+        },
+        "source_path": "benchpress/qasm/qasmbench-medium/cat_state_n22/cat_state_n22.qasm"
+      },
+      "target_kind": "Benchpress FlexibleBackend topology; no calibration used in matched extension",
+      "topology": "heavy_hex"
+    },
+    {
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          11
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          12
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          15
+        ],
+        [
+          11,
+          12
+        ],
+        [
+          11,
+          16
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          12,
+          17
+        ],
+        [
+          13,
+          14
+        ],
+        [
+          13,
+          18
+        ],
+        [
+          14,
+          19
+        ],
+        [
+          15,
+          16
+        ],
+        [
+          15,
+          20
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          16,
+          21
+        ],
+        [
+          17,
+          18
+        ],
+        [
+          17,
+          22
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          18,
+          23
+        ],
+        [
+          19,
+          24
+        ],
+        [
+          20,
+          21
+        ],
+        [
+          21,
+          22
+        ],
+        [
+          22,
+          23
+        ],
+        [
+          23,
+          24
+        ]
+      ],
+      "family": "ghz23",
+      "id": "ghz23_square",
+      "n_logical": 23,
+      "physical_width": 25,
+      "qasm": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[23];\nh q[0];\ncx q[0],q[1];\ncx q[1],q[2];\ncx q[2],q[3];\ncx q[3],q[4];\ncx q[4],q[5];\ncx q[5],q[6];\ncx q[6],q[7];\ncx q[7],q[8];\ncx q[8],q[9];\ncx q[9],q[10];\ncx q[10],q[11];\ncx q[11],q[12];\ncx q[12],q[13];\ncx q[13],q[14];\ncx q[14],q[15];\ncx q[15],q[16];\ncx q[16],q[17];\ncx q[17],q[18];\ncx q[18],q[19];\ncx q[19],q[20];\ncx q[20],q[21];\ncx q[21],q[22];\n",
+      "qasm_sha256": "de4e8bb29de43b92b6c256c637d8015a6e3256ee21ae2ccaea88587c3acaa9e9",
+      "source": {
+        "expanded": {
+          "definition_expansions": {},
+          "expanded_source_gate_count": 23,
+          "global_phase": "discarded only as a whole-circuit equivalence convention"
+        },
+        "id": "ghz23",
+        "input_gate_counts": {
+          "cx": 22,
+          "h": 1
+        },
+        "n_logical": 23,
+        "qasm_file": "ghz23.qasm",
+        "qasm_sha256": "de4e8bb29de43b92b6c256c637d8015a6e3256ee21ae2ccaea88587c3acaa9e9",
+        "raw_sha256": "27e77c753e2993b3b4785872ec83d434dfac62cc526f4ee574347e6f5c8986ff",
+        "removed": {
+          "barriers": 1,
+          "terminal_measurements": 23
+        },
+        "source_path": "benchpress/qasm/qasmbench-medium/ghz_state_n23/ghz_state_n23.qasm"
+      },
+      "target_kind": "Benchpress FlexibleBackend topology; no calibration used in matched extension",
+      "topology": "square"
+    },
+    {
+      "edges": [
+        [
+          0,
+          25
+        ],
+        [
+          0,
+          37
+        ],
+        [
+          1,
+          37
+        ],
+        [
+          1,
+          38
+        ],
+        [
+          2,
+          38
+        ],
+        [
+          2,
+          39
+        ],
+        [
+          3,
+          39
+        ],
+        [
+          3,
+          40
+        ],
+        [
+          4,
+          40
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          5,
+          41
+        ],
+        [
+          6,
+          41
+        ],
+        [
+          6,
+          42
+        ],
+        [
+          7,
+          42
+        ],
+        [
+          7,
+          43
+        ],
+        [
+          8,
+          43
+        ],
+        [
+          8,
+          44
+        ],
+        [
+          9,
+          30
+        ],
+        [
+          9,
+          44
+        ],
+        [
+          10,
+          31
+        ],
+        [
+          10,
+          45
+        ],
+        [
+          11,
+          45
+        ],
+        [
+          11,
+          46
+        ],
+        [
+          12,
+          46
+        ],
+        [
+          12,
+          47
+        ],
+        [
+          13,
+          47
+        ],
+        [
+          13,
+          48
+        ],
+        [
+          14,
+          30
+        ],
+        [
+          14,
+          48
+        ],
+        [
+          15,
+          31
+        ],
+        [
+          15,
+          49
+        ],
+        [
+          16,
+          49
+        ],
+        [
+          16,
+          50
+        ],
+        [
+          17,
+          50
+        ],
+        [
+          17,
+          51
+        ],
+        [
+          18,
+          51
+        ],
+        [
+          18,
+          52
+        ],
+        [
+          19,
+          36
+        ],
+        [
+          19,
+          52
+        ],
+        [
+          20,
+          53
+        ],
+        [
+          21,
+          53
+        ],
+        [
+          21,
+          54
+        ],
+        [
+          22,
+          54
+        ],
+        [
+          22,
+          55
+        ],
+        [
+          23,
+          55
+        ],
+        [
+          23,
+          56
+        ],
+        [
+          24,
+          36
+        ],
+        [
+          24,
+          56
+        ],
+        [
+          26,
+          38
+        ],
+        [
+          26,
+          42
+        ],
+        [
+          27,
+          40
+        ],
+        [
+          27,
+          44
+        ],
+        [
+          28,
+          41
+        ],
+        [
+          28,
+          45
+        ],
+        [
+          29,
+          43
+        ],
+        [
+          29,
+          47
+        ],
+        [
+          32,
+          46
+        ],
+        [
+          32,
+          50
+        ],
+        [
+          33,
+          48
+        ],
+        [
+          33,
+          52
+        ],
+        [
+          34,
+          49
+        ],
+        [
+          34,
+          53
+        ],
+        [
+          35,
+          51
+        ],
+        [
+          35,
+          55
+        ]
+      ],
+      "family": "ghz23",
+      "id": "ghz23_heavy-hex",
+      "n_logical": 23,
+      "physical_width": 57,
+      "qasm": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[23];\nh q[0];\ncx q[0],q[1];\ncx q[1],q[2];\ncx q[2],q[3];\ncx q[3],q[4];\ncx q[4],q[5];\ncx q[5],q[6];\ncx q[6],q[7];\ncx q[7],q[8];\ncx q[8],q[9];\ncx q[9],q[10];\ncx q[10],q[11];\ncx q[11],q[12];\ncx q[12],q[13];\ncx q[13],q[14];\ncx q[14],q[15];\ncx q[15],q[16];\ncx q[16],q[17];\ncx q[17],q[18];\ncx q[18],q[19];\ncx q[19],q[20];\ncx q[20],q[21];\ncx q[21],q[22];\n",
+      "qasm_sha256": "de4e8bb29de43b92b6c256c637d8015a6e3256ee21ae2ccaea88587c3acaa9e9",
+      "source": {
+        "expanded": {
+          "definition_expansions": {},
+          "expanded_source_gate_count": 23,
+          "global_phase": "discarded only as a whole-circuit equivalence convention"
+        },
+        "id": "ghz23",
+        "input_gate_counts": {
+          "cx": 22,
+          "h": 1
+        },
+        "n_logical": 23,
+        "qasm_file": "ghz23.qasm",
+        "qasm_sha256": "de4e8bb29de43b92b6c256c637d8015a6e3256ee21ae2ccaea88587c3acaa9e9",
+        "raw_sha256": "27e77c753e2993b3b4785872ec83d434dfac62cc526f4ee574347e6f5c8986ff",
+        "removed": {
+          "barriers": 1,
+          "terminal_measurements": 23
+        },
+        "source_path": "benchpress/qasm/qasmbench-medium/ghz_state_n23/ghz_state_n23.qasm"
+      },
+      "target_kind": "Benchpress FlexibleBackend topology; no calibration used in matched extension",
+      "topology": "heavy_hex"
+    },
+    {
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          7
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          11
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          12
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          13
+        ],
+        [
+          9,
+          14
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          15
+        ],
+        [
+          11,
+          12
+        ],
+        [
+          11,
+          16
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          12,
+          17
+        ],
+        [
+          13,
+          14
+        ],
+        [
+          13,
+          18
+        ],
+        [
+          14,
+          19
+        ],
+        [
+          15,
+          16
+        ],
+        [
+          15,
+          20
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          16,
+          21
+        ],
+        [
+          17,
+          18
+        ],
+        [
+          17,
+          22
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          18,
+          23
+        ],
+        [
+          19,
+          24
+        ],
+        [
+          20,
+          21
+        ],
+        [
+          21,
+          22
+        ],
+        [
+          22,
+          23
+        ],
+        [
+          23,
+          24
+        ]
+      ],
+      "family": "clifford20",
+      "id": "clifford20_square",
+      "n_logical": 20,
+      "physical_width": 25,
+      "qasm": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[20];\nz q[5];\ncy q[3],q[14];\ns q[0];\nswap q[18],q[1];\ncy q[19],q[3];\ns q[0];\nz q[9];\nz q[6];\nh q[12];\nswap q[14],q[4];\nsdg q[5];\nswap q[3],q[14];\ny q[1];\ny q[6];\ncy q[11],q[5];\ncz q[14],q[19];\ncy q[15],q[10];\nz q[7];\nz q[9];\nh q[6];\ns q[10];\ncy q[4],q[9];\nh q[10];\nh q[14];\ns q[15];\nz q[0];\ncz q[15],q[17];\ncx q[5],q[15];\ncy q[17],q[0];\nx q[14];\ncx q[1],q[4];\nsdg q[8];\nx q[8];\nz q[6];\ncy q[10],q[8];\nswap q[15],q[17];\ncz q[14],q[8];\ns q[11];\ns q[4];\ncy q[2],q[4];\ns q[4];\ncx q[18],q[15];\nswap q[13],q[8];\ncz q[14],q[12];\ns q[16];\nswap q[4],q[7];\nx q[19];\nx q[18];\nx q[8];\ncy q[11],q[14];\ny q[9];\nsdg q[18];\nx q[0];\ncz q[4],q[14];\ncx q[16],q[13];\ncz q[1],q[9];\ncx q[1],q[3];\ncx q[4],q[10];\ncz q[17],q[2];\ny q[4];\nsdg q[9];\nsdg q[2];\nz q[3];\nz q[10];\nswap q[5],q[3];\nh q[4];\nz q[12];\ns q[17];\ns q[18];\nsdg q[16];\ns q[9];\nh q[4];\ny q[9];\ny q[18];\ncy q[0],q[7];\nh q[3];\ny q[14];\nx q[13];\nswap q[3],q[12];\ncy q[9],q[10];\nz q[15];\nx q[6];\ny q[4];\nz q[12];\nsdg q[7];\nswap q[4],q[6];\nz q[9];\nh q[13];\nx q[15];\ncy q[17],q[6];\ncy q[1],q[6];\nswap q[3],q[8];\nz q[3];\ncy q[0],q[4];\nsdg q[13];\nswap q[8],q[5];\ncx q[3],q[1];\ncx q[8],q[17];\ncx q[7],q[5];\nz q[5];\nswap q[19],q[6];\ncy q[1],q[16];\nz q[16];\ncx q[16],q[11];\ny q[16];\nz q[6];\ncx q[6],q[19];\ncz q[6],q[14];\nswap q[15],q[19];\nswap q[12],q[19];\nh q[11];\nx q[9];\nz q[7];\ncz q[13],q[7];\nsdg q[14];\ncy q[14],q[2];\ns q[8];\nx q[14];\nx q[0];\nx q[7];\ny q[19];\ncy q[18],q[14];\ncz q[19],q[16];\ncy q[4],q[14];\nh q[1];\ncy q[16],q[12];\nz q[3];\ncy q[11],q[4];\nsdg q[4];\nx q[15];\ny q[1];\ncy q[14],q[1];\nz q[19];\nx q[3];\ns q[1];\ncy q[5],q[10];\nz q[16];\nsdg q[2];\nx q[19];\ncz q[18],q[5];\ncx q[3],q[17];\nsdg q[13];\ny q[1];\ncz q[15],q[11];\ncy q[6],q[17];\ns q[15];\nswap q[1],q[17];\nz q[17];\nsdg q[19];\ncy q[12],q[11];\nsdg q[1];\ns q[13];\nswap q[14],q[3];\ncy q[1],q[4];\nswap q[3],q[9];\ncx q[2],q[10];\nx q[1];\nz q[2];\ns q[14];\ny q[17];\ncz q[1],q[12];\nz q[4];\ncx q[7],q[19];\ncz q[18],q[9];\nh q[9];\ncy q[3],q[11];\ny q[17];\nz q[15];\nsdg q[0];\ncx q[15],q[10];\nsdg q[14];\nsdg q[9];\nz q[9];\nx q[11];\ncy q[0],q[5];\nz q[6];\nz q[4];\nswap q[1],q[19];\nz q[13];\ncz q[14],q[6];\ncy q[16],q[9];\ncx q[17],q[15];\ncy q[16],q[18];\ncy q[17],q[3];\nsdg q[17];\nsdg q[2];\nsdg q[11];\nh q[19];\nz q[17];\nx q[12];\ny q[0];\nswap q[8],q[16];\nx q[12];\ncy q[12],q[4];\nz q[0];\nh q[12];\ncz q[14],q[15];\ncx q[19],q[0];\nswap q[19],q[10];\nx q[17];\nx q[19];\ncz q[14],q[8];\ncz q[5],q[3];\ncy q[17],q[2];\ny q[0];\ns q[2];\nx q[16];\ncy q[15],q[11];\nx q[4];\ny q[7];\nh q[1];\nswap q[10],q[16];\ncy q[4],q[2];\ny q[3];\ncx q[1],q[17];\nswap q[11],q[2];\ncz q[19],q[13];\ncy q[5],q[12];\ncz q[8],q[14];\ncy q[7],q[19];\nswap q[1],q[13];\ncx q[17],q[9];\nswap q[3],q[12];\nx q[7];\ncx q[0],q[12];\nsdg q[18];\nsdg q[14];\nh q[3];\ncz q[2],q[3];\ncx q[0],q[12];\nh q[1];\nh q[15];\nsdg q[6];\ncz q[19],q[0];\nz q[8];\ns q[15];\ncy q[10],q[15];\nsdg q[5];\ns q[10];\ncz q[2],q[10];\ny q[11];\nswap q[14],q[7];\ns q[5];\nswap q[0],q[15];\nsdg q[5];\nswap q[15],q[14];\nz q[6];\ny q[13];\nx q[6];\ncx q[11],q[7];\nh q[8];\nx q[11];\nswap q[15],q[0];\nsdg q[18];\ncx q[13],q[17];\ncx q[2],q[15];\nx q[1];\nx q[11];\nsdg q[12];\nx q[15];\ns q[0];\ns q[16];\ncy q[5],q[2];\nh q[13];\nh q[19];\ns q[4];\ncx q[5],q[7];\ncy q[1],q[19];\ncz q[11],q[12];\nz q[13];\ncx q[8],q[4];\nswap q[9],q[6];\ncx q[14],q[4];\ns q[7];\nswap q[16],q[8];\nz q[2];\ncz q[0],q[18];\nh q[0];\nx q[8];\nsdg q[19];\nh q[11];\ncx q[15],q[16];\nh q[11];\ncy q[14],q[7];\nh q[10];\nsdg q[18];\ncx q[0],q[2];\nz q[14];\ncx q[1],q[15];\nswap q[6],q[4];\nsdg q[8];\ncx q[10],q[19];\ny q[14];\ns q[1];\nz q[6];\ncx q[10],q[13];\nz q[2];\ncx q[9],q[6];\nsdg q[11];\nh q[9];\nh q[5];\ns q[13];\nswap q[7],q[10];\nsdg q[12];\ny q[7];\nx q[2];\ny q[7];\ncz q[12],q[1];\ncz q[14],q[3];\ny q[3];\ny q[2];\nx q[3];\nz q[9];\ncz q[9],q[12];\nx q[15];\ncz q[9],q[11];\nx q[4];\ncy q[2],q[14];\ns q[16];\nh q[4];\ns q[5];\nh q[3];\ncz q[14],q[0];\ns q[18];\ncy q[11],q[7];\ns q[13];\nx q[15];\ns q[18];\ncz q[9],q[19];\ny q[13];\nx q[13];\ncz q[18],q[4];\ncy q[3],q[8];\nsdg q[3];\nz q[3];\nsdg q[8];\nz q[15];\ns q[11];\nsdg q[9];\nh q[6];\ncx q[3],q[18];\nh q[2];\ny q[9];\ny q[18];\nsdg q[14];\ns q[11];\ncy q[7],q[19];\nz q[4];\nz q[6];\ncz q[10],q[2];\ncx q[0],q[11];\nswap q[4],q[15];\ns q[6];\ncx q[4],q[2];\ns q[0];\nsdg q[10];\nswap q[6],q[12];\ncx q[14],q[6];\nz q[6];\ny q[8];\ns q[4];\ncz q[7],q[12];\nswap q[19],q[8];\ncz q[7],q[1];\ncz q[18],q[11];\ncz q[3],q[2];\ny q[8];\nsdg q[7];\ncy q[15],q[9];\nx q[14];\nz q[5];\nswap q[9],q[4];\ncx q[16],q[4];\nh q[4];\nz q[4];\ny q[7];\nswap q[18],q[13];\nswap q[16],q[12];\nswap q[8],q[6];\nswap q[9],q[7];\nz q[4];\nz q[17];\ns q[12];\ncz q[0],q[7];\nswap q[2],q[12];\ns q[18];\nz q[9];\nsdg q[10];\ncz q[19],q[16];\nx q[2];\ncy q[5],q[12];\nx q[12];\ns q[18];\ncz q[7],q[1];\ny q[9];\nx q[11];\ncx q[17],q[13];\ns q[15];\nsdg q[17];\nx q[0];\ncx q[1],q[18];\nz q[2];\nh q[19];\ncx q[6],q[10];\nswap q[1],q[17];\ncy q[10],q[5];\nh q[12];\ncy q[2],q[10];\nsdg q[11];\nh q[4];\ns q[4];\ncx q[12],q[19];\ncz q[15],q[19];\ncy q[2],q[18];\nh q[14];\ncx q[2],q[16];\nz q[6];\nz q[4];\nswap q[3],q[6];\nz q[4];\ncx q[1],q[19];\nswap q[0],q[17];\ns q[13];\ncx q[13],q[10];\nz q[8];\nx q[4];\nsdg q[18];\ncz q[6],q[7];\nh q[9];\nx q[16];\nz q[9];\nswap q[15],q[2];\ns q[14];\ncy q[14],q[18];\ns q[8];\nsdg q[10];\ny q[15];\nz q[14];\nx q[4];\nx q[5];\nx q[8];\nswap q[7],q[17];\nsdg q[11];\ncz q[11],q[6];\nh q[16];\nz q[13];\nswap q[17],q[4];\ny q[3];\ny q[17];\nh q[12];\nsdg q[16];\nh q[6];\ncz q[10],q[1];\nsdg q[1];\nh q[3];\nsdg q[16];\ncy q[0],q[14];\nx q[17];\ns q[10];\nswap q[0],q[11];\nswap q[1],q[2];\nx q[17];\nsdg q[5];\ny q[12];\nx q[2];\nsdg q[0];\ncx q[17],q[16];\ncz q[4],q[0];\ncy q[6],q[5];\nz q[15];\nswap q[14],q[10];\nh q[9];\nx q[15];\ncy q[5],q[19];\nx q[18];\ncy q[16],q[17];\nh q[0];\nsdg q[1];\ns q[5];\nz q[12];\ncx q[9],q[15];\nh q[5];\nz q[17];\nz q[12];\ny q[16];\nh q[19];\nswap q[14],q[12];\nsdg q[12];\nh q[11];\nz q[7];\nsdg q[8];\ncz q[6],q[11];\ncz q[5],q[6];\ncy q[12],q[0];\ncz q[2],q[16];\nsdg q[6];\nswap q[19],q[18];\nswap q[7],q[4];\ns q[1];\nz q[10];\nh q[6];\nx q[7];\ncx q[1],q[10];\nx q[1];\ncx q[13],q[3];\ncx q[1],q[7];\nswap q[10],q[12];\nsdg q[11];\ncz q[6],q[3];\nswap q[4],q[17];\ny q[4];\nswap q[15],q[12];\ncz q[15],q[7];\ncx q[10],q[7];\ns q[3];\nz q[2];\nx q[8];\ns q[6];\nx q[5];\ny q[7];\nsdg q[11];\nx q[16];\ny q[10];\ns q[4];\ny q[3];\ncx q[6],q[9];\ncx q[5],q[14];\ny q[2];\ncy q[9],q[18];\ns q[5];\nx q[10];\nswap q[13],q[16];\nsdg q[8];\nsdg q[19];\ncx q[13],q[5];\nx q[0];\ny q[7];\ncz q[14],q[12];\nh q[16];\nh q[16];\nh q[8];\nx q[14];\ncz q[1],q[3];\ns q[18];\ns q[8];\ncx q[4],q[11];\nz q[7];\nsdg q[2];\ncx q[15],q[1];\ncz q[15],q[5];\nz q[11];\ncz q[17],q[6];\ny q[9];\ncy q[16],q[10];\ncx q[17],q[8];\nx q[11];\nx q[7];\nx q[4];\ncx q[17],q[0];\nx q[1];\nx q[17];\ncx q[17],q[5];\ncx q[6],q[5];\ny q[16];\ncx q[14],q[1];\ns q[11];\ny q[16];\nh q[8];\nh q[2];\ny q[4];\ns q[12];\nh q[11];\ncy q[5],q[12];\nh q[16];\ns q[8];\ncy q[17],q[16];\ncx q[0],q[15];\ncx q[5],q[13];\nh q[3];\ncz q[8],q[17];\ncx q[7],q[14];\ns q[15];\ns q[15];\ncy q[0],q[6];\nswap q[4],q[17];\ncz q[14],q[3];\nswap q[10],q[11];\nh q[12];\nx q[18];\nz q[18];\nx q[9];\nh q[3];\ncy q[8],q[10];\nswap q[10],q[7];\nz q[13];\ncz q[14],q[1];\ncx q[16],q[17];\ncz q[12],q[16];\nz q[6];\nh q[14];\nx q[15];\ncz q[11],q[18];\nh q[11];\nsdg q[15];\ns q[16];\ncy q[6],q[7];\ncz q[5],q[13];\nsdg q[2];\nh q[16];\ncx q[12],q[1];\ncz q[14],q[15];\nswap q[12],q[9];\nh q[19];\nx q[12];\ncy q[13],q[3];\nh q[17];\nx q[11];\nsdg q[12];\nx q[18];\nswap q[18],q[11];\ncz q[16],q[9];\nx q[16];\nz q[1];\ns q[5];\ncx q[4],q[3];\nz q[14];\ny q[9];\nsdg q[16];\nsdg q[5];\nz q[13];\ny q[3];\ny q[4];\nsdg q[18];\nh q[11];\ncy q[1],q[6];\nswap q[16],q[1];\nx q[19];\nswap q[17],q[0];\ncz q[17],q[11];\nswap q[15],q[16];\nz q[3];\nx q[4];\ny q[4];\ncx q[3],q[10];\nz q[1];\nx q[0];\nh q[17];\nswap q[15],q[9];\ny q[10];\ncy q[5],q[7];\ny q[5];\ncy q[19],q[11];\ncz q[19],q[0];\ns q[12];\ny q[13];\nswap q[14],q[19];\ncy q[3],q[17];\nh q[17];\ny q[7];\nx q[16];\ns q[17];\nz q[11];\nswap q[17],q[4];\nswap q[9],q[7];\nz q[6];\nsdg q[6];\nswap q[15],q[8];\ncy q[11],q[5];\nswap q[16],q[2];\ncy q[2],q[1];\ny q[19];\ncy q[11],q[5];\nh q[6];\ncz q[17],q[16];\nswap q[1],q[13];\ns q[7];\ncz q[2],q[19];\nx q[16];\ny q[1];\ncz q[16],q[17];\ny q[11];\ny q[12];\ns q[13];\nx q[12];\ns q[12];\ny q[13];\ny q[10];\ns q[8];\ns q[12];\ncx q[5],q[6];\nswap q[5],q[13];\nx q[11];\nz q[6];\ncx q[19],q[2];\ncx q[11],q[17];\nh q[17];\ncx q[10],q[0];\nz q[6];\ncy q[9],q[12];\ncz q[14],q[1];\ncy q[11],q[10];\nh q[12];\nx q[6];\ncz q[3],q[19];\ncx q[5],q[15];\nswap q[18],q[11];\nsdg q[3];\ncx q[11],q[6];\nx q[15];\nswap q[11],q[15];\ncz q[14],q[10];\ns q[17];\nx q[15];\ncz q[8],q[4];\nh q[4];\ns q[8];\nx q[4];\nx q[1];\ny q[17];\nsdg q[4];\ncz q[17],q[12];\ncz q[9],q[3];\ncz q[13],q[16];\nh q[3];\nx q[18];\ns q[0];\ncz q[10],q[2];\ncx q[9],q[0];\nswap q[10],q[11];\nx q[7];\nswap q[6],q[4];\ncx q[18],q[14];\nx q[19];\ns q[18];\ncy q[3],q[1];\nswap q[12],q[3];\nz q[5];\ns q[3];\nswap q[6],q[2];\nsdg q[19];\nz q[6];\ncz q[2],q[0];\ncy q[6],q[2];\nsdg q[2];\ny q[0];\nswap q[8],q[6];\ns q[15];\nswap q[12],q[19];\ny q[6];\nz q[10];\ncz q[12],q[3];\nh q[13];\nz q[1];\nz q[3];\nx q[3];\ncy q[8],q[18];\nz q[4];\ncx q[1],q[3];\ny q[5];\ncz q[12],q[10];\ncz q[17],q[4];\ncy q[16],q[6];\nsdg q[8];\ncx q[3],q[18];\nswap q[9],q[1];\ncx q[6],q[3];\nx q[19];\nh q[16];\ncy q[4],q[2];\ncz q[11],q[5];\nz q[9];\nswap q[14],q[7];\ny q[11];\nh q[7];\ncx q[12],q[4];\ny q[11];\nsdg q[3];\nz q[8];\nh q[18];\ncy q[17],q[5];\nz q[1];\nz q[1];\nz q[8];\ncz q[19],q[14];\ns q[17];\nswap q[0],q[2];\ncz q[11],q[7];\nh q[19];\nx q[9];\ns q[4];\nswap q[19],q[9];\nx q[7];\ncx q[1],q[7];\nx q[18];\ny q[11];\ns q[1];\ny q[6];\nswap q[13],q[1];\ncx q[19],q[13];\nx q[1];\ns q[14];\ny q[3];\ncy q[7],q[11];\ny q[18];\ny q[5];\nx q[18];\nz q[11];\nz q[15];\ns q[10];\ncz q[7],q[2];\ny q[18];\ns q[18];\nswap q[16],q[13];\ncz q[18],q[15];\ny q[9];\nsdg q[0];\ncx q[3],q[8];\ny q[17];\ncx q[12],q[3];\nh q[2];\nz q[11];\nx q[8];\ns q[6];\nz q[6];\ns q[1];\ncx q[0],q[16];\ny q[17];\nswap q[13],q[18];\nswap q[12],q[0];\ncz q[5],q[2];\nx q[6];\nz q[14];\nz q[13];\ncz q[12],q[5];\ncy q[8],q[2];\nx q[7];\ncx q[7],q[14];\ncy q[14],q[17];\nswap q[9],q[0];\ncz q[17],q[18];\ncz q[15],q[1];\nsdg q[0];\ny q[7];\ncy q[7],q[8];\nx q[3];\ncx q[12],q[0];\ns q[12];\nswap q[14],q[5];\nx q[7];\ncy q[5],q[0];\nz q[2];\ns q[11];\ny q[2];\nz q[2];\nsdg q[10];\nh q[1];\ncy q[10],q[12];\nsdg q[19];\ncz q[18],q[8];\nswap q[1],q[14];\ns q[0];\nsdg q[14];\nz q[7];\ncy q[5],q[4];\nx q[14];\nsdg q[6];\nswap q[14],q[7];\ncz q[8],q[13];\ns q[19];\nh q[8];\nh q[2];\ny q[3];\nx q[1];\nx q[12];\ncx q[5],q[13];\nx q[7];\nswap q[17],q[1];\nswap q[10],q[4];\nsdg q[8];\ncz q[6],q[14];\ns q[14];\nz q[14];\nh q[1];\nswap q[17],q[19];\nswap q[9],q[14];\nsdg q[3];\ncz q[8],q[10];\ncz q[1],q[2];\ns q[6];\nx q[1];\nx q[4];\ny q[16];\ns q[17];\ns q[9];\nswap q[8],q[12];\nz q[14];\ncy q[11],q[7];\nx q[5];\ncy q[12],q[15];\ns q[10];\ncx q[6],q[7];\ns q[16];\ns q[0];\nswap q[2],q[12];\ncx q[19],q[14];\nx q[12];\nsdg q[9];\nswap q[10],q[11];\ny q[1];\ns q[7];\nh q[11];\ncz q[10],q[8];\ncx q[17],q[16];\nsdg q[1];\nsdg q[0];\ny q[19];\ncy q[14],q[13];\nswap q[13],q[3];\ny q[11];\nh q[6];\ncx q[8],q[1];\nh q[18];\ns q[15];\nh q[10];\nswap q[4],q[10];\ncz q[18],q[8];\nsdg q[7];\nx q[15];\nx q[17];\nh q[4];\nz q[11];\ncx q[5],q[10];\ns q[19];\ncy q[3],q[11];\ny q[4];\nx q[3];\ncy q[11],q[10];\ncy q[13],q[7];\nx q[18];\ny q[0];\ns q[5];\ny q[6];\ns q[0];\nsdg q[8];\ncy q[17],q[7];\ncy q[11],q[19];\ncx q[6],q[17];\ns q[8];\ncx q[7],q[14];\nx q[4];\nh q[2];\nh q[17];\ns q[13];\nsdg q[3];\ny q[0];\ncx q[5],q[19];\ncz q[19],q[5];\nswap q[0],q[13];\nx q[12];\ncy q[1],q[10];\ns q[7];\nx q[7];\nz q[0];\nh q[4];\ny q[18];\ny q[11];\nx q[2];\ncx q[0],q[13];\ncx q[4],q[14];\ns q[2];\nx q[19];\ncy q[14],q[9];\nswap q[5],q[8];\nx q[10];\ncy q[9],q[11];\nz q[1];\nh q[5];\nh q[5];\nswap q[9],q[12];\nswap q[19],q[6];\nh q[16];\nz q[0];\ncx q[9],q[7];\ncx q[13],q[8];\nx q[0];\ncx q[0],q[13];\ns q[4];\nx q[14];\ncx q[0],q[5];\ny q[4];\ncy q[0],q[2];\ncy q[7],q[17];\nsdg q[11];\ns q[12];\ny q[12];\nswap q[14],q[4];\ns q[1];\ncy q[12],q[7];\nsdg q[0];\nz q[16];\ny q[10];\ns q[10];\nh q[14];\nh q[11];\ny q[13];\ncz q[6],q[16];\ns q[16];\ncx q[17],q[11];\ny q[10];\nsdg q[13];\nh q[0];\ncy q[14],q[7];\ns q[12];\nh q[6];\nswap q[9],q[1];\ny q[18];\nh q[11];\nz q[4];\nswap q[5],q[1];\ncx q[5],q[17];\ncx q[15],q[5];\ny q[14];\ncx q[1],q[7];\nsdg q[2];\ncz q[1],q[5];\nh q[16];\ns q[12];\nswap q[14],q[17];\nx q[1];\ncz q[13],q[12];\ncz q[13],q[19];\nh q[8];\ncx q[15],q[6];\nx q[19];\nz q[6];\nx q[10];\nh q[13];\nx q[16];\nz q[0];\ny q[4];\ns q[14];\ncx q[10],q[1];\nsdg q[9];\ncx q[6],q[5];\ncy q[5],q[11];\ns q[6];\nx q[2];\nz q[15];\ny q[7];\nswap q[0],q[3];\ns q[4];\nz q[15];\ncx q[13],q[8];\ns q[19];\ncz q[9],q[0];\ncy q[19],q[2];\nh q[9];\nswap q[15],q[14];\ny q[9];\ncy q[17],q[16];\ny q[16];\ncz q[7],q[15];\ncx q[18],q[10];\ny q[18];\nx q[19];\ns q[5];\ncz q[2],q[10];\nz q[6];\ncx q[10],q[19];\ncy q[18],q[9];\ncz q[19],q[2];\nz q[5];\ncy q[13],q[14];\nx q[10];\nswap q[1],q[4];\nx q[2];\nh q[3];\ncx q[13],q[12];\nx q[15];\ns q[8];\ny q[6];\nsdg q[7];\nx q[13];\ncy q[4],q[18];\nx q[17];\nswap q[7],q[11];\ncz q[16],q[9];\nx q[6];\nsdg q[10];\nswap q[7],q[3];\nsdg q[15];\nswap q[18],q[3];\nsdg q[4];\ns q[3];\ny q[19];\nz q[15];\ncy q[0],q[19];\nswap q[13],q[12];\nx q[0];\nz q[6];\nswap q[0],q[4];\nz q[5];\nswap q[14],q[1];\nx q[15];\ns q[15];\ncy q[6],q[9];\nh q[8];\nsdg q[14];\ns q[19];\ncx q[14],q[16];\ncz q[7],q[19];\ns q[12];\ny q[12];\nsdg q[10];\ncx q[8],q[9];\ncy q[19],q[11];\ncy q[7],q[5];\ny q[8];\ny q[4];\nh q[17];\nx q[6];\nswap q[7],q[3];\nz q[11];\nz q[19];\ny q[3];\nx q[14];\ncx q[19],q[12];\nx q[6];\ny q[2];\ns q[6];\nx q[0];\ny q[7];\ns q[6];\ncy q[0],q[8];\nswap q[5],q[4];\ns q[17];\nsdg q[11];\ny q[19];\nsdg q[7];\nswap q[4],q[10];\nh q[11];\ny q[13];\ns q[9];\ns q[3];\nsdg q[13];\ncx q[14],q[12];\ncx q[8],q[17];\ncz q[17],q[1];\nz q[5];\nswap q[7],q[16];\nx q[4];\ncy q[11],q[9];\nh q[0];\ny q[17];\nh q[4];\ncx q[14],q[6];\nz q[16];\nh q[4];\nsdg q[9];\ns q[12];\ncz q[6],q[18];\nx q[3];\nsdg q[5];\ncz q[2],q[8];\ncz q[10],q[4];\ncx q[8],q[12];\ncz q[11],q[17];\ns q[13];\ny q[9];\ny q[0];\ny q[2];\nx q[14];\ncy q[19],q[11];\nswap q[1],q[6];\nswap q[13],q[18];\ncx q[6],q[2];\nz q[3];\ns q[1];\ncx q[0],q[15];\ncy q[11],q[7];\nz q[5];\ncy q[5],q[0];\ncx q[0],q[16];\ncy q[19],q[5];\nh q[7];\ny q[14];\nh q[8];\ncy q[6],q[16];\nsdg q[18];\ncz q[0],q[12];\ns q[3];\nsdg q[16];\ncx q[19],q[15];\ncz q[12],q[6];\nz q[10];\ncy q[9],q[10];\nsdg q[0];\ns q[11];\nsdg q[14];\nx q[4];\nsdg q[16];\nh q[4];\nsdg q[6];\nsdg q[4];\nsdg q[2];\ny q[12];\ncx q[14],q[13];\ncz q[13],q[19];\nswap q[4],q[3];\nswap q[5],q[18];\ns q[0];\nz q[6];\nx q[13];\ncy q[2],q[14];\ns q[14];\ny q[9];\ncy q[0],q[10];\ncz q[2],q[18];\nh q[15];\ny q[11];\nsdg q[18];\nh q[19];\nsdg q[3];\nz q[6];\ncy q[0],q[14];\ncy q[18],q[9];\nswap q[3],q[12];\ncz q[4],q[6];\nh q[6];\ny q[0];\ncy q[17],q[1];\ny q[8];\nh q[2];\ns q[16];\ns q[13];\ncx q[1],q[10];\nh q[1];\ncz q[16],q[9];\nsdg q[15];\nz q[13];\nx q[10];\ny q[10];\nx q[19];\ns q[13];\nx q[9];\nsdg q[7];\nh q[0];\ns q[8];\nswap q[14],q[16];\nz q[11];\nx q[6];\nh q[5];\ncz q[13],q[10];\nswap q[0],q[12];\nz q[13];\ncy q[8],q[11];\nswap q[9],q[18];\ncy q[14],q[8];\ncx q[18],q[19];\nz q[3];\ny q[18];\ncz q[12],q[14];\nz q[19];\nx q[10];\ncy q[10],q[17];\nswap q[14],q[3];\ncy q[7],q[12];\ncz q[4],q[12];\ncy q[0],q[13];\nsdg q[7];\ncx q[19],q[11];\nsdg q[2];\nx q[3];\ncy q[13],q[9];\ncz q[9],q[17];\ncx q[12],q[11];\nx q[6];\nz q[5];\nx q[1];\ncy q[1],q[9];\ncz q[12],q[19];\ny q[6];\ncz q[1],q[12];\nswap q[9],q[17];\ny q[5];\nsdg q[16];\ncz q[19],q[15];\nswap q[11],q[15];\nz q[2];\ny q[13];\nz q[4];\ncx q[8],q[14];\ncy q[12],q[6];\nswap q[13],q[10];\nsdg q[0];\nh q[13];\ncy q[1],q[7];\ncz q[1],q[12];\ncy q[8],q[1];\ns q[10];\ncy q[15],q[3];\nx q[1];\nswap q[15],q[7];\ny q[11];\nsdg q[5];\nsdg q[12];\nz q[14];\nh q[17];\ns q[19];\nx q[1];\nz q[11];\nh q[4];\ncz q[6],q[4];\ncy q[9],q[17];\ns q[11];\ncy q[3],q[10];\nx q[19];\nz q[7];\ncz q[1],q[11];\ny q[16];\nsdg q[2];\ny q[5];\nh q[14];\nswap q[4],q[8];\nswap q[19],q[6];\nx q[9];\nz q[4];\ny q[6];\nz q[15];\ncx q[7],q[5];\nswap q[6],q[14];\ncx q[18],q[6];\nz q[19];\ncx q[18],q[17];\nz q[14];\nsdg q[13];\ns q[3];\nz q[16];\nsdg q[9];\nswap q[6],q[8];\nz q[15];\ny q[18];\nx q[3];\nsdg q[15];\nx q[18];\ncx q[6],q[4];\nx q[11];\ncz q[19],q[6];\nh q[4];\nswap q[10],q[14];\ns q[11];\nx q[3];\ncx q[0],q[9];\nswap q[17],q[8];\nh q[9];\nsdg q[15];\ny q[0];\ny q[16];\nswap q[0],q[5];\ncx q[17],q[14];\nh q[19];\ncy q[10],q[1];\ncx q[6],q[13];\ny q[18];\ncx q[17],q[5];\ns q[8];\nz q[2];\nz q[2];\ns q[15];\nh q[8];\ncy q[15],q[6];\nswap q[3],q[15];\ny q[18];\nz q[1];\ncx q[5],q[11];\nh q[2];\ny q[19];\nx q[0];\nz q[11];\ncz q[0],q[11];\nx q[3];\ncy q[18],q[8];\ncx q[16],q[3];\nx q[17];\ncz q[7],q[1];\ncz q[2],q[1];\ncz q[14],q[6];\nx q[18];\ns q[17];\nh q[15];\nsdg q[9];\nsdg q[13];\ny q[1];\ny q[4];\ny q[16];\nh q[2];\nswap q[5],q[13];\nz q[1];\nh q[9];\ncx q[8],q[5];\ns q[16];\nz q[18];\nsdg q[7];\ny q[3];\nz q[4];\nz q[17];\nx q[18];\ncy q[16],q[9];\nswap q[15],q[7];\ns q[10];\nz q[10];\ny q[14];\ncz q[19],q[3];\nh q[1];\ny q[3];\ncz q[8],q[19];\nsdg q[16];\ny q[9];\nx q[16];\nsdg q[8];\nswap q[5],q[13];\ncz q[11],q[14];\ncz q[18],q[7];\ns q[5];\ncy q[14],q[17];\nh q[9];\nh q[0];\ns q[0];\nsdg q[11];\nz q[13];\nsdg q[12];\ncy q[19],q[7];\ncy q[17],q[12];\nh q[4];\ncy q[14],q[19];\ncx q[12],q[2];\ncx q[19],q[15];\nswap q[0],q[1];\nx q[10];\ncx q[10],q[9];\nz q[4];\nx q[4];\ns q[18];\ns q[4];\ncy q[1],q[7];\ny q[15];\ns q[15];\ncy q[1],q[17];\nh q[2];\nz q[6];\ncy q[4],q[3];\ns q[14];\ncz q[5],q[11];\ncy q[13],q[1];\ncz q[9],q[11];\nswap q[17],q[7];\ncx q[9],q[4];\ncy q[7],q[1];\nx q[2];\nx q[17];\nsdg q[7];\ncx q[10],q[9];\nswap q[8],q[10];\nx q[10];\ncz q[12],q[18];\ncx q[12],q[18];\nh q[5];\ncy q[12],q[9];\ncx q[15],q[2];\nh q[17];\ny q[9];\ncx q[11],q[8];\nh q[17];\ncy q[7],q[14];\nx q[8];\nswap q[5],q[15];\ncz q[4],q[12];\nsdg q[13];\ncz q[13],q[4];\ncz q[11],q[10];\nswap q[8],q[3];\nh q[10];\ncy q[18],q[11];\ns q[8];\nh q[19];\nsdg q[11];\ny q[4];\nsdg q[18];\ncx q[8],q[1];\ny q[6];\nh q[5];\ncx q[2],q[10];\ncx q[4],q[2];\nh q[11];\nh q[15];\ny q[14];\ny q[2];\ncz q[15],q[8];\nh q[15];\nh q[11];\ns q[13];\ncz q[10],q[5];\nz q[15];\ncz q[15],q[4];\nz q[13];\nz q[10];\ncz q[19],q[6];\ns q[8];\nsdg q[0];\ncz q[14],q[0];\nx q[2];\nswap q[15],q[10];\ny q[19];\nx q[9];\nx q[8];\nx q[12];\ny q[2];\nx q[10];\ncx q[2],q[8];\nx q[0];\nsdg q[11];\ncx q[15],q[19];\ncx q[6],q[3];\nh q[4];\ncy q[18],q[15];\ny q[14];\nswap q[15],q[12];\ns q[9];\ny q[10];\nz q[6];\ns q[7];\nh q[12];\ns q[9];\ny q[2];\nx q[14];\nswap q[17],q[11];\nz q[1];\ns q[8];\ncy q[4],q[11];\ncz q[5],q[19];\nswap q[17],q[8];\ny q[11];\nx q[1];\ns q[9];\ny q[5];\ny q[6];\ncz q[11],q[7];\nsdg q[1];\ncy q[18],q[15];\ncz q[3],q[1];\ncz q[5],q[19];\nsdg q[11];\nx q[9];\nh q[17];\nx q[3];\nsdg q[3];\nh q[12];\nswap q[0],q[1];\nswap q[12],q[19];\ncz q[12],q[0];\nz q[15];\ny q[14];\ncz q[14],q[11];\ncy q[12],q[9];\ncz q[8],q[16];\ns q[16];\ncz q[14],q[4];\nswap q[19],q[0];\nsdg q[6];\ns q[7];\nx q[6];\nswap q[17],q[6];\ny q[6];\nx q[5];\nsdg q[4];\nh q[11];\nswap q[13],q[4];\nswap q[7],q[2];\nz q[12];\ncx q[16],q[15];\nsdg q[16];\nh q[8];\ncx q[8],q[7];\ncz q[19],q[13];\ncx q[16],q[9];\ncy q[13],q[8];\nx q[3];\ns q[4];\ns q[9];\ncx q[14],q[18];\ncz q[16],q[17];\ns q[2];\ncz q[10],q[8];\nx q[1];\ny q[1];\nz q[1];\nx q[2];\nswap q[4],q[1];\nsdg q[14];\nswap q[0],q[13];\nh q[9];\nh q[1];\ncy q[18],q[10];\nsdg q[12];\ncx q[1],q[4];\nz q[15];\nsdg q[13];\nswap q[6],q[11];\nx q[3];\ncx q[12],q[17];\nh q[0];\ncx q[10],q[2];\nh q[1];\ncy q[12],q[13];\ny q[15];\ns q[19];\ny q[16];\ncy q[10],q[18];\nh q[4];\ncy q[10],q[4];\nx q[0];\ny q[14];\ncy q[2],q[12];\ns q[11];\nsdg q[0];\nh q[15];\nsdg q[10];\nh q[16];\nz q[2];\ny q[0];\nsdg q[4];\nz q[0];\nsdg q[18];\nswap q[12],q[4];\ncz q[6],q[15];\ncz q[8],q[14];\nh q[13];\nz q[11];\nh q[2];\ncz q[14],q[4];\nz q[3];\nsdg q[17];\nh q[0];\ncz q[9],q[18];\ncz q[16],q[18];\nz q[4];\nswap q[4],q[8];\ncx q[8],q[4];\nsdg q[19];\nz q[6];\nswap q[13],q[19];\ncz q[11],q[0];\ny q[18];\nz q[5];\nswap q[13],q[3];\nsdg q[12];\nh q[15];\ncx q[0],q[7];\nh q[5];\nswap q[15],q[4];\ncy q[7],q[11];\ncz q[1],q[6];\nswap q[18],q[7];\ncy q[10],q[11];\nswap q[10],q[8];\nswap q[13],q[14];\ny q[8];\nh q[14];\nswap q[15],q[7];\nswap q[10],q[14];\ncx q[11],q[9];\nz q[7];\nx q[4];\ncy q[16],q[18];\ny q[19];\ncy q[10],q[5];\ns q[18];\nswap q[3],q[15];\nswap q[8],q[15];\nz q[3];\nh q[2];\ny q[10];\nswap q[0],q[8];\nswap q[8],q[0];\nz q[9];\ncz q[17],q[11];\nh q[10];\nsdg q[18];\ncz q[2],q[1];\ny q[0];\ncx q[9],q[7];\ny q[13];\ncx q[7],q[9];\ns q[17];\ncx q[13],q[6];\ncy q[10],q[18];\ncz q[3],q[6];\nh q[9];\ncx q[14],q[10];\ns q[19];\nsdg q[5];\ns q[15];\nsdg q[2];\ns q[16];\ncx q[11],q[7];\ncy q[18],q[19];\ny q[17];\nz q[1];\nz q[2];\ncy q[6],q[10];\nz q[8];\ny q[5];\nswap q[15],q[6];\nsdg q[12];\nz q[19];\ny q[15];\ncx q[16],q[0];\ncx q[6],q[4];\nsdg q[19];\ns q[6];\nh q[2];\nh q[15];\nh q[14];\ns q[0];\nz q[1];\nz q[3];\ny q[12];\ncx q[16],q[11];\ncy q[10],q[19];\ncy q[4],q[2];\nsdg q[10];\ncx q[14],q[3];\nx q[7];\nx q[9];\ny q[2];\nz q[5];\ncy q[17],q[16];\nsdg q[13];\ny q[9];\nswap q[3],q[15];\ny q[9];\nswap q[11],q[14];\ns q[7];\ncz q[3],q[12];\ncx q[3],q[19];\ncx q[6],q[14];\ncy q[10],q[3];\nz q[1];\nswap q[4],q[14];\nx q[18];\nx q[19];\ny q[2];\nz q[17];\ns q[12];\nz q[8];\nx q[18];\nx q[3];\nsdg q[14];\ny q[18];\nx q[3];\ncx q[4],q[16];\ny q[11];\nh q[6];\nsdg q[8];\ny q[2];\ncy q[7],q[17];\ncx q[13],q[18];\ns q[10];\nsdg q[17];\ncy q[18],q[4];\nsdg q[11];\ns q[13];\ncx q[2],q[6];\nz q[10];\nx q[2];\nh q[9];\nsdg q[15];\nx q[12];\nh q[18];\ns q[3];\nx q[12];\ncx q[17],q[9];\nh q[2];\ns q[8];\ncy q[6],q[0];\ny q[5];\ncy q[0],q[19];\ncy q[17],q[0];\ncx q[18],q[7];\nsdg q[17];\ncz q[10],q[9];\ncz q[15],q[19];\ns q[11];\ny q[18];\ncz q[4],q[16];\nz q[1];\ny q[13];\ncx q[10],q[13];\ns q[7];\ny q[18];\nsdg q[7];\ncz q[6],q[13];\ncy q[15],q[13];\nh q[9];\nh q[15];\ncy q[10],q[2];\ncy q[16],q[19];\ny q[11];\nx q[3];\nh q[15];\nh q[17];\nx q[10];\nz q[12];\ncx q[5],q[9];\ncz q[13],q[12];\nswap q[10],q[1];\nswap q[7],q[13];\ny q[11];\nswap q[18],q[8];\ny q[14];\nswap q[18],q[19];\nh q[12];\ncz q[10],q[4];\ncx q[5],q[2];\nx q[7];\ncz q[17],q[7];\nz q[16];\nswap q[11],q[1];\nswap q[6],q[9];\nx q[2];\ny q[5];\nsdg q[1];\nsdg q[19];\ncz q[13],q[7];\nswap q[14],q[6];\ncx q[2],q[16];\ncy q[6],q[4];\ns q[3];\ncz q[16],q[7];\nx q[11];\ncz q[9],q[4];\ncx q[8],q[7];\nx q[0];\nh q[1];\ncz q[10],q[1];\ncx q[15],q[11];\nswap q[4],q[11];\nx q[10];\ncx q[4],q[3];\nswap q[11],q[0];\ns q[9];\nh q[2];\ncx q[15],q[17];\nx q[0];\ncy q[17],q[16];\ncy q[16],q[7];\ny q[15];\nsdg q[3];\nx q[2];\ny q[11];\ncy q[2],q[10];\ncz q[7],q[10];\ncy q[5],q[0];\ncz q[0],q[9];\nh q[1];\nz q[4];\ncz q[7],q[8];\ncx q[1],q[13];\nsdg q[18];\nswap q[11],q[0];\ncz q[13],q[14];\nz q[5];\ncz q[19],q[6];\ns q[4];\ncy q[3],q[17];\nz q[4];\nh q[18];\ncz q[5],q[13];\ns q[15];\ncx q[3],q[14];\ncy q[11],q[13];\nz q[8];\ncz q[11],q[10];\nswap q[9],q[12];\nsdg q[3];\ny q[12];\ns q[4];\ncz q[9],q[5];\ncy q[3],q[4];\ncz q[7],q[2];\ns q[4];\ncz q[15],q[19];\nsdg q[3];\ns q[4];\nswap q[2],q[4];\ncy q[12],q[15];\nsdg q[12];\ncy q[14],q[5];\nh q[5];\nsdg q[6];\nh q[2];\nswap q[15],q[11];\nz q[14];\nsdg q[2];\ncx q[0],q[12];\ny q[7];\nz q[14];\ny q[4];\nswap q[17],q[9];\nswap q[17],q[2];\ncx q[18],q[3];\nx q[9];\nh q[14];\nx q[13];\nswap q[12],q[19];\ny q[9];\nh q[0];\nsdg q[16];\ncy q[3],q[2];\nz q[13];\ncy q[13],q[0];\ny q[2];\ncy q[19],q[2];\nz q[0];\ny q[19];\ncx q[1],q[6];\nz q[16];\ncy q[17],q[8];\nsdg q[10];\nx q[2];\ny q[19];\nh q[6];\nh q[11];\ns q[4];\nh q[4];\nh q[7];\nswap q[3],q[8];\ny q[4];\ncz q[0],q[17];\nsdg q[10];\nz q[16];\nx q[9];\nsdg q[0];\nh q[10];\ns q[11];\nh q[17];\ncy q[13],q[9];\nz q[1];\ny q[17];\nx q[0];\nz q[11];\ns q[7];\ny q[13];\nh q[8];\ncy q[18],q[4];\nx q[8];\ny q[14];\nz q[17];\nh q[11];\ncx q[16],q[15];\nsdg q[1];\ny q[10];\ns q[5];\nswap q[9],q[5];\ncx q[19],q[10];\ns q[6];\nsdg q[11];\ncy q[8],q[15];\nx q[12];\nz q[8];\nz q[16];\nx q[3];\nsdg q[5];\nh q[2];\ns q[16];\nsdg q[8];\ny q[13];\ncx q[9],q[14];\nh q[12];\nh q[4];\nsdg q[14];\ns q[12];\ns q[0];\ncz q[3],q[12];\nswap q[16],q[1];\ns q[15];\nz q[10];\nh q[10];\ncy q[16],q[18];\nswap q[15],q[8];\ncz q[13],q[14];\ny q[8];\ns q[19];\ncz q[16],q[14];\nh q[11];\nswap q[11],q[2];\ncx q[13],q[6];\nx q[12];\nsdg q[8];\nx q[6];\nz q[14];\ncz q[13],q[16];\nswap q[8],q[13];\nh q[11];\nh q[3];\ncx q[5],q[13];\ncz q[0],q[13];\ncz q[5],q[16];\ncy q[5],q[12];\ncy q[6],q[12];\ny q[10];\ncy q[1],q[0];\ny q[8];\ncx q[16],q[10];\ny q[17];\nx q[1];\nx q[17];\ncy q[10],q[4];\ncz q[7],q[16];\nswap q[12],q[19];\ny q[8];\ncz q[6],q[14];\nsdg q[4];\nsdg q[1];\nh q[7];\ns q[16];\ncx q[0],q[7];\ncx q[14],q[2];\nh q[13];\ncx q[14],q[3];\ns q[12];\nz q[19];\nz q[14];\ncy q[9],q[5];\nsdg q[17];\nswap q[2],q[11];\nx q[12];\nx q[10];\ncx q[13],q[2];\nh q[9];\ncy q[8],q[13];\ncz q[5],q[4];\nswap q[15],q[4];\nswap q[10],q[15];\nsdg q[7];\ns q[11];\ncy q[15],q[11];\ny q[13];\nh q[11];\nswap q[12],q[18];\nh q[1];\ny q[5];\ncy q[5],q[6];\ncx q[0],q[12];\nx q[19];\nswap q[0],q[16];\ncz q[18],q[4];\nz q[18];\nsdg q[17];\ncx q[16],q[13];\nh q[6];\nx q[0];\nz q[10];\ncz q[11],q[15];\ncz q[9],q[6];\ncz q[6],q[14];\nswap q[18],q[12];\nswap q[12],q[7];\ny q[10];\ncy q[2],q[8];\ncy q[16],q[3];\ncz q[17],q[5];\ncz q[11],q[8];\ncy q[14],q[13];\ncy q[1],q[15];\ns q[11];\nsdg q[5];\ny q[14];\nswap q[15],q[2];\ns q[15];\ny q[9];\nsdg q[5];\ncy q[19],q[6];\ns q[2];\nswap q[0],q[7];\ncy q[4],q[7];\nsdg q[7];\nswap q[5],q[2];\nswap q[9],q[1];\ncy q[15],q[0];\nz q[2];\ns q[19];\ncy q[13],q[0];\nz q[10];\ncx q[18],q[7];\nz q[7];\nsdg q[3];\nsdg q[2];\ncx q[7],q[16];\ncy q[4],q[3];\ns q[13];\ncy q[6],q[5];\ncz q[6],q[9];\nz q[17];\ncy q[16],q[15];\nsdg q[11];\nsdg q[0];\ncx q[16],q[14];\nh q[18];\nh q[6];\ny q[14];\ncy q[0],q[4];\ncx q[18],q[12];\nswap q[15],q[8];\nsdg q[13];\nz q[6];\ny q[9];\nh q[19];\nsdg q[2];\ncx q[8],q[9];\nsdg q[6];\nx q[4];\ncz q[13],q[4];\nsdg q[15];\nx q[6];\nx q[0];\nx q[15];\nz q[12];\nsdg q[13];\ns q[19];\nx q[1];\nz q[10];\nswap q[5],q[15];\ncx q[18],q[12];\nx q[17];\nsdg q[1];\nh q[3];\ncy q[5],q[9];\ncy q[11],q[13];\nx q[0];\nsdg q[13];\nsdg q[3];\ncy q[19],q[1];\nswap q[14],q[0];\nz q[18];\nx q[13];\ncx q[15],q[8];\nz q[17];\ns q[3];\nswap q[1],q[10];\ny q[16];\ncy q[1],q[17];\nh q[1];\ny q[14];\ncx q[11],q[9];\ncz q[2],q[9];\nswap q[8],q[2];\nswap q[10],q[19];\ns q[1];\ncy q[16],q[2];\nswap q[8],q[17];\ncz q[19],q[4];\nswap q[17],q[7];\nh q[9];\ny q[12];\nsdg q[4];\nx q[9];\nh q[4];\nh q[3];\nx q[7];\nsdg q[3];\ncy q[17],q[6];\nx q[2];\nsdg q[4];\ns q[2];\ncy q[14],q[16];\ncy q[8],q[19];\nx q[14];\ny q[6];\nz q[17];\ncx q[18],q[3];\ncy q[2],q[6];\nx q[7];\nx q[1];\nh q[5];\ns q[8];\ns q[11];\ny q[8];\ny q[11];\nswap q[9],q[16];\ncx q[5],q[13];\ncz q[2],q[8];\ncx q[13],q[2];\nx q[12];\nx q[12];\nx q[18];\ncz q[7],q[8];\ncy q[4],q[11];\ncx q[10],q[5];\nswap q[8],q[5];\ncy q[2],q[10];\nswap q[15],q[17];\ny q[13];\ncz q[12],q[9];\ny q[0];\nh q[13];\ncx q[8],q[7];\ns q[10];\nz q[19];\nz q[7];\ns q[15];\ncy q[4],q[3];\nz q[9];\ny q[16];\nh q[10];\nswap q[14],q[19];\nsdg q[5];\ncy q[5],q[14];\ncy q[11],q[13];\ncy q[0],q[19];\nswap q[12],q[4];\ny q[18];\ny q[12];\ncy q[0],q[14];\ncx q[8],q[16];\nz q[9];\nswap q[19],q[0];\nsdg q[19];\nx q[6];\ns q[11];\ns q[12];\nsdg q[9];\nsdg q[17];\nsdg q[13];\ncy q[9],q[11];\ns q[11];\ncy q[15],q[1];\nx q[13];\ncy q[8],q[19];\ncy q[4],q[12];\nswap q[5],q[15];\ncx q[8],q[19];\nh q[16];\nswap q[4],q[10];\nz q[5];\ncz q[7],q[15];\ncz q[13],q[3];\ncz q[6],q[16];\ncx q[10],q[19];\ncy q[6],q[2];\ncx q[0],q[16];\nswap q[13],q[16];\nx q[4];\nh q[15];\ncz q[16],q[1];\ncz q[8],q[1];\nsdg q[18];\nz q[3];\ncz q[2],q[9];\ncx q[16],q[19];\ncz q[15],q[6];\nsdg q[2];\ncx q[5],q[8];\ncz q[15],q[11];\nh q[0];\nswap q[12],q[18];\ncy q[8],q[12];\nx q[18];\nz q[16];\ns q[15];\ncx q[11],q[3];\nx q[5];\ny q[9];\ncy q[13],q[10];\nswap q[2],q[7];\ns q[13];\ncy q[8],q[5];\ncy q[6],q[14];\ny q[7];\nh q[14];\nh q[8];\nz q[16];\ncz q[5],q[13];\ncx q[12],q[1];\ncx q[9],q[17];\nh q[14];\ny q[12];\nsdg q[18];\ny q[17];\ncy q[8],q[3];\nz q[18];\nh q[18];\nsdg q[11];\nx q[2];\ns q[7];\nh q[6];\nh q[8];\ny q[14];\nsdg q[14];\nx q[5];\ns q[17];\nswap q[16],q[15];\nswap q[1],q[7];\ns q[4];\ncz q[10],q[4];\ns q[14];\ns q[6];\nsdg q[6];\ny q[10];\ns q[6];\ncx q[0],q[3];\ncz q[16],q[19];\nx q[19];\ncx q[0],q[2];\ncy q[18],q[3];\nswap q[12],q[5];\nswap q[12],q[9];\nswap q[1],q[0];\ncy q[15],q[10];\nswap q[19],q[0];\ns q[10];\ny q[13];\ncz q[12],q[11];\ncy q[9],q[10];\ncx q[14],q[10];\nh q[14];\ns q[16];\nswap q[14],q[17];\ns q[8];\ncy q[19],q[7];\ncy q[16],q[0];\nswap q[14],q[16];\ncx q[8],q[12];\nx q[14];\nswap q[5],q[17];\ny q[6];\nz q[7];\ncz q[11],q[4];\nz q[2];\nx q[14];\nsdg q[13];\nh q[8];\nh q[7];\ncz q[5],q[10];\ncy q[3],q[16];\nsdg q[5];\ncx q[17],q[0];\ncy q[3],q[6];\nswap q[4],q[18];\nswap q[17],q[7];\ncz q[8],q[5];\nsdg q[12];\nx q[5];\nx q[11];\nx q[11];\nh q[5];\nh q[18];\ncx q[10],q[9];\ns q[2];\ny q[0];\nz q[17];\ncx q[18],q[7];\ny q[6];\ny q[4];\nh q[11];\ns q[10];\nz q[7];\ncz q[11],q[12];\nswap q[17],q[8];\ncy q[10],q[1];\ncy q[6],q[9];\nsdg q[18];\ny q[13];\ns q[19];\ny q[18];\ny q[6];\ncx q[6],q[2];\ny q[0];\nx q[0];\ncz q[0],q[7];\ny q[4];\ny q[17];\ncy q[0],q[9];\nsdg q[12];\nh q[13];\nx q[8];\ncz q[3],q[19];\ncx q[18],q[1];\nsdg q[9];\nh q[7];\ny q[15];\ns q[5];\ncz q[13],q[17];\ncx q[5],q[6];\nswap q[12],q[5];\nx q[5];\nswap q[1],q[4];\ncz q[2],q[14];\ncx q[17],q[15];\nsdg q[6];\ny q[4];\nz q[0];\ny q[13];\nh q[1];\ncz q[11],q[7];\nx q[4];\ncy q[2],q[19];\nh q[2];\ns q[7];\ncx q[3],q[4];\ncx q[19],q[17];\ncy q[1],q[3];\ncy q[0],q[15];\nsdg q[3];\nh q[16];\ny q[12];\nsdg q[5];\nh q[6];\ncz q[7],q[6];\nswap q[6],q[5];\ncy q[7],q[3];\ncx q[1],q[13];\ncz q[9],q[10];\nx q[19];\ncy q[10],q[6];\ncz q[3],q[0];\ny q[7];\ncz q[13],q[10];\ncz q[13],q[10];\ncy q[14],q[9];\nx q[9];\ncy q[14],q[13];\ncz q[3],q[7];\nx q[12];\ny q[14];\ny q[16];\nx q[6];\nsdg q[4];\ns q[9];\ncx q[18],q[0];\ny q[6];\ncx q[18],q[1];\nz q[17];\nswap q[16],q[2];\nsdg q[9];\nx q[10];\nh q[15];\ncx q[8],q[12];\nswap q[9],q[17];\ns q[17];\nx q[11];\ncy q[3],q[0];\nsdg q[11];\nh q[2];\nswap q[7],q[8];\nz q[18];\ny q[6];\ncx q[18],q[0];\nx q[2];\nh q[3];\nx q[9];\nx q[9];\nh q[15];\nsdg q[0];\ns q[17];\ns q[17];\nswap q[8],q[11];\ncy q[19],q[15];\nh q[0];\nx q[15];\ncz q[0],q[17];\ncx q[0],q[11];\ncx q[18],q[12];\ncx q[16],q[14];\nx q[15];\nswap q[4],q[9];\ncx q[16],q[2];\nh q[7];\nh q[7];\ns q[17];\nsdg q[11];\ns q[16];\nh q[8];\nx q[1];\ns q[0];\nh q[3];\nz q[2];\ny q[12];\ncx q[6],q[0];\nz q[10];\nx q[9];\nsdg q[7];\ncz q[15],q[10];\ncy q[15],q[16];\ncx q[8],q[13];\ncy q[0],q[18];\ncx q[4],q[3];\ny q[1];\nh q[18];\ny q[16];\ncy q[2],q[16];\nz q[15];\ns q[8];\ncz q[13],q[16];\nsdg q[16];\ncy q[18],q[7];\ncz q[15],q[10];\ncy q[7],q[4];\nx q[5];\nx q[5];\nswap q[6],q[18];\ny q[17];\nsdg q[0];\nx q[9];\nh q[16];\nsdg q[10];\ny q[4];\nx q[14];\nswap q[1],q[7];\ny q[5];\nswap q[1],q[16];\ncz q[18],q[8];\nx q[15];\ny q[1];\nswap q[9],q[10];\nh q[2];\ns q[17];\nsdg q[13];\ncy q[3],q[9];\ncx q[11],q[16];\nx q[17];\nh q[2];\nswap q[14],q[1];\ny q[9];\ns q[13];\nsdg q[1];\ncx q[14],q[5];\ncy q[6],q[15];\nh q[1];\ncx q[4],q[18];\ns q[5];\nsdg q[0];\nsdg q[7];\nx q[11];\nx q[3];\ncy q[3],q[11];\nsdg q[1];\ncy q[15],q[18];\ncx q[12],q[5];\nswap q[7],q[18];\nh q[0];\ncy q[16],q[13];\ncx q[16],q[3];\ncy q[12],q[7];\ncz q[17],q[10];\nz q[5];\ny q[6];\nh q[14];\nswap q[0],q[8];\nz q[6];\ncz q[19],q[7];\ny q[15];\nswap q[5],q[9];\ncz q[11],q[14];\nh q[18];\ncx q[12],q[14];\ns q[4];\nsdg q[19];\nz q[13];\nsdg q[14];\ncx q[3],q[18];\nsdg q[11];\ny q[0];\ncz q[11],q[19];\nh q[7];\ncx q[14],q[18];\ns q[4];\nx q[12];\ncx q[11],q[19];\nx q[0];\ns q[0];\ny q[11];\nx q[1];\ns q[7];\ncx q[1],q[12];\nsdg q[4];\nx q[15];\nx q[12];\ncx q[16],q[0];\ns q[9];\ncy q[14],q[6];\ncx q[15],q[11];\ns q[8];\ncy q[16],q[3];\ncx q[18],q[14];\ncy q[14],q[3];\nz q[1];\nswap q[3],q[14];\ncx q[18],q[16];\nsdg q[3];\ny q[15];\ncz q[7],q[6];\nsdg q[12];\nsdg q[10];\ncz q[13],q[1];\ncz q[15],q[19];\ncy q[11],q[12];\ncz q[7],q[10];\nsdg q[16];\nswap q[7],q[19];\ncx q[11],q[7];\nx q[5];\ncz q[10],q[12];\nsdg q[9];\ns q[7];\ny q[19];\ny q[7];\ncy q[2],q[14];\ny q[4];\ncz q[14],q[3];\ncx q[16],q[7];\ny q[18];\nh q[19];\ns q[4];\nsdg q[13];\nx q[9];\ncy q[4],q[2];\ncy q[8],q[11];\ncz q[3],q[8];\nswap q[6],q[11];\nx q[15];\nx q[2];\ns q[4];\nsdg q[10];\ncz q[13],q[7];\nh q[7];\ns q[8];\ncz q[9],q[6];\ncz q[6],q[2];\ncx q[7],q[3];\ns q[5];\ncy q[11],q[2];\ncz q[8],q[2];\ncx q[7],q[1];\ny q[19];\ny q[14];\ncz q[7],q[17];\nh q[11];\ncx q[13],q[8];\ns q[16];\nswap q[17],q[12];\nswap q[0],q[11];\ncx q[9],q[8];\ncx q[7],q[11];\nz q[9];\nz q[10];\nsdg q[18];\ns q[7];\nh q[6];\nsdg q[6];\ns q[5];\nsdg q[16];\ny q[12];\ns q[14];\nh q[6];\ny q[15];\ncy q[1],q[5];\nswap q[14],q[2];\ns q[19];\nswap q[18],q[6];\ncz q[13],q[8];\ns q[10];\ns q[3];\nz q[6];\ncy q[0],q[2];\nh q[3];\nh q[5];\ns q[12];\nx q[15];\ncy q[6],q[10];\nsdg q[16];\ncz q[5],q[11];\nh q[7];\ncx q[17],q[7];\ns q[18];\ncx q[3],q[4];\ny q[6];\nswap q[3],q[10];\ncx q[5],q[18];\nh q[17];\ncy q[11],q[15];\nswap q[0],q[6];\ns q[18];\ncx q[15],q[5];\ny q[12];\nsdg q[18];\nx q[14];\nx q[10];\nh q[13];\ny q[0];\nz q[6];\nz q[11];\ncz q[11],q[7];\ncx q[7],q[18];\nz q[0];\ny q[17];\ncy q[3],q[18];\ncy q[2],q[4];\ny q[7];\ncy q[10],q[14];\nz q[10];\ncx q[13],q[0];\ny q[5];\nx q[18];\ncy q[16],q[13];\ncx q[4],q[7];\nswap q[12],q[2];\ncx q[2],q[11];\ny q[3];\ny q[0];\ns q[17];\nz q[15];\ny q[0];\nsdg q[11];\ny q[15];\nh q[4];\ncx q[1],q[15];\nx q[9];\ncx q[15],q[19];\nsdg q[5];\nsdg q[7];\ncz q[12],q[0];\nz q[12];\ny q[15];\nh q[3];\nh q[10];\ncz q[18],q[1];\ncx q[19],q[7];\ny q[6];\ns q[19];\nh q[13];\ncz q[18],q[13];\nswap q[18],q[2];\ncx q[16],q[4];\nz q[5];\ny q[11];\nx q[9];\nsdg q[5];\nswap q[16],q[9];\nswap q[4],q[6];\nsdg q[3];\ncy q[19],q[9];\nz q[9];\nswap q[10],q[8];\nswap q[10],q[16];\ncy q[1],q[10];\nsdg q[12];\ny q[11];\nh q[16];\ncz q[2],q[1];\nh q[11];\ncz q[11],q[14];\ncy q[10],q[6];\ns q[17];\nswap q[4],q[7];\ncy q[2],q[17];\ncx q[11],q[10];\nz q[7];\nx q[3];\nx q[9];\nh q[12];\ncz q[16],q[7];\ncy q[14],q[11];\nswap q[0],q[5];\nsdg q[10];\ncy q[17],q[4];\ns q[0];\ns q[12];\nz q[2];\nsdg q[7];\ncy q[14],q[5];\nz q[15];\ncz q[7],q[6];\nx q[2];\ns q[3];\nh q[2];\ncz q[5],q[7];\ncz q[8],q[13];\ncx q[2],q[13];\ncx q[14],q[5];\ny q[13];\ncy q[8],q[17];\ncy q[13],q[6];\nx q[13];\nswap q[9],q[3];\ns q[0];\nswap q[7],q[2];\ncx q[0],q[19];\nswap q[19],q[9];\nh q[7];\nswap q[15],q[19];\nx q[11];\nswap q[9],q[14];\nsdg q[16];\ncx q[1],q[14];\nz q[4];\nswap q[1],q[16];\ncx q[19],q[0];\ns q[15];\nsdg q[11];\nx q[3];\nswap q[1],q[16];\ncz q[12],q[11];\ny q[10];\nh q[10];\nz q[13];\ncy q[9],q[17];\nswap q[10],q[12];\ns q[13];\ncy q[11],q[16];\nx q[19];\nx q[1];\nswap q[12],q[2];\ns q[5];\ns q[16];\nz q[10];\nz q[6];\nx q[10];\nswap q[12],q[11];\nsdg q[7];\nswap q[3],q[2];\ncz q[3],q[2];\ncz q[0],q[19];\nsdg q[18];\nx q[12];\nswap q[18],q[14];\nz q[15];\ncx q[6],q[1];\ncx q[18],q[9];\ny q[1];\nz q[16];\nx q[1];\ns q[14];\ncy q[5],q[3];\ncz q[3],q[9];\ny q[8];\nh q[6];\nz q[18];\ny q[12];\nh q[7];\ncx q[12],q[4];\ncx q[2],q[14];\nx q[0];\ny q[8];\nswap q[13],q[14];\nh q[14];\ncy q[12],q[1];\nswap q[4],q[0];\ns q[3];\nh q[4];\ny q[17];\nswap q[16],q[18];\nz q[19];\ns q[16];\nz q[11];\nx q[9];\ncx q[14],q[11];\nz q[4];\nz q[14];\nz q[9];\nz q[17];\ncz q[7],q[0];\ncx q[17],q[13];\ncz q[7],q[15];\ncx q[15],q[4];\ny q[9];\nz q[8];\ncz q[17],q[19];\nz q[18];\nsdg q[5];\nswap q[13],q[8];\nz q[4];\nsdg q[8];\ncx q[15],q[4];\nh q[2];\nsdg q[16];\nz q[11];\ns q[18];\nh q[10];\nsdg q[10];\ncx q[9],q[0];\ncx q[16],q[2];\nh q[1];\ncx q[10],q[17];\ny q[13];\ncz q[8],q[18];\nsdg q[12];\ncx q[11],q[7];\nz q[12];\nz q[10];\nswap q[3],q[15];\nh q[4];\ny q[7];\ns q[14];\ny q[1];\ncx q[4],q[14];\nx q[18];\nsdg q[8];\ns q[6];\nswap q[14],q[7];\ncz q[6],q[11];\nx q[0];\nx q[1];\ns q[14];\nsdg q[3];\ny q[3];\ncy q[14],q[11];\nsdg q[3];\ncx q[2],q[11];\ncz q[5],q[4];\ncz q[2],q[12];\ncy q[15],q[7];\nsdg q[18];\ncz q[17],q[14];\ncy q[11],q[1];\ncy q[18],q[12];\nx q[18];\ny q[2];\ns q[17];\ncz q[15],q[7];\ncx q[5],q[18];\nsdg q[16];\nsdg q[4];\nsdg q[13];\nz q[6];\ns q[14];\ny q[18];\nh q[17];\ny q[14];\ny q[18];\nswap q[14],q[11];\nz q[4];\ncy q[12],q[15];\ncy q[9],q[16];\nswap q[9],q[7];\nh q[0];\ncx q[17],q[7];\nsdg q[0];\ny q[16];\nz q[19];\nx q[5];\ncz q[13],q[8];\ncx q[9],q[15];\ny q[12];\ncz q[8],q[5];\nswap q[17],q[11];\nh q[0];\ncy q[19],q[18];\nz q[11];\nx q[5];\ncy q[8],q[14];\nz q[8];\nh q[4];\nsdg q[6];\nsdg q[15];\nswap q[11],q[13];\ns q[14];\ncz q[12],q[18];\nh q[16];\nswap q[2],q[8];\ncz q[4],q[8];\ny q[0];\ncy q[18],q[0];\nz q[0];\nx q[6];\nswap q[16],q[6];\ncx q[19],q[0];\nsdg q[3];\ny q[15];\nx q[3];\nsdg q[2];\ny q[16];\ny q[12];\nsdg q[2];\nx q[13];\nsdg q[1];\nh q[11];\nx q[8];\nsdg q[11];\ncx q[12],q[8];\nz q[11];\ns q[16];\nsdg q[1];\ncz q[14],q[16];\nh q[3];\ny q[15];\ny q[8];\nsdg q[19];\nz q[14];\nz q[14];\nsdg q[14];\nsdg q[16];\ny q[17];\nx q[17];\nswap q[2],q[0];\ncz q[3],q[14];\ncy q[3],q[13];\nx q[2];\nswap q[16],q[9];\nsdg q[11];\ncy q[19],q[10];\ncy q[0],q[17];\ny q[7];\nh q[14];\ncy q[12],q[3];\ncz q[0],q[17];\ncy q[6],q[0];\nz q[5];\nz q[19];\ns q[19];\ncy q[10],q[19];\ncy q[18],q[13];\ny q[8];\ns q[3];\nx q[10];\nh q[0];\ncz q[9],q[10];\nswap q[6],q[16];\ncz q[19],q[16];\ncy q[0],q[3];\ncy q[4],q[11];\nswap q[5],q[15];\nz q[8];\ny q[13];\nx q[17];\nsdg q[15];\ncz q[3],q[0];\nswap q[10],q[0];\nz q[5];\nh q[9];\nx q[9];\ns q[4];\ncx q[11],q[12];\ny q[9];\nh q[17];\nz q[19];\ns q[3];\nh q[15];\nswap q[9],q[14];\ncz q[16],q[6];\nz q[2];\nx q[16];\ncz q[11],q[9];\nswap q[19],q[15];\nh q[3];\nh q[14];\ncz q[16],q[2];\ny q[4];\nx q[7];\nswap q[13],q[9];\nh q[16];\ncz q[11],q[14];\nh q[14];\nsdg q[3];\ns q[3];\ncz q[3],q[19];\ny q[8];\ny q[18];\nz q[17];\nsdg q[17];\ncx q[12],q[2];\nz q[13];\nx q[13];\nsdg q[17];\nz q[8];\ny q[12];\ncz q[13],q[11];\ns q[2];\ncx q[2],q[6];\ny q[1];\nswap q[9],q[4];\nx q[13];\nh q[14];\ns q[13];\ns q[2];\nswap q[15],q[6];\nsdg q[15];\ncz q[11],q[0];\nsdg q[2];\ncz q[15],q[10];\ncz q[14],q[13];\ncx q[16],q[8];\nswap q[0],q[12];\ns q[13];\ncz q[5],q[3];\ncy q[10],q[5];\nz q[0];\nh q[2];\ns q[10];\ncz q[3],q[17];\ny q[12];\ny q[11];\ns q[1];\nsdg q[6];\ny q[10];\ns q[3];\ny q[10];\ncx q[4],q[11];\ns q[0];\ns q[15];\ns q[14];\nh q[1];\nsdg q[12];\ncy q[2],q[6];\ncz q[5],q[8];\nsdg q[8];\ncx q[2],q[8];\ny q[0];\ncy q[2],q[13];\ncy q[2],q[18];\nz q[1];\nh q[1];\ncy q[14],q[18];\nh q[1];\nswap q[3],q[2];\ns q[15];\nswap q[5],q[18];\ncx q[13],q[4];\ncx q[17],q[9];\nz q[4];\nsdg q[15];\nx q[3];\ns q[12];\ncy q[5],q[7];\ncz q[4],q[12];\nsdg q[1];\nz q[6];\ncz q[16],q[12];\nswap q[1],q[4];\ncz q[17],q[8];\ncy q[15],q[18];\nz q[2];\nsdg q[19];\nz q[9];\ncy q[6],q[19];\ns q[8];\ncz q[14],q[8];\ncy q[16],q[4];\ncz q[10],q[12];\nz q[13];\nswap q[0],q[2];\ns q[1];\ncx q[5],q[18];\nh q[17];\ncz q[13],q[19];\nh q[19];\ny q[9];\ns q[7];\nh q[14];\ncy q[5],q[14];\ncz q[4],q[13];\nx q[16];\ncz q[6],q[7];\ncy q[11],q[15];\nswap q[0],q[16];\nswap q[4],q[19];\ncz q[16],q[17];\ncz q[10],q[5];\nh q[2];\ns q[17];\ncy q[3],q[5];\ncz q[1],q[2];\ncz q[8],q[6];\ns q[11];\nsdg q[3];\nx q[18];\nswap q[4],q[17];\nx q[2];\ncy q[17],q[13];\nh q[19];\ncx q[12],q[18];\ns q[6];\nswap q[11],q[12];\ncx q[5],q[4];\ns q[5];\nsdg q[17];\nh q[5];\ny q[17];\nz q[8];\ns q[1];\nsdg q[17];\ny q[2];\nswap q[16],q[3];\ny q[10];\ncz q[2],q[6];\ns q[12];\ncx q[5],q[18];\nz q[2];\ny q[12];\ncz q[19],q[6];\nx q[8];\ns q[13];\nh q[2];\nswap q[7],q[15];\nsdg q[0];\ncy q[19],q[11];\ncy q[1],q[5];\ny q[5];\nx q[18];\nswap q[5],q[7];\nsdg q[4];\nsdg q[14];\ns q[8];\ns q[17];\nh q[2];\nh q[8];\nz q[11];\ncx q[9],q[7];\nswap q[12],q[5];\ns q[11];\ny q[11];\nswap q[0],q[17];\ns q[11];\nsdg q[19];\nh q[12];\ncx q[0],q[2];\ncy q[6],q[5];\nswap q[5],q[15];\nx q[19];\nx q[10];\nswap q[7],q[11];\ns q[7];\ncz q[1],q[10];\ncz q[4],q[17];\ncy q[15],q[14];\ns q[9];\nswap q[18],q[5];\ncx q[6],q[12];\ncy q[7],q[11];\ny q[7];\nz q[5];\nsdg q[7];\nh q[9];\ny q[2];\nx q[10];\nz q[9];\ns q[4];\ns q[7];\nswap q[9],q[16];\nswap q[16],q[3];\nz q[14];\nx q[14];\nh q[11];\ny q[15];\nsdg q[5];\nswap q[0],q[9];\ny q[19];\nswap q[4],q[18];\nh q[10];\nh q[11];\ncx q[4],q[8];\ncx q[6],q[2];\nswap q[16],q[13];\ncy q[10],q[17];\ncz q[8],q[7];\ncz q[8],q[17];\ny q[14];\nx q[0];\ns q[4];\nsdg q[4];\nsdg q[14];\nz q[15];\ncz q[19],q[15];\nh q[5];\ncx q[8],q[0];\ncx q[14],q[10];\ncx q[8],q[4];\nh q[8];\nz q[19];\nsdg q[3];\nswap q[18],q[10];\nsdg q[13];\ny q[12];\nx q[16];\nsdg q[11];\ncz q[3],q[2];\ns q[19];\ns q[16];\ncy q[8],q[1];\ncx q[17],q[8];\ncy q[14],q[1];\nh q[14];\ncy q[0],q[5];\ncz q[9],q[8];\nh q[14];\nx q[8];\ncx q[9],q[12];\nx q[1];\ns q[14];\ncz q[6],q[18];\ny q[9];\ncz q[12],q[4];\nswap q[13],q[2];\nx q[12];\ncy q[1],q[9];\nswap q[6],q[15];\ny q[1];\ny q[12];\ncz q[9],q[19];\ny q[14];\nh q[17];\ns q[7];\nsdg q[1];\nz q[7];\nsdg q[14];\nx q[1];\nh q[13];\ny q[0];\nz q[7];\nz q[13];\nx q[6];\ncy q[14],q[1];\nx q[6];\ns q[7];\nswap q[0],q[8];\nz q[17];\ns q[7];\nz q[8];\nz q[3];\ncy q[18],q[8];\ncz q[16],q[7];\nswap q[7],q[9];\nx q[4];\nz q[16];\ncy q[1],q[14];\ncx q[0],q[17];\ny q[4];\nswap q[3],q[17];\nh q[12];\nswap q[13],q[1];\ns q[0];\ncz q[15],q[10];\nswap q[16],q[10];\nz q[7];\nsdg q[19];\nh q[16];\ncx q[14],q[3];\nh q[5];\nswap q[13],q[8];\ncx q[7],q[12];\nx q[3];\ny q[11];\ns q[19];\nswap q[12],q[3];\nx q[5];\nh q[13];\nswap q[0],q[6];\nz q[7];\ns q[5];\nsdg q[4];\nh q[4];\ncx q[4],q[18];\nswap q[14],q[5];\ny q[2];\nx q[3];\ncy q[4],q[5];\nz q[11];\nswap q[3],q[14];\ncy q[10],q[9];\nx q[11];\ncz q[12],q[14];\nz q[3];\nz q[1];\nswap q[12],q[16];\nswap q[16],q[10];\nsdg q[0];\nh q[11];\nswap q[16],q[12];\nsdg q[13];\ncy q[9],q[3];\ncz q[3],q[1];\nx q[16];\ny q[6];\nsdg q[17];\nx q[5];\nh q[11];\nsdg q[1];\ncz q[18],q[4];\nswap q[5],q[11];\ncz q[3],q[0];\ns q[15];\ncx q[4],q[19];\ncz q[4],q[5];\ncz q[17],q[0];\nh q[8];\nsdg q[11];\ny q[12];\ns q[15];\ncy q[17],q[9];\ns q[2];\ns q[0];\ns q[2];\nx q[15];\nswap q[1],q[10];\nz q[1];\nx q[10];\ny q[6];\nswap q[13],q[3];\ny q[0];\ny q[8];\ns q[7];\ncx q[8],q[0];\ncx q[10],q[14];\ny q[8];\ns q[4];\nx q[7];\ny q[16];\ny q[13];\nswap q[5],q[1];\nh q[14];\nswap q[0],q[4];\nh q[3];\nswap q[3],q[16];\nx q[12];\nx q[11];\ncx q[15],q[10];\ncz q[14],q[13];\nh q[7];\ny q[6];\ncz q[4],q[0];\nsdg q[9];\nh q[0];\nz q[6];\ncz q[6],q[12];\nsdg q[9];\nx q[9];\nsdg q[1];\ncy q[9],q[18];\ny q[11];\ncy q[5],q[14];\ns q[12];\ny q[6];\ncz q[5],q[19];\ny q[2];\nswap q[1],q[4];\ns q[10];\nz q[15];\ny q[13];\nz q[6];\nh q[3];\ny q[10];\nz q[9];\nswap q[4],q[14];\ny q[7];\ncx q[2],q[12];\nsdg q[14];\ns q[4];\nh q[2];\ns q[7];\ncz q[18],q[7];\nz q[14];\nh q[17];\ncx q[2],q[15];\nsdg q[8];\ncy q[13],q[0];\ny q[5];\nh q[19];\ny q[2];\nswap q[16],q[15];\nx q[18];\ny q[11];\ns q[2];\nswap q[18],q[16];\ny q[12];\nz q[9];\ny q[4];\ny q[17];\nsdg q[5];\ncx q[16],q[13];\nsdg q[14];\nz q[7];\nh q[3];\ny q[7];\nx q[12];\nz q[12];\ns q[3];\nx q[1];\ncx q[5],q[10];\ny q[2];\nh q[7];\nh q[11];\ny q[4];\ny q[12];\nswap q[10],q[8];\nswap q[13],q[11];\nz q[6];\nsdg q[14];\nx q[2];\nz q[8];\ny q[17];\nx q[4];\ny q[1];\ncy q[7],q[14];\ns q[9];\ns q[11];\nx q[1];\nswap q[14],q[7];\ncx q[5],q[13];\ncz q[1],q[7];\nh q[0];\ncz q[7],q[2];\nsdg q[7];\ncz q[18],q[3];\nswap q[0],q[13];\nswap q[11],q[8];\nz q[10];\nz q[8];\nz q[18];\nz q[16];\nz q[14];\nsdg q[12];\ns q[12];\ncy q[1],q[9];\ncz q[2],q[11];\nz q[5];\ncy q[0],q[16];\nsdg q[14];\nz q[12];\ncy q[3],q[18];\nsdg q[5];\ncy q[0],q[19];\ns q[9];\nz q[4];\ncz q[16],q[5];\ns q[11];\ncy q[2],q[18];\ncx q[1],q[3];\nz q[16];\ncx q[5],q[11];\nsdg q[3];\ncx q[13],q[18];\ny q[0];\ncz q[0],q[18];\nx q[16];\nz q[14];\ncz q[2],q[18];\ncz q[3],q[4];\ncz q[1],q[17];\ny q[4];\nswap q[18],q[8];\nz q[18];\ns q[18];\ns q[7];\ncz q[6],q[11];\ns q[9];\nx q[0];\nh q[10];\nh q[10];\ns q[0];\nsdg q[15];\nh q[7];\nsdg q[4];\nh q[10];\ny q[6];\ns q[5];\ns q[3];\nx q[9];\ny q[10];\nsdg q[9];\nswap q[1],q[19];\nsdg q[12];\ns q[5];\nswap q[8],q[12];\ny q[5];\ny q[11];\nswap q[0],q[8];\ncx q[19],q[2];\nz q[5];\ns q[11];\nh q[5];\nsdg q[10];\ncx q[17],q[11];\ncz q[4],q[0];\nswap q[7],q[14];\nz q[5];\nz q[0];\ns q[15];\nh q[16];\nz q[1];\nswap q[3],q[15];\nh q[4];\ncz q[10],q[13];\ncy q[8],q[1];\ncz q[7],q[10];\nx q[7];\nx q[15];\nsdg q[15];\nswap q[7],q[9];\ncy q[8],q[10];\ncx q[12],q[3];\nswap q[5],q[0];\ncy q[1],q[11];\nh q[13];\nh q[10];\nx q[3];\nx q[7];\ns q[0];\nx q[10];\nz q[5];\ncy q[16],q[13];\ns q[13];\nswap q[17],q[4];\ny q[14];\ny q[12];\nh q[18];\ncz q[14],q[10];\nh q[11];\ny q[6];\ncz q[14],q[1];\nsdg q[12];\ncx q[12],q[1];\nx q[0];\nx q[4];\ncz q[0],q[11];\nsdg q[4];\nswap q[6],q[19];\ncz q[12],q[19];\nh q[9];\ny q[0];\ny q[16];\nx q[17];\nsdg q[18];\ncy q[6],q[13];\nsdg q[19];\ny q[12];\ny q[5];\nswap q[16],q[18];\nz q[10];\nh q[0];\nx q[5];\ncz q[0],q[8];\nswap q[5],q[3];\ny q[9];\nx q[4];\nh q[4];\nswap q[10],q[2];\nswap q[1],q[9];\ny q[0];\ncx q[14],q[15];\nh q[3];\ncz q[5],q[7];\nsdg q[19];\nsdg q[18];\nsdg q[8];\nswap q[9],q[2];\ncy q[3],q[7];\nsdg q[6];\nswap q[1],q[13];\nx q[8];\nh q[19];\ny q[8];\nswap q[19],q[6];\ns q[2];\ny q[6];\nswap q[14],q[10];\ncx q[11],q[16];\ncy q[1],q[17];\nsdg q[4];\ns q[10];\ns q[18];\nx q[19];\ns q[7];\nsdg q[16];\ncz q[7],q[0];\ns q[16];\ncz q[17],q[11];\nh q[13];\nx q[10];\ncy q[15],q[1];\nsdg q[14];\ny q[7];\ncx q[19],q[16];\nh q[4];\ncx q[1],q[19];\ncx q[5],q[7];\ns q[0];\ncz q[14],q[5];\ns q[12];\nh q[3];\ny q[8];\ns q[17];\nx q[11];\nz q[7];\ncz q[4],q[1];\ny q[19];\ncz q[2],q[6];\nswap q[17],q[6];\ncz q[5],q[3];\ny q[6];\ncy q[7],q[18];\ncy q[1],q[15];\nsdg q[1];\ncz q[11],q[14];\ny q[18];\nz q[19];\nz q[17];\nswap q[7],q[8];\nh q[17];\ncy q[1],q[14];\nswap q[17],q[16];\ny q[8];\nx q[7];\nsdg q[0];\nsdg q[14];\nz q[1];\nz q[6];\ncz q[15],q[12];\ncy q[19],q[1];\nz q[7];\ncz q[15],q[0];\ny q[6];\nswap q[0],q[5];\nx q[15];\nswap q[0],q[17];\ncy q[18],q[3];\ncz q[19],q[15];\nh q[15];\nswap q[11],q[8];\nsdg q[0];\ncy q[2],q[0];\ns q[2];\nsdg q[6];\nh q[7];\ncz q[7],q[15];\nz q[11];\ny q[8];\nsdg q[9];\ns q[11];\nswap q[5],q[13];\nswap q[9],q[17];\ncz q[8],q[5];\ncz q[4],q[2];\ny q[4];\nz q[0];\nh q[18];\nx q[19];\ncx q[15],q[19];\nx q[13];\ncx q[17],q[7];\ncx q[19],q[10];\nx q[13];\nh q[18];\ncz q[1],q[7];\ncy q[18],q[7];\nswap q[11],q[3];\ns q[16];\nsdg q[9];\nh q[2];\ns q[19];\nswap q[10],q[2];\nswap q[8],q[14];\nh q[14];\ncy q[13],q[5];\nswap q[11],q[5];\ncy q[12],q[13];\nx q[0];\ns q[15];\nx q[0];\ncz q[0],q[2];\nswap q[10],q[3];\nswap q[7],q[5];\ncy q[14],q[9];\ns q[5];\ncz q[11],q[5];\nz q[0];\nsdg q[7];\nz q[3];\ncy q[10],q[19];\ncx q[1],q[8];\nswap q[6],q[11];\nh q[18];\nswap q[19],q[17];\ncz q[11],q[9];\nz q[7];\nswap q[10],q[16];\ncz q[5],q[18];\nz q[4];\nsdg q[18];\nh q[0];\ncz q[19],q[18];\ncz q[2],q[13];\nz q[8];\nh q[8];\nsdg q[17];\nh q[9];\ncy q[17],q[0];\ns q[7];\ncy q[5],q[16];\ncy q[7],q[8];\nsdg q[16];\nsdg q[7];\nz q[10];\ncy q[9],q[4];\ncz q[4],q[8];\ncx q[9],q[10];\ncz q[3],q[11];\ny q[4];\nh q[5];\nswap q[2],q[5];\nsdg q[13];\nx q[16];\ny q[14];\nz q[16];\ns q[7];\nz q[7];\nswap q[9],q[19];\nz q[10];\ncx q[3],q[9];\nz q[2];\ncy q[8],q[5];\nh q[11];\ncy q[5],q[10];\nx q[17];\ns q[2];\nh q[7];\ncz q[10],q[14];\nswap q[12],q[13];\nx q[13];\nsdg q[15];\nh q[4];\ncx q[3],q[10];\ncy q[14],q[1];\ncx q[19],q[10];\nz q[1];\nswap q[5],q[2];\nz q[0];\ncz q[17],q[14];\nh q[14];\nh q[6];\nh q[16];\nsdg q[4];\nh q[6];\ncy q[8],q[4];\ny q[4];\nx q[8];\nh q[19];\ncz q[12],q[8];\ncx q[12],q[15];\nh q[9];\ncx q[2],q[15];\nswap q[0],q[15];\ns q[10];\nx q[12];\nz q[4];\ncz q[6],q[13];\nswap q[10],q[15];\nsdg q[13];\nz q[2];\ns q[5];\nsdg q[6];\ncx q[12],q[11];\nh q[4];\ny q[10];\nz q[4];\nx q[5];\ns q[1];\nz q[17];\nz q[18];\ny q[13];\nx q[12];\ny q[1];\nx q[1];\nz q[15];\ncy q[3],q[5];\nsdg q[18];\nz q[5];\nh q[1];\nswap q[9],q[19];\ncx q[10],q[12];\ncx q[3],q[0];\nsdg q[1];\nh q[5];\nsdg q[9];\ny q[2];\ny q[7];\nz q[9];\ny q[13];\ns q[15];\nx q[9];\ncy q[13],q[14];\ny q[9];\nswap q[17],q[1];\nz q[15];\nh q[17];\nswap q[4],q[8];\ncy q[1],q[16];\ns q[13];\nswap q[15],q[17];\ns q[16];\nh q[7];\nsdg q[0];\ncy q[2],q[10];\nx q[3];\ncz q[2],q[12];\ncx q[6],q[14];\ncz q[2],q[16];\ncx q[4],q[9];\ncz q[4],q[19];\ns q[10];\ncy q[3],q[13];\nh q[6];\ncx q[5],q[12];\ncx q[19],q[4];\ncx q[11],q[16];\nh q[1];\nz q[0];\ncz q[17],q[9];\ns q[5];\ncz q[10],q[0];\ns q[1];\ns q[4];\nx q[7];\ncx q[7],q[0];\nx q[2];\ncy q[9],q[8];\nsdg q[14];\ncx q[9],q[18];\nz q[6];\ncy q[18],q[4];\ns q[0];\nsdg q[9];\nsdg q[16];\ncy q[15],q[17];\ny q[6];\nz q[2];\nh q[2];\ny q[18];\ny q[18];\nswap q[3],q[15];\nsdg q[19];\nx q[7];\nz q[11];\ns q[2];\nh q[3];\nsdg q[5];\nz q[11];\nx q[0];\ncz q[13],q[16];\nz q[8];\nz q[13];\ncz q[3],q[15];\ncy q[14],q[3];\ny q[12];\nsdg q[3];\nz q[5];\nh q[18];\nx q[14];\nsdg q[18];\nz q[10];\nx q[4];\ncy q[1],q[16];\nx q[15];\ny q[16];\nsdg q[0];\nz q[2];\ncz q[8],q[16];\ns q[3];\nz q[2];\ncz q[14],q[8];\ncy q[3],q[1];\ncx q[5],q[2];\ncz q[14],q[11];\nsdg q[13];\nsdg q[12];\ncy q[15],q[12];\ncz q[7],q[18];\ncx q[19],q[5];\nswap q[12],q[16];\nx q[1];\nx q[13];\nz q[18];\ncy q[5],q[10];\ny q[0];\nsdg q[7];\nz q[8];\nh q[7];\ncy q[18],q[4];\ncx q[12],q[2];\nx q[16];\nsdg q[4];\nz q[10];\nx q[9];\nx q[14];\nz q[18];\ns q[16];\nx q[17];\ncz q[6],q[17];\nx q[15];\nswap q[10],q[6];\nx q[15];\n",
+      "qasm_sha256": "2bf9c57c38e18dda952cd8f2878fc35605d20383ab2631acd6ed101aa335f4b4",
+      "source": {
+        "expanded": {
+          "definition_expansions": {},
+          "expanded_source_gate_count": 4000,
+          "global_phase": "discarded only as a whole-circuit equivalence convention"
+        },
+        "id": "clifford20",
+        "input_gate_counts": {
+          "cx": 381,
+          "cy": 402,
+          "cz": 402,
+          "h": 396,
+          "s": 391,
+          "sdg": 394,
+          "swap": 416,
+          "x": 411,
+          "y": 417,
+          "z": 390
+        },
+        "n_logical": 20,
+        "qasm_file": "clifford20.qasm",
+        "qasm_sha256": "2bf9c57c38e18dda952cd8f2878fc35605d20383ab2631acd6ed101aa335f4b4",
+        "raw_sha256": "2bf9c57c38e18dda952cd8f2878fc35605d20383ab2631acd6ed101aa335f4b4",
+        "removed": {
+          "barriers": 0,
+          "terminal_measurements": 0
+        },
+        "source_path": "benchpress/qasm/clifford/clifford_20_12345.qasm"
+      },
+      "target_kind": "Benchpress FlexibleBackend topology; no calibration used in matched extension",
+      "topology": "square"
+    },
+    {
+      "edges": [
+        [
+          0,
+          25
+        ],
+        [
+          0,
+          37
+        ],
+        [
+          1,
+          37
+        ],
+        [
+          1,
+          38
+        ],
+        [
+          2,
+          38
+        ],
+        [
+          2,
+          39
+        ],
+        [
+          3,
+          39
+        ],
+        [
+          3,
+          40
+        ],
+        [
+          4,
+          40
+        ],
+        [
+          5,
+          25
+        ],
+        [
+          5,
+          41
+        ],
+        [
+          6,
+          41
+        ],
+        [
+          6,
+          42
+        ],
+        [
+          7,
+          42
+        ],
+        [
+          7,
+          43
+        ],
+        [
+          8,
+          43
+        ],
+        [
+          8,
+          44
+        ],
+        [
+          9,
+          30
+        ],
+        [
+          9,
+          44
+        ],
+        [
+          10,
+          31
+        ],
+        [
+          10,
+          45
+        ],
+        [
+          11,
+          45
+        ],
+        [
+          11,
+          46
+        ],
+        [
+          12,
+          46
+        ],
+        [
+          12,
+          47
+        ],
+        [
+          13,
+          47
+        ],
+        [
+          13,
+          48
+        ],
+        [
+          14,
+          30
+        ],
+        [
+          14,
+          48
+        ],
+        [
+          15,
+          31
+        ],
+        [
+          15,
+          49
+        ],
+        [
+          16,
+          49
+        ],
+        [
+          16,
+          50
+        ],
+        [
+          17,
+          50
+        ],
+        [
+          17,
+          51
+        ],
+        [
+          18,
+          51
+        ],
+        [
+          18,
+          52
+        ],
+        [
+          19,
+          36
+        ],
+        [
+          19,
+          52
+        ],
+        [
+          20,
+          53
+        ],
+        [
+          21,
+          53
+        ],
+        [
+          21,
+          54
+        ],
+        [
+          22,
+          54
+        ],
+        [
+          22,
+          55
+        ],
+        [
+          23,
+          55
+        ],
+        [
+          23,
+          56
+        ],
+        [
+          24,
+          36
+        ],
+        [
+          24,
+          56
+        ],
+        [
+          26,
+          38
+        ],
+        [
+          26,
+          42
+        ],
+        [
+          27,
+          40
+        ],
+        [
+          27,
+          44
+        ],
+        [
+          28,
+          41
+        ],
+        [
+          28,
+          45
+        ],
+        [
+          29,
+          43
+        ],
+        [
+          29,
+          47
+        ],
+        [
+          32,
+          46
+        ],
+        [
+          32,
+          50
+        ],
+        [
+          33,
+          48
+        ],
+        [
+          33,
+          52
+        ],
+        [
+          34,
+          49
+        ],
+        [
+          34,
+          53
+        ],
+        [
+          35,
+          51
+        ],
+        [
+          35,
+          55
+        ]
+      ],
+      "family": "clifford20",
+      "id": "clifford20_heavy-hex",
+      "n_logical": 20,
+      "physical_width": 57,
+      "qasm": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[20];\nz q[5];\ncy q[3],q[14];\ns q[0];\nswap q[18],q[1];\ncy q[19],q[3];\ns q[0];\nz q[9];\nz q[6];\nh q[12];\nswap q[14],q[4];\nsdg q[5];\nswap q[3],q[14];\ny q[1];\ny q[6];\ncy q[11],q[5];\ncz q[14],q[19];\ncy q[15],q[10];\nz q[7];\nz q[9];\nh q[6];\ns q[10];\ncy q[4],q[9];\nh q[10];\nh q[14];\ns q[15];\nz q[0];\ncz q[15],q[17];\ncx q[5],q[15];\ncy q[17],q[0];\nx q[14];\ncx q[1],q[4];\nsdg q[8];\nx q[8];\nz q[6];\ncy q[10],q[8];\nswap q[15],q[17];\ncz q[14],q[8];\ns q[11];\ns q[4];\ncy q[2],q[4];\ns q[4];\ncx q[18],q[15];\nswap q[13],q[8];\ncz q[14],q[12];\ns q[16];\nswap q[4],q[7];\nx q[19];\nx q[18];\nx q[8];\ncy q[11],q[14];\ny q[9];\nsdg q[18];\nx q[0];\ncz q[4],q[14];\ncx q[16],q[13];\ncz q[1],q[9];\ncx q[1],q[3];\ncx q[4],q[10];\ncz q[17],q[2];\ny q[4];\nsdg q[9];\nsdg q[2];\nz q[3];\nz q[10];\nswap q[5],q[3];\nh q[4];\nz q[12];\ns q[17];\ns q[18];\nsdg q[16];\ns q[9];\nh q[4];\ny q[9];\ny q[18];\ncy q[0],q[7];\nh q[3];\ny q[14];\nx q[13];\nswap q[3],q[12];\ncy q[9],q[10];\nz q[15];\nx q[6];\ny q[4];\nz q[12];\nsdg q[7];\nswap q[4],q[6];\nz q[9];\nh q[13];\nx q[15];\ncy q[17],q[6];\ncy q[1],q[6];\nswap q[3],q[8];\nz q[3];\ncy q[0],q[4];\nsdg q[13];\nswap q[8],q[5];\ncx q[3],q[1];\ncx q[8],q[17];\ncx q[7],q[5];\nz q[5];\nswap q[19],q[6];\ncy q[1],q[16];\nz q[16];\ncx q[16],q[11];\ny q[16];\nz q[6];\ncx q[6],q[19];\ncz q[6],q[14];\nswap q[15],q[19];\nswap q[12],q[19];\nh q[11];\nx q[9];\nz q[7];\ncz q[13],q[7];\nsdg q[14];\ncy q[14],q[2];\ns q[8];\nx q[14];\nx q[0];\nx q[7];\ny q[19];\ncy q[18],q[14];\ncz q[19],q[16];\ncy q[4],q[14];\nh q[1];\ncy q[16],q[12];\nz q[3];\ncy q[11],q[4];\nsdg q[4];\nx q[15];\ny q[1];\ncy q[14],q[1];\nz q[19];\nx q[3];\ns q[1];\ncy q[5],q[10];\nz q[16];\nsdg q[2];\nx q[19];\ncz q[18],q[5];\ncx q[3],q[17];\nsdg q[13];\ny q[1];\ncz q[15],q[11];\ncy q[6],q[17];\ns q[15];\nswap q[1],q[17];\nz q[17];\nsdg q[19];\ncy q[12],q[11];\nsdg q[1];\ns q[13];\nswap q[14],q[3];\ncy q[1],q[4];\nswap q[3],q[9];\ncx q[2],q[10];\nx q[1];\nz q[2];\ns q[14];\ny q[17];\ncz q[1],q[12];\nz q[4];\ncx q[7],q[19];\ncz q[18],q[9];\nh q[9];\ncy q[3],q[11];\ny q[17];\nz q[15];\nsdg q[0];\ncx q[15],q[10];\nsdg q[14];\nsdg q[9];\nz q[9];\nx q[11];\ncy q[0],q[5];\nz q[6];\nz q[4];\nswap q[1],q[19];\nz q[13];\ncz q[14],q[6];\ncy q[16],q[9];\ncx q[17],q[15];\ncy q[16],q[18];\ncy q[17],q[3];\nsdg q[17];\nsdg q[2];\nsdg q[11];\nh q[19];\nz q[17];\nx q[12];\ny q[0];\nswap q[8],q[16];\nx q[12];\ncy q[12],q[4];\nz q[0];\nh q[12];\ncz q[14],q[15];\ncx q[19],q[0];\nswap q[19],q[10];\nx q[17];\nx q[19];\ncz q[14],q[8];\ncz q[5],q[3];\ncy q[17],q[2];\ny q[0];\ns q[2];\nx q[16];\ncy q[15],q[11];\nx q[4];\ny q[7];\nh q[1];\nswap q[10],q[16];\ncy q[4],q[2];\ny q[3];\ncx q[1],q[17];\nswap q[11],q[2];\ncz q[19],q[13];\ncy q[5],q[12];\ncz q[8],q[14];\ncy q[7],q[19];\nswap q[1],q[13];\ncx q[17],q[9];\nswap q[3],q[12];\nx q[7];\ncx q[0],q[12];\nsdg q[18];\nsdg q[14];\nh q[3];\ncz q[2],q[3];\ncx q[0],q[12];\nh q[1];\nh q[15];\nsdg q[6];\ncz q[19],q[0];\nz q[8];\ns q[15];\ncy q[10],q[15];\nsdg q[5];\ns q[10];\ncz q[2],q[10];\ny q[11];\nswap q[14],q[7];\ns q[5];\nswap q[0],q[15];\nsdg q[5];\nswap q[15],q[14];\nz q[6];\ny q[13];\nx q[6];\ncx q[11],q[7];\nh q[8];\nx q[11];\nswap q[15],q[0];\nsdg q[18];\ncx q[13],q[17];\ncx q[2],q[15];\nx q[1];\nx q[11];\nsdg q[12];\nx q[15];\ns q[0];\ns q[16];\ncy q[5],q[2];\nh q[13];\nh q[19];\ns q[4];\ncx q[5],q[7];\ncy q[1],q[19];\ncz q[11],q[12];\nz q[13];\ncx q[8],q[4];\nswap q[9],q[6];\ncx q[14],q[4];\ns q[7];\nswap q[16],q[8];\nz q[2];\ncz q[0],q[18];\nh q[0];\nx q[8];\nsdg q[19];\nh q[11];\ncx q[15],q[16];\nh q[11];\ncy q[14],q[7];\nh q[10];\nsdg q[18];\ncx q[0],q[2];\nz q[14];\ncx q[1],q[15];\nswap q[6],q[4];\nsdg q[8];\ncx q[10],q[19];\ny q[14];\ns q[1];\nz q[6];\ncx q[10],q[13];\nz q[2];\ncx q[9],q[6];\nsdg q[11];\nh q[9];\nh q[5];\ns q[13];\nswap q[7],q[10];\nsdg q[12];\ny q[7];\nx q[2];\ny q[7];\ncz q[12],q[1];\ncz q[14],q[3];\ny q[3];\ny q[2];\nx q[3];\nz q[9];\ncz q[9],q[12];\nx q[15];\ncz q[9],q[11];\nx q[4];\ncy q[2],q[14];\ns q[16];\nh q[4];\ns q[5];\nh q[3];\ncz q[14],q[0];\ns q[18];\ncy q[11],q[7];\ns q[13];\nx q[15];\ns q[18];\ncz q[9],q[19];\ny q[13];\nx q[13];\ncz q[18],q[4];\ncy q[3],q[8];\nsdg q[3];\nz q[3];\nsdg q[8];\nz q[15];\ns q[11];\nsdg q[9];\nh q[6];\ncx q[3],q[18];\nh q[2];\ny q[9];\ny q[18];\nsdg q[14];\ns q[11];\ncy q[7],q[19];\nz q[4];\nz q[6];\ncz q[10],q[2];\ncx q[0],q[11];\nswap q[4],q[15];\ns q[6];\ncx q[4],q[2];\ns q[0];\nsdg q[10];\nswap q[6],q[12];\ncx q[14],q[6];\nz q[6];\ny q[8];\ns q[4];\ncz q[7],q[12];\nswap q[19],q[8];\ncz q[7],q[1];\ncz q[18],q[11];\ncz q[3],q[2];\ny q[8];\nsdg q[7];\ncy q[15],q[9];\nx q[14];\nz q[5];\nswap q[9],q[4];\ncx q[16],q[4];\nh q[4];\nz q[4];\ny q[7];\nswap q[18],q[13];\nswap q[16],q[12];\nswap q[8],q[6];\nswap q[9],q[7];\nz q[4];\nz q[17];\ns q[12];\ncz q[0],q[7];\nswap q[2],q[12];\ns q[18];\nz q[9];\nsdg q[10];\ncz q[19],q[16];\nx q[2];\ncy q[5],q[12];\nx q[12];\ns q[18];\ncz q[7],q[1];\ny q[9];\nx q[11];\ncx q[17],q[13];\ns q[15];\nsdg q[17];\nx q[0];\ncx q[1],q[18];\nz q[2];\nh q[19];\ncx q[6],q[10];\nswap q[1],q[17];\ncy q[10],q[5];\nh q[12];\ncy q[2],q[10];\nsdg q[11];\nh q[4];\ns q[4];\ncx q[12],q[19];\ncz q[15],q[19];\ncy q[2],q[18];\nh q[14];\ncx q[2],q[16];\nz q[6];\nz q[4];\nswap q[3],q[6];\nz q[4];\ncx q[1],q[19];\nswap q[0],q[17];\ns q[13];\ncx q[13],q[10];\nz q[8];\nx q[4];\nsdg q[18];\ncz q[6],q[7];\nh q[9];\nx q[16];\nz q[9];\nswap q[15],q[2];\ns q[14];\ncy q[14],q[18];\ns q[8];\nsdg q[10];\ny q[15];\nz q[14];\nx q[4];\nx q[5];\nx q[8];\nswap q[7],q[17];\nsdg q[11];\ncz q[11],q[6];\nh q[16];\nz q[13];\nswap q[17],q[4];\ny q[3];\ny q[17];\nh q[12];\nsdg q[16];\nh q[6];\ncz q[10],q[1];\nsdg q[1];\nh q[3];\nsdg q[16];\ncy q[0],q[14];\nx q[17];\ns q[10];\nswap q[0],q[11];\nswap q[1],q[2];\nx q[17];\nsdg q[5];\ny q[12];\nx q[2];\nsdg q[0];\ncx q[17],q[16];\ncz q[4],q[0];\ncy q[6],q[5];\nz q[15];\nswap q[14],q[10];\nh q[9];\nx q[15];\ncy q[5],q[19];\nx q[18];\ncy q[16],q[17];\nh q[0];\nsdg q[1];\ns q[5];\nz q[12];\ncx q[9],q[15];\nh q[5];\nz q[17];\nz q[12];\ny q[16];\nh q[19];\nswap q[14],q[12];\nsdg q[12];\nh q[11];\nz q[7];\nsdg q[8];\ncz q[6],q[11];\ncz q[5],q[6];\ncy q[12],q[0];\ncz q[2],q[16];\nsdg q[6];\nswap q[19],q[18];\nswap q[7],q[4];\ns q[1];\nz q[10];\nh q[6];\nx q[7];\ncx q[1],q[10];\nx q[1];\ncx q[13],q[3];\ncx q[1],q[7];\nswap q[10],q[12];\nsdg q[11];\ncz q[6],q[3];\nswap q[4],q[17];\ny q[4];\nswap q[15],q[12];\ncz q[15],q[7];\ncx q[10],q[7];\ns q[3];\nz q[2];\nx q[8];\ns q[6];\nx q[5];\ny q[7];\nsdg q[11];\nx q[16];\ny q[10];\ns q[4];\ny q[3];\ncx q[6],q[9];\ncx q[5],q[14];\ny q[2];\ncy q[9],q[18];\ns q[5];\nx q[10];\nswap q[13],q[16];\nsdg q[8];\nsdg q[19];\ncx q[13],q[5];\nx q[0];\ny q[7];\ncz q[14],q[12];\nh q[16];\nh q[16];\nh q[8];\nx q[14];\ncz q[1],q[3];\ns q[18];\ns q[8];\ncx q[4],q[11];\nz q[7];\nsdg q[2];\ncx q[15],q[1];\ncz q[15],q[5];\nz q[11];\ncz q[17],q[6];\ny q[9];\ncy q[16],q[10];\ncx q[17],q[8];\nx q[11];\nx q[7];\nx q[4];\ncx q[17],q[0];\nx q[1];\nx q[17];\ncx q[17],q[5];\ncx q[6],q[5];\ny q[16];\ncx q[14],q[1];\ns q[11];\ny q[16];\nh q[8];\nh q[2];\ny q[4];\ns q[12];\nh q[11];\ncy q[5],q[12];\nh q[16];\ns q[8];\ncy q[17],q[16];\ncx q[0],q[15];\ncx q[5],q[13];\nh q[3];\ncz q[8],q[17];\ncx q[7],q[14];\ns q[15];\ns q[15];\ncy q[0],q[6];\nswap q[4],q[17];\ncz q[14],q[3];\nswap q[10],q[11];\nh q[12];\nx q[18];\nz q[18];\nx q[9];\nh q[3];\ncy q[8],q[10];\nswap q[10],q[7];\nz q[13];\ncz q[14],q[1];\ncx q[16],q[17];\ncz q[12],q[16];\nz q[6];\nh q[14];\nx q[15];\ncz q[11],q[18];\nh q[11];\nsdg q[15];\ns q[16];\ncy q[6],q[7];\ncz q[5],q[13];\nsdg q[2];\nh q[16];\ncx q[12],q[1];\ncz q[14],q[15];\nswap q[12],q[9];\nh q[19];\nx q[12];\ncy q[13],q[3];\nh q[17];\nx q[11];\nsdg q[12];\nx q[18];\nswap q[18],q[11];\ncz q[16],q[9];\nx q[16];\nz q[1];\ns q[5];\ncx q[4],q[3];\nz q[14];\ny q[9];\nsdg q[16];\nsdg q[5];\nz q[13];\ny q[3];\ny q[4];\nsdg q[18];\nh q[11];\ncy q[1],q[6];\nswap q[16],q[1];\nx q[19];\nswap q[17],q[0];\ncz q[17],q[11];\nswap q[15],q[16];\nz q[3];\nx q[4];\ny q[4];\ncx q[3],q[10];\nz q[1];\nx q[0];\nh q[17];\nswap q[15],q[9];\ny q[10];\ncy q[5],q[7];\ny q[5];\ncy q[19],q[11];\ncz q[19],q[0];\ns q[12];\ny q[13];\nswap q[14],q[19];\ncy q[3],q[17];\nh q[17];\ny q[7];\nx q[16];\ns q[17];\nz q[11];\nswap q[17],q[4];\nswap q[9],q[7];\nz q[6];\nsdg q[6];\nswap q[15],q[8];\ncy q[11],q[5];\nswap q[16],q[2];\ncy q[2],q[1];\ny q[19];\ncy q[11],q[5];\nh q[6];\ncz q[17],q[16];\nswap q[1],q[13];\ns q[7];\ncz q[2],q[19];\nx q[16];\ny q[1];\ncz q[16],q[17];\ny q[11];\ny q[12];\ns q[13];\nx q[12];\ns q[12];\ny q[13];\ny q[10];\ns q[8];\ns q[12];\ncx q[5],q[6];\nswap q[5],q[13];\nx q[11];\nz q[6];\ncx q[19],q[2];\ncx q[11],q[17];\nh q[17];\ncx q[10],q[0];\nz q[6];\ncy q[9],q[12];\ncz q[14],q[1];\ncy q[11],q[10];\nh q[12];\nx q[6];\ncz q[3],q[19];\ncx q[5],q[15];\nswap q[18],q[11];\nsdg q[3];\ncx q[11],q[6];\nx q[15];\nswap q[11],q[15];\ncz q[14],q[10];\ns q[17];\nx q[15];\ncz q[8],q[4];\nh q[4];\ns q[8];\nx q[4];\nx q[1];\ny q[17];\nsdg q[4];\ncz q[17],q[12];\ncz q[9],q[3];\ncz q[13],q[16];\nh q[3];\nx q[18];\ns q[0];\ncz q[10],q[2];\ncx q[9],q[0];\nswap q[10],q[11];\nx q[7];\nswap q[6],q[4];\ncx q[18],q[14];\nx q[19];\ns q[18];\ncy q[3],q[1];\nswap q[12],q[3];\nz q[5];\ns q[3];\nswap q[6],q[2];\nsdg q[19];\nz q[6];\ncz q[2],q[0];\ncy q[6],q[2];\nsdg q[2];\ny q[0];\nswap q[8],q[6];\ns q[15];\nswap q[12],q[19];\ny q[6];\nz q[10];\ncz q[12],q[3];\nh q[13];\nz q[1];\nz q[3];\nx q[3];\ncy q[8],q[18];\nz q[4];\ncx q[1],q[3];\ny q[5];\ncz q[12],q[10];\ncz q[17],q[4];\ncy q[16],q[6];\nsdg q[8];\ncx q[3],q[18];\nswap q[9],q[1];\ncx q[6],q[3];\nx q[19];\nh q[16];\ncy q[4],q[2];\ncz q[11],q[5];\nz q[9];\nswap q[14],q[7];\ny q[11];\nh q[7];\ncx q[12],q[4];\ny q[11];\nsdg q[3];\nz q[8];\nh q[18];\ncy q[17],q[5];\nz q[1];\nz q[1];\nz q[8];\ncz q[19],q[14];\ns q[17];\nswap q[0],q[2];\ncz q[11],q[7];\nh q[19];\nx q[9];\ns q[4];\nswap q[19],q[9];\nx q[7];\ncx q[1],q[7];\nx q[18];\ny q[11];\ns q[1];\ny q[6];\nswap q[13],q[1];\ncx q[19],q[13];\nx q[1];\ns q[14];\ny q[3];\ncy q[7],q[11];\ny q[18];\ny q[5];\nx q[18];\nz q[11];\nz q[15];\ns q[10];\ncz q[7],q[2];\ny q[18];\ns q[18];\nswap q[16],q[13];\ncz q[18],q[15];\ny q[9];\nsdg q[0];\ncx q[3],q[8];\ny q[17];\ncx q[12],q[3];\nh q[2];\nz q[11];\nx q[8];\ns q[6];\nz q[6];\ns q[1];\ncx q[0],q[16];\ny q[17];\nswap q[13],q[18];\nswap q[12],q[0];\ncz q[5],q[2];\nx q[6];\nz q[14];\nz q[13];\ncz q[12],q[5];\ncy q[8],q[2];\nx q[7];\ncx q[7],q[14];\ncy q[14],q[17];\nswap q[9],q[0];\ncz q[17],q[18];\ncz q[15],q[1];\nsdg q[0];\ny q[7];\ncy q[7],q[8];\nx q[3];\ncx q[12],q[0];\ns q[12];\nswap q[14],q[5];\nx q[7];\ncy q[5],q[0];\nz q[2];\ns q[11];\ny q[2];\nz q[2];\nsdg q[10];\nh q[1];\ncy q[10],q[12];\nsdg q[19];\ncz q[18],q[8];\nswap q[1],q[14];\ns q[0];\nsdg q[14];\nz q[7];\ncy q[5],q[4];\nx q[14];\nsdg q[6];\nswap q[14],q[7];\ncz q[8],q[13];\ns q[19];\nh q[8];\nh q[2];\ny q[3];\nx q[1];\nx q[12];\ncx q[5],q[13];\nx q[7];\nswap q[17],q[1];\nswap q[10],q[4];\nsdg q[8];\ncz q[6],q[14];\ns q[14];\nz q[14];\nh q[1];\nswap q[17],q[19];\nswap q[9],q[14];\nsdg q[3];\ncz q[8],q[10];\ncz q[1],q[2];\ns q[6];\nx q[1];\nx q[4];\ny q[16];\ns q[17];\ns q[9];\nswap q[8],q[12];\nz q[14];\ncy q[11],q[7];\nx q[5];\ncy q[12],q[15];\ns q[10];\ncx q[6],q[7];\ns q[16];\ns q[0];\nswap q[2],q[12];\ncx q[19],q[14];\nx q[12];\nsdg q[9];\nswap q[10],q[11];\ny q[1];\ns q[7];\nh q[11];\ncz q[10],q[8];\ncx q[17],q[16];\nsdg q[1];\nsdg q[0];\ny q[19];\ncy q[14],q[13];\nswap q[13],q[3];\ny q[11];\nh q[6];\ncx q[8],q[1];\nh q[18];\ns q[15];\nh q[10];\nswap q[4],q[10];\ncz q[18],q[8];\nsdg q[7];\nx q[15];\nx q[17];\nh q[4];\nz q[11];\ncx q[5],q[10];\ns q[19];\ncy q[3],q[11];\ny q[4];\nx q[3];\ncy q[11],q[10];\ncy q[13],q[7];\nx q[18];\ny q[0];\ns q[5];\ny q[6];\ns q[0];\nsdg q[8];\ncy q[17],q[7];\ncy q[11],q[19];\ncx q[6],q[17];\ns q[8];\ncx q[7],q[14];\nx q[4];\nh q[2];\nh q[17];\ns q[13];\nsdg q[3];\ny q[0];\ncx q[5],q[19];\ncz q[19],q[5];\nswap q[0],q[13];\nx q[12];\ncy q[1],q[10];\ns q[7];\nx q[7];\nz q[0];\nh q[4];\ny q[18];\ny q[11];\nx q[2];\ncx q[0],q[13];\ncx q[4],q[14];\ns q[2];\nx q[19];\ncy q[14],q[9];\nswap q[5],q[8];\nx q[10];\ncy q[9],q[11];\nz q[1];\nh q[5];\nh q[5];\nswap q[9],q[12];\nswap q[19],q[6];\nh q[16];\nz q[0];\ncx q[9],q[7];\ncx q[13],q[8];\nx q[0];\ncx q[0],q[13];\ns q[4];\nx q[14];\ncx q[0],q[5];\ny q[4];\ncy q[0],q[2];\ncy q[7],q[17];\nsdg q[11];\ns q[12];\ny q[12];\nswap q[14],q[4];\ns q[1];\ncy q[12],q[7];\nsdg q[0];\nz q[16];\ny q[10];\ns q[10];\nh q[14];\nh q[11];\ny q[13];\ncz q[6],q[16];\ns q[16];\ncx q[17],q[11];\ny q[10];\nsdg q[13];\nh q[0];\ncy q[14],q[7];\ns q[12];\nh q[6];\nswap q[9],q[1];\ny q[18];\nh q[11];\nz q[4];\nswap q[5],q[1];\ncx q[5],q[17];\ncx q[15],q[5];\ny q[14];\ncx q[1],q[7];\nsdg q[2];\ncz q[1],q[5];\nh q[16];\ns q[12];\nswap q[14],q[17];\nx q[1];\ncz q[13],q[12];\ncz q[13],q[19];\nh q[8];\ncx q[15],q[6];\nx q[19];\nz q[6];\nx q[10];\nh q[13];\nx q[16];\nz q[0];\ny q[4];\ns q[14];\ncx q[10],q[1];\nsdg q[9];\ncx q[6],q[5];\ncy q[5],q[11];\ns q[6];\nx q[2];\nz q[15];\ny q[7];\nswap q[0],q[3];\ns q[4];\nz q[15];\ncx q[13],q[8];\ns q[19];\ncz q[9],q[0];\ncy q[19],q[2];\nh q[9];\nswap q[15],q[14];\ny q[9];\ncy q[17],q[16];\ny q[16];\ncz q[7],q[15];\ncx q[18],q[10];\ny q[18];\nx q[19];\ns q[5];\ncz q[2],q[10];\nz q[6];\ncx q[10],q[19];\ncy q[18],q[9];\ncz q[19],q[2];\nz q[5];\ncy q[13],q[14];\nx q[10];\nswap q[1],q[4];\nx q[2];\nh q[3];\ncx q[13],q[12];\nx q[15];\ns q[8];\ny q[6];\nsdg q[7];\nx q[13];\ncy q[4],q[18];\nx q[17];\nswap q[7],q[11];\ncz q[16],q[9];\nx q[6];\nsdg q[10];\nswap q[7],q[3];\nsdg q[15];\nswap q[18],q[3];\nsdg q[4];\ns q[3];\ny q[19];\nz q[15];\ncy q[0],q[19];\nswap q[13],q[12];\nx q[0];\nz q[6];\nswap q[0],q[4];\nz q[5];\nswap q[14],q[1];\nx q[15];\ns q[15];\ncy q[6],q[9];\nh q[8];\nsdg q[14];\ns q[19];\ncx q[14],q[16];\ncz q[7],q[19];\ns q[12];\ny q[12];\nsdg q[10];\ncx q[8],q[9];\ncy q[19],q[11];\ncy q[7],q[5];\ny q[8];\ny q[4];\nh q[17];\nx q[6];\nswap q[7],q[3];\nz q[11];\nz q[19];\ny q[3];\nx q[14];\ncx q[19],q[12];\nx q[6];\ny q[2];\ns q[6];\nx q[0];\ny q[7];\ns q[6];\ncy q[0],q[8];\nswap q[5],q[4];\ns q[17];\nsdg q[11];\ny q[19];\nsdg q[7];\nswap q[4],q[10];\nh q[11];\ny q[13];\ns q[9];\ns q[3];\nsdg q[13];\ncx q[14],q[12];\ncx q[8],q[17];\ncz q[17],q[1];\nz q[5];\nswap q[7],q[16];\nx q[4];\ncy q[11],q[9];\nh q[0];\ny q[17];\nh q[4];\ncx q[14],q[6];\nz q[16];\nh q[4];\nsdg q[9];\ns q[12];\ncz q[6],q[18];\nx q[3];\nsdg q[5];\ncz q[2],q[8];\ncz q[10],q[4];\ncx q[8],q[12];\ncz q[11],q[17];\ns q[13];\ny q[9];\ny q[0];\ny q[2];\nx q[14];\ncy q[19],q[11];\nswap q[1],q[6];\nswap q[13],q[18];\ncx q[6],q[2];\nz q[3];\ns q[1];\ncx q[0],q[15];\ncy q[11],q[7];\nz q[5];\ncy q[5],q[0];\ncx q[0],q[16];\ncy q[19],q[5];\nh q[7];\ny q[14];\nh q[8];\ncy q[6],q[16];\nsdg q[18];\ncz q[0],q[12];\ns q[3];\nsdg q[16];\ncx q[19],q[15];\ncz q[12],q[6];\nz q[10];\ncy q[9],q[10];\nsdg q[0];\ns q[11];\nsdg q[14];\nx q[4];\nsdg q[16];\nh q[4];\nsdg q[6];\nsdg q[4];\nsdg q[2];\ny q[12];\ncx q[14],q[13];\ncz q[13],q[19];\nswap q[4],q[3];\nswap q[5],q[18];\ns q[0];\nz q[6];\nx q[13];\ncy q[2],q[14];\ns q[14];\ny q[9];\ncy q[0],q[10];\ncz q[2],q[18];\nh q[15];\ny q[11];\nsdg q[18];\nh q[19];\nsdg q[3];\nz q[6];\ncy q[0],q[14];\ncy q[18],q[9];\nswap q[3],q[12];\ncz q[4],q[6];\nh q[6];\ny q[0];\ncy q[17],q[1];\ny q[8];\nh q[2];\ns q[16];\ns q[13];\ncx q[1],q[10];\nh q[1];\ncz q[16],q[9];\nsdg q[15];\nz q[13];\nx q[10];\ny q[10];\nx q[19];\ns q[13];\nx q[9];\nsdg q[7];\nh q[0];\ns q[8];\nswap q[14],q[16];\nz q[11];\nx q[6];\nh q[5];\ncz q[13],q[10];\nswap q[0],q[12];\nz q[13];\ncy q[8],q[11];\nswap q[9],q[18];\ncy q[14],q[8];\ncx q[18],q[19];\nz q[3];\ny q[18];\ncz q[12],q[14];\nz q[19];\nx q[10];\ncy q[10],q[17];\nswap q[14],q[3];\ncy q[7],q[12];\ncz q[4],q[12];\ncy q[0],q[13];\nsdg q[7];\ncx q[19],q[11];\nsdg q[2];\nx q[3];\ncy q[13],q[9];\ncz q[9],q[17];\ncx q[12],q[11];\nx q[6];\nz q[5];\nx q[1];\ncy q[1],q[9];\ncz q[12],q[19];\ny q[6];\ncz q[1],q[12];\nswap q[9],q[17];\ny q[5];\nsdg q[16];\ncz q[19],q[15];\nswap q[11],q[15];\nz q[2];\ny q[13];\nz q[4];\ncx q[8],q[14];\ncy q[12],q[6];\nswap q[13],q[10];\nsdg q[0];\nh q[13];\ncy q[1],q[7];\ncz q[1],q[12];\ncy q[8],q[1];\ns q[10];\ncy q[15],q[3];\nx q[1];\nswap q[15],q[7];\ny q[11];\nsdg q[5];\nsdg q[12];\nz q[14];\nh q[17];\ns q[19];\nx q[1];\nz q[11];\nh q[4];\ncz q[6],q[4];\ncy q[9],q[17];\ns q[11];\ncy q[3],q[10];\nx q[19];\nz q[7];\ncz q[1],q[11];\ny q[16];\nsdg q[2];\ny q[5];\nh q[14];\nswap q[4],q[8];\nswap q[19],q[6];\nx q[9];\nz q[4];\ny q[6];\nz q[15];\ncx q[7],q[5];\nswap q[6],q[14];\ncx q[18],q[6];\nz q[19];\ncx q[18],q[17];\nz q[14];\nsdg q[13];\ns q[3];\nz q[16];\nsdg q[9];\nswap q[6],q[8];\nz q[15];\ny q[18];\nx q[3];\nsdg q[15];\nx q[18];\ncx q[6],q[4];\nx q[11];\ncz q[19],q[6];\nh q[4];\nswap q[10],q[14];\ns q[11];\nx q[3];\ncx q[0],q[9];\nswap q[17],q[8];\nh q[9];\nsdg q[15];\ny q[0];\ny q[16];\nswap q[0],q[5];\ncx q[17],q[14];\nh q[19];\ncy q[10],q[1];\ncx q[6],q[13];\ny q[18];\ncx q[17],q[5];\ns q[8];\nz q[2];\nz q[2];\ns q[15];\nh q[8];\ncy q[15],q[6];\nswap q[3],q[15];\ny q[18];\nz q[1];\ncx q[5],q[11];\nh q[2];\ny q[19];\nx q[0];\nz q[11];\ncz q[0],q[11];\nx q[3];\ncy q[18],q[8];\ncx q[16],q[3];\nx q[17];\ncz q[7],q[1];\ncz q[2],q[1];\ncz q[14],q[6];\nx q[18];\ns q[17];\nh q[15];\nsdg q[9];\nsdg q[13];\ny q[1];\ny q[4];\ny q[16];\nh q[2];\nswap q[5],q[13];\nz q[1];\nh q[9];\ncx q[8],q[5];\ns q[16];\nz q[18];\nsdg q[7];\ny q[3];\nz q[4];\nz q[17];\nx q[18];\ncy q[16],q[9];\nswap q[15],q[7];\ns q[10];\nz q[10];\ny q[14];\ncz q[19],q[3];\nh q[1];\ny q[3];\ncz q[8],q[19];\nsdg q[16];\ny q[9];\nx q[16];\nsdg q[8];\nswap q[5],q[13];\ncz q[11],q[14];\ncz q[18],q[7];\ns q[5];\ncy q[14],q[17];\nh q[9];\nh q[0];\ns q[0];\nsdg q[11];\nz q[13];\nsdg q[12];\ncy q[19],q[7];\ncy q[17],q[12];\nh q[4];\ncy q[14],q[19];\ncx q[12],q[2];\ncx q[19],q[15];\nswap q[0],q[1];\nx q[10];\ncx q[10],q[9];\nz q[4];\nx q[4];\ns q[18];\ns q[4];\ncy q[1],q[7];\ny q[15];\ns q[15];\ncy q[1],q[17];\nh q[2];\nz q[6];\ncy q[4],q[3];\ns q[14];\ncz q[5],q[11];\ncy q[13],q[1];\ncz q[9],q[11];\nswap q[17],q[7];\ncx q[9],q[4];\ncy q[7],q[1];\nx q[2];\nx q[17];\nsdg q[7];\ncx q[10],q[9];\nswap q[8],q[10];\nx q[10];\ncz q[12],q[18];\ncx q[12],q[18];\nh q[5];\ncy q[12],q[9];\ncx q[15],q[2];\nh q[17];\ny q[9];\ncx q[11],q[8];\nh q[17];\ncy q[7],q[14];\nx q[8];\nswap q[5],q[15];\ncz q[4],q[12];\nsdg q[13];\ncz q[13],q[4];\ncz q[11],q[10];\nswap q[8],q[3];\nh q[10];\ncy q[18],q[11];\ns q[8];\nh q[19];\nsdg q[11];\ny q[4];\nsdg q[18];\ncx q[8],q[1];\ny q[6];\nh q[5];\ncx q[2],q[10];\ncx q[4],q[2];\nh q[11];\nh q[15];\ny q[14];\ny q[2];\ncz q[15],q[8];\nh q[15];\nh q[11];\ns q[13];\ncz q[10],q[5];\nz q[15];\ncz q[15],q[4];\nz q[13];\nz q[10];\ncz q[19],q[6];\ns q[8];\nsdg q[0];\ncz q[14],q[0];\nx q[2];\nswap q[15],q[10];\ny q[19];\nx q[9];\nx q[8];\nx q[12];\ny q[2];\nx q[10];\ncx q[2],q[8];\nx q[0];\nsdg q[11];\ncx q[15],q[19];\ncx q[6],q[3];\nh q[4];\ncy q[18],q[15];\ny q[14];\nswap q[15],q[12];\ns q[9];\ny q[10];\nz q[6];\ns q[7];\nh q[12];\ns q[9];\ny q[2];\nx q[14];\nswap q[17],q[11];\nz q[1];\ns q[8];\ncy q[4],q[11];\ncz q[5],q[19];\nswap q[17],q[8];\ny q[11];\nx q[1];\ns q[9];\ny q[5];\ny q[6];\ncz q[11],q[7];\nsdg q[1];\ncy q[18],q[15];\ncz q[3],q[1];\ncz q[5],q[19];\nsdg q[11];\nx q[9];\nh q[17];\nx q[3];\nsdg q[3];\nh q[12];\nswap q[0],q[1];\nswap q[12],q[19];\ncz q[12],q[0];\nz q[15];\ny q[14];\ncz q[14],q[11];\ncy q[12],q[9];\ncz q[8],q[16];\ns q[16];\ncz q[14],q[4];\nswap q[19],q[0];\nsdg q[6];\ns q[7];\nx q[6];\nswap q[17],q[6];\ny q[6];\nx q[5];\nsdg q[4];\nh q[11];\nswap q[13],q[4];\nswap q[7],q[2];\nz q[12];\ncx q[16],q[15];\nsdg q[16];\nh q[8];\ncx q[8],q[7];\ncz q[19],q[13];\ncx q[16],q[9];\ncy q[13],q[8];\nx q[3];\ns q[4];\ns q[9];\ncx q[14],q[18];\ncz q[16],q[17];\ns q[2];\ncz q[10],q[8];\nx q[1];\ny q[1];\nz q[1];\nx q[2];\nswap q[4],q[1];\nsdg q[14];\nswap q[0],q[13];\nh q[9];\nh q[1];\ncy q[18],q[10];\nsdg q[12];\ncx q[1],q[4];\nz q[15];\nsdg q[13];\nswap q[6],q[11];\nx q[3];\ncx q[12],q[17];\nh q[0];\ncx q[10],q[2];\nh q[1];\ncy q[12],q[13];\ny q[15];\ns q[19];\ny q[16];\ncy q[10],q[18];\nh q[4];\ncy q[10],q[4];\nx q[0];\ny q[14];\ncy q[2],q[12];\ns q[11];\nsdg q[0];\nh q[15];\nsdg q[10];\nh q[16];\nz q[2];\ny q[0];\nsdg q[4];\nz q[0];\nsdg q[18];\nswap q[12],q[4];\ncz q[6],q[15];\ncz q[8],q[14];\nh q[13];\nz q[11];\nh q[2];\ncz q[14],q[4];\nz q[3];\nsdg q[17];\nh q[0];\ncz q[9],q[18];\ncz q[16],q[18];\nz q[4];\nswap q[4],q[8];\ncx q[8],q[4];\nsdg q[19];\nz q[6];\nswap q[13],q[19];\ncz q[11],q[0];\ny q[18];\nz q[5];\nswap q[13],q[3];\nsdg q[12];\nh q[15];\ncx q[0],q[7];\nh q[5];\nswap q[15],q[4];\ncy q[7],q[11];\ncz q[1],q[6];\nswap q[18],q[7];\ncy q[10],q[11];\nswap q[10],q[8];\nswap q[13],q[14];\ny q[8];\nh q[14];\nswap q[15],q[7];\nswap q[10],q[14];\ncx q[11],q[9];\nz q[7];\nx q[4];\ncy q[16],q[18];\ny q[19];\ncy q[10],q[5];\ns q[18];\nswap q[3],q[15];\nswap q[8],q[15];\nz q[3];\nh q[2];\ny q[10];\nswap q[0],q[8];\nswap q[8],q[0];\nz q[9];\ncz q[17],q[11];\nh q[10];\nsdg q[18];\ncz q[2],q[1];\ny q[0];\ncx q[9],q[7];\ny q[13];\ncx q[7],q[9];\ns q[17];\ncx q[13],q[6];\ncy q[10],q[18];\ncz q[3],q[6];\nh q[9];\ncx q[14],q[10];\ns q[19];\nsdg q[5];\ns q[15];\nsdg q[2];\ns q[16];\ncx q[11],q[7];\ncy q[18],q[19];\ny q[17];\nz q[1];\nz q[2];\ncy q[6],q[10];\nz q[8];\ny q[5];\nswap q[15],q[6];\nsdg q[12];\nz q[19];\ny q[15];\ncx q[16],q[0];\ncx q[6],q[4];\nsdg q[19];\ns q[6];\nh q[2];\nh q[15];\nh q[14];\ns q[0];\nz q[1];\nz q[3];\ny q[12];\ncx q[16],q[11];\ncy q[10],q[19];\ncy q[4],q[2];\nsdg q[10];\ncx q[14],q[3];\nx q[7];\nx q[9];\ny q[2];\nz q[5];\ncy q[17],q[16];\nsdg q[13];\ny q[9];\nswap q[3],q[15];\ny q[9];\nswap q[11],q[14];\ns q[7];\ncz q[3],q[12];\ncx q[3],q[19];\ncx q[6],q[14];\ncy q[10],q[3];\nz q[1];\nswap q[4],q[14];\nx q[18];\nx q[19];\ny q[2];\nz q[17];\ns q[12];\nz q[8];\nx q[18];\nx q[3];\nsdg q[14];\ny q[18];\nx q[3];\ncx q[4],q[16];\ny q[11];\nh q[6];\nsdg q[8];\ny q[2];\ncy q[7],q[17];\ncx q[13],q[18];\ns q[10];\nsdg q[17];\ncy q[18],q[4];\nsdg q[11];\ns q[13];\ncx q[2],q[6];\nz q[10];\nx q[2];\nh q[9];\nsdg q[15];\nx q[12];\nh q[18];\ns q[3];\nx q[12];\ncx q[17],q[9];\nh q[2];\ns q[8];\ncy q[6],q[0];\ny q[5];\ncy q[0],q[19];\ncy q[17],q[0];\ncx q[18],q[7];\nsdg q[17];\ncz q[10],q[9];\ncz q[15],q[19];\ns q[11];\ny q[18];\ncz q[4],q[16];\nz q[1];\ny q[13];\ncx q[10],q[13];\ns q[7];\ny q[18];\nsdg q[7];\ncz q[6],q[13];\ncy q[15],q[13];\nh q[9];\nh q[15];\ncy q[10],q[2];\ncy q[16],q[19];\ny q[11];\nx q[3];\nh q[15];\nh q[17];\nx q[10];\nz q[12];\ncx q[5],q[9];\ncz q[13],q[12];\nswap q[10],q[1];\nswap q[7],q[13];\ny q[11];\nswap q[18],q[8];\ny q[14];\nswap q[18],q[19];\nh q[12];\ncz q[10],q[4];\ncx q[5],q[2];\nx q[7];\ncz q[17],q[7];\nz q[16];\nswap q[11],q[1];\nswap q[6],q[9];\nx q[2];\ny q[5];\nsdg q[1];\nsdg q[19];\ncz q[13],q[7];\nswap q[14],q[6];\ncx q[2],q[16];\ncy q[6],q[4];\ns q[3];\ncz q[16],q[7];\nx q[11];\ncz q[9],q[4];\ncx q[8],q[7];\nx q[0];\nh q[1];\ncz q[10],q[1];\ncx q[15],q[11];\nswap q[4],q[11];\nx q[10];\ncx q[4],q[3];\nswap q[11],q[0];\ns q[9];\nh q[2];\ncx q[15],q[17];\nx q[0];\ncy q[17],q[16];\ncy q[16],q[7];\ny q[15];\nsdg q[3];\nx q[2];\ny q[11];\ncy q[2],q[10];\ncz q[7],q[10];\ncy q[5],q[0];\ncz q[0],q[9];\nh q[1];\nz q[4];\ncz q[7],q[8];\ncx q[1],q[13];\nsdg q[18];\nswap q[11],q[0];\ncz q[13],q[14];\nz q[5];\ncz q[19],q[6];\ns q[4];\ncy q[3],q[17];\nz q[4];\nh q[18];\ncz q[5],q[13];\ns q[15];\ncx q[3],q[14];\ncy q[11],q[13];\nz q[8];\ncz q[11],q[10];\nswap q[9],q[12];\nsdg q[3];\ny q[12];\ns q[4];\ncz q[9],q[5];\ncy q[3],q[4];\ncz q[7],q[2];\ns q[4];\ncz q[15],q[19];\nsdg q[3];\ns q[4];\nswap q[2],q[4];\ncy q[12],q[15];\nsdg q[12];\ncy q[14],q[5];\nh q[5];\nsdg q[6];\nh q[2];\nswap q[15],q[11];\nz q[14];\nsdg q[2];\ncx q[0],q[12];\ny q[7];\nz q[14];\ny q[4];\nswap q[17],q[9];\nswap q[17],q[2];\ncx q[18],q[3];\nx q[9];\nh q[14];\nx q[13];\nswap q[12],q[19];\ny q[9];\nh q[0];\nsdg q[16];\ncy q[3],q[2];\nz q[13];\ncy q[13],q[0];\ny q[2];\ncy q[19],q[2];\nz q[0];\ny q[19];\ncx q[1],q[6];\nz q[16];\ncy q[17],q[8];\nsdg q[10];\nx q[2];\ny q[19];\nh q[6];\nh q[11];\ns q[4];\nh q[4];\nh q[7];\nswap q[3],q[8];\ny q[4];\ncz q[0],q[17];\nsdg q[10];\nz q[16];\nx q[9];\nsdg q[0];\nh q[10];\ns q[11];\nh q[17];\ncy q[13],q[9];\nz q[1];\ny q[17];\nx q[0];\nz q[11];\ns q[7];\ny q[13];\nh q[8];\ncy q[18],q[4];\nx q[8];\ny q[14];\nz q[17];\nh q[11];\ncx q[16],q[15];\nsdg q[1];\ny q[10];\ns q[5];\nswap q[9],q[5];\ncx q[19],q[10];\ns q[6];\nsdg q[11];\ncy q[8],q[15];\nx q[12];\nz q[8];\nz q[16];\nx q[3];\nsdg q[5];\nh q[2];\ns q[16];\nsdg q[8];\ny q[13];\ncx q[9],q[14];\nh q[12];\nh q[4];\nsdg q[14];\ns q[12];\ns q[0];\ncz q[3],q[12];\nswap q[16],q[1];\ns q[15];\nz q[10];\nh q[10];\ncy q[16],q[18];\nswap q[15],q[8];\ncz q[13],q[14];\ny q[8];\ns q[19];\ncz q[16],q[14];\nh q[11];\nswap q[11],q[2];\ncx q[13],q[6];\nx q[12];\nsdg q[8];\nx q[6];\nz q[14];\ncz q[13],q[16];\nswap q[8],q[13];\nh q[11];\nh q[3];\ncx q[5],q[13];\ncz q[0],q[13];\ncz q[5],q[16];\ncy q[5],q[12];\ncy q[6],q[12];\ny q[10];\ncy q[1],q[0];\ny q[8];\ncx q[16],q[10];\ny q[17];\nx q[1];\nx q[17];\ncy q[10],q[4];\ncz q[7],q[16];\nswap q[12],q[19];\ny q[8];\ncz q[6],q[14];\nsdg q[4];\nsdg q[1];\nh q[7];\ns q[16];\ncx q[0],q[7];\ncx q[14],q[2];\nh q[13];\ncx q[14],q[3];\ns q[12];\nz q[19];\nz q[14];\ncy q[9],q[5];\nsdg q[17];\nswap q[2],q[11];\nx q[12];\nx q[10];\ncx q[13],q[2];\nh q[9];\ncy q[8],q[13];\ncz q[5],q[4];\nswap q[15],q[4];\nswap q[10],q[15];\nsdg q[7];\ns q[11];\ncy q[15],q[11];\ny q[13];\nh q[11];\nswap q[12],q[18];\nh q[1];\ny q[5];\ncy q[5],q[6];\ncx q[0],q[12];\nx q[19];\nswap q[0],q[16];\ncz q[18],q[4];\nz q[18];\nsdg q[17];\ncx q[16],q[13];\nh q[6];\nx q[0];\nz q[10];\ncz q[11],q[15];\ncz q[9],q[6];\ncz q[6],q[14];\nswap q[18],q[12];\nswap q[12],q[7];\ny q[10];\ncy q[2],q[8];\ncy q[16],q[3];\ncz q[17],q[5];\ncz q[11],q[8];\ncy q[14],q[13];\ncy q[1],q[15];\ns q[11];\nsdg q[5];\ny q[14];\nswap q[15],q[2];\ns q[15];\ny q[9];\nsdg q[5];\ncy q[19],q[6];\ns q[2];\nswap q[0],q[7];\ncy q[4],q[7];\nsdg q[7];\nswap q[5],q[2];\nswap q[9],q[1];\ncy q[15],q[0];\nz q[2];\ns q[19];\ncy q[13],q[0];\nz q[10];\ncx q[18],q[7];\nz q[7];\nsdg q[3];\nsdg q[2];\ncx q[7],q[16];\ncy q[4],q[3];\ns q[13];\ncy q[6],q[5];\ncz q[6],q[9];\nz q[17];\ncy q[16],q[15];\nsdg q[11];\nsdg q[0];\ncx q[16],q[14];\nh q[18];\nh q[6];\ny q[14];\ncy q[0],q[4];\ncx q[18],q[12];\nswap q[15],q[8];\nsdg q[13];\nz q[6];\ny q[9];\nh q[19];\nsdg q[2];\ncx q[8],q[9];\nsdg q[6];\nx q[4];\ncz q[13],q[4];\nsdg q[15];\nx q[6];\nx q[0];\nx q[15];\nz q[12];\nsdg q[13];\ns q[19];\nx q[1];\nz q[10];\nswap q[5],q[15];\ncx q[18],q[12];\nx q[17];\nsdg q[1];\nh q[3];\ncy q[5],q[9];\ncy q[11],q[13];\nx q[0];\nsdg q[13];\nsdg q[3];\ncy q[19],q[1];\nswap q[14],q[0];\nz q[18];\nx q[13];\ncx q[15],q[8];\nz q[17];\ns q[3];\nswap q[1],q[10];\ny q[16];\ncy q[1],q[17];\nh q[1];\ny q[14];\ncx q[11],q[9];\ncz q[2],q[9];\nswap q[8],q[2];\nswap q[10],q[19];\ns q[1];\ncy q[16],q[2];\nswap q[8],q[17];\ncz q[19],q[4];\nswap q[17],q[7];\nh q[9];\ny q[12];\nsdg q[4];\nx q[9];\nh q[4];\nh q[3];\nx q[7];\nsdg q[3];\ncy q[17],q[6];\nx q[2];\nsdg q[4];\ns q[2];\ncy q[14],q[16];\ncy q[8],q[19];\nx q[14];\ny q[6];\nz q[17];\ncx q[18],q[3];\ncy q[2],q[6];\nx q[7];\nx q[1];\nh q[5];\ns q[8];\ns q[11];\ny q[8];\ny q[11];\nswap q[9],q[16];\ncx q[5],q[13];\ncz q[2],q[8];\ncx q[13],q[2];\nx q[12];\nx q[12];\nx q[18];\ncz q[7],q[8];\ncy q[4],q[11];\ncx q[10],q[5];\nswap q[8],q[5];\ncy q[2],q[10];\nswap q[15],q[17];\ny q[13];\ncz q[12],q[9];\ny q[0];\nh q[13];\ncx q[8],q[7];\ns q[10];\nz q[19];\nz q[7];\ns q[15];\ncy q[4],q[3];\nz q[9];\ny q[16];\nh q[10];\nswap q[14],q[19];\nsdg q[5];\ncy q[5],q[14];\ncy q[11],q[13];\ncy q[0],q[19];\nswap q[12],q[4];\ny q[18];\ny q[12];\ncy q[0],q[14];\ncx q[8],q[16];\nz q[9];\nswap q[19],q[0];\nsdg q[19];\nx q[6];\ns q[11];\ns q[12];\nsdg q[9];\nsdg q[17];\nsdg q[13];\ncy q[9],q[11];\ns q[11];\ncy q[15],q[1];\nx q[13];\ncy q[8],q[19];\ncy q[4],q[12];\nswap q[5],q[15];\ncx q[8],q[19];\nh q[16];\nswap q[4],q[10];\nz q[5];\ncz q[7],q[15];\ncz q[13],q[3];\ncz q[6],q[16];\ncx q[10],q[19];\ncy q[6],q[2];\ncx q[0],q[16];\nswap q[13],q[16];\nx q[4];\nh q[15];\ncz q[16],q[1];\ncz q[8],q[1];\nsdg q[18];\nz q[3];\ncz q[2],q[9];\ncx q[16],q[19];\ncz q[15],q[6];\nsdg q[2];\ncx q[5],q[8];\ncz q[15],q[11];\nh q[0];\nswap q[12],q[18];\ncy q[8],q[12];\nx q[18];\nz q[16];\ns q[15];\ncx q[11],q[3];\nx q[5];\ny q[9];\ncy q[13],q[10];\nswap q[2],q[7];\ns q[13];\ncy q[8],q[5];\ncy q[6],q[14];\ny q[7];\nh q[14];\nh q[8];\nz q[16];\ncz q[5],q[13];\ncx q[12],q[1];\ncx q[9],q[17];\nh q[14];\ny q[12];\nsdg q[18];\ny q[17];\ncy q[8],q[3];\nz q[18];\nh q[18];\nsdg q[11];\nx q[2];\ns q[7];\nh q[6];\nh q[8];\ny q[14];\nsdg q[14];\nx q[5];\ns q[17];\nswap q[16],q[15];\nswap q[1],q[7];\ns q[4];\ncz q[10],q[4];\ns q[14];\ns q[6];\nsdg q[6];\ny q[10];\ns q[6];\ncx q[0],q[3];\ncz q[16],q[19];\nx q[19];\ncx q[0],q[2];\ncy q[18],q[3];\nswap q[12],q[5];\nswap q[12],q[9];\nswap q[1],q[0];\ncy q[15],q[10];\nswap q[19],q[0];\ns q[10];\ny q[13];\ncz q[12],q[11];\ncy q[9],q[10];\ncx q[14],q[10];\nh q[14];\ns q[16];\nswap q[14],q[17];\ns q[8];\ncy q[19],q[7];\ncy q[16],q[0];\nswap q[14],q[16];\ncx q[8],q[12];\nx q[14];\nswap q[5],q[17];\ny q[6];\nz q[7];\ncz q[11],q[4];\nz q[2];\nx q[14];\nsdg q[13];\nh q[8];\nh q[7];\ncz q[5],q[10];\ncy q[3],q[16];\nsdg q[5];\ncx q[17],q[0];\ncy q[3],q[6];\nswap q[4],q[18];\nswap q[17],q[7];\ncz q[8],q[5];\nsdg q[12];\nx q[5];\nx q[11];\nx q[11];\nh q[5];\nh q[18];\ncx q[10],q[9];\ns q[2];\ny q[0];\nz q[17];\ncx q[18],q[7];\ny q[6];\ny q[4];\nh q[11];\ns q[10];\nz q[7];\ncz q[11],q[12];\nswap q[17],q[8];\ncy q[10],q[1];\ncy q[6],q[9];\nsdg q[18];\ny q[13];\ns q[19];\ny q[18];\ny q[6];\ncx q[6],q[2];\ny q[0];\nx q[0];\ncz q[0],q[7];\ny q[4];\ny q[17];\ncy q[0],q[9];\nsdg q[12];\nh q[13];\nx q[8];\ncz q[3],q[19];\ncx q[18],q[1];\nsdg q[9];\nh q[7];\ny q[15];\ns q[5];\ncz q[13],q[17];\ncx q[5],q[6];\nswap q[12],q[5];\nx q[5];\nswap q[1],q[4];\ncz q[2],q[14];\ncx q[17],q[15];\nsdg q[6];\ny q[4];\nz q[0];\ny q[13];\nh q[1];\ncz q[11],q[7];\nx q[4];\ncy q[2],q[19];\nh q[2];\ns q[7];\ncx q[3],q[4];\ncx q[19],q[17];\ncy q[1],q[3];\ncy q[0],q[15];\nsdg q[3];\nh q[16];\ny q[12];\nsdg q[5];\nh q[6];\ncz q[7],q[6];\nswap q[6],q[5];\ncy q[7],q[3];\ncx q[1],q[13];\ncz q[9],q[10];\nx q[19];\ncy q[10],q[6];\ncz q[3],q[0];\ny q[7];\ncz q[13],q[10];\ncz q[13],q[10];\ncy q[14],q[9];\nx q[9];\ncy q[14],q[13];\ncz q[3],q[7];\nx q[12];\ny q[14];\ny q[16];\nx q[6];\nsdg q[4];\ns q[9];\ncx q[18],q[0];\ny q[6];\ncx q[18],q[1];\nz q[17];\nswap q[16],q[2];\nsdg q[9];\nx q[10];\nh q[15];\ncx q[8],q[12];\nswap q[9],q[17];\ns q[17];\nx q[11];\ncy q[3],q[0];\nsdg q[11];\nh q[2];\nswap q[7],q[8];\nz q[18];\ny q[6];\ncx q[18],q[0];\nx q[2];\nh q[3];\nx q[9];\nx q[9];\nh q[15];\nsdg q[0];\ns q[17];\ns q[17];\nswap q[8],q[11];\ncy q[19],q[15];\nh q[0];\nx q[15];\ncz q[0],q[17];\ncx q[0],q[11];\ncx q[18],q[12];\ncx q[16],q[14];\nx q[15];\nswap q[4],q[9];\ncx q[16],q[2];\nh q[7];\nh q[7];\ns q[17];\nsdg q[11];\ns q[16];\nh q[8];\nx q[1];\ns q[0];\nh q[3];\nz q[2];\ny q[12];\ncx q[6],q[0];\nz q[10];\nx q[9];\nsdg q[7];\ncz q[15],q[10];\ncy q[15],q[16];\ncx q[8],q[13];\ncy q[0],q[18];\ncx q[4],q[3];\ny q[1];\nh q[18];\ny q[16];\ncy q[2],q[16];\nz q[15];\ns q[8];\ncz q[13],q[16];\nsdg q[16];\ncy q[18],q[7];\ncz q[15],q[10];\ncy q[7],q[4];\nx q[5];\nx q[5];\nswap q[6],q[18];\ny q[17];\nsdg q[0];\nx q[9];\nh q[16];\nsdg q[10];\ny q[4];\nx q[14];\nswap q[1],q[7];\ny q[5];\nswap q[1],q[16];\ncz q[18],q[8];\nx q[15];\ny q[1];\nswap q[9],q[10];\nh q[2];\ns q[17];\nsdg q[13];\ncy q[3],q[9];\ncx q[11],q[16];\nx q[17];\nh q[2];\nswap q[14],q[1];\ny q[9];\ns q[13];\nsdg q[1];\ncx q[14],q[5];\ncy q[6],q[15];\nh q[1];\ncx q[4],q[18];\ns q[5];\nsdg q[0];\nsdg q[7];\nx q[11];\nx q[3];\ncy q[3],q[11];\nsdg q[1];\ncy q[15],q[18];\ncx q[12],q[5];\nswap q[7],q[18];\nh q[0];\ncy q[16],q[13];\ncx q[16],q[3];\ncy q[12],q[7];\ncz q[17],q[10];\nz q[5];\ny q[6];\nh q[14];\nswap q[0],q[8];\nz q[6];\ncz q[19],q[7];\ny q[15];\nswap q[5],q[9];\ncz q[11],q[14];\nh q[18];\ncx q[12],q[14];\ns q[4];\nsdg q[19];\nz q[13];\nsdg q[14];\ncx q[3],q[18];\nsdg q[11];\ny q[0];\ncz q[11],q[19];\nh q[7];\ncx q[14],q[18];\ns q[4];\nx q[12];\ncx q[11],q[19];\nx q[0];\ns q[0];\ny q[11];\nx q[1];\ns q[7];\ncx q[1],q[12];\nsdg q[4];\nx q[15];\nx q[12];\ncx q[16],q[0];\ns q[9];\ncy q[14],q[6];\ncx q[15],q[11];\ns q[8];\ncy q[16],q[3];\ncx q[18],q[14];\ncy q[14],q[3];\nz q[1];\nswap q[3],q[14];\ncx q[18],q[16];\nsdg q[3];\ny q[15];\ncz q[7],q[6];\nsdg q[12];\nsdg q[10];\ncz q[13],q[1];\ncz q[15],q[19];\ncy q[11],q[12];\ncz q[7],q[10];\nsdg q[16];\nswap q[7],q[19];\ncx q[11],q[7];\nx q[5];\ncz q[10],q[12];\nsdg q[9];\ns q[7];\ny q[19];\ny q[7];\ncy q[2],q[14];\ny q[4];\ncz q[14],q[3];\ncx q[16],q[7];\ny q[18];\nh q[19];\ns q[4];\nsdg q[13];\nx q[9];\ncy q[4],q[2];\ncy q[8],q[11];\ncz q[3],q[8];\nswap q[6],q[11];\nx q[15];\nx q[2];\ns q[4];\nsdg q[10];\ncz q[13],q[7];\nh q[7];\ns q[8];\ncz q[9],q[6];\ncz q[6],q[2];\ncx q[7],q[3];\ns q[5];\ncy q[11],q[2];\ncz q[8],q[2];\ncx q[7],q[1];\ny q[19];\ny q[14];\ncz q[7],q[17];\nh q[11];\ncx q[13],q[8];\ns q[16];\nswap q[17],q[12];\nswap q[0],q[11];\ncx q[9],q[8];\ncx q[7],q[11];\nz q[9];\nz q[10];\nsdg q[18];\ns q[7];\nh q[6];\nsdg q[6];\ns q[5];\nsdg q[16];\ny q[12];\ns q[14];\nh q[6];\ny q[15];\ncy q[1],q[5];\nswap q[14],q[2];\ns q[19];\nswap q[18],q[6];\ncz q[13],q[8];\ns q[10];\ns q[3];\nz q[6];\ncy q[0],q[2];\nh q[3];\nh q[5];\ns q[12];\nx q[15];\ncy q[6],q[10];\nsdg q[16];\ncz q[5],q[11];\nh q[7];\ncx q[17],q[7];\ns q[18];\ncx q[3],q[4];\ny q[6];\nswap q[3],q[10];\ncx q[5],q[18];\nh q[17];\ncy q[11],q[15];\nswap q[0],q[6];\ns q[18];\ncx q[15],q[5];\ny q[12];\nsdg q[18];\nx q[14];\nx q[10];\nh q[13];\ny q[0];\nz q[6];\nz q[11];\ncz q[11],q[7];\ncx q[7],q[18];\nz q[0];\ny q[17];\ncy q[3],q[18];\ncy q[2],q[4];\ny q[7];\ncy q[10],q[14];\nz q[10];\ncx q[13],q[0];\ny q[5];\nx q[18];\ncy q[16],q[13];\ncx q[4],q[7];\nswap q[12],q[2];\ncx q[2],q[11];\ny q[3];\ny q[0];\ns q[17];\nz q[15];\ny q[0];\nsdg q[11];\ny q[15];\nh q[4];\ncx q[1],q[15];\nx q[9];\ncx q[15],q[19];\nsdg q[5];\nsdg q[7];\ncz q[12],q[0];\nz q[12];\ny q[15];\nh q[3];\nh q[10];\ncz q[18],q[1];\ncx q[19],q[7];\ny q[6];\ns q[19];\nh q[13];\ncz q[18],q[13];\nswap q[18],q[2];\ncx q[16],q[4];\nz q[5];\ny q[11];\nx q[9];\nsdg q[5];\nswap q[16],q[9];\nswap q[4],q[6];\nsdg q[3];\ncy q[19],q[9];\nz q[9];\nswap q[10],q[8];\nswap q[10],q[16];\ncy q[1],q[10];\nsdg q[12];\ny q[11];\nh q[16];\ncz q[2],q[1];\nh q[11];\ncz q[11],q[14];\ncy q[10],q[6];\ns q[17];\nswap q[4],q[7];\ncy q[2],q[17];\ncx q[11],q[10];\nz q[7];\nx q[3];\nx q[9];\nh q[12];\ncz q[16],q[7];\ncy q[14],q[11];\nswap q[0],q[5];\nsdg q[10];\ncy q[17],q[4];\ns q[0];\ns q[12];\nz q[2];\nsdg q[7];\ncy q[14],q[5];\nz q[15];\ncz q[7],q[6];\nx q[2];\ns q[3];\nh q[2];\ncz q[5],q[7];\ncz q[8],q[13];\ncx q[2],q[13];\ncx q[14],q[5];\ny q[13];\ncy q[8],q[17];\ncy q[13],q[6];\nx q[13];\nswap q[9],q[3];\ns q[0];\nswap q[7],q[2];\ncx q[0],q[19];\nswap q[19],q[9];\nh q[7];\nswap q[15],q[19];\nx q[11];\nswap q[9],q[14];\nsdg q[16];\ncx q[1],q[14];\nz q[4];\nswap q[1],q[16];\ncx q[19],q[0];\ns q[15];\nsdg q[11];\nx q[3];\nswap q[1],q[16];\ncz q[12],q[11];\ny q[10];\nh q[10];\nz q[13];\ncy q[9],q[17];\nswap q[10],q[12];\ns q[13];\ncy q[11],q[16];\nx q[19];\nx q[1];\nswap q[12],q[2];\ns q[5];\ns q[16];\nz q[10];\nz q[6];\nx q[10];\nswap q[12],q[11];\nsdg q[7];\nswap q[3],q[2];\ncz q[3],q[2];\ncz q[0],q[19];\nsdg q[18];\nx q[12];\nswap q[18],q[14];\nz q[15];\ncx q[6],q[1];\ncx q[18],q[9];\ny q[1];\nz q[16];\nx q[1];\ns q[14];\ncy q[5],q[3];\ncz q[3],q[9];\ny q[8];\nh q[6];\nz q[18];\ny q[12];\nh q[7];\ncx q[12],q[4];\ncx q[2],q[14];\nx q[0];\ny q[8];\nswap q[13],q[14];\nh q[14];\ncy q[12],q[1];\nswap q[4],q[0];\ns q[3];\nh q[4];\ny q[17];\nswap q[16],q[18];\nz q[19];\ns q[16];\nz q[11];\nx q[9];\ncx q[14],q[11];\nz q[4];\nz q[14];\nz q[9];\nz q[17];\ncz q[7],q[0];\ncx q[17],q[13];\ncz q[7],q[15];\ncx q[15],q[4];\ny q[9];\nz q[8];\ncz q[17],q[19];\nz q[18];\nsdg q[5];\nswap q[13],q[8];\nz q[4];\nsdg q[8];\ncx q[15],q[4];\nh q[2];\nsdg q[16];\nz q[11];\ns q[18];\nh q[10];\nsdg q[10];\ncx q[9],q[0];\ncx q[16],q[2];\nh q[1];\ncx q[10],q[17];\ny q[13];\ncz q[8],q[18];\nsdg q[12];\ncx q[11],q[7];\nz q[12];\nz q[10];\nswap q[3],q[15];\nh q[4];\ny q[7];\ns q[14];\ny q[1];\ncx q[4],q[14];\nx q[18];\nsdg q[8];\ns q[6];\nswap q[14],q[7];\ncz q[6],q[11];\nx q[0];\nx q[1];\ns q[14];\nsdg q[3];\ny q[3];\ncy q[14],q[11];\nsdg q[3];\ncx q[2],q[11];\ncz q[5],q[4];\ncz q[2],q[12];\ncy q[15],q[7];\nsdg q[18];\ncz q[17],q[14];\ncy q[11],q[1];\ncy q[18],q[12];\nx q[18];\ny q[2];\ns q[17];\ncz q[15],q[7];\ncx q[5],q[18];\nsdg q[16];\nsdg q[4];\nsdg q[13];\nz q[6];\ns q[14];\ny q[18];\nh q[17];\ny q[14];\ny q[18];\nswap q[14],q[11];\nz q[4];\ncy q[12],q[15];\ncy q[9],q[16];\nswap q[9],q[7];\nh q[0];\ncx q[17],q[7];\nsdg q[0];\ny q[16];\nz q[19];\nx q[5];\ncz q[13],q[8];\ncx q[9],q[15];\ny q[12];\ncz q[8],q[5];\nswap q[17],q[11];\nh q[0];\ncy q[19],q[18];\nz q[11];\nx q[5];\ncy q[8],q[14];\nz q[8];\nh q[4];\nsdg q[6];\nsdg q[15];\nswap q[11],q[13];\ns q[14];\ncz q[12],q[18];\nh q[16];\nswap q[2],q[8];\ncz q[4],q[8];\ny q[0];\ncy q[18],q[0];\nz q[0];\nx q[6];\nswap q[16],q[6];\ncx q[19],q[0];\nsdg q[3];\ny q[15];\nx q[3];\nsdg q[2];\ny q[16];\ny q[12];\nsdg q[2];\nx q[13];\nsdg q[1];\nh q[11];\nx q[8];\nsdg q[11];\ncx q[12],q[8];\nz q[11];\ns q[16];\nsdg q[1];\ncz q[14],q[16];\nh q[3];\ny q[15];\ny q[8];\nsdg q[19];\nz q[14];\nz q[14];\nsdg q[14];\nsdg q[16];\ny q[17];\nx q[17];\nswap q[2],q[0];\ncz q[3],q[14];\ncy q[3],q[13];\nx q[2];\nswap q[16],q[9];\nsdg q[11];\ncy q[19],q[10];\ncy q[0],q[17];\ny q[7];\nh q[14];\ncy q[12],q[3];\ncz q[0],q[17];\ncy q[6],q[0];\nz q[5];\nz q[19];\ns q[19];\ncy q[10],q[19];\ncy q[18],q[13];\ny q[8];\ns q[3];\nx q[10];\nh q[0];\ncz q[9],q[10];\nswap q[6],q[16];\ncz q[19],q[16];\ncy q[0],q[3];\ncy q[4],q[11];\nswap q[5],q[15];\nz q[8];\ny q[13];\nx q[17];\nsdg q[15];\ncz q[3],q[0];\nswap q[10],q[0];\nz q[5];\nh q[9];\nx q[9];\ns q[4];\ncx q[11],q[12];\ny q[9];\nh q[17];\nz q[19];\ns q[3];\nh q[15];\nswap q[9],q[14];\ncz q[16],q[6];\nz q[2];\nx q[16];\ncz q[11],q[9];\nswap q[19],q[15];\nh q[3];\nh q[14];\ncz q[16],q[2];\ny q[4];\nx q[7];\nswap q[13],q[9];\nh q[16];\ncz q[11],q[14];\nh q[14];\nsdg q[3];\ns q[3];\ncz q[3],q[19];\ny q[8];\ny q[18];\nz q[17];\nsdg q[17];\ncx q[12],q[2];\nz q[13];\nx q[13];\nsdg q[17];\nz q[8];\ny q[12];\ncz q[13],q[11];\ns q[2];\ncx q[2],q[6];\ny q[1];\nswap q[9],q[4];\nx q[13];\nh q[14];\ns q[13];\ns q[2];\nswap q[15],q[6];\nsdg q[15];\ncz q[11],q[0];\nsdg q[2];\ncz q[15],q[10];\ncz q[14],q[13];\ncx q[16],q[8];\nswap q[0],q[12];\ns q[13];\ncz q[5],q[3];\ncy q[10],q[5];\nz q[0];\nh q[2];\ns q[10];\ncz q[3],q[17];\ny q[12];\ny q[11];\ns q[1];\nsdg q[6];\ny q[10];\ns q[3];\ny q[10];\ncx q[4],q[11];\ns q[0];\ns q[15];\ns q[14];\nh q[1];\nsdg q[12];\ncy q[2],q[6];\ncz q[5],q[8];\nsdg q[8];\ncx q[2],q[8];\ny q[0];\ncy q[2],q[13];\ncy q[2],q[18];\nz q[1];\nh q[1];\ncy q[14],q[18];\nh q[1];\nswap q[3],q[2];\ns q[15];\nswap q[5],q[18];\ncx q[13],q[4];\ncx q[17],q[9];\nz q[4];\nsdg q[15];\nx q[3];\ns q[12];\ncy q[5],q[7];\ncz q[4],q[12];\nsdg q[1];\nz q[6];\ncz q[16],q[12];\nswap q[1],q[4];\ncz q[17],q[8];\ncy q[15],q[18];\nz q[2];\nsdg q[19];\nz q[9];\ncy q[6],q[19];\ns q[8];\ncz q[14],q[8];\ncy q[16],q[4];\ncz q[10],q[12];\nz q[13];\nswap q[0],q[2];\ns q[1];\ncx q[5],q[18];\nh q[17];\ncz q[13],q[19];\nh q[19];\ny q[9];\ns q[7];\nh q[14];\ncy q[5],q[14];\ncz q[4],q[13];\nx q[16];\ncz q[6],q[7];\ncy q[11],q[15];\nswap q[0],q[16];\nswap q[4],q[19];\ncz q[16],q[17];\ncz q[10],q[5];\nh q[2];\ns q[17];\ncy q[3],q[5];\ncz q[1],q[2];\ncz q[8],q[6];\ns q[11];\nsdg q[3];\nx q[18];\nswap q[4],q[17];\nx q[2];\ncy q[17],q[13];\nh q[19];\ncx q[12],q[18];\ns q[6];\nswap q[11],q[12];\ncx q[5],q[4];\ns q[5];\nsdg q[17];\nh q[5];\ny q[17];\nz q[8];\ns q[1];\nsdg q[17];\ny q[2];\nswap q[16],q[3];\ny q[10];\ncz q[2],q[6];\ns q[12];\ncx q[5],q[18];\nz q[2];\ny q[12];\ncz q[19],q[6];\nx q[8];\ns q[13];\nh q[2];\nswap q[7],q[15];\nsdg q[0];\ncy q[19],q[11];\ncy q[1],q[5];\ny q[5];\nx q[18];\nswap q[5],q[7];\nsdg q[4];\nsdg q[14];\ns q[8];\ns q[17];\nh q[2];\nh q[8];\nz q[11];\ncx q[9],q[7];\nswap q[12],q[5];\ns q[11];\ny q[11];\nswap q[0],q[17];\ns q[11];\nsdg q[19];\nh q[12];\ncx q[0],q[2];\ncy q[6],q[5];\nswap q[5],q[15];\nx q[19];\nx q[10];\nswap q[7],q[11];\ns q[7];\ncz q[1],q[10];\ncz q[4],q[17];\ncy q[15],q[14];\ns q[9];\nswap q[18],q[5];\ncx q[6],q[12];\ncy q[7],q[11];\ny q[7];\nz q[5];\nsdg q[7];\nh q[9];\ny q[2];\nx q[10];\nz q[9];\ns q[4];\ns q[7];\nswap q[9],q[16];\nswap q[16],q[3];\nz q[14];\nx q[14];\nh q[11];\ny q[15];\nsdg q[5];\nswap q[0],q[9];\ny q[19];\nswap q[4],q[18];\nh q[10];\nh q[11];\ncx q[4],q[8];\ncx q[6],q[2];\nswap q[16],q[13];\ncy q[10],q[17];\ncz q[8],q[7];\ncz q[8],q[17];\ny q[14];\nx q[0];\ns q[4];\nsdg q[4];\nsdg q[14];\nz q[15];\ncz q[19],q[15];\nh q[5];\ncx q[8],q[0];\ncx q[14],q[10];\ncx q[8],q[4];\nh q[8];\nz q[19];\nsdg q[3];\nswap q[18],q[10];\nsdg q[13];\ny q[12];\nx q[16];\nsdg q[11];\ncz q[3],q[2];\ns q[19];\ns q[16];\ncy q[8],q[1];\ncx q[17],q[8];\ncy q[14],q[1];\nh q[14];\ncy q[0],q[5];\ncz q[9],q[8];\nh q[14];\nx q[8];\ncx q[9],q[12];\nx q[1];\ns q[14];\ncz q[6],q[18];\ny q[9];\ncz q[12],q[4];\nswap q[13],q[2];\nx q[12];\ncy q[1],q[9];\nswap q[6],q[15];\ny q[1];\ny q[12];\ncz q[9],q[19];\ny q[14];\nh q[17];\ns q[7];\nsdg q[1];\nz q[7];\nsdg q[14];\nx q[1];\nh q[13];\ny q[0];\nz q[7];\nz q[13];\nx q[6];\ncy q[14],q[1];\nx q[6];\ns q[7];\nswap q[0],q[8];\nz q[17];\ns q[7];\nz q[8];\nz q[3];\ncy q[18],q[8];\ncz q[16],q[7];\nswap q[7],q[9];\nx q[4];\nz q[16];\ncy q[1],q[14];\ncx q[0],q[17];\ny q[4];\nswap q[3],q[17];\nh q[12];\nswap q[13],q[1];\ns q[0];\ncz q[15],q[10];\nswap q[16],q[10];\nz q[7];\nsdg q[19];\nh q[16];\ncx q[14],q[3];\nh q[5];\nswap q[13],q[8];\ncx q[7],q[12];\nx q[3];\ny q[11];\ns q[19];\nswap q[12],q[3];\nx q[5];\nh q[13];\nswap q[0],q[6];\nz q[7];\ns q[5];\nsdg q[4];\nh q[4];\ncx q[4],q[18];\nswap q[14],q[5];\ny q[2];\nx q[3];\ncy q[4],q[5];\nz q[11];\nswap q[3],q[14];\ncy q[10],q[9];\nx q[11];\ncz q[12],q[14];\nz q[3];\nz q[1];\nswap q[12],q[16];\nswap q[16],q[10];\nsdg q[0];\nh q[11];\nswap q[16],q[12];\nsdg q[13];\ncy q[9],q[3];\ncz q[3],q[1];\nx q[16];\ny q[6];\nsdg q[17];\nx q[5];\nh q[11];\nsdg q[1];\ncz q[18],q[4];\nswap q[5],q[11];\ncz q[3],q[0];\ns q[15];\ncx q[4],q[19];\ncz q[4],q[5];\ncz q[17],q[0];\nh q[8];\nsdg q[11];\ny q[12];\ns q[15];\ncy q[17],q[9];\ns q[2];\ns q[0];\ns q[2];\nx q[15];\nswap q[1],q[10];\nz q[1];\nx q[10];\ny q[6];\nswap q[13],q[3];\ny q[0];\ny q[8];\ns q[7];\ncx q[8],q[0];\ncx q[10],q[14];\ny q[8];\ns q[4];\nx q[7];\ny q[16];\ny q[13];\nswap q[5],q[1];\nh q[14];\nswap q[0],q[4];\nh q[3];\nswap q[3],q[16];\nx q[12];\nx q[11];\ncx q[15],q[10];\ncz q[14],q[13];\nh q[7];\ny q[6];\ncz q[4],q[0];\nsdg q[9];\nh q[0];\nz q[6];\ncz q[6],q[12];\nsdg q[9];\nx q[9];\nsdg q[1];\ncy q[9],q[18];\ny q[11];\ncy q[5],q[14];\ns q[12];\ny q[6];\ncz q[5],q[19];\ny q[2];\nswap q[1],q[4];\ns q[10];\nz q[15];\ny q[13];\nz q[6];\nh q[3];\ny q[10];\nz q[9];\nswap q[4],q[14];\ny q[7];\ncx q[2],q[12];\nsdg q[14];\ns q[4];\nh q[2];\ns q[7];\ncz q[18],q[7];\nz q[14];\nh q[17];\ncx q[2],q[15];\nsdg q[8];\ncy q[13],q[0];\ny q[5];\nh q[19];\ny q[2];\nswap q[16],q[15];\nx q[18];\ny q[11];\ns q[2];\nswap q[18],q[16];\ny q[12];\nz q[9];\ny q[4];\ny q[17];\nsdg q[5];\ncx q[16],q[13];\nsdg q[14];\nz q[7];\nh q[3];\ny q[7];\nx q[12];\nz q[12];\ns q[3];\nx q[1];\ncx q[5],q[10];\ny q[2];\nh q[7];\nh q[11];\ny q[4];\ny q[12];\nswap q[10],q[8];\nswap q[13],q[11];\nz q[6];\nsdg q[14];\nx q[2];\nz q[8];\ny q[17];\nx q[4];\ny q[1];\ncy q[7],q[14];\ns q[9];\ns q[11];\nx q[1];\nswap q[14],q[7];\ncx q[5],q[13];\ncz q[1],q[7];\nh q[0];\ncz q[7],q[2];\nsdg q[7];\ncz q[18],q[3];\nswap q[0],q[13];\nswap q[11],q[8];\nz q[10];\nz q[8];\nz q[18];\nz q[16];\nz q[14];\nsdg q[12];\ns q[12];\ncy q[1],q[9];\ncz q[2],q[11];\nz q[5];\ncy q[0],q[16];\nsdg q[14];\nz q[12];\ncy q[3],q[18];\nsdg q[5];\ncy q[0],q[19];\ns q[9];\nz q[4];\ncz q[16],q[5];\ns q[11];\ncy q[2],q[18];\ncx q[1],q[3];\nz q[16];\ncx q[5],q[11];\nsdg q[3];\ncx q[13],q[18];\ny q[0];\ncz q[0],q[18];\nx q[16];\nz q[14];\ncz q[2],q[18];\ncz q[3],q[4];\ncz q[1],q[17];\ny q[4];\nswap q[18],q[8];\nz q[18];\ns q[18];\ns q[7];\ncz q[6],q[11];\ns q[9];\nx q[0];\nh q[10];\nh q[10];\ns q[0];\nsdg q[15];\nh q[7];\nsdg q[4];\nh q[10];\ny q[6];\ns q[5];\ns q[3];\nx q[9];\ny q[10];\nsdg q[9];\nswap q[1],q[19];\nsdg q[12];\ns q[5];\nswap q[8],q[12];\ny q[5];\ny q[11];\nswap q[0],q[8];\ncx q[19],q[2];\nz q[5];\ns q[11];\nh q[5];\nsdg q[10];\ncx q[17],q[11];\ncz q[4],q[0];\nswap q[7],q[14];\nz q[5];\nz q[0];\ns q[15];\nh q[16];\nz q[1];\nswap q[3],q[15];\nh q[4];\ncz q[10],q[13];\ncy q[8],q[1];\ncz q[7],q[10];\nx q[7];\nx q[15];\nsdg q[15];\nswap q[7],q[9];\ncy q[8],q[10];\ncx q[12],q[3];\nswap q[5],q[0];\ncy q[1],q[11];\nh q[13];\nh q[10];\nx q[3];\nx q[7];\ns q[0];\nx q[10];\nz q[5];\ncy q[16],q[13];\ns q[13];\nswap q[17],q[4];\ny q[14];\ny q[12];\nh q[18];\ncz q[14],q[10];\nh q[11];\ny q[6];\ncz q[14],q[1];\nsdg q[12];\ncx q[12],q[1];\nx q[0];\nx q[4];\ncz q[0],q[11];\nsdg q[4];\nswap q[6],q[19];\ncz q[12],q[19];\nh q[9];\ny q[0];\ny q[16];\nx q[17];\nsdg q[18];\ncy q[6],q[13];\nsdg q[19];\ny q[12];\ny q[5];\nswap q[16],q[18];\nz q[10];\nh q[0];\nx q[5];\ncz q[0],q[8];\nswap q[5],q[3];\ny q[9];\nx q[4];\nh q[4];\nswap q[10],q[2];\nswap q[1],q[9];\ny q[0];\ncx q[14],q[15];\nh q[3];\ncz q[5],q[7];\nsdg q[19];\nsdg q[18];\nsdg q[8];\nswap q[9],q[2];\ncy q[3],q[7];\nsdg q[6];\nswap q[1],q[13];\nx q[8];\nh q[19];\ny q[8];\nswap q[19],q[6];\ns q[2];\ny q[6];\nswap q[14],q[10];\ncx q[11],q[16];\ncy q[1],q[17];\nsdg q[4];\ns q[10];\ns q[18];\nx q[19];\ns q[7];\nsdg q[16];\ncz q[7],q[0];\ns q[16];\ncz q[17],q[11];\nh q[13];\nx q[10];\ncy q[15],q[1];\nsdg q[14];\ny q[7];\ncx q[19],q[16];\nh q[4];\ncx q[1],q[19];\ncx q[5],q[7];\ns q[0];\ncz q[14],q[5];\ns q[12];\nh q[3];\ny q[8];\ns q[17];\nx q[11];\nz q[7];\ncz q[4],q[1];\ny q[19];\ncz q[2],q[6];\nswap q[17],q[6];\ncz q[5],q[3];\ny q[6];\ncy q[7],q[18];\ncy q[1],q[15];\nsdg q[1];\ncz q[11],q[14];\ny q[18];\nz q[19];\nz q[17];\nswap q[7],q[8];\nh q[17];\ncy q[1],q[14];\nswap q[17],q[16];\ny q[8];\nx q[7];\nsdg q[0];\nsdg q[14];\nz q[1];\nz q[6];\ncz q[15],q[12];\ncy q[19],q[1];\nz q[7];\ncz q[15],q[0];\ny q[6];\nswap q[0],q[5];\nx q[15];\nswap q[0],q[17];\ncy q[18],q[3];\ncz q[19],q[15];\nh q[15];\nswap q[11],q[8];\nsdg q[0];\ncy q[2],q[0];\ns q[2];\nsdg q[6];\nh q[7];\ncz q[7],q[15];\nz q[11];\ny q[8];\nsdg q[9];\ns q[11];\nswap q[5],q[13];\nswap q[9],q[17];\ncz q[8],q[5];\ncz q[4],q[2];\ny q[4];\nz q[0];\nh q[18];\nx q[19];\ncx q[15],q[19];\nx q[13];\ncx q[17],q[7];\ncx q[19],q[10];\nx q[13];\nh q[18];\ncz q[1],q[7];\ncy q[18],q[7];\nswap q[11],q[3];\ns q[16];\nsdg q[9];\nh q[2];\ns q[19];\nswap q[10],q[2];\nswap q[8],q[14];\nh q[14];\ncy q[13],q[5];\nswap q[11],q[5];\ncy q[12],q[13];\nx q[0];\ns q[15];\nx q[0];\ncz q[0],q[2];\nswap q[10],q[3];\nswap q[7],q[5];\ncy q[14],q[9];\ns q[5];\ncz q[11],q[5];\nz q[0];\nsdg q[7];\nz q[3];\ncy q[10],q[19];\ncx q[1],q[8];\nswap q[6],q[11];\nh q[18];\nswap q[19],q[17];\ncz q[11],q[9];\nz q[7];\nswap q[10],q[16];\ncz q[5],q[18];\nz q[4];\nsdg q[18];\nh q[0];\ncz q[19],q[18];\ncz q[2],q[13];\nz q[8];\nh q[8];\nsdg q[17];\nh q[9];\ncy q[17],q[0];\ns q[7];\ncy q[5],q[16];\ncy q[7],q[8];\nsdg q[16];\nsdg q[7];\nz q[10];\ncy q[9],q[4];\ncz q[4],q[8];\ncx q[9],q[10];\ncz q[3],q[11];\ny q[4];\nh q[5];\nswap q[2],q[5];\nsdg q[13];\nx q[16];\ny q[14];\nz q[16];\ns q[7];\nz q[7];\nswap q[9],q[19];\nz q[10];\ncx q[3],q[9];\nz q[2];\ncy q[8],q[5];\nh q[11];\ncy q[5],q[10];\nx q[17];\ns q[2];\nh q[7];\ncz q[10],q[14];\nswap q[12],q[13];\nx q[13];\nsdg q[15];\nh q[4];\ncx q[3],q[10];\ncy q[14],q[1];\ncx q[19],q[10];\nz q[1];\nswap q[5],q[2];\nz q[0];\ncz q[17],q[14];\nh q[14];\nh q[6];\nh q[16];\nsdg q[4];\nh q[6];\ncy q[8],q[4];\ny q[4];\nx q[8];\nh q[19];\ncz q[12],q[8];\ncx q[12],q[15];\nh q[9];\ncx q[2],q[15];\nswap q[0],q[15];\ns q[10];\nx q[12];\nz q[4];\ncz q[6],q[13];\nswap q[10],q[15];\nsdg q[13];\nz q[2];\ns q[5];\nsdg q[6];\ncx q[12],q[11];\nh q[4];\ny q[10];\nz q[4];\nx q[5];\ns q[1];\nz q[17];\nz q[18];\ny q[13];\nx q[12];\ny q[1];\nx q[1];\nz q[15];\ncy q[3],q[5];\nsdg q[18];\nz q[5];\nh q[1];\nswap q[9],q[19];\ncx q[10],q[12];\ncx q[3],q[0];\nsdg q[1];\nh q[5];\nsdg q[9];\ny q[2];\ny q[7];\nz q[9];\ny q[13];\ns q[15];\nx q[9];\ncy q[13],q[14];\ny q[9];\nswap q[17],q[1];\nz q[15];\nh q[17];\nswap q[4],q[8];\ncy q[1],q[16];\ns q[13];\nswap q[15],q[17];\ns q[16];\nh q[7];\nsdg q[0];\ncy q[2],q[10];\nx q[3];\ncz q[2],q[12];\ncx q[6],q[14];\ncz q[2],q[16];\ncx q[4],q[9];\ncz q[4],q[19];\ns q[10];\ncy q[3],q[13];\nh q[6];\ncx q[5],q[12];\ncx q[19],q[4];\ncx q[11],q[16];\nh q[1];\nz q[0];\ncz q[17],q[9];\ns q[5];\ncz q[10],q[0];\ns q[1];\ns q[4];\nx q[7];\ncx q[7],q[0];\nx q[2];\ncy q[9],q[8];\nsdg q[14];\ncx q[9],q[18];\nz q[6];\ncy q[18],q[4];\ns q[0];\nsdg q[9];\nsdg q[16];\ncy q[15],q[17];\ny q[6];\nz q[2];\nh q[2];\ny q[18];\ny q[18];\nswap q[3],q[15];\nsdg q[19];\nx q[7];\nz q[11];\ns q[2];\nh q[3];\nsdg q[5];\nz q[11];\nx q[0];\ncz q[13],q[16];\nz q[8];\nz q[13];\ncz q[3],q[15];\ncy q[14],q[3];\ny q[12];\nsdg q[3];\nz q[5];\nh q[18];\nx q[14];\nsdg q[18];\nz q[10];\nx q[4];\ncy q[1],q[16];\nx q[15];\ny q[16];\nsdg q[0];\nz q[2];\ncz q[8],q[16];\ns q[3];\nz q[2];\ncz q[14],q[8];\ncy q[3],q[1];\ncx q[5],q[2];\ncz q[14],q[11];\nsdg q[13];\nsdg q[12];\ncy q[15],q[12];\ncz q[7],q[18];\ncx q[19],q[5];\nswap q[12],q[16];\nx q[1];\nx q[13];\nz q[18];\ncy q[5],q[10];\ny q[0];\nsdg q[7];\nz q[8];\nh q[7];\ncy q[18],q[4];\ncx q[12],q[2];\nx q[16];\nsdg q[4];\nz q[10];\nx q[9];\nx q[14];\nz q[18];\ns q[16];\nx q[17];\ncz q[6],q[17];\nx q[15];\nswap q[10],q[6];\nx q[15];\n",
+      "qasm_sha256": "2bf9c57c38e18dda952cd8f2878fc35605d20383ab2631acd6ed101aa335f4b4",
+      "source": {
+        "expanded": {
+          "definition_expansions": {},
+          "expanded_source_gate_count": 4000,
+          "global_phase": "discarded only as a whole-circuit equivalence convention"
+        },
+        "id": "clifford20",
+        "input_gate_counts": {
+          "cx": 381,
+          "cy": 402,
+          "cz": 402,
+          "h": 396,
+          "s": 391,
+          "sdg": 394,
+          "swap": 416,
+          "x": 411,
+          "y": 417,
+          "z": 390
+        },
+        "n_logical": 20,
+        "qasm_file": "clifford20.qasm",
+        "qasm_sha256": "2bf9c57c38e18dda952cd8f2878fc35605d20383ab2631acd6ed101aa335f4b4",
+        "raw_sha256": "2bf9c57c38e18dda952cd8f2878fc35605d20383ab2631acd6ed101aa335f4b4",
+        "removed": {
+          "barriers": 0,
+          "terminal_measurements": 0
+        },
+        "source_path": "benchpress/qasm/clifford/clifford_20_12345.qasm"
+      },
+      "target_kind": "Benchpress FlexibleBackend topology; no calibration used in matched extension",
+      "topology": "heavy_hex"
+    },
+    {
+      "edges": [
+        [
+          0,
+          1
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          11
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          12
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          13
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          4,
+          14
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          5,
+          15
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          16
+        ],
+        [
+          7,
+          8
+        ],
+        [
+          7,
+          17
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          8,
+          18
+        ],
+        [
+          9,
+          19
+        ],
+        [
+          10,
+          11
+        ],
+        [
+          10,
+          20
+        ],
+        [
+          11,
+          12
+        ],
+        [
+          11,
+          21
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          12,
+          22
+        ],
+        [
+          13,
+          14
+        ],
+        [
+          13,
+          23
+        ],
+        [
+          14,
+          15
+        ],
+        [
+          14,
+          24
+        ],
+        [
+          15,
+          16
+        ],
+        [
+          15,
+          25
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          16,
+          26
+        ],
+        [
+          17,
+          18
+        ],
+        [
+          17,
+          27
+        ],
+        [
+          18,
+          19
+        ],
+        [
+          18,
+          28
+        ],
+        [
+          19,
+          29
+        ],
+        [
+          20,
+          21
+        ],
+        [
+          20,
+          30
+        ],
+        [
+          21,
+          22
+        ],
+        [
+          21,
+          31
+        ],
+        [
+          22,
+          23
+        ],
+        [
+          22,
+          32
+        ],
+        [
+          23,
+          24
+        ],
+        [
+          23,
+          33
+        ],
+        [
+          24,
+          25
+        ],
+        [
+          24,
+          34
+        ],
+        [
+          25,
+          26
+        ],
+        [
+          25,
+          35
+        ],
+        [
+          26,
+          27
+        ],
+        [
+          26,
+          36
+        ],
+        [
+          27,
+          28
+        ],
+        [
+          27,
+          37
+        ],
+        [
+          28,
+          29
+        ],
+        [
+          28,
+          38
+        ],
+        [
+          29,
+          39
+        ],
+        [
+          30,
+          31
+        ],
+        [
+          30,
+          40
+        ],
+        [
+          31,
+          32
+        ],
+        [
+          31,
+          41
+        ],
+        [
+          32,
+          33
+        ],
+        [
+          32,
+          42
+        ],
+        [
+          33,
+          34
+        ],
+        [
+          33,
+          43
+        ],
+        [
+          34,
+          35
+        ],
+        [
+          34,
+          44
+        ],
+        [
+          35,
+          36
+        ],
+        [
+          35,
+          45
+        ],
+        [
+          36,
+          37
+        ],
+        [
+          36,
+          46
+        ],
+        [
+          37,
+          38
+        ],
+        [
+          37,
+          47
+        ],
+        [
+          38,
+          39
+        ],
+        [
+          38,
+          48
+        ],
+        [
+          39,
+          49
+        ],
+        [
+          40,
+          41
+        ],
+        [
+          40,
+          50
+        ],
+        [
+          41,
+          42
+        ],
+        [
+          41,
+          51
+        ],
+        [
+          42,
+          43
+        ],
+        [
+          42,
+          52
+        ],
+        [
+          43,
+          44
+        ],
+        [
+          43,
+          53
+        ],
+        [
+          44,
+          45
+        ],
+        [
+          44,
+          54
+        ],
+        [
+          45,
+          46
+        ],
+        [
+          45,
+          55
+        ],
+        [
+          46,
+          47
+        ],
+        [
+          46,
+          56
+        ],
+        [
+          47,
+          48
+        ],
+        [
+          47,
+          57
+        ],
+        [
+          48,
+          49
+        ],
+        [
+          48,
+          58
+        ],
+        [
+          49,
+          59
+        ],
+        [
+          50,
+          51
+        ],
+        [
+          50,
+          60
+        ],
+        [
+          51,
+          52
+        ],
+        [
+          51,
+          61
+        ],
+        [
+          52,
+          53
+        ],
+        [
+          52,
+          62
+        ],
+        [
+          53,
+          54
+        ],
+        [
+          53,
+          63
+        ],
+        [
+          54,
+          55
+        ],
+        [
+          54,
+          64
+        ],
+        [
+          55,
+          56
+        ],
+        [
+          55,
+          65
+        ],
+        [
+          56,
+          57
+        ],
+        [
+          56,
+          66
+        ],
+        [
+          57,
+          58
+        ],
+        [
+          57,
+          67
+        ],
+        [
+          58,
+          59
+        ],
+        [
+          58,
+          68
+        ],
+        [
+          59,
+          69
+        ],
+        [
+          60,
+          61
+        ],
+        [
+          60,
+          70
+        ],
+        [
+          61,
+          62
+        ],
+        [
+          61,
+          71
+        ],
+        [
+          62,
+          63
+        ],
+        [
+          62,
+          72
+        ],
+        [
+          63,
+          64
+        ],
+        [
+          63,
+          73
+        ],
+        [
+          64,
+          65
+        ],
+        [
+          64,
+          74
+        ],
+        [
+          65,
+          66
+        ],
+        [
+          65,
+          75
+        ],
+        [
+          66,
+          67
+        ],
+        [
+          66,
+          76
+        ],
+        [
+          67,
+          68
+        ],
+        [
+          67,
+          77
+        ],
+        [
+          68,
+          69
+        ],
+        [
+          68,
+          78
+        ],
+        [
+          69,
+          79
+        ],
+        [
+          70,
+          71
+        ],
+        [
+          70,
+          80
+        ],
+        [
+          71,
+          72
+        ],
+        [
+          71,
+          81
+        ],
+        [
+          72,
+          73
+        ],
+        [
+          72,
+          82
+        ],
+        [
+          73,
+          74
+        ],
+        [
+          73,
+          83
+        ],
+        [
+          74,
+          75
+        ],
+        [
+          74,
+          84
+        ],
+        [
+          75,
+          76
+        ],
+        [
+          75,
+          85
+        ],
+        [
+          76,
+          77
+        ],
+        [
+          76,
+          86
+        ],
+        [
+          77,
+          78
+        ],
+        [
+          77,
+          87
+        ],
+        [
+          78,
+          79
+        ],
+        [
+          78,
+          88
+        ],
+        [
+          79,
+          89
+        ],
+        [
+          80,
+          81
+        ],
+        [
+          80,
+          90
+        ],
+        [
+          81,
+          82
+        ],
+        [
+          81,
+          91
+        ],
+        [
+          82,
+          83
+        ],
+        [
+          82,
+          92
+        ],
+        [
+          83,
+          84
+        ],
+        [
+          83,
+          93
+        ],
+        [
+          84,
+          85
+        ],
+        [
+          84,
+          94
+        ],
+        [
+          85,
+          86
+        ],
+        [
+          85,
+          95
+        ],
+        [
+          86,
+          87
+        ],
+        [
+          86,
+          96
+        ],
+        [
+          87,
+          88
+        ],
+        [
+          87,
+          97
+        ],
+        [
+          88,
+          89
+        ],
+        [
+          88,
+          98
+        ],
+        [
+          89,
+          99
+        ],
+        [
+          90,
+          91
+        ],
+        [
+          91,
+          92
+        ],
+        [
+          92,
+          93
+        ],
+        [
+          93,
+          94
+        ],
+        [
+          94,
+          95
+        ],
+        [
+          95,
+          96
+        ],
+        [
+          96,
+          97
+        ],
+        [
+          97,
+          98
+        ],
+        [
+          98,
+          99
+        ]
+      ],
+      "family": "bv100",
+      "id": "bv100_square",
+      "n_logical": 100,
+      "physical_width": 100,
+      "qasm": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[100];\nx q[99];\nh q[0];\nh q[1];\nh q[2];\nh q[3];\nh q[4];\nh q[5];\nh q[6];\nh q[7];\nh q[8];\nh q[9];\nh q[10];\nh q[11];\nh q[12];\nh q[13];\nh q[14];\nh q[15];\nh q[16];\nh q[17];\nh q[18];\nh q[19];\nh q[20];\nh q[21];\nh q[22];\nh q[23];\nh q[24];\nh q[25];\nh q[26];\nh q[27];\nh q[28];\nh q[29];\nh q[30];\nh q[31];\nh q[32];\nh q[33];\nh q[34];\nh q[35];\nh q[36];\nh q[37];\nh q[38];\nh q[39];\nh q[40];\nh q[41];\nh q[42];\nh q[43];\nh q[44];\nh q[45];\nh q[46];\nh q[47];\nh q[48];\nh q[49];\nh q[50];\nh q[51];\nh q[52];\nh q[53];\nh q[54];\nh q[55];\nh q[56];\nh q[57];\nh q[58];\nh q[59];\nh q[60];\nh q[61];\nh q[62];\nh q[63];\nh q[64];\nh q[65];\nh q[66];\nh q[67];\nh q[68];\nh q[69];\nh q[70];\nh q[71];\nh q[72];\nh q[73];\nh q[74];\nh q[75];\nh q[76];\nh q[77];\nh q[78];\nh q[79];\nh q[80];\nh q[81];\nh q[82];\nh q[83];\nh q[84];\nh q[85];\nh q[86];\nh q[87];\nh q[88];\nh q[89];\nh q[90];\nh q[91];\nh q[92];\nh q[93];\nh q[94];\nh q[95];\nh q[96];\nh q[97];\nh q[98];\nh q[99];\ncx q[0],q[99];\ncx q[1],q[99];\ncx q[2],q[99];\ncx q[3],q[99];\ncx q[4],q[99];\ncx q[5],q[99];\ncx q[6],q[99];\ncx q[7],q[99];\ncx q[8],q[99];\ncx q[9],q[99];\ncx q[10],q[99];\ncx q[11],q[99];\ncx q[12],q[99];\ncx q[13],q[99];\ncx q[14],q[99];\ncx q[15],q[99];\ncx q[16],q[99];\ncx q[17],q[99];\ncx q[18],q[99];\ncx q[19],q[99];\ncx q[20],q[99];\ncx q[21],q[99];\ncx q[22],q[99];\ncx q[23],q[99];\ncx q[24],q[99];\ncx q[25],q[99];\ncx q[26],q[99];\ncx q[27],q[99];\ncx q[28],q[99];\ncx q[29],q[99];\ncx q[30],q[99];\ncx q[31],q[99];\ncx q[32],q[99];\ncx q[33],q[99];\ncx q[34],q[99];\ncx q[35],q[99];\ncx q[36],q[99];\ncx q[37],q[99];\ncx q[38],q[99];\ncx q[39],q[99];\ncx q[40],q[99];\ncx q[41],q[99];\ncx q[42],q[99];\ncx q[43],q[99];\ncx q[44],q[99];\ncx q[45],q[99];\ncx q[46],q[99];\ncx q[47],q[99];\ncx q[48],q[99];\ncx q[49],q[99];\ncx q[50],q[99];\ncx q[51],q[99];\ncx q[52],q[99];\ncx q[53],q[99];\ncx q[54],q[99];\ncx q[55],q[99];\ncx q[56],q[99];\ncx q[57],q[99];\ncx q[58],q[99];\ncx q[59],q[99];\ncx q[60],q[99];\ncx q[61],q[99];\ncx q[62],q[99];\ncx q[63],q[99];\ncx q[64],q[99];\ncx q[65],q[99];\ncx q[66],q[99];\ncx q[67],q[99];\ncx q[68],q[99];\ncx q[69],q[99];\ncx q[70],q[99];\ncx q[71],q[99];\ncx q[72],q[99];\ncx q[73],q[99];\ncx q[74],q[99];\ncx q[75],q[99];\ncx q[76],q[99];\ncx q[77],q[99];\ncx q[78],q[99];\ncx q[79],q[99];\ncx q[80],q[99];\ncx q[81],q[99];\ncx q[82],q[99];\ncx q[83],q[99];\ncx q[84],q[99];\ncx q[85],q[99];\ncx q[86],q[99];\ncx q[87],q[99];\ncx q[88],q[99];\ncx q[89],q[99];\ncx q[90],q[99];\ncx q[91],q[99];\ncx q[92],q[99];\ncx q[93],q[99];\ncx q[94],q[99];\ncx q[95],q[99];\ncx q[96],q[99];\ncx q[97],q[99];\ncx q[98],q[99];\nh q[0];\nh q[1];\nh q[2];\nh q[3];\nh q[4];\nh q[5];\nh q[6];\nh q[7];\nh q[8];\nh q[9];\nh q[10];\nh q[11];\nh q[12];\nh q[13];\nh q[14];\nh q[15];\nh q[16];\nh q[17];\nh q[18];\nh q[19];\nh q[20];\nh q[21];\nh q[22];\nh q[23];\nh q[24];\nh q[25];\nh q[26];\nh q[27];\nh q[28];\nh q[29];\nh q[30];\nh q[31];\nh q[32];\nh q[33];\nh q[34];\nh q[35];\nh q[36];\nh q[37];\nh q[38];\nh q[39];\nh q[40];\nh q[41];\nh q[42];\nh q[43];\nh q[44];\nh q[45];\nh q[46];\nh q[47];\nh q[48];\nh q[49];\nh q[50];\nh q[51];\nh q[52];\nh q[53];\nh q[54];\nh q[55];\nh q[56];\nh q[57];\nh q[58];\nh q[59];\nh q[60];\nh q[61];\nh q[62];\nh q[63];\nh q[64];\nh q[65];\nh q[66];\nh q[67];\nh q[68];\nh q[69];\nh q[70];\nh q[71];\nh q[72];\nh q[73];\nh q[74];\nh q[75];\nh q[76];\nh q[77];\nh q[78];\nh q[79];\nh q[80];\nh q[81];\nh q[82];\nh q[83];\nh q[84];\nh q[85];\nh q[86];\nh q[87];\nh q[88];\nh q[89];\nh q[90];\nh q[91];\nh q[92];\nh q[93];\nh q[94];\nh q[95];\nh q[96];\nh q[97];\nh q[98];\n",
+      "qasm_sha256": "11f43c3c31ed96cc8b8459a60db09f2118e7fe4b5140841ff04029f0360d1f7d",
+      "source": {
+        "expanded": {
+          "definition_expansions": {},
+          "expanded_source_gate_count": 299,
+          "global_phase": "discarded only as a whole-circuit equivalence convention"
+        },
+        "id": "bv100",
+        "input_gate_counts": {
+          "cx": 99,
+          "h": 199,
+          "x": 1
+        },
+        "n_logical": 100,
+        "qasm_file": "bv100.qasm",
+        "qasm_sha256": "11f43c3c31ed96cc8b8459a60db09f2118e7fe4b5140841ff04029f0360d1f7d",
+        "raw_sha256": "b84d5b055c123d1c364aa2023c7fa073ac20bda4f6990b65fb0b6c4ec432431b",
+        "removed": {
+          "barriers": 0,
+          "terminal_measurements": 99
+        },
+        "source_path": "benchpress/qiskit_gym/circuits/circuits.py:bv_all_ones(100)"
+      },
+      "target_kind": "Benchpress FlexibleBackend topology; no calibration used in matched extension",
+      "topology": "square"
+    },
+    {
+      "edges": [
+        [
+          0,
+          49
+        ],
+        [
+          0,
+          73
+        ],
+        [
+          1,
+          73
+        ],
+        [
+          1,
+          74
+        ],
+        [
+          2,
+          74
+        ],
+        [
+          2,
+          75
+        ],
+        [
+          3,
+          75
+        ],
+        [
+          3,
+          76
+        ],
+        [
+          4,
+          76
+        ],
+        [
+          4,
+          77
+        ],
+        [
+          5,
+          77
+        ],
+        [
+          5,
+          78
+        ],
+        [
+          6,
+          78
+        ],
+        [
+          7,
+          49
+        ],
+        [
+          7,
+          79
+        ],
+        [
+          8,
+          79
+        ],
+        [
+          8,
+          80
+        ],
+        [
+          9,
+          80
+        ],
+        [
+          9,
+          81
+        ],
+        [
+          10,
+          81
+        ],
+        [
+          10,
+          82
+        ],
+        [
+          11,
+          82
+        ],
+        [
+          11,
+          83
+        ],
+        [
+          12,
+          83
+        ],
+        [
+          12,
+          84
+        ],
+        [
+          13,
+          56
+        ],
+        [
+          13,
+          84
+        ],
+        [
+          14,
+          57
+        ],
+        [
+          14,
+          85
+        ],
+        [
+          15,
+          85
+        ],
+        [
+          15,
+          86
+        ],
+        [
+          16,
+          86
+        ],
+        [
+          16,
+          87
+        ],
+        [
+          17,
+          87
+        ],
+        [
+          17,
+          88
+        ],
+        [
+          18,
+          88
+        ],
+        [
+          18,
+          89
+        ],
+        [
+          19,
+          89
+        ],
+        [
+          19,
+          90
+        ],
+        [
+          20,
+          56
+        ],
+        [
+          20,
+          90
+        ],
+        [
+          21,
+          57
+        ],
+        [
+          21,
+          91
+        ],
+        [
+          22,
+          91
+        ],
+        [
+          22,
+          92
+        ],
+        [
+          23,
+          92
+        ],
+        [
+          23,
+          93
+        ],
+        [
+          24,
+          93
+        ],
+        [
+          24,
+          94
+        ],
+        [
+          25,
+          94
+        ],
+        [
+          25,
+          95
+        ],
+        [
+          26,
+          95
+        ],
+        [
+          26,
+          96
+        ],
+        [
+          27,
+          64
+        ],
+        [
+          27,
+          96
+        ],
+        [
+          28,
+          65
+        ],
+        [
+          28,
+          97
+        ],
+        [
+          29,
+          97
+        ],
+        [
+          29,
+          98
+        ],
+        [
+          30,
+          98
+        ],
+        [
+          30,
+          99
+        ],
+        [
+          31,
+          99
+        ],
+        [
+          31,
+          100
+        ],
+        [
+          32,
+          100
+        ],
+        [
+          32,
+          101
+        ],
+        [
+          33,
+          101
+        ],
+        [
+          33,
+          102
+        ],
+        [
+          34,
+          64
+        ],
+        [
+          34,
+          102
+        ],
+        [
+          35,
+          65
+        ],
+        [
+          35,
+          103
+        ],
+        [
+          36,
+          103
+        ],
+        [
+          36,
+          104
+        ],
+        [
+          37,
+          104
+        ],
+        [
+          37,
+          105
+        ],
+        [
+          38,
+          105
+        ],
+        [
+          38,
+          106
+        ],
+        [
+          39,
+          106
+        ],
+        [
+          39,
+          107
+        ],
+        [
+          40,
+          107
+        ],
+        [
+          40,
+          108
+        ],
+        [
+          41,
+          72
+        ],
+        [
+          41,
+          108
+        ],
+        [
+          42,
+          109
+        ],
+        [
+          43,
+          109
+        ],
+        [
+          43,
+          110
+        ],
+        [
+          44,
+          110
+        ],
+        [
+          44,
+          111
+        ],
+        [
+          45,
+          111
+        ],
+        [
+          45,
+          112
+        ],
+        [
+          46,
+          112
+        ],
+        [
+          46,
+          113
+        ],
+        [
+          47,
+          113
+        ],
+        [
+          47,
+          114
+        ],
+        [
+          48,
+          72
+        ],
+        [
+          48,
+          114
+        ],
+        [
+          50,
+          74
+        ],
+        [
+          50,
+          80
+        ],
+        [
+          51,
+          76
+        ],
+        [
+          51,
+          82
+        ],
+        [
+          52,
+          78
+        ],
+        [
+          52,
+          84
+        ],
+        [
+          53,
+          79
+        ],
+        [
+          53,
+          85
+        ],
+        [
+          54,
+          81
+        ],
+        [
+          54,
+          87
+        ],
+        [
+          55,
+          83
+        ],
+        [
+          55,
+          89
+        ],
+        [
+          58,
+          86
+        ],
+        [
+          58,
+          92
+        ],
+        [
+          59,
+          88
+        ],
+        [
+          59,
+          94
+        ],
+        [
+          60,
+          90
+        ],
+        [
+          60,
+          96
+        ],
+        [
+          61,
+          91
+        ],
+        [
+          61,
+          97
+        ],
+        [
+          62,
+          93
+        ],
+        [
+          62,
+          99
+        ],
+        [
+          63,
+          95
+        ],
+        [
+          63,
+          101
+        ],
+        [
+          66,
+          98
+        ],
+        [
+          66,
+          104
+        ],
+        [
+          67,
+          100
+        ],
+        [
+          67,
+          106
+        ],
+        [
+          68,
+          102
+        ],
+        [
+          68,
+          108
+        ],
+        [
+          69,
+          103
+        ],
+        [
+          69,
+          109
+        ],
+        [
+          70,
+          105
+        ],
+        [
+          70,
+          111
+        ],
+        [
+          71,
+          107
+        ],
+        [
+          71,
+          113
+        ]
+      ],
+      "family": "bv100",
+      "id": "bv100_heavy-hex",
+      "n_logical": 100,
+      "physical_width": 115,
+      "qasm": "OPENQASM 2.0;\ninclude \"qelib1.inc\";\nqreg q[100];\nx q[99];\nh q[0];\nh q[1];\nh q[2];\nh q[3];\nh q[4];\nh q[5];\nh q[6];\nh q[7];\nh q[8];\nh q[9];\nh q[10];\nh q[11];\nh q[12];\nh q[13];\nh q[14];\nh q[15];\nh q[16];\nh q[17];\nh q[18];\nh q[19];\nh q[20];\nh q[21];\nh q[22];\nh q[23];\nh q[24];\nh q[25];\nh q[26];\nh q[27];\nh q[28];\nh q[29];\nh q[30];\nh q[31];\nh q[32];\nh q[33];\nh q[34];\nh q[35];\nh q[36];\nh q[37];\nh q[38];\nh q[39];\nh q[40];\nh q[41];\nh q[42];\nh q[43];\nh q[44];\nh q[45];\nh q[46];\nh q[47];\nh q[48];\nh q[49];\nh q[50];\nh q[51];\nh q[52];\nh q[53];\nh q[54];\nh q[55];\nh q[56];\nh q[57];\nh q[58];\nh q[59];\nh q[60];\nh q[61];\nh q[62];\nh q[63];\nh q[64];\nh q[65];\nh q[66];\nh q[67];\nh q[68];\nh q[69];\nh q[70];\nh q[71];\nh q[72];\nh q[73];\nh q[74];\nh q[75];\nh q[76];\nh q[77];\nh q[78];\nh q[79];\nh q[80];\nh q[81];\nh q[82];\nh q[83];\nh q[84];\nh q[85];\nh q[86];\nh q[87];\nh q[88];\nh q[89];\nh q[90];\nh q[91];\nh q[92];\nh q[93];\nh q[94];\nh q[95];\nh q[96];\nh q[97];\nh q[98];\nh q[99];\ncx q[0],q[99];\ncx q[1],q[99];\ncx q[2],q[99];\ncx q[3],q[99];\ncx q[4],q[99];\ncx q[5],q[99];\ncx q[6],q[99];\ncx q[7],q[99];\ncx q[8],q[99];\ncx q[9],q[99];\ncx q[10],q[99];\ncx q[11],q[99];\ncx q[12],q[99];\ncx q[13],q[99];\ncx q[14],q[99];\ncx q[15],q[99];\ncx q[16],q[99];\ncx q[17],q[99];\ncx q[18],q[99];\ncx q[19],q[99];\ncx q[20],q[99];\ncx q[21],q[99];\ncx q[22],q[99];\ncx q[23],q[99];\ncx q[24],q[99];\ncx q[25],q[99];\ncx q[26],q[99];\ncx q[27],q[99];\ncx q[28],q[99];\ncx q[29],q[99];\ncx q[30],q[99];\ncx q[31],q[99];\ncx q[32],q[99];\ncx q[33],q[99];\ncx q[34],q[99];\ncx q[35],q[99];\ncx q[36],q[99];\ncx q[37],q[99];\ncx q[38],q[99];\ncx q[39],q[99];\ncx q[40],q[99];\ncx q[41],q[99];\ncx q[42],q[99];\ncx q[43],q[99];\ncx q[44],q[99];\ncx q[45],q[99];\ncx q[46],q[99];\ncx q[47],q[99];\ncx q[48],q[99];\ncx q[49],q[99];\ncx q[50],q[99];\ncx q[51],q[99];\ncx q[52],q[99];\ncx q[53],q[99];\ncx q[54],q[99];\ncx q[55],q[99];\ncx q[56],q[99];\ncx q[57],q[99];\ncx q[58],q[99];\ncx q[59],q[99];\ncx q[60],q[99];\ncx q[61],q[99];\ncx q[62],q[99];\ncx q[63],q[99];\ncx q[64],q[99];\ncx q[65],q[99];\ncx q[66],q[99];\ncx q[67],q[99];\ncx q[68],q[99];\ncx q[69],q[99];\ncx q[70],q[99];\ncx q[71],q[99];\ncx q[72],q[99];\ncx q[73],q[99];\ncx q[74],q[99];\ncx q[75],q[99];\ncx q[76],q[99];\ncx q[77],q[99];\ncx q[78],q[99];\ncx q[79],q[99];\ncx q[80],q[99];\ncx q[81],q[99];\ncx q[82],q[99];\ncx q[83],q[99];\ncx q[84],q[99];\ncx q[85],q[99];\ncx q[86],q[99];\ncx q[87],q[99];\ncx q[88],q[99];\ncx q[89],q[99];\ncx q[90],q[99];\ncx q[91],q[99];\ncx q[92],q[99];\ncx q[93],q[99];\ncx q[94],q[99];\ncx q[95],q[99];\ncx q[96],q[99];\ncx q[97],q[99];\ncx q[98],q[99];\nh q[0];\nh q[1];\nh q[2];\nh q[3];\nh q[4];\nh q[5];\nh q[6];\nh q[7];\nh q[8];\nh q[9];\nh q[10];\nh q[11];\nh q[12];\nh q[13];\nh q[14];\nh q[15];\nh q[16];\nh q[17];\nh q[18];\nh q[19];\nh q[20];\nh q[21];\nh q[22];\nh q[23];\nh q[24];\nh q[25];\nh q[26];\nh q[27];\nh q[28];\nh q[29];\nh q[30];\nh q[31];\nh q[32];\nh q[33];\nh q[34];\nh q[35];\nh q[36];\nh q[37];\nh q[38];\nh q[39];\nh q[40];\nh q[41];\nh q[42];\nh q[43];\nh q[44];\nh q[45];\nh q[46];\nh q[47];\nh q[48];\nh q[49];\nh q[50];\nh q[51];\nh q[52];\nh q[53];\nh q[54];\nh q[55];\nh q[56];\nh q[57];\nh q[58];\nh q[59];\nh q[60];\nh q[61];\nh q[62];\nh q[63];\nh q[64];\nh q[65];\nh q[66];\nh q[67];\nh q[68];\nh q[69];\nh q[70];\nh q[71];\nh q[72];\nh q[73];\nh q[74];\nh q[75];\nh q[76];\nh q[77];\nh q[78];\nh q[79];\nh q[80];\nh q[81];\nh q[82];\nh q[83];\nh q[84];\nh q[85];\nh q[86];\nh q[87];\nh q[88];\nh q[89];\nh q[90];\nh q[91];\nh q[92];\nh q[93];\nh q[94];\nh q[95];\nh q[96];\nh q[97];\nh q[98];\n",
+      "qasm_sha256": "11f43c3c31ed96cc8b8459a60db09f2118e7fe4b5140841ff04029f0360d1f7d",
+      "source": {
+        "expanded": {
+          "definition_expansions": {},
+          "expanded_source_gate_count": 299,
+          "global_phase": "discarded only as a whole-circuit equivalence convention"
+        },
+        "id": "bv100",
+        "input_gate_counts": {
+          "cx": 99,
+          "h": 199,
+          "x": 1
+        },
+        "n_logical": 100,
+        "qasm_file": "bv100.qasm",
+        "qasm_sha256": "11f43c3c31ed96cc8b8459a60db09f2118e7fe4b5140841ff04029f0360d1f7d",
+        "raw_sha256": "b84d5b055c123d1c364aa2023c7fa073ac20bda4f6990b65fb0b6c4ec432431b",
+        "removed": {
+          "barriers": 0,
+          "terminal_measurements": 99
+        },
+        "source_path": "benchpress/qiskit_gym/circuits/circuits.py:bv_all_ones(100)"
+      },
+      "target_kind": "Benchpress FlexibleBackend topology; no calibration used in matched extension",
+      "topology": "heavy_hex"
+    }
+  ],
+  "cases_sha256": "51813aab80abc0a33ddd6f6cfd6e361cfd18fc5a505c864c2e32725c9f1fd18f",
+  "compiler_commit": "7e8e3c555b376a1dfbfe29231079ddc7c3dea22b",
+  "created_utc": "2026-10-18T18:20:43Z",
+  "machine": "arm64",
+  "memory_bytes": 8589934592,
+  "per_worker_rss_limit_bytes": 2147483648,
+  "platform": "macOS-14.4.1-arm64-arm-64bit",
+  "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+  "resource_observer": "Controller samples known worker-process RSS approximately every 100 ms and before responses; child processes are not included. Single-process/thread settings are recorded. Sampled high-water observations are not exact peak allocation. Monitoring is outside the compiler timer but consumes some CPU. Limits can be overshot between samples. The aggregate limit includes idle resident workers and may be affected by request order.",
+  "restart_policy": "Failed initial warmup blocks that recipe/case for this session. After a timed worker failure, one replacement warmup is required before another timed request; its failure blocks remaining trials. Every scheduled trial retains a status.",
+  "schedules": {
+    "1": [
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      }
+    ],
+    "2": [
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_square",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_square",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "clifford20_heavy-hex",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": -1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "qiskit",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "qrust",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "cirq",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261018,
+        "tool": "tket",
+        "trial": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261019,
+        "tool": "cirq",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261019,
+        "tool": "tket",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261019,
+        "tool": "qiskit",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261019,
+        "tool": "qrust",
+        "trial": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261020,
+        "tool": "qrust",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261020,
+        "tool": "cirq",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261020,
+        "tool": "tket",
+        "trial": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "seed": 20261020,
+        "tool": "qiskit",
+        "trial": 2
+      }
+    ]
+  },
+  "schema": 1,
+  "scope": "Feasibility pilot of four selected Clifford workloads, not representative general-program performance, a holdout after future tuning, or native Benchpress scores. Unequal optimization effort remains. Ordinary OS load/CPU frequency uncontrolled.",
+  "sessions": 2,
+  "source_sha256": {
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/benchpress_matched.py": "50b6f5b4d9f43765031a1413397807d658671a17017ce2183e03ead074ec1326",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/comparison_cirq.py": "cec7669e6b3f23de3bf305a043a01477da34fe328ba9fd55b77fe6ae82dbfd35",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/comparison_qiskit_tket.py": "9fa37aaa09208ed2178d17a2c2fdb1e1a52b98a5e75ec5c11a0a9abbbb855d7a",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/comparison_study.py": "2e9fcb33ed37df02f1a8b7d623b1c4966a9547fbb5eddf2cfc609900cc148c8d",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/comparison_validation.py": "55de70f9fe47d9fcaeb1497bd04b377e5582afc9289e6948dc6c32ebe5bda6d4",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/scalable_clifford.py": "bf93ce1e339c9e5bf9d5689ed8ea9308a7581c17b7dd3c5d422aec44e6e8a364"
+  },
+  "study": "matched Benchpress-derived Clifford pilot",
+  "target": "Same unitary input, U3/CX, bidirectional square/heavy-hex edges, clean spare wires and free initial/final maps; no calibration optimization.",
+  "thread_environment": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PYTHONHASHSEED": "20261015",
+    "QISKIT_NUM_PROCS": "1",
+    "QISKIT_PARALLEL": "FALSE",
+    "RAYON_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "timeout_seconds": 30,
+  "timing": "Frozen existing public adapters; warm in-process compilation, separately recorded parse and request-wall time. Workers persist. Three measured trials after warmup. No checker/profiling/native campaign concurrently.",
+  "tools": [
+    "qrust",
+    "qiskit",
+    "cirq",
+    "tket"
+  ],
+  "trials": 3,
+  "upstream_protocol_sha256": "ba9c057d4a0af0b21bfa5658867df5933e3d5f95d7114794e35b3afce81e183d",
+  "validation": "Independent map-aware Clifford Choi-isometry comparison with exact signed-Pauli arithmetic after numerically bounded 1q Clifford recognition. All logical inputs including zero-initialized spare wires; non-Clifford output fails closed. Basis/edge checks separate. Verification only after both sessions.",
+  "versions": {
+    "cirq-core": "1.7.0",
+    "networkx": "3.7",
+    "numpy": "2.5.4",
+    "psutil": "7.2.2",
+    "pytket": "2.18.5",
+    "qiskit": "2.5.2",
+    "scipy": "1.18.1"
+  },
+  "warmups": 1,
+  "worker_startup_timeout_seconds": 120
+}

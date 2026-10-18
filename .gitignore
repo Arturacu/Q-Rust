@@ -64,6 +64,8 @@ experiments/*
 !experiments/EXTERNAL_COMPATIBILITY_FOLLOWUP.md
 !experiments/EXTERNAL_ROUTING_FOLLOWUP.md
 !experiments/EXTERNAL_RETENTION_FOLLOWUP.md
+!experiments/TKET_CLIFFORD_INVESTIGATION.md
+!experiments/BENCHPRESS_PILOT.md
 !experiments/external_results/
 !experiments/external_results/**
 !experiments/fixtures/
