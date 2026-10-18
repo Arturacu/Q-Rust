@@ -146,7 +146,19 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         json!({
             "candidates":s.candidates, "rewrites":s.rewrites, "cx_removed":s.cx_removed,
             "depth_rejections":s.depth_rejections, "candidate_evaluations":s.candidate_evaluations,
-        "budget_exhausted":s.budget_exhausted
+            "insertion_cuts":s.insertion_cuts, "interior_rewrites":s.interior_rewrites,
+            "budget_exhausted":s.budget_exhausted
+        })
+    });
+    let clifford_retention_stats = report.clifford_retention_stats.as_ref().map(|s| {
+        json!({
+            "rewritten_output_cost":s.rewritten_output_cost,
+            "retained_output_cost":s.retained_output_cost,
+            "selected_output_cost":s.selected_output_cost,
+            "selected_retained_input":s.selected_retained_input,
+            "retained_compilation_failed":s.retained_compilation_failed,
+            "attempted_rewrites":s.attempted_simplification.rewrites,
+            "attempted_cx_removed":s.attempted_simplification.cx_removed
         })
     });
     let initial = report
@@ -162,6 +174,7 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "seed_used":false, "pass_diagnostics":pass_diagnostics, "effective_search":effective_search,
         "encoded_swap_recognition":encoded_swaps_enabled, "encoded_swap_stats":encoded_swap_stats,
         "clifford_simplification":clifford_enabled, "clifford_simplification_stats":clifford_stats,
+        "clifford_retention_stats":clifford_retention_stats,
         "two_qubit_block_synthesis":block_synthesis_enabled, "two_qubit_block_stats":block_stats,
         "recover_phase_gadgets":phase_recovery_enabled, "post_block_fusion":post_block_fusion_enabled,
         "phase_gadgets_recovered":report.phase_gadgets_recovered, "post_block_fusion_stats":fusion_stats,
@@ -171,7 +184,7 @@ fn compile_one(request: &Value) -> Result<Value, String> {
             "charged_error":report.numerical_budget.charged_error,
             "allowance":q_rust::transpiler::numerical_policy::CIRCUIT_ERROR_ALLOWANCE
         },
-        "pipeline":"Q-Rust public transpile_with_report O3; U/CX; optional exact phase recovery, encoded-SWAP recognition, cross-block Clifford simplification and diagonal routing dependencies; deterministic candidate ties and seeded layout starts; optional post-routing two-qubit block synthesis and checked local fusion"
+        "pipeline":"Q-Rust public transpile_with_report O3; U/CX; optional exact phase recovery, encoded-SWAP recognition, cross-block Clifford simplification with final-output retention and diagonal routing dependencies; deterministic candidate ties and seeded layout starts; optional post-routing two-qubit block synthesis and checked local fusion"
     }))
 }
 

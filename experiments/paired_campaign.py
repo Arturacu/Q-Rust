@@ -20,9 +20,6 @@ import sys
 import time
 from types import SimpleNamespace
 
-OLD_BINARY_SHA256 = 'f2bfb51d945e4a959450022a4fac4921a30d3a888d8664fb12d6df59bf689a80'
-
-
 def sha(value):
     if isinstance(value, Path):
         value = value.read_bytes()
@@ -45,6 +42,30 @@ def modules(repo):
     return importlib.import_module('external_comparison'), importlib.import_module('benchpress_matched')
 
 
+def baseline_provenance(external_baseline, matched_baseline, old_binary):
+    """Bind an immediate old control to both supplied baseline protocols.
+
+    Historical compiler identity comes from the timed protocols, not the
+    current repository HEAD (which can include later reports or harness work).
+    """
+    paths = {'external': Path(external_baseline) / 'protocol.json',
+             'matched': Path(matched_baseline) / 'protocol.json'}
+    protocols = {suite: json.loads(path.read_text()) for suite, path in paths.items()}
+    checksum_path = Path(external_baseline) / 'protocol.sha256'
+    if sha(paths['external']) != checksum_path.read_text().strip():
+        raise ValueError('External baseline protocol checksum changed')
+    actual = sha(Path(old_binary))
+    hashes = [protocols['external']['qrust_binary_sha256'], protocols['matched']['binary_sha256']]
+    if any(expected != actual for expected in hashes):
+        raise ValueError('Old binary does not match both supplied baseline protocols')
+    commits = [protocols[suite]['compiler_commit'] for suite in ('external', 'matched')]
+    if not commits[0] or commits[0] != commits[1]:
+        raise ValueError('Baseline compiler commits disagree')
+    return {'old_binary_sha256': actual, 'old_compiler_commit': commits[0],
+            'baseline_protocol_sha256': {suite: sha(path) for suite, path in paths.items()},
+            'old_compiler_provenance': protocols['external']['compiler_provenance']}
+
+
 def expanded_schedule(schedule, session):
     """Exact original projection, with old/new order balanced across sessions."""
     expanded = []
@@ -64,9 +85,8 @@ def expanded_schedule(schedule, session):
 
 def prepare(args):
     ext, matched = modules(args.repo)
-    if sha(args.old_binary) != OLD_BINARY_SHA256:
-        raise ValueError('Old compiler does not match the previously measured frozen binary')
-    if args.binary == args.old_binary or sha(args.binary) == OLD_BINARY_SHA256:
+    baseline = baseline_provenance(args.external_baseline, args.matched_baseline, args.old_binary)
+    if args.binary == args.old_binary or sha(args.binary) == baseline['old_binary_sha256']:
         raise ValueError('Candidate and old binary must differ')
     head = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=args.repo, text=True).strip()
     # The source state must be reviewable and committed before timing.
@@ -98,12 +118,10 @@ def prepare(args):
     protocol = {
         'schema': 1, 'created_utc': ext.utc_now(), 'compiler_commit': head,
         'candidate_binary': str(args.binary), 'candidate_binary_sha256': sha(args.binary),
-        'old_binary': str(args.old_binary), 'old_binary_sha256': sha(args.old_binary),
-        'old_compiler_commit': '837a53ca9a9d4ca3f25cab3e5866b170e582c4a4',
+        'old_binary': str(args.old_binary), **baseline,
         'repo': str(args.repo), 'controller_sha256': sha(Path(__file__).resolve()),
         'analysis_source_sha256': sha(Path(__file__).with_name('paired_analysis.py')),
         'primary_protocol_sha256': {suite: sha(args.output / suite / 'protocol.json') for suite in protocols},
-        'baseline_protocol_sha256': {'external': sha(args.external_baseline / 'protocol.json'), 'matched': sha(args.matched_baseline / 'protocol.json')},
         'primary_scheduled_counts': {'external': {'timed': 8400, 'warmup': 1200}, 'matched': {'timed': 192, 'warmup': 64}},
         'control_scheduled_counts': {'external': {'timed': 1400, 'warmup': 200}, 'matched': {'timed': 48, 'warmup': 16}},
         'schedules': {suite: {str(session): expanded_schedule(p['schedules'][str(session)], session)

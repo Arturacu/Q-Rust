@@ -28,8 +28,7 @@ def main():
         if isinstance(value, Path):
             setattr(args, key, value.resolve())
     ext, _ = campaign.modules(args.repo)
-    if campaign.sha(args.old_binary) != campaign.OLD_BINARY_SHA256:
-        raise ValueError('Old binary differs from frozen baseline')
+    baseline_provenance = campaign.baseline_provenance(args.external_baseline, args.matched_baseline, args.old_binary)
     protocols = {}
     for suite in ('external', 'matched'):
         baseline = getattr(args, suite + '_baseline')
@@ -44,6 +43,7 @@ def main():
     campaign.dump_new(args.output / 'protocol.json', {
         'schema': 1, 'scope': 'Untimed correctness/structural-quality smoke. No warmups/repetitions. Diagnostic durations are not performance evidence.',
         'binary_sha256': campaign.sha(args.binary), 'old_binary_sha256': campaign.sha(args.old_binary),
+        'baseline_provenance': baseline_provenance,
         'source_provenance': ext.source_provenance(args.repo),
         'driver_sha256': campaign.sha(Path(__file__).resolve()),
         'analysis_source_sha256': campaign.sha(Path(__file__).with_name('paired_analysis.py')),

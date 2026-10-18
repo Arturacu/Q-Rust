@@ -5,7 +5,11 @@
 //! `Q = X_target`. Conjugating through a local Clifford changes only these
 //! signed axes. A third-wire interaction can be crossed only if it commutes
 //! with *both* axes; thus its action on the transported interaction is exactly
-//! the identity. At a second CX on the same pair we synthesize their product.
+//! the identity. Both endpoint interactions may move toward an interior cut:
+//! for a middle segment `M = R L`, the original `B R L A` becomes
+//! `R (R† B R) (L A L†) L`. Each crossed gate is checked independently.
+//! Trying the reachable cuts, rather than only the second endpoint, preserves
+//! parallelism that a legal but poorly placed rewrite could destroy.
 //!
 //! Synthesis uses integer signed-Pauli arithmetic and the 24 one-qubit
 //! Cliffords. Exhausting the 24 x 24 right local frames determines whether
@@ -44,6 +48,10 @@ pub struct CliffordSimplificationStats {
     pub rewrites: usize,
     pub cx_removed: usize,
     pub depth_rejections: usize,
+    /// Reachable insertion cuts considered, before synthesis and cost checks.
+    pub insertion_cuts: usize,
+    /// Accepted rewrites whose insertion lies strictly between both endpoints.
+    pub interior_rewrites: usize,
     pub candidate_evaluations: usize,
     pub budget_exhausted: bool,
 }
@@ -223,6 +231,15 @@ impl SmallGate {
         c.0[2 * q + 1] = z;
         c
     }
+    fn inverse_table(self) -> Clifford {
+        match self {
+            Self::S(q) => Self::Sdg(q).table(),
+            Self::Sdg(q) => Self::S(q).table(),
+            // SX² = X, hence SX† = X SX up to the irrelevant shared phase.
+            Self::SX(q) => Self::X(q).table().compose(self.table()),
+            _ => self.table(),
+        }
+    }
     fn on_wire(self, q: usize) -> Self {
         match self {
             Self::H(_) => Self::H(q),
@@ -359,6 +376,9 @@ fn word_cost(word: &[SmallGate]) -> (usize, usize) {
 }
 
 /// Exact bounded search, cached by the encountered controlled-Pauli product.
+/// Each endpoint has 36 signed local-axis choices. At most 36² products and
+/// their SWAP factorizations are encountered; the full Clifford group is never
+/// generated. The lookahead and candidate budget bound calls per invocation.
 fn synthesize(table: Clifford) -> Option<Vec<SmallGate>> {
     type Cache = Mutex<HashMap<Clifford, Option<Vec<SmallGate>>>>;
     static CACHE: OnceLock<Cache> = OnceLock::new();
@@ -506,6 +526,66 @@ fn axis_commutes_with_interaction(
     !axis_on_wire.anticommutes(interaction_axis)
 }
 
+/// All unsupported gates are fences, including operations disjoint from the
+/// selected pair. Endpoint search may pass a noncommuting interaction, but the
+/// independent forward/backward transports below cannot cross it.
+fn supported_transport_operation(op: &Operation) -> bool {
+    match op {
+        Operation::Gate {
+            name,
+            qubits,
+            params,
+        } if params.is_empty() => {
+            (qubits.len() == 1 && (*name == GateType::ID || local_gate(name, 0).is_some()))
+                || (qubits.len() == 2 && matches!(name, GateType::CX | GateType::CY | GateType::CZ))
+        }
+        _ => false,
+    }
+}
+
+fn transport_axes(
+    (p, q): (Pauli, Pauli),
+    op: &Operation,
+    pair: [usize; 2],
+    backwards: bool,
+) -> Option<(Pauli, Pauli)> {
+    let Operation::Gate {
+        name,
+        qubits,
+        params,
+    } = op
+    else {
+        return None;
+    };
+    if !params.is_empty() {
+        return None;
+    }
+    if qubits.len() == 1 {
+        if *name == GateType::ID {
+            return Some((p, q));
+        }
+        let gate = local_gate(name, 0)?;
+        if let Some(wire) = pair.iter().position(|w| *w == qubits[0]) {
+            let transform = if backwards {
+                gate.on_wire(wire).inverse_table()
+            } else {
+                gate.on_wire(wire).table()
+            };
+            return Some((transform.apply(p), transform.apply(q)));
+        }
+        return Some((p, q));
+    }
+    if qubits.len() == 2
+        && matches!(name, GateType::CX | GateType::CY | GateType::CZ)
+        && axis_commutes_with_interaction(p, 0, name, qubits, pair)
+        && axis_commutes_with_interaction(q, 1, name, qubits, pair)
+    {
+        Some((p, q))
+    } else {
+        None
+    }
+}
+
 impl Pass for CliffordSimplificationPass {
     fn name(&self) -> &str {
         "CliffordSimplificationPass"
@@ -542,85 +622,101 @@ impl Pass for CliffordSimplificationPass {
                         continue;
                     }
                 };
-                let mut p = Pauli::hermitian(0, 1);
-                let mut q = Pauli::hermitian(2, 0);
+                // Only the first later CX on this pair is considered. An
+                // unsupported operation anywhere in the bounded window fences
+                // the search, even if neither endpoint uses its wires.
+                let mut endpoint = None;
                 for end in start + 1..output.operations.len().min(start + LOOKAHEAD + 1) {
-                    let Operation::Gate {
-                        name,
+                    let op = &output.operations[end];
+                    if !supported_transport_operation(op) {
+                        break;
+                    }
+                    if let Operation::Gate {
+                        name: GateType::CX,
                         qubits,
-                        params,
-                    } = &output.operations[end]
+                        ..
+                    } = op
+                    {
+                        if qubits.iter().all(|wire| pair.contains(wire)) {
+                            endpoint = Some((end, qubits[0] != pair[0]));
+                            break;
+                        }
+                    }
+                }
+                let Some((end, reversed)) = endpoint else {
+                    start += 1;
+                    continue;
+                };
+                stats.candidates += 1;
+                // left[cut-start-1] is L A L† immediately before `cut`.
+                let mut left = vec![(Pauli::hermitian(0, 1), Pauli::hermitian(2, 0))];
+                for cut in start + 1..end {
+                    let Some(next) =
+                        transport_axes(*left.last().unwrap(), &output.operations[cut], pair, false)
                     else {
                         break;
                     };
-                    if !params.is_empty() {
-                        break;
-                    }
-                    if qubits.len() == 1 {
-                        if *name == GateType::ID {
-                            continue;
-                        }
-                        let Some(local) = local_gate(name, 0) else {
+                    left.push(next);
+                }
+                // Right transport uses inverse local conjugation: R† B R.
+                // Store one axis on each original wire even for reversed CX.
+                let mut right = if reversed {
+                    (Pauli::hermitian(1, 0), Pauli::hermitian(0, 2))
+                } else {
+                    (Pauli::hermitian(0, 1), Pauli::hermitian(2, 0))
+                };
+                'cuts: for cut in (start + 1..=end).rev() {
+                    if cut < end {
+                        let Some(next) = transport_axes(right, &output.operations[cut], pair, true)
+                        else {
                             break;
                         };
-                        if let Some(wire) = pair.iter().position(|w| *w == qubits[0]) {
-                            let transform = local.on_wire(wire).table();
-                            p = transform.apply(p);
-                            q = transform.apply(q);
-                        }
+                        right = next;
+                    }
+                    let Some(&(p, q)) = left.get(cut - start - 1) else {
                         continue;
-                    }
-                    if qubits.len() != 2
-                        || !matches!(name, GateType::CX | GateType::CY | GateType::CZ)
-                    {
-                        break;
-                    }
-                    let same_pair = qubits.iter().all(|wire| pair.contains(wire));
-                    if *name == GateType::CX && same_pair {
-                        stats.candidates += 1;
-                        let direction = usize::from(qubits[0] != pair[0]);
-                        let product = SmallGate::CX(direction)
-                            .table()
-                            .compose(Clifford::controlled(p, q));
-                        let mut alternatives = Vec::new();
-                        if let Some(word) = synthesize(product) {
-                            alternatives.push(word);
+                    };
+                    stats.insertion_cuts += 1;
+                    let product =
+                        Clifford::controlled(right.0, right.1).compose(Clifford::controlled(p, q));
+                    for swap in [false, true] {
+                        if swap && !elide {
+                            continue;
                         }
-                        if elide {
-                            if let Some(mut word) = synthesize(product.compose(Clifford::swap())) {
-                                word.insert(0, SmallGate::Swap);
-                                alternatives.push(word);
-                            }
+                        let target = if swap {
+                            product.compose(Clifford::swap())
+                        } else {
+                            product
+                        };
+                        let Some(mut word) = synthesize(target) else {
+                            continue;
+                        };
+                        if evaluations == MAX_CANDIDATE_EVALUATIONS {
+                            stats.budget_exhausted = true;
+                            break 'sweeps;
                         }
-                        for word in alternatives {
-                            if evaluations == MAX_CANDIDATE_EVALUATIONS {
-                                stats.budget_exhausted = true;
-                                break 'sweeps;
-                            }
-                            evaluations += 1;
-                            stats.candidate_evaluations += 1;
-                            let mut candidate = output.clone();
-                            candidate
-                                .operations
-                                .splice(end..=end, word.into_iter().map(|g| g.operation(pair)));
-                            candidate.operations.remove(start);
-                            candidate = fold_local(&candidate);
-                            let next = cost(&candidate, elide);
-                            if next.0 < quality.0 && next.1 <= quality.1 && next.2 <= quality.2 {
-                                stats.rewrites += 1;
-                                stats.cx_removed += quality.0 - next.0;
-                                quality = next;
-                                output = candidate;
-                                break;
-                            }
-                            stats.depth_rejections += 1;
+                        evaluations += 1;
+                        stats.candidate_evaluations += 1;
+                        if swap {
+                            word.insert(0, SmallGate::Swap);
                         }
-                        break;
-                    }
-                    if !axis_commutes_with_interaction(p, 0, name, qubits, pair)
-                        || !axis_commutes_with_interaction(q, 1, name, qubits, pair)
-                    {
-                        break;
+                        let mut candidate = output.clone();
+                        candidate.operations.remove(end);
+                        candidate
+                            .operations
+                            .splice(cut..cut, word.into_iter().map(|g| g.operation(pair)));
+                        candidate.operations.remove(start);
+                        candidate = fold_local(&candidate);
+                        let next = cost(&candidate, elide);
+                        if next.0 < quality.0 && next.1 <= quality.1 && next.2 <= quality.2 {
+                            stats.rewrites += 1;
+                            stats.interior_rewrites += usize::from(cut > start + 1 && cut < end);
+                            stats.cx_removed += quality.0 - next.0;
+                            quality = next;
+                            output = candidate;
+                            break 'cuts;
+                        }
+                        stats.depth_rejections += 1;
                     }
                 }
                 start += 1;
@@ -839,5 +935,88 @@ mod tests {
             }
         }
         assert_eq!(recognized, 72);
+    }
+
+    #[test]
+    fn backward_local_conjugations_use_exact_adjoint_actions() {
+        for q in 0..2 {
+            for gate in [
+                SmallGate::H(q),
+                SmallGate::S(q),
+                SmallGate::Sdg(q),
+                SmallGate::X(q),
+                SmallGate::Y(q),
+                SmallGate::Z(q),
+                SmallGate::SX(q),
+            ] {
+                let inverse = gate.inverse_table();
+                assert_eq!(inverse.compose(gate.table()), Clifford::identity());
+                assert_eq!(gate.table().compose(inverse), Clifford::identity());
+                let u = dense_gate(gate);
+                for p in Clifford::identity().0 {
+                    let expected = u.adjoint() * dense_pauli(p) * &u;
+                    let actual = dense_pauli(inverse.apply(p));
+                    // Pauli signs are observable here: do not align a phase.
+                    assert!((&expected - &actual).norm() < 1e-14);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn every_pair_of_transported_signed_interactions_has_exact_replacement() {
+        let mut interactions = Vec::new();
+        for (x0, z0) in [(1, 0), (0, 1), (1, 1)] {
+            for (x1, z1) in [(1, 0), (0, 1), (1, 1)] {
+                for signs in 0..4 {
+                    let mut p = Pauli::hermitian(x0, z0);
+                    let mut q = Pauli::hermitian(x1 << 1, z1 << 1);
+                    if signs & 1 != 0 {
+                        p = p.neg();
+                    }
+                    if signs & 2 != 0 {
+                        q = q.neg();
+                    }
+                    let pm = dense_pauli(p);
+                    let qm = dense_pauli(q);
+                    let matrix =
+                        (DMatrix::identity(4, 4) + &pm + &qm - &pm * &qm) * C::new(0.5, 0.0);
+                    interactions.push((Clifford::controlled(p, q), matrix));
+                }
+            }
+        }
+        assert_eq!(interactions.len(), 36);
+        let mut verified = 0;
+        for (left, left_matrix) in &interactions {
+            for (right, right_matrix) in &interactions {
+                let product = right.compose(*left);
+                let expected = right_matrix * left_matrix;
+                let mut found = false;
+                for swap in [false, true] {
+                    let target = if swap {
+                        product.compose(Clifford::swap())
+                    } else {
+                        product
+                    };
+                    if let Some(mut word) = synthesize(target) {
+                        if swap {
+                            word.insert(0, SmallGate::Swap);
+                        }
+                        assert_eq!(word_table(&word), product);
+                        let actual = word.iter().fold(DMatrix::identity(4, 4), |matrix, gate| {
+                            dense_gate(*gate) * matrix
+                        });
+                        assert_dense_equal(&expected, &actual);
+                        found = true;
+                    }
+                }
+                assert!(
+                    found,
+                    "a two-interaction Clifford must reduce with SWAP freedom"
+                );
+                verified += 1;
+            }
+        }
+        assert_eq!(verified, 1296);
     }
 }

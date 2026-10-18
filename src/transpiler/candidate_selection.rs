@@ -71,7 +71,7 @@ pub(crate) fn has_connected_interior_swaps(circuit: &Circuit, backend: &Backend)
 
 /// Count entangling gates, total depth, and entangling-only depth. The final
 /// common basis may use CX or CZ; choosing by CX spelling alone is incorrect.
-fn output_cost(circuit: &Circuit) -> Option<[usize; 3]> {
+pub(crate) fn output_cost(circuit: &Circuit) -> Option<[usize; 3]> {
     if super::validate_circuit_structure(circuit).is_err()
         || super::validate_static_semantics(circuit).is_err()
     {
