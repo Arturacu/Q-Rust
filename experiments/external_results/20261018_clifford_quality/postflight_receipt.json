@@ -1,0 +1,46 @@
+{
+  "all_stages_completed": true,
+  "stages": [
+    {
+      "name": "python_final_with_binary",
+      "exit_code": 0,
+      "wall_seconds": 14.496428708996973,
+      "log_sha256": "6f51bc416dd8e2edc63368f89041b440c6d681025f52c66ac5e45ed7e493c3f7"
+    },
+    {
+      "name": "canonical_replay_tests",
+      "exit_code": 0,
+      "wall_seconds": 0.10663275000115391,
+      "log_sha256": "621b10b0e2459ff4a99b18d2ba9b64ee5592edf7b773b9f7ec5c84ad36736341"
+    },
+    {
+      "name": "packaging_boundary_tests",
+      "exit_code": 0,
+      "wall_seconds": 0.06377879199862946,
+      "log_sha256": "d407d4d0912a8950e7ecc65015792232a6596c32a481bb63f520bd041640df62"
+    },
+    {
+      "name": "official_and_paired_validation",
+      "exit_code": 0,
+      "wall_seconds": 19.508554250001907,
+      "log_sha256": "5208e4fb20d237f426fd98a2505a4ffcf4dba1d0846b46f061fefcd514a8b3ad"
+    },
+    {
+      "name": "external_sdk_analysis",
+      "exit_code": 0,
+      "wall_seconds": 2.3470862500107614,
+      "log_sha256": "af76cb99a3c7f9d7cc6ce5bd7baa467e7efd6ac37d30b4c01ee3fa0b1c5ff0b3"
+    },
+    {
+      "name": "independent_paired_replay",
+      "exit_code": 0,
+      "wall_seconds": 10.439131292005186,
+      "log_sha256": "8132b30de77651c19d71ea16ce6b4d08c026f50cc2ec8e97594ec4ea0eca316e"
+    }
+  ],
+  "campaign": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/campaign_release",
+  "paired_protocol_sha256": "a22dfa90595ca9cab032c1a77ab37434e2208677154c8bd21562de3192e4105f",
+  "canonical_replay_receipt_sha256": "44f8ee452124bba63e0cf54f2a9544562d278524f04199df15b961abb5c9a5c2",
+  "canonical_summary_sha256": "c2d9ba5fff60535cfa274f41b70bd3f44bcfe23a2b6efe7a972b3854f5907901",
+  "excluded_replay_field": "validation.validation_ns"
+}

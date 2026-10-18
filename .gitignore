@@ -65,6 +65,7 @@ experiments/*
 !experiments/EXTERNAL_ROUTING_FOLLOWUP.md
 !experiments/EXTERNAL_RETENTION_FOLLOWUP.md
 !experiments/TKET_CLIFFORD_INVESTIGATION.md
+!experiments/CLIFFORD_QUALITY_RETENTION.md
 !experiments/BENCHPRESS_PILOT.md
 !experiments/external_results/
 !experiments/external_results/**

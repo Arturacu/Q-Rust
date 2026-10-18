@@ -1,0 +1,15 @@
+{
+  "compiler_commit": "65e6c64a66d68da79799c9ea6a344553cb844cc4",
+  "binary": "comparison_runner_final",
+  "binary_sha256": "3ae3dcdc258e8b96b41d552964c3863702e17e4112c6e864f13376d33efaf891",
+  "rust_passed": 484,
+  "rust_ignored": 4,
+  "rust_suites": 27,
+  "clippy_passed": true,
+  "formatting_passed": true,
+  "logs": {
+    "rust_release_final.log": "f93bb11adb050927a9f1804c004649d20f6d280e262e6f4d92224e38927d50c6",
+    "clippy_release_final.log": "6941b32c63939a8ff69a522d0ba35ad617a24ff7cd802a7cb00f043333809e84",
+    "fmt_release_final.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}
