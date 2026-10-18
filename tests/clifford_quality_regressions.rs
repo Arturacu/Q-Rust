@@ -155,6 +155,62 @@ fn embed(value: usize, layout: &[usize]) -> usize {
         .sum()
 }
 
+// Independently recognize the local Clifford action by conjugating the three
+// literal Pauli matrices. This does not use the compiler's gate classifier,
+// angle snapping, or any of its stored Clifford matrices.
+fn local_gate_preserves_paulis(operation: &Operation) -> bool {
+    let Operation::Gate {
+        name,
+        params,
+        qubits,
+    } = operation
+    else {
+        return false;
+    };
+    if qubits.len() != 1 {
+        return false;
+    }
+    let zero = C::new(0.0, 0.0);
+    let one = C::new(1.0, 0.0);
+    let i = C::new(0.0, 1.0);
+    let mut local = Circuit::new(1, 0);
+    local.add_op(Operation::Gate {
+        name: name.clone(),
+        params: params.clone(),
+        qubits: vec![0],
+    });
+    let columns = [
+        evolve(&local, vec![one, zero]),
+        evolve(&local, vec![zero, one]),
+    ];
+    let u = [
+        [columns[0][0], columns[1][0]],
+        [columns[0][1], columns[1][1]],
+    ];
+    let paulis = [
+        [[zero, one], [one, zero]],
+        [[zero, -i], [i, zero]],
+        [[one, zero], [zero, -one]],
+    ];
+    paulis.iter().all(|pauli| {
+        let mut image = [[zero; 2]; 2];
+        for (a, row) in image.iter_mut().enumerate() {
+            for (b, entry) in row.iter_mut().enumerate() {
+                for (c, pauli_row) in pauli.iter().enumerate() {
+                    for (d, p) in pauli_row.iter().enumerate() {
+                        *entry += u[a][c] * p * u[b][d].conj();
+                    }
+                }
+            }
+        }
+        paulis.iter().any(|target| {
+            [-1.0, 1.0].into_iter().any(|sign| {
+                (0..2).all(|a| (0..2).all(|b| (image[a][b] - sign * target[a][b]).norm() < 1e-12))
+            })
+        })
+    })
+}
+
 fn assert_isometry(input: &Circuit, output: &Circuit, report: &TranspilationReport) {
     let n = input.num_qubits;
     let identity: Vec<_> = (0..n).collect();
@@ -758,4 +814,61 @@ fn report_accumulates_optimization_and_post_expansion_clifford_rewrites() {
     assert_isometry(&input, &prefix_output, &prefix_report);
     assert_isometry(&input, &full_output, &full_report);
     assert_eq!(full_output, transpile(&input, Some(config)).unwrap());
+}
+
+#[test]
+fn numerical_block_synthesis_keeps_a_gatewise_clifford_representation() {
+    // This exact Clifford has a generic two-CX decomposition whose local
+    // factors are not Cliffords. Rejecting that representation must retain the
+    // input action without charging the numerical ledger for a rejected edit.
+    for (a, b) in [(0, 1), (1, 0)] {
+        let input = source(
+            2,
+            &format!(
+                "cx q[{a}],q[{b}]; cx q[{b}],q[{a}]; h q[{b}]; s q[{a}];
+                 cx q[{b}],q[{a}]; sdg q[{a}]; s q[{b}];"
+            ),
+        );
+        for elide in [false, true] {
+            let mut config = configuration(Backend::all_to_all(2), false, true, false);
+            config.encoded_swap_recognition = false;
+            config.routing_search.elide_output_permutations = elide;
+            let mut disabled = config.clone();
+            disabled.two_qubit_block_synthesis = false;
+            let (baseline, baseline_report) =
+                transpile_with_report(&input, Some(disabled)).unwrap();
+            let (output, report) = transpile_with_report(&input, Some(config.clone())).unwrap();
+            let stats = report.two_qubit_block_stats.as_ref().unwrap();
+            assert_eq!(stats.rejected_non_clifford_representation, 1);
+            assert_eq!(stats.accepted, 0);
+            assert_eq!(stats.cx_removed, 0);
+            assert_eq!(stats.residual_sum, 0.0);
+            assert_eq!(stats.max_residual, 0.0);
+            assert_eq!(cost(&output)[0], 3);
+            assert_eq!(output, baseline);
+            assert_eq!(report.initial_layout, baseline_report.initial_layout);
+            assert_eq!(report.final_layout, baseline_report.final_layout);
+            assert_eq!(report.numerical_budget, baseline_report.numerical_budget);
+            assert_isometry(&input, &output, &report);
+            for operation in &output.operations {
+                match operation {
+                    Operation::Gate {
+                        name: GateType::CX, ..
+                    } => (),
+                    Operation::Gate { qubits, .. } if qubits.len() == 1 => {
+                        assert!(local_gate_preserves_paulis(operation), "{operation:?}");
+                    }
+                    _ => panic!("unexpected output operation {operation:?}"),
+                }
+            }
+            assert_eq!(output, transpile(&input, Some(config.clone())).unwrap());
+            config.profile_passes = true;
+            let (profiled, mut profiled_report) =
+                transpile_with_report(&input, Some(config)).unwrap();
+            assert_eq!(output, profiled);
+            assert!(!profiled_report.pass_diagnostics.is_empty());
+            profiled_report.pass_diagnostics.clear();
+            assert_eq!(report, profiled_report);
+        }
+    }
 }

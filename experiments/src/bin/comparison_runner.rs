@@ -125,6 +125,7 @@ fn compile_one(request: &Value) -> Result<Value, String> {
             "pure_cx_fast_paths":s.pure_cx_fast_paths, "accepted":s.accepted,
             "cx_removed":s.cx_removed, "rejected_numerical":s.rejected_numerical,
             "rejected_no_cx_improvement":s.rejected_no_cx_improvement,
+            "rejected_non_clifford_representation":s.rejected_non_clifford_representation,
             "residual_sum":s.residual_sum, "max_residual":s.max_residual
         })
     });
