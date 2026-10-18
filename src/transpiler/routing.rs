@@ -152,6 +152,7 @@ fn is_diagonal(name: &GateType, params: &[f64]) -> bool {
             | GateType::Tdg
             | GateType::RZ
             | GateType::CZ
+            | GateType::CU1
             | GateType::CRZ
             | GateType::RZZ
     ) || matches!(name, GateType::U) && params.first() == Some(&0.0)
@@ -1137,28 +1138,78 @@ mod tests {
     }
 
     #[test]
+    fn controlled_phases_share_diagonal_epochs_but_not_local_fences() {
+        let mut circuit = Circuit::new(4, 0);
+        for (name, pair, params) in [
+            (GateType::CU1, [0, 1], vec![0.2]),
+            (GateType::CZ, [2, 0], vec![]),
+            (GateType::RZZ, [0, 3], vec![-0.3]),
+        ] {
+            circuit.add_op(Operation::Gate {
+                name,
+                qubits: pair.to_vec(),
+                params,
+            });
+        }
+        circuit.add_op(Operation::Gate {
+            name: GateType::U,
+            qubits: vec![0],
+            params: vec![0.0, 0.7, -0.2],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::CU1,
+            qubits: vec![1, 0],
+            params: vec![1e-15],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        for pair in [[0, 2], [3, 0]] {
+            circuit.add_op(Operation::Gate {
+                name: GateType::CU1,
+                qubits: pair.to_vec(),
+                params: vec![-0.4],
+            });
+        }
+        let (gates, predecessors, _) = build_gate_graph(&circuit, true);
+        assert_eq!(predecessors, vec![0, 0, 0, 0, 4, 4]);
+        for gate in &gates[..4] {
+            assert_eq!(gate.successors, vec![4, 5]);
+        }
+        let reversed = reverse_gate_graph(&gates);
+        assert_eq!(reversed[0].successors, vec![2, 3, 4, 5]);
+        assert_eq!(reversed[1].successors, vec![2, 3, 4, 5]);
+        let (_, strict_predecessors, _) = build_gate_graph(&circuit, false);
+        assert_eq!(strict_predecessors, vec![0, 1, 1, 2, 2, 2]);
+    }
+
+    #[test]
     fn only_exact_diagonal_locals_allow_routing_reordering() {
-        for theta in [0.0, 1e-15, -1e-15, std::f64::consts::TAU] {
-            let mut circuit = Circuit::new(3, 0);
-            circuit.add_op(Operation::Gate {
-                name: GateType::RZZ,
-                qubits: vec![0, 1],
-                params: vec![0.2],
-            });
-            circuit.add_op(Operation::Gate {
-                name: GateType::U,
-                qubits: vec![0],
-                params: vec![theta, 0.3, -0.1],
-            });
-            circuit.add_op(Operation::Gate {
-                name: GateType::RZZ,
-                qubits: vec![0, 2],
-                params: vec![0.4],
-            });
-            let (_, predecessors, _) = build_gate_graph(&circuit, true);
-            assert_eq!(predecessors, vec![0, usize::from(theta != 0.0)]);
-            let (_, strict, _) = build_gate_graph(&circuit, false);
-            assert_eq!(strict, vec![0, 1]);
+        for name in [GateType::RZZ, GateType::CU1] {
+            for theta in [0.0, 1e-15, -1e-15, std::f64::consts::TAU] {
+                let mut circuit = Circuit::new(3, 0);
+                circuit.add_op(Operation::Gate {
+                    name: name.clone(),
+                    qubits: vec![0, 1],
+                    params: vec![0.2],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: GateType::U,
+                    qubits: vec![0],
+                    params: vec![theta, 0.3, -0.1],
+                });
+                circuit.add_op(Operation::Gate {
+                    name: name.clone(),
+                    qubits: vec![0, 2],
+                    params: vec![0.4],
+                });
+                let (_, predecessors, _) = build_gate_graph(&circuit, true);
+                assert_eq!(predecessors, vec![0, usize::from(theta != 0.0)]);
+                let (_, strict, _) = build_gate_graph(&circuit, false);
+                assert_eq!(strict, vec![0, 1]);
+            }
         }
     }
 
