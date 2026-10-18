@@ -1,0 +1,15 @@
+{
+  "classification_source_sha256": "b1b04a35f26264ef9ddba1eb38b0d7ef54de2923d8e951c9ff1006904e34a16d",
+  "counts": {
+    "external:new:verified": 100,
+    "external:old:verified": 100,
+    "matched:new:unsupported_recognition": 2,
+    "matched:new:verified": 6,
+    "matched:old:unsupported_recognition": 2,
+    "matched:old:verified": 6
+  },
+  "definite_or_unclassified_failures": [],
+  "scope": "Posthoc interpretation of existing unchanged semantic evidence, without any compiler rerun or numerical checker change. Legacy outcomes remain untouched.",
+  "source_summary_sha256": "a930a7a04be992f24083de8135c1d07f5253fc9b2c1425b6f0628206e1aea3a6",
+  "source_validated_sha256": "5e10f5b5c1aeeb71e184a60ebe44fbecb171e9517dd4ae3514bdb84ad4c0dd10"
+}

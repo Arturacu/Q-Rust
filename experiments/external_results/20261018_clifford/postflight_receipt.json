@@ -1,0 +1,38 @@
+{
+  "all_stages_completed": true,
+  "stages": [
+    {
+      "name": "python_final_with_binary",
+      "exit_code": 0,
+      "wall_seconds": 14.304682375004631,
+      "log_sha256": "05cb164e42fc01556ffcb8a6e2190eb2d33431d06868343b5121672d0988ec71"
+    },
+    {
+      "name": "canonical_replay_tests",
+      "exit_code": 0,
+      "wall_seconds": 0.10604212500038557,
+      "log_sha256": "349f911fa8c22fadd4e78273f124a111486ef34763dfa99d5817e6463e59bcb8"
+    },
+    {
+      "name": "official_and_paired_validation",
+      "exit_code": 0,
+      "wall_seconds": 17.857360874986625,
+      "log_sha256": "25398d0b102c9395ca80338b2e66146bf9efd00453e221648f8a3dd845980816"
+    },
+    {
+      "name": "external_sdk_analysis",
+      "exit_code": 0,
+      "wall_seconds": 2.316293374999077,
+      "log_sha256": "af76cb99a3c7f9d7cc6ce5bd7baa467e7efd6ac37d30b4c01ee3fa0b1c5ff0b3"
+    },
+    {
+      "name": "independent_paired_replay",
+      "exit_code": 0,
+      "wall_seconds": 9.80004091700539,
+      "log_sha256": "8ca06f4263ba451724d2d9f86d6332011d5fe4855102f0d99c5db63dfd92cc58"
+    }
+  ],
+  "canonical_replay_receipt_sha256": "4a9cb0f5fa33a85b57135581b6042fc87bc305293d5557090f0271a9e97fbcac",
+  "canonical_summary_sha256": "87aef86809ba35f16cf23c1a21da5238583059f149b4285468dee3e0d6ea90c7",
+  "excluded_replay_field": "validation.validation_ns"
+}

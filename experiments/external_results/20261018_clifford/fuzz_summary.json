@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "passed": true,
+  "fixtures": 64,
+  "topologies": 2,
+  "compiled_outputs": 256,
+  "complete_isometry_checks": 256,
+  "relative_phase_negative_controls": 128,
+  "maximum_input_residual": 4.579504770221121e-15,
+  "maximum_ancilla_leakage_probability": 4.440892098500626e-16,
+  "failures": [],
+  "elapsed_seconds": 0.26480698585510254,
+  "records_sha256": "4ab89f25b53a25720bd754527efa78d5f259af45c46a45cadcc3088bc12b6926",
+  "provenance_sha256": "e3d09a936bbe864db8ff9abc5a51e9a71047871374f2da0d3fe177680d4fa4f5"
+}
