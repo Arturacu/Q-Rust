@@ -1,0 +1,16 @@
+{
+  "comparisons_sha256": "a8f136f30e92725f4638a4787bbe8e00df6aa508c117067b577d57a7e44ce158",
+  "compiled_outputs": 384,
+  "failures": [],
+  "fixtures": 64,
+  "full_isometry_checks": 384,
+  "maximum_input_residual": 4.579504770221121e-15,
+  "passed": true,
+  "provenance_sha256": "5e47fa109d6ce70c3f55aa17364d4a3ed28544070d818614d78bb4e955c5c6f8",
+  "records_sha256": "f78498a9e14c19c1b58c7715d77f88d823c8e8ea59159171d2e60d2e5f113892",
+  "relative_phase_negative_controls": 128,
+  "retention_comparisons": 91,
+  "schema": 1,
+  "selected_retained_inputs": 46,
+  "topologies": 2
+}

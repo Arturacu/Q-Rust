@@ -83,6 +83,8 @@ pub struct TranspilerConfig {
     pub routing_search: RoutingSearchConfig,
     /// At level 3, retain a bounded set of routing alternatives and accept
     /// only final-output Pareto improvements in two-qubit count and depths.
+    /// When cross-block Clifford rewrites run before routing, also retain one
+    /// independently routed and lowered continuation without those rewrites.
     /// Disable for a matched comparison with the single-route pipeline.
     pub retain_routing_candidates: bool,
 
@@ -868,6 +870,21 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 if let Some(ref basis) = resolved_basis {
                     pm.add_pass(Box::new(target_basis::TargetBasisPass::new(basis.clone())?));
                 }
+                if config.optimization_level >= 3
+                    && config.backend.is_some()
+                    && config.post_routing_cleanup
+                    && config.clifford_simplification
+                {
+                    // Target translation has expanded routing SWAPs into CXs
+                    // while preserving named local Cliffords. Simplify those
+                    // newly exposed interactions without changing physical
+                    // wires. Direction repair and final basis closure follow.
+                    pm.add_pass(Box::new(
+                        clifford_simplification::CliffordSimplificationPass {
+                            allow_swap_replacements: false,
+                        },
+                    ));
+                }
 
                 pm.add_pass(Box::new(decomposition::BasisDecompositionPass));
                 pm.add_pass(Box::new(KakSynthesisPass));
@@ -982,6 +999,15 @@ fn route_and_lower(
 ) -> Result<Vec<LoweredCandidate>> {
     let mut router = build_pass_manager_for(config, Stage::LayoutAndRoute)?;
     numerical_policy::fork(prefix_properties, &mut router.property_set);
+    if let Some(stats) = prefix_properties
+        .get::<clifford_simplification::CliffordSimplificationStats>(
+            "clifford_simplification_stats",
+        )
+    {
+        router
+            .property_set
+            .insert("clifford_simplification_stats", stats.clone());
+    }
     let routed = run_stage(
         &mut router,
         after_opt,
@@ -1089,6 +1115,91 @@ fn finish_compilation(
         ) {
             best = index;
         }
+    }
+    fn simplification_for(
+        candidate: &LoweredCandidate,
+    ) -> Option<&clifford_simplification::CliffordSimplificationStats> {
+        candidate
+            .properties
+            .get::<clifford_simplification::CliffordSimplificationStats>(
+                "clifford_simplification_stats",
+            )
+            .filter(|stats| stats.rewrites > 0)
+    }
+    // A post-routing rewrite can occur only on an alternative route. Prefer
+    // the portfolio winner's diagnostics, but any changed route triggers the
+    // independent continuation even if the incumbent was unchanged.
+    let attempted_simplification = simplification_for(&candidates[best])
+        .or_else(|| candidates.iter().find_map(simplification_for))
+        .cloned();
+    let retain_pre_clifford = config.retain_routing_candidates
+        && config.optimization_level >= 3
+        && config.decompose_basis
+        && config.backend.is_some()
+        && config.routing_search.elide_output_permutations
+        && config.clifford_simplification;
+    if let Some(attempted_simplification) = attempted_simplification.filter(|_| retain_pre_clifford)
+    {
+        let rewritten_output_cost = candidate_selection::output_cost(&candidates[best].circuit)
+            .expect("validated lowered output has a structural cost");
+        let mut retained_config = config.clone();
+        retained_config.clifford_simplification = false;
+        let first_diagnostic = diagnostics.len();
+        // Share only the optimization prefix. This continuation owns its
+        // numerical ledger, logical permutation, physical maps and cleanup
+        // counters. Disabling this one pass bounds the extra compilation and
+        // prevents recursion through this retention boundary.
+        let retained = finish_compilation(
+            after_opt,
+            prefix_properties,
+            &retained_config,
+            terminal,
+            diagnostics,
+        );
+        for entry in &mut diagnostics[first_diagnostic..] {
+            entry.output.stage = format!("pre-clifford-input::{}", entry.output.stage);
+        }
+        let mut stats = report::CliffordRetentionStats {
+            rewritten_output_cost,
+            retained_output_cost: None,
+            selected_output_cost: rewritten_output_cost,
+            selected_retained_input: false,
+            retained_compilation_failed: false,
+            attempted_simplification,
+        };
+        match retained {
+            Ok(retained) => {
+                let retained_cost = candidate_selection::output_cost(&retained.circuit)
+                    .expect("validated retained output has a structural cost");
+                stats.retained_output_cost = Some(retained_cost);
+                let reference = candidates.len();
+                candidates.push(retained);
+                best = reference;
+                // The reference is the fully compiled input before Clifford
+                // rewrites, not an intermediate routing score or a moving
+                // winner. Reconsider every rewritten route against it.
+                for index in 0..reference {
+                    if candidate_selection::prefer_output(
+                        &candidates[index].circuit,
+                        &candidates[best].circuit,
+                        &candidates[reference].circuit,
+                    ) {
+                        best = index;
+                    }
+                }
+                stats.selected_retained_input = best == reference;
+                stats.selected_output_cost =
+                    candidate_selection::output_cost(&candidates[best].circuit)
+                        .expect("validated selected output has a structural cost");
+            }
+            Err(error) => {
+                stats.retained_compilation_failed = true;
+                warn_diagnostic(format_args!("discarded pre-Clifford input: {error}"));
+            }
+        }
+        candidates[best]
+            .properties
+            .insert("clifford_retention_stats", stats);
     }
     Ok(candidates.swap_remove(best))
 }
@@ -1200,6 +1311,10 @@ pub fn transpile_with_report(
         })
         .cloned();
     report.numerical_budget = numerical_policy::snapshot(&selected.properties);
+    report.clifford_retention_stats = selected
+        .properties
+        .get::<report::CliffordRetentionStats>("clifford_retention_stats")
+        .cloned();
 
     Ok((final_circuit, report))
 }

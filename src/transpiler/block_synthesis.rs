@@ -13,6 +13,13 @@
 //! unitary blocks in exact arithmetic. Accepted replacements additionally use
 //! the shared pipeline allowance, so separate passes cannot reset the budget.
 //! This is a numerical guard, not a proof covering all floating-point error.
+//!
+//! Entirely gatewise Clifford pass inputs retain that representation. A
+//! numerical classifier only vetoes candidates that introduce non-Clifford
+//! local factors; it never snaps gates or authorizes a replacement. Mixed
+//! circuits keep unrestricted block resynthesis because their whole-circuit
+//! stabilizer representation is already absent. Barriers do not change this
+//! classification and remain global collection boundaries.
 
 use super::decomposition::BasisDecompositionPass;
 use super::numerical_policy::reserve;
@@ -27,6 +34,7 @@ use num_complex::Complex;
 
 const BLOCK_RESIDUAL_LIMIT: f64 = 1e-10;
 const CIRCUIT_RESIDUAL_BUDGET: f64 = 1e-9;
+const CLIFFORD_AXIS_TOLERANCE: f64 = 1e-12;
 
 /// Lightweight counters, written to `two_qubit_block_stats` after each run.
 /// No clocks or dense matrices larger than four by four are used by this pass.
@@ -39,6 +47,7 @@ pub struct TwoQubitBlockStats {
     pub cx_removed: usize,
     pub rejected_numerical: usize,
     pub rejected_no_cx_improvement: usize,
+    pub rejected_non_clifford_representation: usize,
     pub residual_sum: f64,
     pub max_residual: f64,
 }
@@ -80,6 +89,58 @@ fn is_cx(op: &Operation) -> bool {
             ..
         }
     )
+}
+
+/// Recognition is used only to retain the original operations. A false
+/// positive can reject an optimization, but cannot introduce an approximation
+/// or bypass the candidate's matrix-residual and shared-budget checks.
+fn has_clifford_local_factors(ops: &[Operation]) -> bool {
+    fn signed_coordinate(axis: [f64; 3]) -> Option<usize> {
+        for coordinate in 0..3 {
+            for sign in [-1.0, 1.0] {
+                let residual_squared: f64 = axis
+                    .iter()
+                    .enumerate()
+                    .map(|(index, value)| {
+                        let expected = if index == coordinate { sign } else { 0.0 };
+                        (value - expected).powi(2)
+                    })
+                    .sum();
+                if residual_squared <= CLIFFORD_AXIS_TOLERANCE.powi(2) {
+                    return Some(coordinate);
+                }
+            }
+        }
+        None
+    }
+
+    ops.iter().all(|op| match op {
+        Operation::Gate {
+            name: GateType::CX,
+            qubits,
+            params,
+        } => qubits.len() == 2 && qubits[0] != qubits[1] && params.is_empty(),
+        Operation::Gate {
+            name: GateType::U,
+            qubits,
+            params,
+        } if qubits.len() == 1 && params.len() == 3 && params.iter().all(|p| p.is_finite()) => {
+            // Up to global phase, U(theta,phi,lambda) = Rz(phi) Ry(theta)
+            // Rz(lambda). The X and Z columns of its SO(3) action must be
+            // distinct signed coordinate axes. This recognizes the matrix,
+            // including noncanonical Euler parameters that cancel each other.
+            let (st, ct) = params[0].sin_cos();
+            let (sp, cp) = params[1].sin_cos();
+            let (sl, cl) = params[2].sin_cos();
+            let x = [cp * ct * cl - sp * sl, sp * ct * cl + cp * sl, -st * cl];
+            let z = [cp * st, sp * st, ct];
+            match (signed_coordinate(x), signed_coordinate(z)) {
+                (Some(x), Some(z)) => x != z,
+                _ => false,
+            }
+        }
+        _ => false,
+    })
 }
 
 /// Construct next-on-wire dependencies once, avoiding repeated scans through
@@ -320,6 +381,16 @@ impl Pass for TwoQubitBlockSynthesisPass {
     }
 
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {
+        // Decide once from the whole pass input, not separately for each block.
+        // A Clifford region within a non-Clifford routine must not constrain
+        // otherwise valid numerical resynthesis of that mixed circuit.
+        let preserve_clifford_representation = circuit.operations.iter().all(|op| match op {
+            Operation::Barrier { qubits } => qubits.iter().all(|&q| q < circuit.num_qubits),
+            _ => {
+                lowered_wires(op, circuit.num_qubits).is_some()
+                    && has_clifford_local_factors(std::slice::from_ref(op))
+            }
+        });
         let successors = wire_successors(circuit);
         let predecessors = wire_predecessors(circuit);
         let mut processed = vec![false; circuit.operations.len()];
@@ -378,6 +449,10 @@ impl Pass for TwoQubitBlockSynthesisPass {
                 stats.rejected_no_cx_improvement += 1;
                 continue;
             }
+            if preserve_clifford_representation && !has_clifford_local_factors(&candidate) {
+                stats.rejected_non_clifford_representation += 1;
+                continue;
+            }
             let residual = block_matrix(&candidate, pair)
                 .and_then(|out| phase_aligned_residual(&matrix, &out));
             let Some(residual) = residual.filter(|r| {
@@ -422,6 +497,176 @@ impl Pass for TwoQubitBlockSynthesisPass {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn u_op(qubit: usize, theta: f64, phi: f64, lambda: f64) -> Operation {
+        Operation::Gate {
+            name: GateType::U,
+            qubits: vec![qubit],
+            params: vec![theta, phi, lambda],
+        }
+    }
+
+    fn clifford_synthesis_witness() -> Circuit {
+        use std::f64::consts::{FRAC_PI_2, PI};
+        let mut circuit = Circuit::new(2, 0);
+        circuit.operations = vec![
+            cx_op(0, 1),
+            cx_op(1, 0),
+            u_op(1, FRAC_PI_2, 0.0, PI),
+            u_op(0, 0.0, 0.0, FRAC_PI_2),
+            cx_op(1, 0),
+            u_op(0, 0.0, 0.0, -FRAC_PI_2),
+            u_op(1, 0.0, 0.0, FRAC_PI_2),
+        ];
+        circuit
+    }
+
+    #[test]
+    fn clifford_veto_recognizes_matrices_not_individual_euler_angles() {
+        use std::f64::consts::{FRAC_PI_2, PI};
+        for theta in -2..=2 {
+            for phi in -2..=2 {
+                for lambda in -2..=2 {
+                    assert!(has_clifford_local_factors(&[u_op(
+                        0,
+                        f64::from(theta) * FRAC_PI_2,
+                        f64::from(phi) * FRAC_PI_2,
+                        f64::from(lambda) * FRAC_PI_2,
+                    )]));
+                }
+            }
+        }
+        // Both Euler degeneracies represent a Clifford with arbitrary angles.
+        assert!(has_clifford_local_factors(&[u_op(0, 0.0, 0.371, -0.371)]));
+        assert!(has_clifford_local_factors(&[u_op(0, PI, 0.371, 0.371)]));
+        assert!(!has_clifford_local_factors(&[u_op(0, 0.0, 0.0, PI / 7.0)]));
+        assert!(!has_clifford_local_factors(&[u_op(0, 0.0, 0.0, 1e-9)]));
+        assert!(!has_clifford_local_factors(&[u_op(0, f64::NAN, 0.0, 0.0)]));
+        assert!(!has_clifford_local_factors(&[u_op(
+            0,
+            0.0,
+            f64::INFINITY,
+            0.0
+        )]));
+        assert!(!has_clifford_local_factors(&[Operation::Gate {
+            name: GateType::U,
+            qubits: vec![0],
+            params: vec![0.0, 0.0],
+        }]));
+    }
+
+    #[test]
+    fn non_clifford_factors_are_vetoed_without_charging_or_rewriting_input() {
+        use crate::transpiler::numerical_policy::snapshot;
+        let circuit = clifford_synthesis_witness();
+        let matrix = block_matrix(&circuit.operations, [0, 1]).unwrap();
+        let candidate = mapped_candidate(&matrix, [0, 1]).unwrap();
+        assert_eq!(candidate.iter().filter(|op| is_cx(op)).count(), 2);
+        assert!(has_clifford_local_factors(&circuit.operations));
+        assert!(!has_clifford_local_factors(&candidate));
+        assert!(
+            phase_aligned_residual(&matrix, &block_matrix(&candidate, [0, 1]).unwrap()).unwrap()
+                < BLOCK_RESIDUAL_LIMIT
+        );
+        let mut properties = PropertySet::new();
+        let before = snapshot(&properties);
+        let output = TwoQubitBlockSynthesisPass.run(&circuit, &mut properties);
+        assert_eq!(output, circuit);
+        assert_eq!(snapshot(&properties), before);
+        let stats = properties
+            .get::<TwoQubitBlockStats>("two_qubit_block_stats")
+            .unwrap();
+        assert_eq!(stats.rejected_non_clifford_representation, 1);
+        assert_eq!(stats.accepted, 0);
+        assert_eq!(stats.rejected_numerical, 0);
+    }
+
+    #[test]
+    fn whole_input_clifford_preservation_handles_barriers_and_mixed_routines() {
+        use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
+        let witness = clifford_synthesis_witness();
+        let expected_matrix = block_matrix(&witness.operations, [0, 1]).unwrap();
+        for (angle, mixed) in [(FRAC_PI_2, false), (FRAC_PI_4, true)] {
+            for external_first in [false, true] {
+                let barrier = Operation::Barrier { qubits: vec![2] };
+                let external = u_op(2, 0.0, 0.0, angle);
+                let mut circuit = witness.clone();
+                circuit.num_qubits = 3;
+                if external_first {
+                    circuit
+                        .operations
+                        .splice(0..0, [external.clone(), barrier.clone()]);
+                } else {
+                    circuit
+                        .operations
+                        .extend([barrier.clone(), external.clone()]);
+                }
+                let mut properties = PropertySet::new();
+                let output = TwoQubitBlockSynthesisPass.run(&circuit, &mut properties);
+                let stats = properties
+                    .get::<TwoQubitBlockStats>("two_qubit_block_stats")
+                    .unwrap();
+                assert_eq!(stats.accepted, usize::from(mixed));
+                assert_eq!(
+                    stats.rejected_non_clifford_representation,
+                    usize::from(!mixed)
+                );
+                assert_eq!(
+                    output.operations.iter().filter(|op| is_cx(op)).count(),
+                    if mixed { 2 } else { 3 }
+                );
+                // The other wire and the boundary remain byte-for-byte intact;
+                // the independent four-by-four oracle covers the entire block.
+                assert!(output.operations.contains(&external));
+                assert_eq!(
+                    output
+                        .operations
+                        .iter()
+                        .filter(|op| **op == barrier)
+                        .count(),
+                    1
+                );
+                let block: Vec<_> = output.operations.iter().filter(|op| {
+                    matches!(op, Operation::Gate { qubits, .. } if qubits.iter().all(|q| *q != 2))
+                }).cloned().collect();
+                assert!(
+                    phase_aligned_residual(
+                        &expected_matrix,
+                        &block_matrix(&block, [0, 1]).unwrap()
+                    )
+                    .unwrap()
+                        < BLOCK_RESIDUAL_LIMIT
+                );
+                if !mixed {
+                    assert_eq!(output, circuit);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn non_clifford_input_still_allows_verified_block_reductions() {
+        let mut circuit = Circuit::new(2, 0);
+        circuit.operations = vec![cx_op(0, 1), u_op(0, 0.0, 0.0, 0.317), cx_op(0, 1)];
+        assert!(!has_clifford_local_factors(&circuit.operations));
+        let mut properties = PropertySet::new();
+        let output = TwoQubitBlockSynthesisPass.run(&circuit, &mut properties);
+        assert_eq!(output.operations.iter().filter(|op| is_cx(op)).count(), 0);
+        assert!(!has_clifford_local_factors(&output.operations));
+        assert!(
+            phase_aligned_residual(
+                &block_matrix(&circuit.operations, [0, 1]).unwrap(),
+                &block_matrix(&output.operations, [0, 1]).unwrap(),
+            )
+            .unwrap()
+                < BLOCK_RESIDUAL_LIMIT
+        );
+        let stats = properties
+            .get::<TwoQubitBlockStats>("two_qubit_block_stats")
+            .unwrap();
+        assert_eq!(stats.accepted, 1);
+        assert_eq!(stats.rejected_non_clifford_representation, 0);
+    }
 
     #[test]
     fn exhausted_shared_allowance_cannot_be_reset_by_repeated_block_passes() {

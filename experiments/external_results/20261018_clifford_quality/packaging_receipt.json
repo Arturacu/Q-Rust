@@ -1,0 +1,46 @@
+{
+  "analysis_run": {
+    "command": [
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/../qrust_comparison_env/bin/python",
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/package_audit_v2/extracted/harness/experiments/paired_analysis.py",
+      "--repo",
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/package_audit_v2/extracted/harness",
+      "--campaign",
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/package_audit_v2/extracted/campaign",
+      "--output",
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/package_audit_v2/fresh_analysis"
+    ],
+    "exit_code": 0,
+    "log_sha256": "870f5033e14bc4e0209b68f908a66da8cab83250f7161f1181af403f3a57e48b"
+  },
+  "archive_sha256": "4616eaeab127fe37905c0175e2591fc6d08e73eca69b3aa09a89497b9f55f3e4",
+  "canonical_summary_sha256": "c2d9ba5fff60535cfa274f41b70bd3f44bcfe23a2b6efe7a972b3854f5907901",
+  "comparison_run": {
+    "command": [
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/../qrust_comparison_env/bin/python",
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/package_audit_v2/extracted/scripts/canonical_replay.py",
+      "--reference",
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/package_audit_v2/extracted/analysis",
+      "--replay",
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/package_audit_v2/fresh_analysis",
+      "--output",
+      "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_clifford_quality_20261018/package_audit_v2/canonical_replay_receipt.json"
+    ],
+    "exit_code": 0,
+    "log_sha256": "214c00df3ddbf6b06ef9ddd1faf4076ea7f3d492a634f05cd951e1101da0cbda"
+  },
+  "completed": true,
+  "extraction_audit": {
+    "all_payload_hashes_match": true,
+    "manifest_sha256": "3a7e72d9c1f7b831fc604b41b17a6da8ab1707118ca4b9961d6076d2a5dde5c5",
+    "payload_files": 1090
+  },
+  "historical_preservation_audit": {
+    "files_verified": 392,
+    "manifest_sha256": "907f67cf80695107715a90402a9f8b88c840909a74f7c2161fae0ea3e5870f0c"
+  },
+  "packaging_source_sha256": "2e8353c822763a2e5cd5b984c0d32fd19fe5c82ef56ebd744f8b76c1ab2a81ac",
+  "preserved_fresh_analysis": "Fresh replay outputs remain in the explicitly selected scratch/fresh_analysis directory.",
+  "replay_scope": "Fresh archived analysis is canonically byte-equal after excluding only verifier duration; all recorded compiler/parse/request timings remain exact.",
+  "schema": 1
+}

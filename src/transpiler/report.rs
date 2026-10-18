@@ -51,6 +51,24 @@ pub struct PassDiagnostic {
     pub output: StageSnapshot,
 }
 
+/// Final-output protection for Clifford rewrites before or after routing.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CliffordRetentionStats {
+    /// Costs are [two-qubit gates, total depth, two-qubit depth] after all
+    /// lowering, direction repair and terminal readout restoration.
+    /// This is the winner of the original routing portfolio, which can itself
+    /// retain an unrewritten local routing candidate.
+    pub rewritten_output_cost: [usize; 3],
+    pub retained_output_cost: Option<[usize; 3]>,
+    pub selected_output_cost: [usize; 3],
+    pub selected_retained_input: bool,
+    /// An unavailable optional continuation cannot certify nonregression.
+    pub retained_compilation_failed: bool,
+    /// Exact rewrites from the original portfolio winner, or the first changed
+    /// candidate if the winner had none. Includes work later discarded.
+    pub attempted_simplification: super::clifford_simplification::CliffordSimplificationStats,
+}
+
 /// Full transpilation report.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct TranspilationReport {
@@ -59,6 +77,8 @@ pub struct TranspilationReport {
     /// Exact cross-block Clifford simplification counters, when enabled.
     pub clifford_simplification_stats:
         Option<super::clifford_simplification::CliffordSimplificationStats>,
+    /// Final-output comparison with an independently lowered pre-Clifford input.
+    pub clifford_retention_stats: Option<CliffordRetentionStats>,
     /// Shared numerical replacement ledger; not a proof of equivalence.
     pub numerical_budget: super::numerical_policy::NumericalBudget,
     pub stages: Vec<StageSnapshot>,

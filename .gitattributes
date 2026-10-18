@@ -1,2 +1,3 @@
 # Keep the generated benchmark evidence expandable in code review.
 experiments/external_results/20261018_clifford/** linguist-generated=true
+experiments/external_results/20261018_clifford_quality/** linguist-generated=true

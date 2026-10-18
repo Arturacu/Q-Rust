@@ -16,6 +16,73 @@ REPO = Path(os.environ.get('QRUST_TEST_REPO', Path(__file__).resolve().parent.pa
 EXT, MATCHED = campaign.modules(REPO)
 
 
+class BaselineProvenanceTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.old_binary = self.root / 'old_binary'
+        self.old_binary.write_bytes(b'previously timed compiler')
+        self.directories = {suite: self.root / suite for suite in ('external', 'matched')}
+        for directory in self.directories.values():
+            directory.mkdir()
+        self.protocols = {
+            'external': {'qrust_binary_sha256': campaign.sha(self.old_binary),
+                         'compiler_commit': 'previous-timed-source',
+                         'compiler_provenance': {'git_head': 'previous-timed-source'}},
+            'matched': {'binary_sha256': campaign.sha(self.old_binary),
+                        'compiler_commit': 'previous-timed-source'},
+        }
+        self.write_protocols()
+
+    def write_protocols(self):
+        for suite, protocol in self.protocols.items():
+            (self.directories[suite] / 'protocol.json').write_text(json.dumps(protocol))
+        (self.directories['external'] / 'protocol.sha256').write_text(
+            campaign.sha(self.directories['external'] / 'protocol.json') + '\n')
+
+    def provenance(self):
+        return campaign.baseline_provenance(self.directories['external'], self.directories['matched'],
+                                            self.old_binary)
+
+    def test_identity_comes_from_both_timed_protocols(self):
+        actual = self.provenance()
+        self.assertEqual(actual['old_compiler_commit'], 'previous-timed-source')
+        self.assertEqual(actual['old_binary_sha256'], campaign.sha(self.old_binary))
+        self.assertEqual(actual['old_compiler_provenance'], self.protocols['external']['compiler_provenance'])
+        self.assertEqual(actual['baseline_protocol_sha256'],
+                         {suite: campaign.sha(path / 'protocol.json') for suite, path in self.directories.items()})
+
+    def test_rejects_different_binary(self):
+        self.old_binary.write_bytes(b'not the timed compiler')
+        with self.assertRaisesRegex(ValueError, 'both supplied baseline protocols'):
+            self.provenance()
+
+    def test_rejects_one_protocol_binding_another_binary(self):
+        for suite, field in [('external', 'qrust_binary_sha256'), ('matched', 'binary_sha256')]:
+            with self.subTest(suite=suite):
+                old = self.protocols[suite][field]
+                self.protocols[suite][field] = '0' * 64
+                self.write_protocols()
+                with self.assertRaisesRegex(ValueError, 'both supplied baseline protocols'):
+                    self.provenance()
+                self.protocols[suite][field] = old
+
+    def test_rejects_missing_or_disagreeing_timed_commit(self):
+        for commit in ('another-source', ''):
+            with self.subTest(commit=commit):
+                self.protocols['matched']['compiler_commit'] = commit
+                self.write_protocols()
+                with self.assertRaisesRegex(ValueError, 'compiler commits disagree'):
+                    self.provenance()
+
+    def test_rejects_external_protocol_with_changed_checksum(self):
+        (self.directories['external'] / 'protocol.json').write_text(json.dumps({
+            **self.protocols['external'], 'unbound_change': True}))
+        with self.assertRaisesRegex(ValueError, 'protocol checksum changed'):
+            self.provenance()
+
+
 class ScheduleTests(unittest.TestCase):
     def test_original_projection_and_pair_balance(self):
         for count, trials, tools in [(100, 7, ['qrust', 'qiskit', 'cirq', 'tket', 'cirq_one_pass', 'tket_light']),

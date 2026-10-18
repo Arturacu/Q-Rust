@@ -1,0 +1,67 @@
+{
+  "method": "Candidate median compile_ns divided by adjacent previous-baseline median compile_ns, separately for each session and topology; added percent is 100*(ratio-1). No pooling.",
+  "report_metrics_sha256": "5eb896490556f09b0079d36bed0224d8bdb1627cbfc0cb550e1076a7983f34d3",
+  "source_sha256": "9535d79768225124efcbe97822ff48936335baabc85151d8815c254a5e4d9e87",
+  "tables": {
+    "error_correction_tables": {
+      "1": {
+        "all_to_all": {
+          "added_percent": 96.21376950242175,
+          "new_compile_ms": 1.615167,
+          "new_over_old": 1.9621376950242175,
+          "old_compile_ms": 0.823167
+        },
+        "linear": {
+          "added_percent": 65.0232734825124,
+          "new_compile_ms": 3.327625,
+          "new_over_old": 1.650232734825124,
+          "old_compile_ms": 2.016458
+        }
+      },
+      "2": {
+        "all_to_all": {
+          "added_percent": 101.18650707290536,
+          "new_compile_ms": 1.617791,
+          "new_over_old": 2.0118650707290535,
+          "old_compile_ms": 0.804125
+        },
+        "linear": {
+          "added_percent": 66.64694736914574,
+          "new_compile_ms": 3.388834,
+          "new_over_old": 1.6664694736914574,
+          "old_compile_ms": 2.033541
+        }
+      }
+    },
+    "qec_encoder_tables": {
+      "1": {
+        "all_to_all": {
+          "added_percent": 90.03367603467036,
+          "new_compile_ms": 0.405167,
+          "new_over_old": 1.9003367603467036,
+          "old_compile_ms": 0.213208
+        },
+        "linear": {
+          "added_percent": 147.5591001379299,
+          "new_compile_ms": 2.37275,
+          "new_over_old": 2.475591001379299,
+          "old_compile_ms": 0.958458
+        }
+      },
+      "2": {
+        "all_to_all": {
+          "added_percent": 95.10968788941373,
+          "new_compile_ms": 0.403959,
+          "new_over_old": 1.9510968788941374,
+          "old_compile_ms": 0.207042
+        },
+        "linear": {
+          "added_percent": 144.3830137630867,
+          "new_compile_ms": 2.596875,
+          "new_over_old": 2.443830137630867,
+          "old_compile_ms": 1.062625
+        }
+      }
+    }
+  }
+}

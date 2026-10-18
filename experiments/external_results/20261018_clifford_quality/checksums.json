@@ -1,0 +1,74 @@
+{
+  "files": {
+    "archive_comparison.log": {
+      "bytes": 113,
+      "sha256": "214c00df3ddbf6b06ef9ddd1faf4076ea7f3d492a634f05cd951e1101da0cbda"
+    },
+    "archive_replay.log": {
+      "bytes": 5771,
+      "sha256": "870f5033e14bc4e0209b68f908a66da8cab83250f7161f1181af403f3a57e48b"
+    },
+    "canonical_replay_receipt.json": {
+      "bytes": 3597,
+      "sha256": "08037473901d2b4aca5e391c8606005133e3973f624ebfb5e55ad4fd051586a1"
+    },
+    "evidence.tar.gz": {
+      "bytes": 61014674,
+      "sha256": "4616eaeab127fe37905c0175e2591fc6d08e73eca69b3aa09a89497b9f55f3e4"
+    },
+    "external_summary.json": {
+      "bytes": 6994473,
+      "sha256": "e9bb8c0946192be20ed8565b4a57cfe6a2be15fe1a38f4e49d6aea9247b3d084"
+    },
+    "fuzz_summary.json": {
+      "bytes": 579,
+      "sha256": "82e02d927554c9dc67c864b9aba8c81419de8db6504211a70ebfdf22e5deb0ab"
+    },
+    "local_costs.json": {
+      "bytes": 2142,
+      "sha256": "1a2db85f5293ed2b1a6ccad6f1c58a8acb57ec06ec2fe25b9894c56924ffb2bf"
+    },
+    "matched_summary.json": {
+      "bytes": 64795,
+      "sha256": "6b137de191a113e9fd9f1907ff19c3dd6ca19e221fd3a8fdd9d6a4a535f1be21"
+    },
+    "original_preservation.json": {
+      "bytes": 83451,
+      "sha256": "907f67cf80695107715a90402a9f8b88c840909a74f7c2161fae0ea3e5870f0c"
+    },
+    "packaging_receipt.json": {
+      "bytes": 3114,
+      "sha256": "4968c31360a0f56b05db33fedcc5e4aff43fb00e1827fab47021538ec67ecb54"
+    },
+    "postflight_receipt.json": {
+      "bytes": 1805,
+      "sha256": "5823f6b8fae0892eaee75287b660dc2ddbc140092adb41234b1a0c56b8ba23b2"
+    },
+    "preflight_summary.json": {
+      "bytes": 82147,
+      "sha256": "3268b429d477fedcfe54c33a9b6a32a284233a629b10e022479d79552ece3f49"
+    },
+    "python_final_with_binary.log": {
+      "bytes": 40343,
+      "sha256": "6f51bc416dd8e2edc63368f89041b440c6d681025f52c66ac5e45ed7e493c3f7"
+    },
+    "release_source_receipt.json": {
+      "bytes": 623,
+      "sha256": "6213380f0ce9f1ad68a856a6bea0d872c1d3d1ca5bb17aab14c69b85f2e15d57"
+    },
+    "report_metrics.json": {
+      "bytes": 7528280,
+      "sha256": "5eb896490556f09b0079d36bed0224d8bdb1627cbfc0cb550e1076a7983f34d3"
+    },
+    "sha256_manifest.json": {
+      "bytes": 187300,
+      "sha256": "3a7e72d9c1f7b831fc604b41b17a6da8ab1707118ca4b9961d6076d2a5dde5c5"
+    },
+    "summary.json": {
+      "bytes": 2584651,
+      "sha256": "1d810ea025df3bb0231ef623de5df8c6834557a96d8e3e849b9837eb3918dde5"
+    }
+  },
+  "schema": 1,
+  "scope": "Every deliverable except this self-referential checksum file. sha256_manifest.json binds each archive payload file."
+}
