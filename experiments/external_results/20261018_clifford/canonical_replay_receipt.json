@@ -1,0 +1,82 @@
+{
+  "canonical_summary_sha256": "87aef86809ba35f16cf23c1a21da5238583059f149b4285468dee3e0d6ea90c7",
+  "comparison": "Semantic rows and summaries are byte-identical after excluding only fresh verifier duration and substituting canonical-row checksums.",
+  "comparison_source_sha256": "2fba477417c0ccc328ef24891498ed5bd680b441ee7a78f7aad327151ab8d936",
+  "excluded_row_fields": [
+    "validation.validation_ns"
+  ],
+  "passed": true,
+  "raw_summaries_byte_equal": false,
+  "reference_summary_sha256": "6dc71fa826b1771ee9514bc2f72ebb422e8a5296de92b14ca38229d0d6dae1b0",
+  "replay_summary_sha256": "5f913c549893314ebdefe66892795e274b70cc25cdc904b73c6bcde2740e1881",
+  "row_files": {
+    "external_session_1.jsonl": {
+      "canonical_bytes_equal": true,
+      "reference": {
+        "canonical_sha256": "fe34588e2b7398df3d5e2b08cb1d7e06caab294dd421b829b3542e1eee2c7204",
+        "raw_sha256": "3fdaabf92ad35bace57da9c9da396ea5ee506675e0479c56380889e321d568b7",
+        "rows": 5600,
+        "verifier_timer_fields_excluded": 5600
+      },
+      "replay": {
+        "canonical_sha256": "fe34588e2b7398df3d5e2b08cb1d7e06caab294dd421b829b3542e1eee2c7204",
+        "raw_sha256": "754e48749a31a6b2755d1f177e8949d70dcac183b3308f7b3db20bbe322352a0",
+        "rows": 5600,
+        "verifier_timer_fields_excluded": 5600
+      }
+    },
+    "external_session_2.jsonl": {
+      "canonical_bytes_equal": true,
+      "reference": {
+        "canonical_sha256": "e41d7815186731b7cbb86417a5bb6be5c05c90b1140afd5dec09552938263e84",
+        "raw_sha256": "2d4377272d90929e6ae407eabad2b5e85ba6d33d4055f49d9c14ec937f433053",
+        "rows": 5600,
+        "verifier_timer_fields_excluded": 5600
+      },
+      "replay": {
+        "canonical_sha256": "e41d7815186731b7cbb86417a5bb6be5c05c90b1140afd5dec09552938263e84",
+        "raw_sha256": "51aff1ddd7f9b32a22e598c1a6db969fa6913d3fcaae1807f210b925b385bf07",
+        "rows": 5600,
+        "verifier_timer_fields_excluded": 5600
+      }
+    },
+    "matched_session_1.jsonl": {
+      "canonical_bytes_equal": true,
+      "reference": {
+        "canonical_sha256": "33a3f447c13a84a58a0b93d103f1a4fd431fee0d2d5bbe652605cf1410958145",
+        "raw_sha256": "33a3f447c13a84a58a0b93d103f1a4fd431fee0d2d5bbe652605cf1410958145",
+        "rows": 160,
+        "verifier_timer_fields_excluded": 0
+      },
+      "replay": {
+        "canonical_sha256": "33a3f447c13a84a58a0b93d103f1a4fd431fee0d2d5bbe652605cf1410958145",
+        "raw_sha256": "33a3f447c13a84a58a0b93d103f1a4fd431fee0d2d5bbe652605cf1410958145",
+        "rows": 160,
+        "verifier_timer_fields_excluded": 0
+      }
+    },
+    "matched_session_2.jsonl": {
+      "canonical_bytes_equal": true,
+      "reference": {
+        "canonical_sha256": "9d8ed6827871cbe14f7aeca80eeba21e95dc7b880fc140b3836499b6de19b074",
+        "raw_sha256": "9d8ed6827871cbe14f7aeca80eeba21e95dc7b880fc140b3836499b6de19b074",
+        "rows": 160,
+        "verifier_timer_fields_excluded": 0
+      },
+      "replay": {
+        "canonical_sha256": "9d8ed6827871cbe14f7aeca80eeba21e95dc7b880fc140b3836499b6de19b074",
+        "raw_sha256": "9d8ed6827871cbe14f7aeca80eeba21e95dc7b880fc140b3836499b6de19b074",
+        "rows": 160,
+        "verifier_timer_fields_excluded": 0
+      }
+    }
+  },
+  "row_transform": "Replace existing nonnegative integer validation.validation_ns values with null; preserve field presence.",
+  "schema": 1,
+  "summary_transform": "Replace suites.<suite>.sessions.<session>.validated_rows_sha256 with SHA256 of canonical rows.",
+  "unchanged_timing_fields": [
+    "compile_ns",
+    "parse_ns",
+    "request_wall_ns"
+  ]
+}

@@ -5,8 +5,10 @@
 
 pub mod block_synthesis;
 mod candidate_selection;
+pub mod clifford_simplification;
 pub mod dag;
 pub mod decomposition;
+pub mod encoded_swaps;
 pub mod layout;
 pub mod local_cleanup;
 pub mod numerical_policy;
@@ -97,12 +99,17 @@ pub struct TranspilerConfig {
     /// Fuse checked local U runs after level-3 two-qubit block synthesis.
     /// Disable to isolate the local-gate and depth cost of block replacements.
     pub post_block_fusion: bool,
+    /// Recognize exact named-Clifford encodings of SWAP at level 3.
+    pub encoded_swap_recognition: bool,
+    /// Simplify commuting Clifford interactions across block boundaries at level 3.
+    pub clifford_simplification: bool,
     /// Optimization level (clamped to `[0, 3]` by the builder).
     /// - 0: no optimization passes.
     /// - 1: peephole crystallization + parameter simplification.
     /// - 2: + rotation merging, cross-conjugation, inverse cancellation,
     ///   commutation cancellation, layout (10 trials × 3 iters), routing.
-    /// - 3: layout (10 trials × 3 iters), harder routing (beam=8,
+    /// - 3: exact encoded-SWAP recognition and bounded cross-block Clifford
+    ///   simplification, layout (10 trials × 3 iters), harder routing (beam=8,
     ///   branch=5, 4 bidirectional iterations), post-routing fusion, and
     ///   conservative two-qubit block resynthesis when basis lowering is on.
     ///   Use `routing_search` to increase the layout search budget.
@@ -133,6 +140,8 @@ impl Default for TranspilerConfig {
             two_qubit_block_synthesis: true,
             recover_phase_gadgets: true,
             post_block_fusion: true,
+            encoded_swap_recognition: true,
+            clifford_simplification: true,
             optimization_level: 1,
             backend: None,
             target_basis: None,
@@ -159,6 +168,8 @@ pub struct TranspilerConfigBuilder {
     two_qubit_block_synthesis: Option<bool>,
     recover_phase_gadgets: Option<bool>,
     post_block_fusion: Option<bool>,
+    encoded_swap_recognition: Option<bool>,
+    clifford_simplification: Option<bool>,
     optimization_level: Option<u8>,
     backend: Option<crate::backend::Backend>,
     target_basis: Option<HashSet<String>>,
@@ -207,6 +218,16 @@ impl TranspilerConfigBuilder {
         self.post_block_fusion = Some(enabled);
         self
     }
+    /// Recognize exact encoded SWAPs at level 3 (default: true).
+    pub fn encoded_swap_recognition(mut self, enabled: bool) -> Self {
+        self.encoded_swap_recognition = Some(enabled);
+        self
+    }
+    /// Simplify cross-block Clifford interactions at level 3 (default: true).
+    pub fn clifford_simplification(mut self, enabled: bool) -> Self {
+        self.clifford_simplification = Some(enabled);
+        self
+    }
     /// Set the optimization level. Clamped to `[0, 3]` at `build()` time.
     pub fn optimization_level(mut self, level: u8) -> Self {
         self.optimization_level = Some(level);
@@ -252,6 +273,12 @@ impl TranspilerConfigBuilder {
                 .recover_phase_gadgets
                 .unwrap_or(default.recover_phase_gadgets),
             post_block_fusion: self.post_block_fusion.unwrap_or(default.post_block_fusion),
+            encoded_swap_recognition: self
+                .encoded_swap_recognition
+                .unwrap_or(default.encoded_swap_recognition),
+            clifford_simplification: self
+                .clifford_simplification
+                .unwrap_or(default.clifford_simplification),
             optimization_level: level,
             backend: self.backend,
             target_basis: self.target_basis,
@@ -754,6 +781,21 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                     optimization::ParameterSimplificationPass::default(),
                 ));
             }
+            if config.optimization_level >= 3 {
+                if config.encoded_swap_recognition {
+                    pm.add_pass(Box::new(encoded_swaps::EncodedSwapRecognitionPass));
+                }
+                if config.clifford_simplification
+                    && !(config.backend.is_some()
+                        && config.routing_search.elide_output_permutations)
+                {
+                    pm.add_pass(Box::new(
+                        clifford_simplification::CliffordSimplificationPass {
+                            allow_swap_replacements: false,
+                        },
+                    ));
+                }
+            }
         }
         Stage::LayoutAndRoute => {
             if let Some(ref backend) = config.backend {
@@ -763,6 +805,14 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 // gate. Standard transpiler ordering (decompose, then route).
                 if config.routing_search.elide_output_permutations {
                     pm.add_pass(Box::new(optimization::ExtractOutputPermutationPass));
+                    if config.optimization_level >= 3 && config.clifford_simplification {
+                        pm.add_pass(Box::new(
+                            clifford_simplification::CliffordSimplificationPass {
+                                allow_swap_replacements: true,
+                            },
+                        ));
+                        pm.add_pass(Box::new(optimization::ComposeOutputPermutationPass));
+                    }
                 }
                 pm.add_pass(Box::new(decomposition::HighArityDecompositionPass));
 
@@ -957,6 +1007,13 @@ fn route_and_lower(
             {
                 properties.insert("logical_output_permutation", permutation.clone());
             }
+            if let Some(stats) = router
+                .property_set
+                .get::<clifford_simplification::CliffordSimplificationStats>(
+                "clifford_simplification_stats",
+            ) {
+                properties.insert("clifford_simplification_stats", stats.clone());
+            }
             properties.insert("initial_layout", alternative.initial_layout);
             properties.insert("final_layout", alternative.final_layout);
             properties.insert("swaps_inserted", alternative.swaps_inserted);
@@ -1124,6 +1181,23 @@ pub fn transpile_with_report(
     report.post_block_fusion_stats = selected
         .properties
         .get::<local_cleanup::PostBlockFusionStats>("post_block_fusion_stats")
+        .cloned();
+    report.encoded_swap_stats = opt_pm
+        .property_set
+        .get::<encoded_swaps::EncodedSwapStats>("encoded_swap_stats")
+        .cloned();
+    report.clifford_simplification_stats = selected
+        .properties
+        .get::<clifford_simplification::CliffordSimplificationStats>(
+            "clifford_simplification_stats",
+        )
+        .or_else(|| {
+            opt_pm
+                .property_set
+                .get::<clifford_simplification::CliffordSimplificationStats>(
+                    "clifford_simplification_stats",
+                )
+        })
         .cloned();
     report.numerical_budget = numerical_policy::snapshot(&selected.properties);
 

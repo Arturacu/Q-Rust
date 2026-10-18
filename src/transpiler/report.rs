@@ -54,6 +54,11 @@ pub struct PassDiagnostic {
 /// Full transpilation report.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct TranspilationReport {
+    /// Exact encoded-SWAP recognition counters, when enabled.
+    pub encoded_swap_stats: Option<super::encoded_swaps::EncodedSwapStats>,
+    /// Exact cross-block Clifford simplification counters, when enabled.
+    pub clifford_simplification_stats:
+        Option<super::clifford_simplification::CliffordSimplificationStats>,
     /// Shared numerical replacement ledger; not a proof of equivalence.
     pub numerical_budget: super::numerical_policy::NumericalBudget,
     pub stages: Vec<StageSnapshot>,

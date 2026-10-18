@@ -1074,6 +1074,40 @@ impl Pass for ExtractOutputPermutationPass {
     }
 }
 
+/// Absorb newly introduced SWAPs after an earlier extraction, preserving its
+/// output-wire contract. If the old logical output l is on wire p1[l], and
+/// this extraction moves wire q to p2[q], the composed map is p2[p1[l]].
+#[derive(Debug, Clone, Copy)]
+pub struct ComposeOutputPermutationPass;
+
+impl Pass for ComposeOutputPermutationPass {
+    fn name(&self) -> &str {
+        "ComposeOutputPermutationPass"
+    }
+    fn run(&self, circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
+        let mut fresh = PropertySet::new();
+        let output = ExtractOutputPermutationPass.run(circuit, &mut fresh);
+        if let Some(next) = fresh.remove::<Vec<usize>>("logical_output_permutation") {
+            let composed = if let Some(previous) =
+                properties.get::<Vec<usize>>("logical_output_permutation")
+            {
+                // Metadata is internal to the pipeline; fail closed for direct
+                // calls carrying an invalid map rather than indexing it.
+                let mut sorted = previous.clone();
+                sorted.sort_unstable();
+                if sorted != (0..circuit.num_qubits).collect::<Vec<_>>() {
+                    return circuit.clone();
+                }
+                previous.iter().map(|&q| next[q]).collect()
+            } else {
+                *next
+            };
+            properties.insert("logical_output_permutation", composed);
+        }
+        output
+    }
+}
+
 /// Compose an extracted logical permutation with the physical output mapping.
 #[derive(Debug, Clone, Copy)]
 pub struct ApplyOutputPermutationPass;

@@ -51,6 +51,8 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "recover_phase_gadgets",
         "commute_diagonal",
         "post_block_fusion",
+        "encoded_swap_recognition",
+        "clifford_simplification",
     ] {
         if request.get(field).is_some() && request[field].as_bool().is_none() {
             return Err(format!("{field} must be a boolean"));
@@ -91,6 +93,10 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         .unwrap_or(true);
     let phase_recovery_enabled = request["recover_phase_gadgets"].as_bool().unwrap_or(true);
     let post_block_fusion_enabled = request["post_block_fusion"].as_bool().unwrap_or(true);
+    let encoded_swaps_enabled = request["encoded_swap_recognition"]
+        .as_bool()
+        .unwrap_or(true);
+    let clifford_enabled = request["clifford_simplification"].as_bool().unwrap_or(true);
     let started = Instant::now();
     let mut backend = Backend::new(topology, width);
     backend.set_coupling_map(edges.iter().flat_map(|&(a, b)| [(a, b), (b, a)]));
@@ -101,6 +107,8 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         .two_qubit_block_synthesis(block_synthesis_enabled)
         .recover_phase_gadgets(phase_recovery_enabled)
         .post_block_fusion(post_block_fusion_enabled)
+        .encoded_swap_recognition(encoded_swaps_enabled)
+        .clifford_simplification(clifford_enabled)
         .backend(backend)
         .target_basis(["u", "cx"])
         .build();
@@ -128,6 +136,19 @@ fn compile_one(request: &Value) -> Result<Value, String> {
             "max_residual":s.max_residual
         })
     });
+    let encoded_swap_stats = report.encoded_swap_stats.as_ref().map(|s| {
+        json!({
+            "candidates":s.candidates, "swaps_recognized":s.swaps_recognized,
+            "operations_removed":s.operations_removed
+        })
+    });
+    let clifford_stats = report.clifford_simplification_stats.as_ref().map(|s| {
+        json!({
+            "candidates":s.candidates, "rewrites":s.rewrites, "cx_removed":s.cx_removed,
+            "depth_rejections":s.depth_rejections, "candidate_evaluations":s.candidate_evaluations,
+        "budget_exhausted":s.budget_exhausted
+        })
+    });
     let initial = report
         .initial_layout
         .unwrap_or_else(|| (0..logical).collect());
@@ -139,6 +160,8 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "out_qasm":output.to_qasm(None), "output_qubits":output.num_qubits,
         "initial_layout":initial[..logical].to_vec(), "final_layout":final_layout[..logical].to_vec(),
         "seed_used":false, "pass_diagnostics":pass_diagnostics, "effective_search":effective_search,
+        "encoded_swap_recognition":encoded_swaps_enabled, "encoded_swap_stats":encoded_swap_stats,
+        "clifford_simplification":clifford_enabled, "clifford_simplification_stats":clifford_stats,
         "two_qubit_block_synthesis":block_synthesis_enabled, "two_qubit_block_stats":block_stats,
         "recover_phase_gadgets":phase_recovery_enabled, "post_block_fusion":post_block_fusion_enabled,
         "phase_gadgets_recovered":report.phase_gadgets_recovered, "post_block_fusion_stats":fusion_stats,
@@ -148,7 +171,7 @@ fn compile_one(request: &Value) -> Result<Value, String> {
             "charged_error":report.numerical_budget.charged_error,
             "allowance":q_rust::transpiler::numerical_policy::CIRCUIT_ERROR_ALLOWANCE
         },
-        "pipeline":"Q-Rust public transpile_with_report O3; U/CX; optional exact phase recovery and diagonal routing dependencies; deterministic candidate ties and seeded layout starts; optional post-routing two-qubit block synthesis and checked local fusion"
+        "pipeline":"Q-Rust public transpile_with_report O3; U/CX; optional exact phase recovery, encoded-SWAP recognition, cross-block Clifford simplification and diagonal routing dependencies; deterministic candidate ties and seeded layout starts; optional post-routing two-qubit block synthesis and checked local fusion"
     }))
 }
 
@@ -216,6 +239,8 @@ mod tests {
             "recover_phase_gadgets",
             "commute_diagonal",
             "post_block_fusion",
+            "encoded_swap_recognition",
+            "clifford_simplification",
         ] {
             for bad in [json!("false"), json!(0), Value::Null] {
                 let mut input = request();

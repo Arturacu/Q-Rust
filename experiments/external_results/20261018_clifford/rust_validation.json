@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "commands": [
+    {
+      "command": "cargo test --workspace --all-features",
+      "exit_code": 0,
+      "tests_passed": 461,
+      "test_binaries_and_doctests": 26,
+      "log": "verification/cargo_test_all_features.log",
+      "sha256": "2a39f0ca6664726d8bcc4b2b6444114fc86ef06a265df40b2d5e19e223b1e181"
+    },
+    {
+      "command": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+      "exit_code": 0,
+      "log": "verification/cargo_clippy.log",
+      "sha256": "c9f9ea91f482af21a10ac727c90165534c725f43b0e08a253f088b7babdb0bf8"
+    }
+  ],
+  "source_hashes": {
+    "src/transpiler/clifford_simplification.rs": "83e70800ef1fd6174b061b896576c1e1b431a4ea03f80e6697af02137003e6e1",
+    "src/transpiler/encoded_swaps.rs": "a292d418ffc222fc76f3aebfda1f152f70df382c26021c73d7b7bbb36c204ec6",
+    "src/transpiler/optimization.rs": "f8c1b80953d6e8cc4cdac79f2d2abcad5f76c2e1b0bf36f518c896680651ac07",
+    "src/transpiler/mod.rs": "ab056b7081ddecade2520f079d5de02886d2b76ed47537f70bc4ca0c54363829",
+    "tests/clifford_optimization_regressions.rs": "f369f4af03b2d5f128054c241ba8582d1f459ed32a8d7f89cea438dbd1ef1f49"
+  },
+  "git_head": "36ddc6375d4690f3f16966a67395cfe4708725be",
+  "scope": "Source includes uncommitted implementation changes; source hashes bind this receipt, not git HEAD alone."
+}
