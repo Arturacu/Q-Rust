@@ -1,0 +1,644 @@
+{
+  "scope": "Existing primary corpus; correctness and output quality only; no timing comparison",
+  "corrected_binary_sha256": "004ca5c49481ef7eed018bb33686ee0e8f27e6504758ba0b0d804783ee90d047",
+  "oracle_sha256": "55de70f9fe47d9fcaeb1497bd04b377e5582afc9289e6948dc6c32ebe5bda6d4",
+  "regressions": {
+    "source_commit": "dbc4645f3183b2d44dc076f431b98932510c9a20",
+    "binary_sha256": "004ca5c49481ef7eed018bb33686ee0e8f27e6504758ba0b0d804783ee90d047",
+    "test_source_sha256": "f45a348e4779e914a4a4f7942b470d98c3372610d3c10e82168595fdf48de8ea",
+    "python_test_count": 112,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "all_python_log_sha256": "5e668c47c776af7449be229659d3e635a8b3df244254590fe78f5ffeb488a9de",
+    "adversarial_case_count": 51,
+    "adversarial_failed": 0,
+    "max_analytic_residual": 4.6051947119631266e-11,
+    "original_accumulated_rx_residual": 7.72922475960465e-21,
+    "tolerance": 1e-07,
+    "adversarial_evidence_reused": "Corrected and final rebuilt workers are byte-identical by SHA256; the existing 51-case artifact remains applicable. Full Python discovery rerun on the final source and final binary includes the same 51 regressions. No new measurement campaign.",
+    "note": "Untimed correctness regression run; worker compile_ns fields must not be used as performance comparisons."
+  },
+  "rust_tests_passed": 398,
+  "separately_enabled_cli_tests_passed": 4,
+  "saved_revalidation": {
+    "all_saved_passed": true,
+    "saved_rows": 3444,
+    "saved_unique_artifacts": 698,
+    "saved_unique_evidence_classes": {
+      "full_isometry": 123,
+      "sampled_isometry": 575
+    }
+  },
+  "corrected_revalidation": {
+    "corrected_all_passed": true,
+    "corrected_cases": 123,
+    "corrected_evidence_classes": {
+      "full_isometry": 26,
+      "sampled_isometry": 97
+    },
+    "worst_corrected_residual": 1.2267391448917767e-14,
+    "same_layout_cases": 123,
+    "configuration_differences": [],
+    "quality_counts": {
+      "cx_count": {
+        "equal": 123
+      },
+      "depth": {
+        "equal": 117,
+        "worse": 6
+      },
+      "gate_count": {
+        "equal": 107,
+        "improved": 1,
+        "worse": 15
+      },
+      "two_q_depth": {
+        "equal": 123
+      }
+    },
+    "quality_changed_cases": [
+      {
+        "after": {
+          "cx_count": 70,
+          "depth": 87,
+          "gate_count": 139,
+          "two_q_depth": 59
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 70,
+          "depth": 87,
+          "gate_count": 138,
+          "two_q_depth": 59
+        },
+        "before_passed": true,
+        "case_id": "clifford_5__ibm_nairobi",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": 1,
+          "two_q_depth": 0
+        },
+        "family": "clifford",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "ibm_nairobi"
+      },
+      {
+        "after": {
+          "cx_count": 72,
+          "depth": 75,
+          "gate_count": 142,
+          "two_q_depth": 53
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 72,
+          "depth": 74,
+          "gate_count": 141,
+          "two_q_depth": 53
+        },
+        "before_passed": true,
+        "case_id": "clifford_5__linear",
+        "delta": {
+          "cx_count": 0,
+          "depth": 1,
+          "gate_count": 1,
+          "two_q_depth": 0
+        },
+        "family": "clifford",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "linear"
+      },
+      {
+        "after": {
+          "cx_count": 148,
+          "depth": 130,
+          "gate_count": 247,
+          "two_q_depth": 103
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 148,
+          "depth": 130,
+          "gate_count": 246,
+          "two_q_depth": 103
+        },
+        "before_passed": true,
+        "case_id": "clifford_7__linear",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": 1,
+          "two_q_depth": 0
+        },
+        "family": "clifford",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "linear"
+      },
+      {
+        "after": {
+          "cx_count": 10,
+          "depth": 21,
+          "gate_count": 30,
+          "two_q_depth": 10
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 10,
+          "depth": 20,
+          "gate_count": 20,
+          "two_q_depth": 10
+        },
+        "before_passed": true,
+        "case_id": "graphstate_10__all_to_all",
+        "delta": {
+          "cx_count": 0,
+          "depth": 1,
+          "gate_count": 10,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "all_to_all"
+      },
+      {
+        "after": {
+          "cx_count": 22,
+          "depth": 8,
+          "gate_count": 46,
+          "two_q_depth": 5
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 22,
+          "depth": 8,
+          "gate_count": 40,
+          "two_q_depth": 5
+        },
+        "before_passed": true,
+        "case_id": "graphstate_10__linear",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": 6,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "linear"
+      },
+      {
+        "after": {
+          "cx_count": 12,
+          "depth": 25,
+          "gate_count": 36,
+          "two_q_depth": 12
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 12,
+          "depth": 24,
+          "gate_count": 24,
+          "two_q_depth": 12
+        },
+        "before_passed": true,
+        "case_id": "graphstate_12__all_to_all",
+        "delta": {
+          "cx_count": 0,
+          "depth": 1,
+          "gate_count": 12,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "all_to_all"
+      },
+      {
+        "after": {
+          "cx_count": 27,
+          "depth": 8,
+          "gate_count": 56,
+          "two_q_depth": 5
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 27,
+          "depth": 8,
+          "gate_count": 49,
+          "two_q_depth": 5
+        },
+        "before_passed": true,
+        "case_id": "graphstate_12__linear",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": 7,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "linear"
+      },
+      {
+        "after": {
+          "cx_count": 14,
+          "depth": 29,
+          "gate_count": 42,
+          "two_q_depth": 14
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 14,
+          "depth": 28,
+          "gate_count": 28,
+          "two_q_depth": 14
+        },
+        "before_passed": true,
+        "case_id": "graphstate_14__all_to_all",
+        "delta": {
+          "cx_count": 0,
+          "depth": 1,
+          "gate_count": 14,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "all_to_all"
+      },
+      {
+        "after": {
+          "cx_count": 32,
+          "depth": 8,
+          "gate_count": 66,
+          "two_q_depth": 5
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 32,
+          "depth": 8,
+          "gate_count": 58,
+          "two_q_depth": 5
+        },
+        "before_passed": true,
+        "case_id": "graphstate_14__linear",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": 8,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "linear"
+      },
+      {
+        "after": {
+          "cx_count": 5,
+          "depth": 11,
+          "gate_count": 15,
+          "two_q_depth": 5
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 5,
+          "depth": 10,
+          "gate_count": 10,
+          "two_q_depth": 5
+        },
+        "before_passed": true,
+        "case_id": "graphstate_5__all_to_all",
+        "delta": {
+          "cx_count": 0,
+          "depth": 1,
+          "gate_count": 5,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "all_to_all"
+      },
+      {
+        "after": {
+          "cx_count": 11,
+          "depth": 13,
+          "gate_count": 22,
+          "two_q_depth": 9
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 11,
+          "depth": 13,
+          "gate_count": 18,
+          "two_q_depth": 9
+        },
+        "before_passed": true,
+        "case_id": "graphstate_5__ibm_nairobi",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": 4,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "ibm_nairobi"
+      },
+      {
+        "after": {
+          "cx_count": 9,
+          "depth": 9,
+          "gate_count": 23,
+          "two_q_depth": 5
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 9,
+          "depth": 9,
+          "gate_count": 20,
+          "two_q_depth": 5
+        },
+        "before_passed": true,
+        "case_id": "graphstate_5__linear",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": 3,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "linear"
+      },
+      {
+        "after": {
+          "cx_count": 7,
+          "depth": 15,
+          "gate_count": 21,
+          "two_q_depth": 7
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 7,
+          "depth": 14,
+          "gate_count": 14,
+          "two_q_depth": 7
+        },
+        "before_passed": true,
+        "case_id": "graphstate_7__all_to_all",
+        "delta": {
+          "cx_count": 0,
+          "depth": 1,
+          "gate_count": 7,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "all_to_all"
+      },
+      {
+        "after": {
+          "cx_count": 16,
+          "depth": 13,
+          "gate_count": 33,
+          "two_q_depth": 9
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 16,
+          "depth": 13,
+          "gate_count": 29,
+          "two_q_depth": 9
+        },
+        "before_passed": true,
+        "case_id": "graphstate_7__ibm_nairobi",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": 4,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "ibm_nairobi"
+      },
+      {
+        "after": {
+          "cx_count": 16,
+          "depth": 13,
+          "gate_count": 32,
+          "two_q_depth": 9
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 16,
+          "depth": 13,
+          "gate_count": 27,
+          "two_q_depth": 9
+        },
+        "before_passed": true,
+        "case_id": "graphstate_7__linear",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": 5,
+          "two_q_depth": 0
+        },
+        "family": "graphstate",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "linear"
+      },
+      {
+        "after": {
+          "cx_count": 71,
+          "depth": 74,
+          "gate_count": 123,
+          "two_q_depth": 50
+        },
+        "after_passed": true,
+        "before": {
+          "cx_count": 71,
+          "depth": 74,
+          "gate_count": 124,
+          "two_q_depth": 50
+        },
+        "before_passed": true,
+        "case_id": "qft_7__linear",
+        "delta": {
+          "cx_count": 0,
+          "depth": 0,
+          "gate_count": -1,
+          "two_q_depth": 0
+        },
+        "family": "qft",
+        "same_layouts": true,
+        "same_output_text": false,
+        "topology": "linear"
+      }
+    ],
+    "selected_cases": {
+      "graphstate_5__all_to_all": {
+        "ledger": {
+          "accepted": 5,
+          "allowance": 1e-09,
+          "charged_error": 1.071937337635887e-13,
+          "rejected": 0,
+          "residual_sum": 6.123233995736766e-16
+        },
+        "metrics": {
+          "cx_count": 5,
+          "depth": 11,
+          "gate_count": 15,
+          "two_q_depth": 5
+        },
+        "residual": 5.537289247401407e-16
+      },
+      "qft_14__linear": {
+        "ledger": {
+          "accepted": 153,
+          "allowance": 1e-09,
+          "charged_error": 2.5282242615173554e-12,
+          "rejected": 0,
+          "residual_sum": 5.7975495690002685e-15
+        },
+        "metrics": {
+          "cx_count": 274,
+          "depth": 157,
+          "gate_count": 512,
+          "two_q_depth": 100
+        },
+        "residual": 3.3958651050165584e-15
+      },
+      "wstate_14__linear": {
+        "ledger": {
+          "accepted": 25,
+          "allowance": 1e-09,
+          "charged_error": 1.4959461753384604e-12,
+          "rejected": 0,
+          "residual_sum": 3.222813967265386e-14
+        },
+        "metrics": {
+          "cx_count": 26,
+          "depth": 53,
+          "gate_count": 92,
+          "two_q_depth": 26
+        },
+        "residual": 6.086466124714243e-15
+      }
+    },
+    "ledger_ranges": {
+      "accepted": {
+        "max": 153,
+        "min": 0
+      },
+      "allowance": {
+        "max": 1e-09,
+        "min": 1e-09
+      },
+      "charged_error": {
+        "max": 2.5282242615173554e-12,
+        "min": 0.0
+      },
+      "rejected": {
+        "max": 0,
+        "min": 0
+      },
+      "residual_sum": {
+        "max": 3.222813967265386e-14,
+        "min": 0.0
+      }
+    },
+    "shared_budget_rejections": 0
+  },
+  "source_build_manifest": {
+    "compiler_commit": "dbc4645f3183b2d44dc076f431b98932510c9a20",
+    "binary_sha256": "004ca5c49481ef7eed018bb33686ee0e8f27e6504758ba0b0d804783ee90d047",
+    "sources": {
+      "Cargo.lock": "3a6b3cd79c36f8cd1e90ba4e6bd79b6b58c85d3aded71b5130779e0c8ba91473",
+      "Cargo.toml": "eb3921b2c5adc36a139b10b4965b990b5b80e35e6b8b96cce94197c40f6cb6dc",
+      "examples/benchmark_chain_qrust.rs": "c0c07116d35d64f5eb60dd2ede108c47b33d7323657e9d93c6b84cf9971f379b",
+      "examples/benchmark_massive_qrust.rs": "fd3a61d11577f6f098d98c8017854a62e7ed199efceebc1a712af677386bc5a5",
+      "examples/benchmark_qrust.rs": "05713e9c69fa6bd1573033319917085481846dc9f15e95264a96a3a341caeeeb",
+      "examples/benchmark_structure_qrust.rs": "003c41c7ea5e4dd375c1f116af449161e7c162de76a19f82e1eaed0b8714a767",
+      "examples/benchmark_ultimate_qrust.rs": "2e5968ffc31d96749445126901811513f49e2bce291ef39e8aad4b574d1cfe4c",
+      "examples/compare_qrust.rs": "566a4fafa81a4ece84112f7dcad14ac20ae7ab5f9f7c453a37e65ae0538fe3c3",
+      "examples/debug_kak.rs": "f93be21f6ad95aef839b99a70c3e3db17469a36776ce4df0e455341f7d5a4dbf",
+      "examples/export_qrust_for_qiskit.rs": "5b75705dbd1dffcf6fd3c309576c8485cbbcf5d2ba843c114e133b565e3a5ed7",
+      "examples/routing_demo.rs": "7a48966ae9db6fdd25f8d2a9dff5c2b0dad6bbb087ef96bfd1d5b1e07f55f8b6",
+      "examples/transpile_e2e.rs": "2bff4f6f92920364e7c68e41631527787607b28ea94a8d0ac8686c3fe79efb0a",
+      "experiments/Cargo.toml": "89937afc00907266454e5258fe1d9d175638787db079ff60a91f584200800f68",
+      "experiments/src/bin/comparison_runner.rs": "311d4f5a4bd51414d73155ab5a54200010edb189611fbad487cf212ab9cb2906",
+      "experiments/src/bin/runner.rs": "5541ac500957d3e76bac58deb5e5971d819b5ec5927b098f4e59a77d89531f3f",
+      "src/backend.rs": "dba0197e969e48f2110c79f38b3d3cfaca674459d6b4e998dda1e42639fe4998",
+      "src/bin/qrust.rs": "2351e30098cdeda98f2e883c19470ce53c0536193d2e2e25a6dcaed10460f498",
+      "src/error.rs": "d2f5d9b75642716e54d3b49a47b676b66faac2babcab7d0b4b77ff05b68c4366",
+      "src/ir/ast.rs": "f8308f59decd0fb31972e09e7a0596c37a4d1d472f1d2205deb0e8e2530d7aac",
+      "src/ir/circuit.rs": "b8dd04723c120a28075d2376b65aeffca3c47ef8d77a7e4a2d0af8b082bf710c",
+      "src/ir/gate_def.rs": "a80267512e4f81ba9b9dfba78485729d64e0552b8148dcd5e49b15adb45d0863",
+      "src/ir/gates.rs": "32582c847a9373a9bf4e22e7d7bcdea4ed649d91697a8eeb6b609d0a29ff36de",
+      "src/ir/mod.rs": "b97aa4e144beb15edc43bfb7db286a96103d6b2b13bac0719d267dddc5372694",
+      "src/ir/operations.rs": "f0ffe865ffb5605b57932c5a38fbadaa4ee810fa696110319839a522e56d16fa",
+      "src/ir/registry.rs": "f4de4848f07c490c1fff0766a3627295aec8b4dc111bc421dd0bd4b063f0cd46",
+      "src/ir/signature.rs": "15a3165cf3b68477356a61eb8e5a0b977bb830df86aa50c3e9c0e97af80b4476",
+      "src/lib.rs": "094cba398a7887c81b8190f4c91ae12f42565e067b6204a7eeff500277fe98e7",
+      "src/parser/mod.rs": "765939f05263d9edbfd1d88a0b5c436d3f16285126f0ad49519b8a856b313421",
+      "src/parser/rules.rs": "25de41b942092c2b1c8e8f76423e02ae25794b5ceb724405e1eeabe228dfa28e",
+      "src/simulator.rs": "4dce8d141122c4b653c94f0a957ba6539c4cc0673c9c058f0edeb838b766659c",
+      "src/transpiler/block_synthesis.rs": "e654333f8677c45ec2f6a9696829f8c6900237b25a0cffb81d1d501a4c42ff51",
+      "src/transpiler/dag.rs": "5e234a58b3cc6d8b76db51d0b085271c60eb9008b8cee0421aeec7acd079e490",
+      "src/transpiler/decomposition.rs": "4f1dc54f31aab00e767902308190b285fec24fe00532063b1b79e010c1b422d2",
+      "src/transpiler/layout.rs": "a8755d98f05cbd47db86f5dcef1963e20c17a529b2e4e60f590bda670f62a0e8",
+      "src/transpiler/local_cleanup.rs": "ea04aad91bda6bca367504dcd4d2aa2d5126930cf4c57f7be8fece6fa2312237",
+      "src/transpiler/mod.rs": "166f0a3d50995bbbe7accce1e3bb1ef489551aee2c430e1ee5c7aa5c5a66f4c9",
+      "src/transpiler/numerical_policy.rs": "90ffd7fb4cc9b0f5c317f8d2f0673acecbee27f358196fb891363243aa72ad0d",
+      "src/transpiler/optimization.rs": "94ce8febeea11093d19e95f993a646a7db803ab57e03ed63a3f76966bf605898",
+      "src/transpiler/pass.rs": "a77fb3a83851ef0064fcb3130e00ff1df7406412dc04620e6d534d3824adf89d",
+      "src/transpiler/pauli_tracker.rs": "300e488fe733940b6751c1323b099e62c1c90e73d3911a492ffe7311b67c95fc",
+      "src/transpiler/phase_gadgets.rs": "effb94bc150233f7d190b89a65f3cad2b78af65d70d3c9ac10d8997640dae42b",
+      "src/transpiler/profiler.rs": "904f2a28ee045bc5fb82f623a87d15225dffb2ce47879d425f7a33d36ccf2fa4",
+      "src/transpiler/property_set.rs": "a7be420eee838c1c4b701d53fb6d1e20945a114e5429da343e664d799240d1fa",
+      "src/transpiler/report.rs": "5b63f7cf9e8c63c229d3b17e0cb16c6fb8c28747a92110bca5ee6b8599944bff",
+      "src/transpiler/routing.rs": "07140b835cca774dfb5b4e3852320a08ceb5d0c1dad0f067b4f1870391b43ea4",
+      "src/transpiler/synthesis/kak.rs": "94dbffb98d589e3bd85a58480937d7cde6437cf0c1448a46dfdf96dc3e18a7e8",
+      "src/transpiler/synthesis/mod.rs": "c2a1bf4ba816d7437f2e870d8704f0664f2b9e8d80d91c23ebb621a27df57c36",
+      "src/transpiler/synthesis/numerical.rs": "cbfc96be63f96cef1401ea4d34d74785e5f3f6708b2ed54c22397ced5dd09074",
+      "src/transpiler/synthesis/qsd.rs": "7ce52aa6a79e33a8c86d1ec5937d2e3f30d5247cec1f663863e8e982f84bdf39",
+      "src/transpiler/synthesis/qsearch.rs": "50f7a6b779a0fcc7277f05fea8f58b167bdd147b6ab499c523b8ba06435fa349",
+      "src/transpiler/synthesis/zyz.rs": "f7140b7bc457d394bb6938d921f31b40d98723b1c31e9e2d17040282184bd83f",
+      "src/transpiler/target_basis.rs": "942c06a4cc3f58863545305d93a989e04621d4068bf24f4e1ac6ccebe19a9d12",
+      "src/verify.rs": "85fc0b571a1525def5b5eab0fb9e3b0601cd6764285389d1e7784dbd690f2bc8",
+      "tests/cli_smoke_test.rs": "ee20d2e6cecb8702c553bbb0f6b765ad8b1c38663f82765c647da2fcb420f5e8",
+      "tests/controlled_rotation_regressions.rs": "0bfef233cefa4566777b3dbd4046c16fd8a5e637a84cf896992ffe7acca511fb",
+      "tests/e2e_known_circuits.rs": "abf8f1998c6c4cd730ea1b41c32057a41edf1a57edabe959bf2c5cd5e951e926",
+      "tests/e2e_pipeline_integration.rs": "4ec28422f03a01099afcb9ec12b2ca140b1ce7c14ed938b96577207f44aa7bf3",
+      "tests/extra_routing_test.rs": "d6ae538bff1867ca693a1a9f3406dd81de878dfbeb3dc96f88bfd8f52a4224f5",
+      "tests/extra_transpiler_test.rs": "ef515ad0966bce4e3fcedee81208c68a8f99fe75316ef1fa0a434992ad0e621e",
+      "tests/integration_test.rs": "35807bfbcd0b88a4bf4b0897ac02f70df9cd46ae23ce4fbf0c15ad3b7e696f8e",
+      "tests/numerical_threshold_regressions.rs": "9a8e5dda99b8126f978349bb236c4232adcd7251649cbefab3963455c9c9506c",
+      "tests/parser_test.rs": "327d1c2e3d369b2ecded40623272affac9b5dabd6668a031e7cd9f5b209ea271",
+      "tests/qft_w_refinement_regressions.rs": "699065ae0f4d294fc54b2480221d9c23c0e63982416a4ff7791067c449f2265a",
+      "tests/routing_correctness_regressions.rs": "1dcca3648e0dbea8b281c2c2a982e4c11e6d2edf255f0375a7bb3d5558731eae",
+      "tests/routing_search_regressions.rs": "b73bebc07997f23ca32b14f21a57f197c627ba93e8d68d3aa033d5d8bc6d253f",
+      "tests/routing_suite.rs": "0153b6148974724b4f1c757a5d33d2a8dfde5b9806aae5aef4072c507cfd0868",
+      "tests/transpiler_suite.rs": "dffe2227cca3151d5c739db01aad326fcce50913cda1df70b8a552bc62c85118",
+      "tests/two_qubit_block_regressions.rs": "2bbe75f59dfd52a5710af66c654b9b55d1822485ca2af8cd7c71383ca1fa22fe",
+      "tests/verifier_regressions.rs": "4c7a65e7c18ab6bbcc759cb1e3238feded27d3f04806a6e76ea85e8d4264053f"
+    }
+  },
+  "limitations": "The unchanged oracle provides full numerical isometry checks through six physical qubits, otherwise eight-input sampling. No all-input proof for larger circuits. The numerical ledger is a conservative implementation error accounting device, not independently verified formal proof. Historical timings apply only to the historical binary."
+}
