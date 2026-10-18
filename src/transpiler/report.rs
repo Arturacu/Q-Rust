@@ -51,7 +51,7 @@ pub struct PassDiagnostic {
     pub output: StageSnapshot,
 }
 
-/// Final-output protection for a logical Clifford rewrite before routing.
+/// Final-output protection for Clifford rewrites before or after routing.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CliffordRetentionStats {
     /// Costs are [two-qubit gates, total depth, two-qubit depth] after all
@@ -64,7 +64,8 @@ pub struct CliffordRetentionStats {
     pub selected_retained_input: bool,
     /// An unavailable optional continuation cannot certify nonregression.
     pub retained_compilation_failed: bool,
-    /// Attempted exact rewrites, including when their output was discarded.
+    /// Exact rewrites from the original portfolio winner, or the first changed
+    /// candidate if the winner had none. Includes work later discarded.
     pub attempted_simplification: super::clifford_simplification::CliffordSimplificationStats,
 }
 

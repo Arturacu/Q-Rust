@@ -288,7 +288,7 @@ fn error_correction_keeps_nine_cx_and_improves_the_routed_circuit() {
     assert_eq!(cost(&input)[0], 49);
     for (backend, upper_cost) in [
         (Backend::all_to_all(5), [9, 11, 6]),
-        (Backend::linear(5), [21, 22, 17]),
+        (Backend::linear(5), [17, 19, 12]),
     ] {
         let (baseline, _) = transpile_with_report(
             &input,
@@ -690,4 +690,72 @@ fn backward_local_transport_preserves_adjoint_order_and_pauli_signs() {
         accepted > 0,
         "the adjoint oracle must exercise accepted rewrites"
     );
+}
+
+#[test]
+fn expanded_routing_swap_exposes_a_cross_block_cancellation() {
+    for a in 0..3 {
+        for b in 0..3 {
+            if a == b {
+                continue;
+            }
+            let c = 3 - a - b;
+            let input = source(
+                3,
+                &format!("swap q[{a}],q[{b}]; cx q[{a}],q[{c}]; cx q[{a}],q[{b}];"),
+            );
+            for block_synthesis in [false, true] {
+                let mut config = configuration(Backend::all_to_all(3), true, true, false);
+                config.routing_search.elide_output_permutations = false;
+                config.two_qubit_block_synthesis = block_synthesis;
+                let mut disabled = config.clone();
+                disabled.clifford_simplification = false;
+                let (before, before_report) =
+                    transpile_with_report(&input, Some(disabled)).unwrap();
+                let (after, report) = transpile_with_report(&input, Some(config)).unwrap();
+                // Expanding SWAP reveals A B A M A; A and M commute, so the
+                // latter A pair disappears. A two-wire block cannot cross M.
+                assert_eq!(cost(&before), [5, 5, 5]);
+                assert_eq!(cost(&after), [3, 3, 3]);
+                assert!(report.clifford_retention_stats.is_none());
+                assert!(
+                    report
+                        .clifford_simplification_stats
+                        .as_ref()
+                        .unwrap()
+                        .rewrites
+                        > 0
+                );
+                assert_isometry(&input, &before, &before_report);
+                assert_isometry(&input, &after, &report);
+            }
+        }
+    }
+}
+
+#[test]
+fn report_accumulates_optimization_and_post_expansion_clifford_rewrites() {
+    let input = source(
+        3,
+        "cx q[0],q[1]; z q[1]; cx q[0],q[1]; barrier q;
+        swap q[0],q[1]; cx q[0],q[2]; cx q[0],q[1];",
+    );
+    let mut config = configuration(Backend::all_to_all(3), true, true, false);
+    config.routing_search.elide_output_permutations = false;
+    let mut only_prefix = config.clone();
+    only_prefix.post_routing_cleanup = false;
+    let (prefix_output, prefix_report) = transpile_with_report(&input, Some(only_prefix)).unwrap();
+    let (full_output, full_report) = transpile_with_report(&input, Some(config.clone())).unwrap();
+    let prefix_stats = prefix_report
+        .clifford_simplification_stats
+        .as_ref()
+        .unwrap();
+    let full_stats = full_report.clifford_simplification_stats.as_ref().unwrap();
+    assert_eq!((prefix_stats.rewrites, prefix_stats.cx_removed), (1, 2));
+    assert_eq!((full_stats.rewrites, full_stats.cx_removed), (2, 4));
+    assert_eq!(cost(&prefix_output)[0], 5);
+    assert_eq!(cost(&full_output)[0], 3);
+    assert_isometry(&input, &prefix_output, &prefix_report);
+    assert_isometry(&input, &full_output, &full_report);
+    assert_eq!(full_output, transpile(&input, Some(config)).unwrap());
 }

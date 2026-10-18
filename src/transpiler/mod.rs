@@ -870,6 +870,21 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 if let Some(ref basis) = resolved_basis {
                     pm.add_pass(Box::new(target_basis::TargetBasisPass::new(basis.clone())?));
                 }
+                if config.optimization_level >= 3
+                    && config.backend.is_some()
+                    && config.post_routing_cleanup
+                    && config.clifford_simplification
+                {
+                    // Target translation has expanded routing SWAPs into CXs
+                    // while preserving named local Cliffords. Simplify those
+                    // newly exposed interactions without changing physical
+                    // wires. Direction repair and final basis closure follow.
+                    pm.add_pass(Box::new(
+                        clifford_simplification::CliffordSimplificationPass {
+                            allow_swap_replacements: false,
+                        },
+                    ));
+                }
 
                 pm.add_pass(Box::new(decomposition::BasisDecompositionPass));
                 pm.add_pass(Box::new(KakSynthesisPass));
@@ -984,6 +999,15 @@ fn route_and_lower(
 ) -> Result<Vec<LoweredCandidate>> {
     let mut router = build_pass_manager_for(config, Stage::LayoutAndRoute)?;
     numerical_policy::fork(prefix_properties, &mut router.property_set);
+    if let Some(stats) = prefix_properties
+        .get::<clifford_simplification::CliffordSimplificationStats>(
+            "clifford_simplification_stats",
+        )
+    {
+        router
+            .property_set
+            .insert("clifford_simplification_stats", stats.clone());
+    }
     let routed = run_stage(
         &mut router,
         after_opt,
@@ -1092,12 +1116,21 @@ fn finish_compilation(
             best = index;
         }
     }
-    let attempted_simplification = candidates[0]
-        .properties
-        .get::<clifford_simplification::CliffordSimplificationStats>(
-            "clifford_simplification_stats",
-        )
-        .filter(|stats| stats.rewrites > 0)
+    fn simplification_for(
+        candidate: &LoweredCandidate,
+    ) -> Option<&clifford_simplification::CliffordSimplificationStats> {
+        candidate
+            .properties
+            .get::<clifford_simplification::CliffordSimplificationStats>(
+                "clifford_simplification_stats",
+            )
+            .filter(|stats| stats.rewrites > 0)
+    }
+    // A post-routing rewrite can occur only on an alternative route. Prefer
+    // the portfolio winner's diagnostics, but any changed route triggers the
+    // independent continuation even if the incumbent was unchanged.
+    let attempted_simplification = simplification_for(&candidates[best])
+        .or_else(|| candidates.iter().find_map(simplification_for))
         .cloned();
     let retain_pre_clifford = config.retain_routing_candidates
         && config.optimization_level >= 3
