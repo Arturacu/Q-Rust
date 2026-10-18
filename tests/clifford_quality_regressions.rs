@@ -872,3 +872,43 @@ fn numerical_block_synthesis_keeps_a_gatewise_clifford_representation() {
         }
     }
 }
+
+#[test]
+fn mixed_circuits_keep_general_block_resynthesis_eligible() {
+    // A disjoint T makes the complete input non-Clifford. Preserving each
+    // Clifford-looking subblock is then an unnecessary restriction on general
+    // synthesis. The third wire is an arbitrary input, not a fixed |0> ancilla.
+    for (a, b) in [(0, 1), (1, 0)] {
+        for fence in ["", "barrier q;"] {
+            let input = source(
+                3,
+                &format!(
+                    "cx q[{a}],q[{b}]; cx q[{b}],q[{a}]; h q[{b}]; s q[{a}];
+                     cx q[{b}],q[{a}]; sdg q[{a}]; s q[{b}]; {fence} t q[2];"
+                ),
+            );
+            let mut config = configuration(Backend::all_to_all(3), false, true, false);
+            config.encoded_swap_recognition = false;
+            config.routing_search.elide_output_permutations = false;
+            let mut disabled = config.clone();
+            disabled.two_qubit_block_synthesis = false;
+            let (baseline, baseline_report) =
+                transpile_with_report(&input, Some(disabled)).unwrap();
+            let (output, report) = transpile_with_report(&input, Some(config.clone())).unwrap();
+            let stats = report.two_qubit_block_stats.as_ref().unwrap();
+            assert_eq!(stats.rejected_non_clifford_representation, 0);
+            assert_eq!(stats.accepted, 1);
+            assert_eq!(stats.cx_removed, 1);
+            assert_eq!(cost(&baseline)[0], 3);
+            assert_eq!(cost(&output)[0], 2);
+            assert!(
+                report.numerical_budget.charged_error
+                    > baseline_report.numerical_budget.charged_error
+            );
+            assert!(report.numerical_budget.charged_error <= CIRCUIT_ERROR_ALLOWANCE);
+            assert_isometry(&input, &baseline, &baseline_report);
+            assert_isometry(&input, &output, &report);
+            assert_eq!(output, transpile(&input, Some(config)).unwrap());
+        }
+    }
+}
