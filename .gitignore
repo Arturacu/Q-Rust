@@ -59,6 +59,8 @@ experiments/*
 !experiments/external_sources/
 !experiments/external_sources/**
 !experiments/EXTERNAL_BENCHMARKS.md
+!experiments/EXTERNAL_BENCHMARK_METHODS.md
+!experiments/EXTERNAL_COMPILER_RECIPES.md
 !experiments/external_results/
 !experiments/external_results/**
 !experiments/fixtures/

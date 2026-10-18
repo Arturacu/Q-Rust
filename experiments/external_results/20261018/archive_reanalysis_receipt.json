@@ -1,0 +1,12 @@
+{
+  "archive_sha256": "d45176c9cbcf1c7645dfed44a343ec704fb34b9ab55002dcef4c62248285716f",
+  "method": "Fresh safe extraction; original frozen harness executed against retained raw and validated records; summary JSON and all four cell CSVs compared byte-for-byte with original analysis.",
+  "matched_files": [
+    "external_summary.json",
+    "session_2_light_cells.csv",
+    "session_1_primary_cells.csv",
+    "session_2_primary_cells.csv",
+    "session_1_light_cells.csv"
+  ],
+  "status": "passed"
+}

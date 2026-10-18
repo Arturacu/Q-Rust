@@ -1,0 +1,42 @@
+{
+  "max_residual": 4.5309512666641535e-09,
+  "oracle_sha256": "55de70f9fe47d9fcaeb1497bd04b377e5582afc9289e6948dc6c32ebe5bda6d4",
+  "protocol_sha256": "ddb4fd217613a77638a6fcc20d4b6b72872ed6132f646759683bedfdea821645",
+  "sessions": [
+    {
+      "counts": {
+        "cirq_error": 21,
+        "cirq_one_pass_error": 28,
+        "cirq_one_pass_passed": 672,
+        "cirq_passed": 679,
+        "qiskit_passed": 700,
+        "qrust_error": 126,
+        "qrust_passed": 574,
+        "tket_light_passed": 700,
+        "tket_passed": 700
+      },
+      "session": "session_01",
+      "validated_sha256": "6106d1d7336bb3ae33a57f94db586827de9d3f6790cb88bad52adf3230744cbc"
+    },
+    {
+      "counts": {
+        "cirq_error": 21,
+        "cirq_one_pass_error": 28,
+        "cirq_one_pass_passed": 672,
+        "cirq_passed": 679,
+        "qiskit_passed": 700,
+        "qrust_error": 126,
+        "qrust_passed": 574,
+        "tket_light_passed": 700,
+        "tket_passed": 700
+      },
+      "session": "session_02",
+      "validated_sha256": "dea6c489d18e8a3bf79b62724a78f343ceacc1842c086d1081da263838dd02d9"
+    }
+  ],
+  "unique_artifacts": 605,
+  "unique_evidence_classes": {
+    "full_isometry": 408,
+    "sampled_isometry": 197
+  }
+}
