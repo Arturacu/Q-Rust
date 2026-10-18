@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "scope": "External-source static unitary-prefix compiler comparison. Sources are established community benchmark suites, not an accreditation standard. Benchpress is a methodology reference, not executed as a suite.",
+  "sources": [
+    {
+      "name": "QASMBench",
+      "repository": "https://github.com/pnnl/QASMBench",
+      "revision": "357b942396d5c2b7cbc1c229c585a6ef5ccaebac",
+      "reference": "https://doi.org/10.1145/3550488",
+      "title": "QASMBench: A Low-level QASM Benchmark Suite for NISQ Evaluation and Simulation",
+      "license": "Upstream Battelle license retained verbatim; see external_sources/qasmbench/LICENSE and NOTICE",
+      "role": "Raw non-transpiled OpenQASM2 source in small/medium directories, deterministic resource and static-unitary eligibility rule."
+    },
+    {
+      "name": "MQT Bench",
+      "repository": "https://github.com/munich-quantum-toolkit/bench",
+      "revision": "2cd3f3b08d5d8866595948fbce955e701e86a5df",
+      "release": "2.3.0",
+      "reference": "https://doi.org/10.22331/q-2023-07-20-1062",
+      "title": "MQT Bench: Benchmarking Software and Design Automation Tools for Quantum Computing",
+      "license": "MIT; see external_sources/mqtbench/LICENSE",
+      "documentation": "https://mqt.readthedocs.io/projects/bench/en/v2.3.0/benchmark_selection.html",
+      "role": "Algorithm-level generators with bound parameters using the upstream seed10. No target-independent/native/mapped optimization is used. Original generated circuits retained as QPY."
+    },
+    {
+      "name": "Benchpress",
+      "repository": "https://github.com/Qiskit/benchpress",
+      "revision": "b695f30e83a32bac05b9b4d8e98d37ba9aae5236",
+      "reference": "https://www.nature.com/articles/s43588-025-00792-y",
+      "title": "Benchmarking the performance of quantum computing software for quantum circuit creation, manipulation and compilation",
+      "role": "Methodological precedent for common workloads, separate loading/compilation costs, two-qubit count/depth, multiple target graphs, and reporting unsupported/error/timeout cases. No claim that this study reproduces Benchpress settings or executes its full test suite."
+    }
+  ],
+  "selection_rule": {
+    "fixed_before_compiler_runs": true,
+    "qasmbench": "all small/medium non-transpiled QASM paths",
+    "max_width": 14,
+    "max_qasmbench_raw_bytes": 250000,
+    "max_expanded_gates": 5000,
+    "mqt_families": [
+      "ae",
+      "dj",
+      "grover",
+      "qnn",
+      "qpeexact",
+      "qpeinexact",
+      "qwalk",
+      "vqe_real_amp",
+      "vqe_su2"
+    ],
+    "mqt_widths": [
+      5,
+      10
+    ],
+    "eligibility": "static unitary circuit after only global terminal-measurement suffix and barrier removal",
+    "selection_uses_compiler_timings_or_quality": false
+  },
+  "selection_counts": {
+    "selected": 50,
+    "excluded": 100,
+    "ledger": 150,
+    "selected_by_suite": {
+      "QASMBench": 34,
+      "MQT Bench": 16
+    },
+    "selected_by_family": {
+      "bv": 1,
+      "multiply": 1,
+      "sat": 2,
+      "adder": 2,
+      "basis_change": 1,
+      "basis_trotter": 2,
+      "bell": 1,
+      "cat_state": 1,
+      "deutsch": 1,
+      "dnn": 2,
+      "error_correctiond3": 1,
+      "fredkin": 1,
+      "grover": 2,
+      "hhl": 1,
+      "hs4": 1,
+      "ising": 1,
+      "iswap": 1,
+      "linearsolver": 1,
+      "lpn": 1,
+      "pea": 1,
+      "qaoa": 1,
+      "qec_en": 1,
+      "qft": 1,
+      "qrng": 1,
+      "quantumwalks": 1,
+      "simon": 1,
+      "teleportation": 1,
+      "toffoli": 1,
+      "variational": 1,
+      "wstate": 1,
+      "ae": 2,
+      "dj": 2,
+      "qnn": 2,
+      "qpeexact": 2,
+      "qpeinexact": 2,
+      "qwalk": 1,
+      "vqe_real_amp": 2,
+      "vqe_su2": 2
+    }
+  },
+  "normalization": {
+    "track": "Common static gate input; not a source-preserving native API comparison. Gate definitions and whole-circuit global phase convention are recorded per circuit.",
+    "terminal_measurements": "Only a global suffix of measurements is removed; gates after the first measurement, resets and classical control are excluded. Barriers are removed and counted.",
+    "source_definitions": "QASMBench uses its exact pinned qelib1.inc, inlined before import. Named primitives are retained only after checking the complete operation matrix against analytic gates, including controlled operations. Other operations use source/Qiskit definitions; Qiskit may internally synthesize those definitions. Permutations expand exactly into SWAPs. No compiler optimization, layout or routing is invoked.",
+    "source_reference": "Qiskit Statevector on original generated/imported unitary prefix versus independent NumPy analytic gate simulator on canonical and normalized forms. Shared parser/generator trust boundary remains.",
+    "modes": {
+      "sampled_8_inputs_numerical": 15,
+      "full_unitary_numerical": 35
+    },
+    "maximum_residual": 2.793659403434853e-14,
+    "tolerance": 1e-07
+  },
+  "reproduction": {
+    "acquire": "python experiments/external_corpus.py --acquire --sources /path/to/new/sources",
+    "build": "python experiments/external_corpus.py --sources /path/to/sources --output /path/to/new/corpus",
+    "pinned_frontend_packages": {
+      "qiskit": "2.5.2",
+      "numpy": "2.5.4"
+    },
+    "manifest_sha256": "2d14203e785b133a9e9d7cacf85b5c8222ce81774988488051beb2cb7288f1ce",
+    "normalizer_sha256": "d28d44d07a8ede0ffe5e4e7501bed0d8e46680b0ebb320895b9eb813af1a3104"
+  }
+}
