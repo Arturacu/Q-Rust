@@ -489,9 +489,9 @@ OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 .venv-comparison/bin/python \
 Generated JSON, CSV, LaTeX, and figure payloads under `experiments/results/`
 are intentionally ignored; the runner code, pinned dependencies, fixture
 manifest, and OpenQASM 2.0 fixtures are version-controlled. The older
-`bench_baselines.py` results are historical and are superseded for publication
-claims. Compilation speed, CX count and depth are separate metrics; this study
-does not establish mathematical optimality or a causal programming-language
+`bench_baselines.py` results are historical and are superseded by the validated
+comparisons above. Compilation speed, CX count and depth are separate metrics;
+this study does not establish mathematical optimality or a causal programming-language
 advantage.
 
 ---

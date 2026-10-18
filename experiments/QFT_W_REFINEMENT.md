@@ -24,7 +24,7 @@ Broader search is costly: in the diagnostic profile, layout time rises 7.78 → 
 
 W14 instead accepts 12 local fusions, removes 12 U gates and preserves every CX and layout. Its maximum local residual is 3.91e-16 and summed residual 3.03e-15.
 
-Phase gadgets and optimization-aware routing are established prior art: [Cowtan et al., EPTCS 318 (2020)](https://arxiv.org/abs/1906.01734), [Liu et al., NASSC](https://arxiv.org/abs/2205.10596), and [Qiskit Commuting2qGateRouter](https://quantum.cloud.ibm.com/docs/en/api/qiskit/qiskit.transpiler.passes.Commuting2qGateRouter), which documents positioning RZZ near SWAP to exploit CX cancellations. The contribution here is compact integration and controlled empirical attribution, not invention of these concepts.
+Phase gadgets and optimization-aware routing are described in [Cowtan et al., EPTCS 318 (2020)](https://arxiv.org/abs/1906.01734), [Liu et al., NASSC](https://arxiv.org/abs/2205.10596), and [Qiskit Commuting2qGateRouter](https://quantum.cloud.ibm.com/docs/en/api/qiskit/qiskit.transpiler.passes.Commuting2qGateRouter), which documents positioning RZZ near SWAP to exploit CX cancellations.
 
 ## Unchanged experiment and controls
 
@@ -104,7 +104,7 @@ Checks: **378 Rust tests**, four separately enabled CLI tests, **96 Python tests
 
 Compiler CI: [passed](https://github.com/Arturacu/Q-Rust/actions/runs/38974784137). Release binary SHA-256: `9613ed4f819597744711cc755dd6d10f961013b51f1d92dae21bcc83d2a40c2e`. Baseline source/report commit: `1fe218db8eb88262b5d26c99d4b9c63ffff80ec4`; archived baseline worker SHA-256: `1fa371c5967246e93d9e52d3336ed3381e4d9f04e2e05add3c1d5b4a4c100c6a`.
 
-The accompanying `Q_Rust_QFT_W_Refinement_20261016.zip` contains exact binaries, source archives, protocols, all trial QASM/layouts, validation receipts, development records, independent audits, figures, editable publication source and a file-hash manifest. Prior bundles remain separate. Local paths in scripts must be adapted on another machine; changed binaries/environments constitute a new study.
+The accompanying `Q_Rust_QFT_W_Refinement_20261016.zip` retains exact binaries, source archives, protocols, all trial QASM/layouts, validation receipts, development records, independent audits, figures and a file-hash manifest. Prior bundles remain separate. Local paths in scripts must be adapted on another machine; changed binaries/environments constitute a new study.
 
 Reproduce a fresh primary campaign using the pinned environment and frozen revision:
 
@@ -117,6 +117,6 @@ python experiments/analyze_comparison_study.py experiments/results/NEW_PRIMARY
 
 Set OMP/OPENBLAS/MKL/NUMEXPR/VECLIB/RAYON/QISKIT thread caps to one, QISKIT_PARALLEL=FALSE and PYTHONHASHSEED=20261015 as recorded in the protocol. Use `compare_routing_revisions.py` with the bundled seven-arm `variants.json` for each separate revision session; use the unchanged `diagnose_compiler_tradeoffs.py` recipes for sensitivity. Run validation and analysis only after all timing has completed.
 
-## Publication claim and remaining work
+## Scope and further validation
 
-The evidence supports an engineering paper about representation, dependency boundaries, search cost and composition of local optimizations in a compact transpiler. It demonstrates quality improvements with explicit runtime costs and adverse examples. It does not establish a new routing theorem, whole-circuit optimality, measured hardware fidelity or a causal speed benefit from Rust. The same corpus guided development. Untouched external workloads, larger widths/topologies, matched-cost quality/latency curves, controlled repeated sessions and another host remain needed for broader claims.
+On this development corpus, changes to representation and dependency boundaries improve output quality with measurable runtime costs and some adverse cases. These measurements do not establish whole-circuit optimality, hardware fidelity or a causal speed benefit from Rust. The same corpus guided development. Generalization remains untested on untouched external workloads, larger widths and other topologies. Matched-cost quality/latency curves, controlled repeated sessions and another host would help separate search-budget and machine effects.

@@ -62,16 +62,17 @@ also show genuine quality costs when synthesis is removed entirely.
 
 Timing is visibly session-dependent: the same revised QFT artifact took
 47.27, 63.41 and 74.57 ms across the three campaigns. All revised Q-Rust QASM
-and layouts were identical across all cases/trials/campaigns. Report within-
-campaign ratios; these fixture-cluster intervals do not capture host/session
-uncertainty. Repetitions equalize sample counts, not compiler search budgets.
+and layouts were identical across all cases/trials/campaigns. The reported ratios
+compare results within each campaign; these fixture-cluster intervals do not
+capture host/session uncertainty. Repetitions equalize sample counts, not
+compiler search budgets.
 
 The revision is not uniformly better: CX improved/tied/worsened on **37/83/3**
 cases. The losses were Clifford-10 linear (505→525 CX; depth 256→364),
 Clifford-10b linear (517→526 CX), and Ising-7 Nairobi (51→52 CX). Graphstate
 depth increased by a geometric factor of **1.143** (1.105–1.190), despite
 unchanged CX. W-14 all-to-all retains 39 CX versus 26 for every primary
-baseline. Keep these failure tails in any paper.
+baseline. These regressions limit the aggregate improvement.
 
 The checked-in [compact results](routing_results_20261016.json) retain exact
 estimates and intervals; the [cell table](routing_cells_20261016.csv) retains
@@ -216,21 +217,19 @@ Per-pass profiling is disabled in primary timing. All original datasets remain
 unchanged. The implementation passed 316 workspace tests plus four CLI tests,
 96 Python harness/analysis tests, formatting, strict Clippy and both CI jobs.
 
-## Publication interpretation
+## Scope and further validation
 
-The useful contribution is a reproducible account of which work pays off:
-identify a costly stage, intervene on it, check semantics, and report both
-improvements and losses on the unchanged corpus. Stage observations support
-mechanisms; only controlled policy comparisons support causal attribution to
-the corresponding intervention. Coupled changes and internal routing details
-must remain qualified where no separate ablation isolates them.
+The unchanged corpus records both improvements and losses after changes to
+costly compiler stages. Stage observations support explanations of the observed
+behavior; controlled policy comparisons support causal attribution to the
+corresponding intervention. Coupled changes and internal routing details remain
+unresolved where no separate ablation isolates them.
 
-Cross-compiler profiling itself has precedents, including
+Examples of cross-compiler profiling include
 [Arline Benchmarks](https://arxiv.org/abs/2202.14025) and
 [Benchpress](https://www.nature.com/articles/s43588-025-00792-y).
-A paper must explain the reusable insight or software need beyond another
-small internal ranking. External held-out circuits, scaling, equal-budget
-Pareto curves and repeated sessions remain important before broad claims.
+The internal corpus does not establish behavior on external held-out circuits
+or at larger scales. Equal-budget Pareto curves and repeated sessions would help
+distinguish compiler search budgets and session effects.
 No result here establishes near-optimality, hardware fidelity, memory savings
-or intrinsic language speed. Deployment and research usefulness need their
-own evidence for a software-focused publication.
+or intrinsic language speed.

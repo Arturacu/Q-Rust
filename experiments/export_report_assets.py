@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""Generate booktabs \\input fragments and publication-quality figures.
+"""Generate booktabs \\input fragments and benchmark figures.
 
-Emits one self-contained `\\begin{tabular}...\\end{tabular}` per table (drop
-into the draft's existing table floats via \\input) and the three figures the
-draft references. Table/figure names match the \\label names used by the
-accompanying LaTeX report.
+Emits self-contained `\\begin{tabular}...\\end{tabular}` fragments for
+inclusion via \\input, plus figures summarizing the benchmark results.
 
 Data sources:
   results/raw_benchmark_data.json      characterisation suite, 4 topologies, O0-O3

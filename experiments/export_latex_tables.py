@@ -7,7 +7,7 @@ and emits:
   results/tables.tex   pre-formatted \\begin{tabular} blocks, one per results
                        section (suite overview, CX reduction, stage-timing
                        breakdown, peak RAM, verification summary, cleanup ablation)
-  results/fig_*.png    publication-style figures (matplotlib)
+  results/fig_*.png    benchmark figures (matplotlib)
 
 The script is defensive: crashed/skipped cells (e.g. the adder-on-hardware
 Toffoli-routing defect) are excluded from quantitative tables but reported in a
