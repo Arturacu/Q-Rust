@@ -452,11 +452,19 @@ Test layout:
 - `tests/e2e_pipeline_integration.rs` — parse → transpile → emit → re-parse.
 - `tests/two_qubit_block_regressions.rs` — independent analytic all-input checks for synthesis, dependency boundaries, routed isometries and W/QFT reductions.
 - `tests/qft_w_refinement_regressions.rs` — independent Fourier/W operators, directed ancilla routing, commuting fences, long diagonal epochs, readout mappings and local-fusion guards.
+- `tests/cu1_routing_regressions.rs`, `tests/logical_swap_regressions.rs` — independent all-input checks for controlled-phase dependencies, internal wire permutations, custom/high-arity gates and routed readout mappings.
 - `tests/cli_smoke_test.rs` — `qrust` binary, gated `#[ignore]`.
 
 The library has zero `unsafe` blocks. The `try_*` variants of public APIs return `Result` and are the preferred entry points; infallible wrappers (`decompose_basis`, `unroll_custom_gates`) fall back to returning the original circuit on error and emit a diagnostic via `Q_RUST_LOG`.
 
 ### Reproducing the cross-tool benchmarks
+
+The [external routing follow-up](experiments/EXTERNAL_ROUTING_FOLLOWUP.md)
+investigates controlled-phase dependencies, logical SWAP absorption and repeated
+layout work. It reruns the same 100 cases, with exact-source ablations and
+additional full-input checks. AE/QPE-10 line outputs improve substantially;
+three other line cases regress. The report retains both outcomes, the remaining
+Qiskit speed advantage on the focal cases, and the unchanged earlier evidence.
 
 The [external compatibility follow-up](experiments/EXTERNAL_COMPATIBILITY_FOLLOWUP.md)
 fixes Q-Rust CU1 support and Cirq adapter closure. All six recipes now pass
