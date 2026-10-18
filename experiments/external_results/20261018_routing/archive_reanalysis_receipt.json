@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "scope": "Fresh safe extraction of all three hash-bound archives; full new-study and cross-run analysis rerun using only extracted evidence",
+  "archives": {
+    "routing": {
+      "archive_sha256": "39d4d8a5ab9e70e642c6e56de7bfca5ffd13a99bbaa59ad0fe9767084380b6c2",
+      "payload_files": 100
+    },
+    "baseline_compatibility": {
+      "archive_sha256": "edd32f94666b28c2c101cfe0487950c327e4f848cff001e39fb3da7e91ac2e1d",
+      "payload_files": 62
+    },
+    "baseline_original": {
+      "archive_sha256": "d45176c9cbcf1c7645dfed44a343ec704fb34b9ab55002dcef4c62248285716f",
+      "payload_files": 368
+    }
+  },
+  "outputs": [
+    {
+      "path": "study/analysis/external_summary.json",
+      "sha256": "e7ef838724c6e38aa47a37de59cf9e819d564b80ea8b30fd38871fc87d243b37",
+      "byte_identical": true
+    },
+    {
+      "path": "study/analysis/session_1_primary_cells.csv",
+      "sha256": "ed70b5f9451cca931e0cb054f62c4cde57dbab911474f3f5dcd5b5c8b96d6d5e",
+      "byte_identical": true
+    },
+    {
+      "path": "study/analysis/session_1_light_cells.csv",
+      "sha256": "7dd35b2424626ee3e3014254552ad67a952a94540611b30d95f1c7ac4f4a341e",
+      "byte_identical": true
+    },
+    {
+      "path": "study/analysis/session_2_primary_cells.csv",
+      "sha256": "8319b321ea6a7bbc5f7b360392834190f5fcc24388a494bf38781e7a2a9b2384",
+      "byte_identical": true
+    },
+    {
+      "path": "study/analysis/session_2_light_cells.csv",
+      "sha256": "aae70ed955596a15099d38bada7e9c7376f684d9b8518be3565a43514c079c93",
+      "byte_identical": true
+    },
+    {
+      "path": "routing_analysis/routing_comparison.json",
+      "sha256": "901e8c5833856a01d5de8239a3e9087612fb42995a60f8898aeef7df9e3f1881",
+      "byte_identical": true
+    }
+  ],
+  "bootstrap_draws": 2000,
+  "sessions_analyzed_separately": true,
+  "script_sha256": "e284cc8595bbcca6fdbf7105a4c0c3fa7ba94a65d905d47c479f8e51a35e7f5a"
+}

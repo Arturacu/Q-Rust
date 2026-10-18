@@ -41,7 +41,7 @@ pub struct RoutingSearchConfig {
     /// Rank beam survivors by executed gates and remaining distance, after
     /// duplicate routing states have been collapsed.
     pub rank_progress: bool,
-    /// Extract terminal logical permutations before layout and routing.
+    /// Absorb logical SWAPs into relabeled operands and the output mapping.
     pub elide_output_permutations: bool,
     /// Orient equivalent SWAP decompositions to expose adjacent CX cancellation.
     pub orient_swaps: bool,

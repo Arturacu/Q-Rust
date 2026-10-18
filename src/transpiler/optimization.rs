@@ -1015,9 +1015,15 @@ impl Pass for OrientSwapDecompositionPass {
     }
 }
 
-/// Extract a logical terminal permutation before the router pays to realize it.
-/// The existing elision pass records inverse permutation `p[l]`; after routing,
-/// output logical wire `l` is read at the routed location of `p[l]`.
+/// Absorb logical SWAPs by relabeling subsequent gates before routing.
+///
+/// `p[l]` is the virtual wire carrying the state at source wire `l`. A SWAP
+/// exchanges two entries of `p`; subsequent operands are replaced by `p[q]`.
+/// This is exact for arbitrary inputs, including noncommuting suffix gates.
+/// After routing, output logical wire `l` is read at the routed location of
+/// `p[l]`. Barriers keep their position and have their operands relabeled too.
+/// The public pipeline separates terminal readout before invoking this pass;
+/// direct calls with nonunitary/conditional operations are left unchanged.
 #[derive(Debug, Clone, Copy)]
 pub struct ExtractOutputPermutationPass;
 
@@ -1027,10 +1033,42 @@ impl Pass for ExtractOutputPermutationPass {
     }
     fn run(&self, circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
         properties.remove::<Vec<usize>>("logical_output_permutation");
-        let mut temporary = PropertySet::new();
-        let output = TrailingSwapElisionPass.run(circuit, &mut temporary);
-        if let Some(permutation) = temporary.get::<Vec<usize>>("final_layout") {
-            properties.insert("logical_output_permutation", permutation.clone());
+        if crate::transpiler::validate_circuit_structure(circuit).is_err()
+            || circuit
+                .operations
+                .iter()
+                .any(|op| !matches!(op, Operation::Gate { .. } | Operation::Barrier { .. }))
+        {
+            return circuit.clone();
+        }
+        let mut permutation: Vec<usize> = (0..circuit.num_qubits).collect();
+        let mut output = circuit.clone();
+        output.operations.clear();
+        let mut absorbed = false;
+        for op in &circuit.operations {
+            if let Operation::Gate {
+                name: GateType::SWAP,
+                qubits,
+                ..
+            } = op
+            {
+                permutation.swap(qubits[0], qubits[1]);
+                absorbed = true;
+                continue;
+            }
+            let mut remapped = op.clone();
+            match &mut remapped {
+                Operation::Gate { qubits, .. } | Operation::Barrier { qubits } => {
+                    for q in qubits {
+                        *q = permutation[*q];
+                    }
+                }
+                _ => unreachable!("nonunitary operations were excluded above"),
+            }
+            output.operations.push(remapped);
+        }
+        if absorbed {
+            properties.insert("logical_output_permutation", permutation);
         }
         output
     }

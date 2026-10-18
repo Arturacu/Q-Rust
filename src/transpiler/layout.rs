@@ -13,6 +13,7 @@ use crate::transpiler::property_set::PropertySet;
 use crate::transpiler::routing::{
     build_gate_graph, extended_layer, reverse_gate_graph, Layout, TwoQGate,
 };
+use std::collections::HashMap;
 #[cfg(test)]
 use std::collections::HashSet;
 
@@ -27,6 +28,67 @@ fn pred_counts(gates: &[TwoQGate]) -> Vec<usize> {
 }
 
 const SWAP_COST: f64 = 3.0;
+
+/// One deterministic routing problem, scoped to a single layout-discovery call.
+/// Forward and reversed graphs have separate caches: a placement alone is not
+/// a key for both problems. No candidate requests or tie decisions are skipped.
+struct GreedyRouteCache<'a> {
+    gates: &'a [TwoQGate],
+    preds: &'a [usize],
+    backend: &'a Backend,
+    dist: &'a [Vec<usize>],
+    lookahead_size: usize,
+    memoize: bool,
+    routes: HashMap<Vec<usize>, (f64, Layout)>,
+    evaluations: usize,
+    hits: usize,
+}
+
+impl<'a> GreedyRouteCache<'a> {
+    fn new(
+        gates: &'a [TwoQGate],
+        preds: &'a [usize],
+        backend: &'a Backend,
+        dist: &'a [Vec<usize>],
+        lookahead_size: usize,
+        memoize: bool,
+    ) -> Self {
+        Self {
+            gates,
+            preds,
+            backend,
+            dist,
+            lookahead_size,
+            memoize,
+            routes: HashMap::new(),
+            evaluations: 0,
+            hits: 0,
+        }
+    }
+
+    fn route(&mut self, initial_layout: &Layout) -> (f64, Layout) {
+        if self.memoize {
+            if let Some(result) = self.routes.get(&initial_layout.logical_to_physical) {
+                self.hits += 1;
+                return result.clone();
+            }
+        }
+        self.evaluations += 1;
+        let result = greedy_sabre_cost(
+            self.gates,
+            self.preds,
+            self.backend,
+            self.dist,
+            initial_layout,
+            self.lookahead_size,
+        );
+        if self.memoize {
+            self.routes
+                .insert(initial_layout.logical_to_physical.clone(), result.clone());
+        }
+        result
+    }
+}
 
 fn greedy_sabre_cost(
     gates: &[TwoQGate],
@@ -267,6 +329,8 @@ impl Pass for SabreLayoutPass {
             Err(error) => {
                 property_set.remove::<Vec<usize>>("sabre_initial_layout");
                 property_set.remove::<usize>("layout_route_evaluations");
+                property_set.remove::<usize>("layout_route_cache_hits");
+                property_set.remove::<usize>("layout_route_requests");
                 property_set.insert("sabre_layout_error", error.to_string());
                 circuit.clone()
             }
@@ -276,6 +340,20 @@ impl Pass for SabreLayoutPass {
 
 impl SabreLayoutPass {
     fn discover(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {
+        self.discover_with_cache(circuit, property_set, true)
+    }
+
+    // The uncached mode is an internal regression oracle for preserving the
+    // candidate search exactly, not a public search-budget option.
+    fn discover_with_cache(
+        &self,
+        circuit: &Circuit,
+        property_set: &mut PropertySet,
+        memoize: bool,
+    ) -> Circuit {
+        property_set.remove::<usize>("layout_route_evaluations");
+        property_set.remove::<usize>("layout_route_cache_hits");
+        property_set.remove::<usize>("layout_route_requests");
         let has_2q = circuit.operations.iter().any(|op| {
             if let Operation::Gate { qubits, .. } = op {
                 qubits.len() >= 2
@@ -306,16 +384,24 @@ impl SabreLayoutPass {
             .get::<usize>("routing_lookahead_size")
             .copied()
             .unwrap_or(20);
-        let trivial = Layout::trivial(num_logical, num_physical);
-        let (trivial_cost, _) = greedy_sabre_cost(
+        let mut forward_routes = GreedyRouteCache::new(
             &fwd_gates,
             &fwd_preds,
             &connectivity,
             &dist,
-            &trivial,
             lookahead_size,
+            memoize,
         );
-        let mut evaluations = 1usize;
+        let mut reverse_routes = GreedyRouteCache::new(
+            &rev_gates,
+            &rev_preds,
+            &connectivity,
+            &dist,
+            lookahead_size,
+            memoize,
+        );
+        let trivial = Layout::trivial(num_logical, num_physical);
+        let (trivial_cost, _) = forward_routes.route(&trivial);
         let mut best_cost = trivial_cost;
         let mut best_layout = trivial.clone();
 
@@ -332,23 +418,8 @@ impl SabreLayoutPass {
             };
 
             for _ in 0..self.num_iterations {
-                evaluations += 2;
-                let (_, fwd_final) = greedy_sabre_cost(
-                    &fwd_gates,
-                    &fwd_preds,
-                    &connectivity,
-                    &dist,
-                    &layout,
-                    lookahead_size,
-                );
-                let (_, bwd_final) = greedy_sabre_cost(
-                    &rev_gates,
-                    &rev_preds,
-                    &connectivity,
-                    &dist,
-                    &fwd_final,
-                    lookahead_size,
-                );
+                let (_, fwd_final) = forward_routes.route(&layout);
+                let (_, bwd_final) = reverse_routes.route(&fwd_final);
                 let converged = layout.logical_to_physical == bwd_final.logical_to_physical;
                 layout = bwd_final;
                 if converged {
@@ -356,22 +427,18 @@ impl SabreLayoutPass {
                 }
             }
 
-            evaluations += 1;
-            let (final_cost, _) = greedy_sabre_cost(
-                &fwd_gates,
-                &fwd_preds,
-                &connectivity,
-                &dist,
-                &layout,
-                lookahead_size,
-            );
+            let (final_cost, _) = forward_routes.route(&layout);
             if final_cost < best_cost {
                 best_cost = final_cost;
                 best_layout = layout;
             }
         }
 
+        let evaluations = forward_routes.evaluations + reverse_routes.evaluations;
+        let hits = forward_routes.hits + reverse_routes.hits;
         property_set.insert("layout_route_evaluations", evaluations);
+        property_set.insert("layout_route_cache_hits", hits);
+        property_set.insert("layout_route_requests", evaluations + hits);
         property_set.insert(
             "sabre_initial_layout",
             best_layout.logical_to_physical.clone(),
@@ -395,6 +462,205 @@ fn random_layout(num_logical: usize, num_physical: usize, seed: u64) -> Layout {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn interacting_circuit() -> Circuit {
+        let mut circuit = Circuit::new(4, 0);
+        for (a, b) in [(0, 3), (0, 1), (2, 3), (1, 2), (0, 2), (0, 3)] {
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![a, b],
+                params: vec![],
+            });
+        }
+        circuit
+    }
+
+    #[test]
+    fn cache_preserves_search_and_routing_for_varied_connectivity() {
+        let circuit = interacting_circuit();
+        let mut directed = Backend::new("directed line", 4);
+        directed.set_coupling_map([(0, 1), (1, 2), (2, 3)]);
+        let mut disconnected = Backend::new("disconnected", 4);
+        disconnected.set_coupling_map([(0, 1), (1, 0), (2, 3), (3, 2)]);
+        for backend in [
+            Backend::linear(4),
+            directed,
+            Backend::linear(6),
+            disconnected,
+        ] {
+            for lookahead in [0_usize, 20] {
+                let pass = SabreLayoutPass {
+                    backend: backend.clone(),
+                    num_trials: 8,
+                    num_iterations: 4,
+                };
+                let mut cached = PropertySet::new();
+                let mut uncached = PropertySet::new();
+                cached.insert("routing_lookahead_size", lookahead);
+                uncached.insert("routing_lookahead_size", lookahead);
+                assert_eq!(
+                    pass.discover_with_cache(&circuit, &mut cached, true),
+                    pass.discover_with_cache(&circuit, &mut uncached, false)
+                );
+                assert_eq!(
+                    cached.get::<Vec<usize>>("sabre_initial_layout"),
+                    uncached.get::<Vec<usize>>("sabre_initial_layout")
+                );
+                let evaluations = *cached.get::<usize>("layout_route_evaluations").unwrap();
+                let hits = *cached.get::<usize>("layout_route_cache_hits").unwrap();
+                let requests = *cached.get::<usize>("layout_route_requests").unwrap();
+                assert!(hits > 0, "the initial forward route must be reused");
+                assert_eq!(evaluations + hits, requests);
+                assert_eq!(
+                    Some(&requests),
+                    uncached.get::<usize>("layout_route_evaluations")
+                );
+                assert_eq!(
+                    Some(&requests),
+                    uncached.get::<usize>("layout_route_requests")
+                );
+                assert_eq!(uncached.get::<usize>("layout_route_cache_hits"), Some(&0));
+
+                // Identical candidate search must preserve downstream routing,
+                // including the failure on a disconnected interaction graph.
+                let router = crate::transpiler::routing::BeamSabrePass {
+                    backend: backend.clone(),
+                    beam_width: 2,
+                    branch_factor: 2,
+                    bidir_iterations: 2,
+                    ..Default::default()
+                };
+                let left = router.try_run(&circuit, &mut cached);
+                let right = router.try_run(&circuit, &mut uncached);
+                match (left, right) {
+                    (Ok(left), Ok(right)) => {
+                        assert_eq!(left, right);
+                        for key in ["initial_layout", "final_layout"] {
+                            assert_eq!(
+                                cached.get::<Vec<usize>>(key),
+                                uncached.get::<Vec<usize>>(key)
+                            );
+                        }
+                        assert_eq!(
+                            cached.get::<usize>("swaps_inserted"),
+                            uncached.get::<usize>("swaps_inserted")
+                        );
+                    }
+                    (Err(left), Err(right)) => assert_eq!(left.to_string(), right.to_string()),
+                    result => panic!("cache changed routing success: {result:?}"),
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn forward_and_reverse_cache_preserve_exact_cost_and_final_placement() {
+        let circuit = interacting_circuit();
+        let backend = Backend::linear(4);
+        let dist = backend.shortest_path_matrix();
+        let (forward, _, _) = build_gate_graph(&circuit, false);
+        let reverse = reverse_gate_graph(&forward);
+        let forward_preds = pred_counts(&forward);
+        let reverse_preds = pred_counts(&reverse);
+        let mut forward_cache =
+            GreedyRouteCache::new(&forward, &forward_preds, &backend, &dist, 20, true);
+        let mut reverse_cache =
+            GreedyRouteCache::new(&reverse, &reverse_preds, &backend, &dist, 20, true);
+        let mut different_problems_observed = false;
+        for seed in 0..12 {
+            let initial = random_layout(4, 4, seed);
+            let direct_forward =
+                greedy_sabre_cost(&forward, &forward_preds, &backend, &dist, &initial, 20);
+            let direct_reverse =
+                greedy_sabre_cost(&reverse, &reverse_preds, &backend, &dist, &initial, 20);
+            different_problems_observed |= direct_forward.0 != direct_reverse.0
+                || direct_forward.1.logical_to_physical != direct_reverse.1.logical_to_physical;
+            for (cache, expected) in [
+                (&mut forward_cache, direct_forward),
+                (&mut reverse_cache, direct_reverse),
+            ] {
+                for _ in 0..2 {
+                    let actual = cache.route(&initial);
+                    assert_eq!(actual.0.to_bits(), expected.0.to_bits());
+                    assert_eq!(actual.1.logical_to_physical, expected.1.logical_to_physical);
+                    assert_eq!(actual.1.physical_to_logical, expected.1.physical_to_logical);
+                }
+            }
+        }
+        assert!(different_problems_observed);
+        for cache in [&forward_cache, &reverse_cache] {
+            assert_eq!(cache.evaluations + cache.hits, 24);
+            assert!(cache.hits >= 12);
+            assert_eq!(cache.evaluations, cache.routes.len());
+        }
+    }
+
+    #[test]
+    fn caching_a_failed_placement_preserves_infinite_cost() {
+        let circuit = interacting_circuit();
+        let backend = Backend::new("isolated", 4);
+        let dist = backend.shortest_path_matrix();
+        let (gates, _, _) = build_gate_graph(&circuit, false);
+        let preds = pred_counts(&gates);
+        let initial = Layout::trivial(4, 4);
+        let mut cache = GreedyRouteCache::new(&gates, &preds, &backend, &dist, 20, true);
+        let expected = greedy_sabre_cost(&gates, &preds, &backend, &dist, &initial, 20);
+        assert_eq!(expected.0, f64::INFINITY);
+        for _ in 0..2 {
+            let actual = cache.route(&initial);
+            assert_eq!(actual.0.to_bits(), expected.0.to_bits());
+            assert_eq!(actual.1.logical_to_physical, expected.1.logical_to_physical);
+            assert_eq!(actual.1.physical_to_logical, expected.1.physical_to_logical);
+        }
+        assert_eq!(cache.evaluations, 1);
+        assert_eq!(cache.hits, 1);
+    }
+
+    #[test]
+    fn route_cache_is_not_reused_between_pass_invocations() {
+        let pass = SabreLayoutPass {
+            backend: Backend::linear(4),
+            num_trials: 8,
+            num_iterations: 4,
+        };
+        let circuit = interacting_circuit();
+        let mut properties = PropertySet::new();
+        pass.try_run(&circuit, &mut properties).unwrap();
+        let first_evaluations = *properties.get::<usize>("layout_route_evaluations").unwrap();
+        let first_hits = *properties.get::<usize>("layout_route_cache_hits").unwrap();
+        pass.try_run(&circuit, &mut properties).unwrap();
+        assert_eq!(
+            properties.get::<usize>("layout_route_evaluations"),
+            Some(&first_evaluations)
+        );
+        assert_eq!(
+            properties.get::<usize>("layout_route_cache_hits"),
+            Some(&first_hits)
+        );
+
+        let mut changed = circuit.clone();
+        changed.operations.reverse();
+        let mut fresh = PropertySet::new();
+        pass.try_run(&changed, &mut properties).unwrap();
+        pass.try_run(&changed, &mut fresh).unwrap();
+        assert_eq!(
+            properties.get::<Vec<usize>>("sabre_initial_layout"),
+            fresh.get::<Vec<usize>>("sabre_initial_layout")
+        );
+        for key in [
+            "layout_route_evaluations",
+            "layout_route_cache_hits",
+            "layout_route_requests",
+        ] {
+            assert_eq!(properties.get::<usize>(key), fresh.get::<usize>(key));
+        }
+        pass.try_run(&Circuit::new(4, 0), &mut properties).unwrap();
+        assert!(properties
+            .get::<usize>("layout_route_evaluations")
+            .is_none());
+        assert!(properties.get::<usize>("layout_route_cache_hits").is_none());
+        assert!(properties.get::<usize>("layout_route_requests").is_none());
+    }
 
     #[test]
     fn direct_layout_run_validates_local_operands_and_search_dimensions() {
