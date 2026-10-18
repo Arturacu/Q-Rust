@@ -8,6 +8,7 @@ pub mod dag;
 pub mod decomposition;
 pub mod layout;
 pub mod local_cleanup;
+pub mod numerical_policy;
 pub mod optimization;
 pub mod pass;
 pub mod pauli_tracker;
@@ -314,6 +315,18 @@ impl Pass for KakSynthesisPass {
                     let u = name.unitary(params);
                     if u.nrows() == 4 && u.ncols() == 4 {
                         if let Some(sub) = KakSynthesizer.synthesize(&u, &[]) {
+                            // KAK validates every returned reconstruction at
+                            // 1e-10. Reserve that conservative bound across
+                            // all invocations instead of resetting per gate.
+                            if !numerical_policy::reserve(
+                                property_set,
+                                1e-10,
+                                1e-10,
+                                sub.operations.len() + 1,
+                            ) {
+                                out.add_op(op.clone());
+                                continue;
+                            }
                             kak_invocations += 1;
                             for sop in sub.operations {
                                 if let Operation::Gate {
@@ -704,9 +717,7 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 pm.add_pass(Box::new(phase_gadgets::RecoverPhaseGadgetsPass));
             }
             if config.optimization_level >= 1 {
-                pm.add_pass(Box::new(optimization::GateCrystallizationPass {
-                    epsilon: 1e-9,
-                }));
+                pm.add_pass(Box::new(optimization::GateCrystallizationPass::default()));
                 pm.add_pass(Box::new(
                     optimization::ParameterSimplificationPass::default(),
                 ));
@@ -841,6 +852,7 @@ pub fn transpile(circuit: &Circuit, config: Option<TranspilerConfig>) -> Result<
     let mut opt_pm = build_pass_manager_for(&config, Stage::Optimize)?;
     let after_opt = opt_pm.try_run(&prefix)?;
     let mut lower_pm = build_pass_manager_for(&config, Stage::LayoutAndLower)?;
+    numerical_policy::transfer(&mut opt_pm.property_set, &mut lower_pm.property_set);
     let lowered = lower_pm.try_run(&after_opt)?;
     let output = restore_terminal_readout(
         lowered,
@@ -884,6 +896,7 @@ pub fn transpile_with_report(
     ));
 
     let mut lower_pm = build_pass_manager_for(&config, Stage::LayoutAndLower)?;
+    numerical_policy::transfer(&mut opt_pm.property_set, &mut lower_pm.property_set);
     let lowered = if config.profile_passes {
         let (output, diagnostic) = lower_pm.try_run_profiled(&after_opt)?;
         report.pass_diagnostics.extend(diagnostic);
@@ -923,6 +936,7 @@ pub fn transpile_with_report(
         .property_set
         .get::<local_cleanup::PostBlockFusionStats>("post_block_fusion_stats")
         .cloned();
+    report.numerical_budget = numerical_policy::snapshot(&lower_pm.property_set);
 
     Ok((final_circuit, report))
 }

@@ -38,8 +38,10 @@ jobs:
       RAYON_NUM_THREADS: '1'
       QISKIT_NUM_PROCS: '1'
       QISKIT_PARALLEL: 'FALSE'
+      QRUST_COMPARISON_BINARY: target/release/comparison_runner
     steps:
       - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
@@ -47,5 +49,7 @@ jobs:
           cache-dependency-path: experiments/requirements-comparison.txt
       - name: Install pinned compiler comparison dependencies
         run: python -m pip install -r experiments/requirements-comparison.txt
+      - name: Build public compiler adapter for numerical regressions
+        run: cargo build --release -p qrust-bench --bin comparison_runner
       - name: Test adapters independent checker and analysis
         run: python -m unittest discover -s experiments -p 'test_*.py'

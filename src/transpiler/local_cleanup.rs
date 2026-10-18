@@ -5,6 +5,7 @@
 //! wire. Every non-U/CX operation is a global boundary. The scan and matrix
 //! work are linear in the circuit size; no commutation approximation is used.
 
+use super::numerical_policy::reserve;
 use super::pass::Pass;
 use super::property_set::PropertySet;
 use super::synthesis::zyz::zyz_decomposition;
@@ -102,6 +103,7 @@ fn flush(
     pending: &mut [Option<LocalRun>],
     output: &mut [Option<Operation>],
     stats: &mut PostBlockFusionStats,
+    properties: &mut PropertySet,
 ) {
     let Some(run) = pending[qubit].take() else {
         return;
@@ -148,6 +150,20 @@ fn flush(
         )
     };
     if stats.residual_sum + error > CIRCUIT_RESIDUAL_BUDGET {
+        stats.rejected_budget += 1;
+        return;
+    }
+    let local_limit = if replacement.is_none() {
+        IDENTITY_RESIDUAL_LIMIT
+    } else {
+        RUN_RESIDUAL_LIMIT
+    };
+    if !reserve(
+        properties,
+        error,
+        local_limit,
+        run.indices.len() + usize::from(replacement.is_some()),
+    ) {
         stats.rejected_budget += 1;
         return;
     }
@@ -209,7 +225,7 @@ impl Pass for PostBlockFusionPass {
                     && params.is_empty() =>
                 {
                     for &qubit in qubits {
-                        flush(qubit, &mut pending, &mut output, &mut stats);
+                        flush(qubit, &mut pending, &mut output, &mut stats, properties);
                     }
                     continue;
                 }
@@ -218,11 +234,11 @@ impl Pass for PostBlockFusionPass {
             // All non-lowered, malformed, nonfinite or nonunitary operations
             // remain in place and conservatively delimit every pending run.
             while let Some(qubit) = active.pop() {
-                flush(qubit, &mut pending, &mut output, &mut stats);
+                flush(qubit, &mut pending, &mut output, &mut stats, properties);
             }
         }
         while let Some(qubit) = active.pop() {
-            flush(qubit, &mut pending, &mut output, &mut stats);
+            flush(qubit, &mut pending, &mut output, &mut stats, properties);
         }
         let mut result = circuit.clone();
         result.operations = output.into_iter().flatten().collect();
@@ -323,9 +339,67 @@ mod tests {
             residual_sum: CIRCUIT_RESIDUAL_BUDGET,
             ..PostBlockFusionStats::default()
         };
-        flush(0, &mut pending, &mut output, &mut stats);
+        flush(
+            0,
+            &mut pending,
+            &mut output,
+            &mut stats,
+            &mut PropertySet::new(),
+        );
         assert_eq!(output.into_iter().flatten().collect::<Vec<_>>(), operations);
         assert_eq!(stats.rejected_budget, 1);
         assert_eq!(stats.accepted, 0);
+    }
+
+    #[test]
+    fn exhausted_shared_allowance_is_preserved_across_cleanup_passes() {
+        use crate::transpiler::block_synthesis::TwoQubitBlockSynthesisPass;
+        use crate::transpiler::numerical_policy::{
+            snapshot, NumericalBudget, CIRCUIT_ERROR_ALLOWANCE,
+        };
+        let mut local = Circuit::new(2, 0);
+        local.operations = vec![u(0, 0.3, -0.2, 0.7), u(0, -0.6, 0.5, -0.1)];
+        assert_eq!(
+            PostBlockFusionPass
+                .run(&local, &mut PropertySet::new())
+                .operations
+                .len(),
+            1
+        );
+        let mut block = Circuit::new(2, 0);
+        block.operations = vec![
+            Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![0, 1],
+                params: vec![],
+            };
+            2
+        ];
+        let mut properties = PropertySet::new();
+        properties.insert(
+            "numerical_budget",
+            NumericalBudget {
+                charged_error: CIRCUIT_ERROR_ALLOWANCE,
+                ..NumericalBudget::default()
+            },
+        );
+        for _ in 0..3 {
+            assert_eq!(PostBlockFusionPass.run(&local, &mut properties), local);
+            assert_eq!(
+                TwoQubitBlockSynthesisPass.run(&block, &mut properties),
+                block
+            );
+            assert_eq!(
+                properties
+                    .get::<PostBlockFusionStats>("post_block_fusion_stats")
+                    .unwrap()
+                    .rejected_budget,
+                1
+            );
+        }
+        let budget = snapshot(&properties);
+        assert_eq!(budget.charged_error, CIRCUIT_ERROR_ALLOWANCE);
+        assert_eq!(budget.accepted, 0);
+        assert_eq!(budget.rejected, 6);
     }
 }

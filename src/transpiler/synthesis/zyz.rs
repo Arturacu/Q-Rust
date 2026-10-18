@@ -9,6 +9,44 @@ use std::f64::consts::PI;
 /// A 2×2 unitary.
 pub type Unitary2x2 = [[Complex<f64>; 2]; 2];
 
+// These are admission/reconstruction guards for one synthesis call, not an
+// allowance to discard small angles. A caller replacing many subcircuits
+// must also account for their combined residual.
+const INPUT_UNITARITY_TOLERANCE: f64 = 1e-12;
+const OUTPUT_RESIDUAL_TOLERANCE: f64 = 1e-12;
+
+pub(super) fn valid_unitary_1q(matrix: &DMatrix<Complex<f64>>) -> bool {
+    if matrix.nrows() != 2
+        || matrix.ncols() != 2
+        || matrix
+            .iter()
+            .any(|value| !value.re.is_finite() || !value.im.is_finite())
+    {
+        return false;
+    }
+    let residual = (matrix.adjoint() * matrix - DMatrix::identity(2, 2)).norm();
+    residual.is_finite() && residual <= INPUT_UNITARITY_TOLERANCE
+}
+
+/// Direct phase-aligned Frobenius residual. Unlike `1 - |trace| / 2`,
+/// subtracting the matrices retains first-order small-angle discrepancies.
+pub(super) fn residual_1q(target: &DMatrix<Complex<f64>>, actual: Unitary2x2) -> f64 {
+    let overlap: Complex<f64> = (0..2)
+        .flat_map(|row| (0..2).map(move |col| actual[row][col].conj() * target[(row, col)]))
+        .sum();
+    let magnitude = overlap.norm();
+    if !magnitude.is_finite() || magnitude == 0.0 {
+        return f64::INFINITY;
+    }
+    let phase = overlap / magnitude;
+    (0..2)
+        .flat_map(|row| {
+            (0..2).map(move |col| (target[(row, col)] - actual[row][col] * phase).norm_sqr())
+        })
+        .sum::<f64>()
+        .sqrt()
+}
+
 /// Decomposes a single-qubit unitary into Euler angles and a global phase.
 ///
 /// Returns `(θ, φ, λ, γ)` such that `U = e^{iγ} U(θ, φ, λ)` where
@@ -81,13 +119,14 @@ pub fn u_to_matrix(theta: f64, phi: f64, lambda: f64) -> Unitary2x2 {
     ]
 }
 
-/// Exact single-qubit (ZYZ) synthesizer.
+/// Single-qubit (ZYZ) synthesizer with finite-input, unitarity and direct
+/// reconstruction guards. Numerical failures return `None`.
 #[derive(Debug, Clone, Copy)]
 pub struct ZyzSynthesizer;
 
 impl Synthesizer for ZyzSynthesizer {
     fn synthesize(&self, unitary: &DMatrix<Complex<f64>>, _basis: &[GateType]) -> Option<Circuit> {
-        if unitary.nrows() != 2 || unitary.ncols() != 2 {
+        if !valid_unitary_1q(unitary) {
             return None;
         }
         let u_arr = [
@@ -95,6 +134,10 @@ impl Synthesizer for ZyzSynthesizer {
             [unitary[(1, 0)], unitary[(1, 1)]],
         ];
         let (theta, phi, lambda, _) = zyz_decomposition(u_arr);
+        let residual = residual_1q(unitary, u_to_matrix(theta, phi, lambda));
+        if !residual.is_finite() || residual > OUTPUT_RESIDUAL_TOLERANCE {
+            return None;
+        }
         let mut circuit = Circuit::new(1, 0);
         circuit.add_op(Operation::Gate {
             name: GateType::U,
@@ -111,6 +154,44 @@ mod tests {
 
     fn c(re: f64, im: f64) -> Complex<f64> {
         Complex::new(re, im)
+    }
+
+    #[test]
+    fn synthesis_rejects_nonunitary_and_nonfinite_inputs() {
+        for target in [
+            DMatrix::zeros(2, 2),
+            DMatrix::from_element(2, 2, c(1.0, 0.0)),
+            DMatrix::identity(2, 2) * c(1.0 + 1e-8, 0.0),
+            DMatrix::identity(3, 3),
+            DMatrix::zeros(2, 3),
+        ] {
+            assert!(ZyzSynthesizer.synthesize(&target, &[]).is_none());
+        }
+        for bad in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            for imaginary in [false, true] {
+                let mut target = DMatrix::identity(2, 2);
+                target[(0, 1)] = if imaginary { c(0.0, bad) } else { c(bad, 0.0) };
+                assert!(ZyzSynthesizer.synthesize(&target, &[]).is_none());
+            }
+        }
+    }
+
+    #[test]
+    fn guarded_synthesis_retains_small_rotations_and_global_phase() {
+        for angle in [9e-10, -4e-11, 1e-13, PI - 1e-11] {
+            // Analytic RX target; no named-gate lowering or synthesis oracle.
+            let (sine, cosine) = (angle / 2.0).sin_cos();
+            let target = DMatrix::from_row_slice(
+                2,
+                2,
+                &[c(cosine, 0.0), c(0.0, -sine), c(0.0, -sine), c(cosine, 0.0)],
+            ) * Complex::from_polar(1.0, -0.47);
+            let output = ZyzSynthesizer.synthesize(&target, &[]).unwrap();
+            let actual = crate::simulator::circuit_to_unitary(&output);
+            let overlap = (actual.adjoint() * &target).trace();
+            let error = (&target - actual * (overlap / overlap.norm())).norm();
+            assert!(error < 2e-15, "angle={angle}, residual={error}");
+        }
     }
 
     #[test]

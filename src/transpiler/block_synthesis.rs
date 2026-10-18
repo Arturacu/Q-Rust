@@ -10,10 +10,12 @@
 //! Replacement requires fewer CX gates and an independently reconstructed,
 //! phase-aligned matrix residual. The unnormalized Frobenius norm bounds the
 //! operator norm; summing accepted residuals bounds composition error for
-//! unitary blocks in exact arithmetic. This budget does not include later
-//! passes, floating-point roundoff in the checker, or QASM serialization.
+//! unitary blocks in exact arithmetic. Accepted replacements additionally use
+//! the shared pipeline allowance, so separate passes cannot reset the budget.
+//! This is a numerical guard, not a proof covering all floating-point error.
 
 use super::decomposition::BasisDecompositionPass;
+use super::numerical_policy::reserve;
 use super::optimization::GateFusionPass;
 use super::pass::Pass;
 use super::property_set::PropertySet;
@@ -384,6 +386,15 @@ impl Pass for TwoQubitBlockSynthesisPass {
                 stats.rejected_numerical += 1;
                 continue;
             };
+            if !reserve(
+                property_set,
+                residual,
+                BLOCK_RESIDUAL_LIMIT,
+                original.len() + candidate.len(),
+            ) {
+                stats.rejected_numerical += 1;
+                continue;
+            }
             stats.accepted += 1;
             stats.cx_removed += cx_before - cx_after;
             stats.residual_sum += residual;
@@ -411,6 +422,35 @@ impl Pass for TwoQubitBlockSynthesisPass {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn exhausted_shared_allowance_cannot_be_reset_by_repeated_block_passes() {
+        use crate::transpiler::numerical_policy::{
+            snapshot, NumericalBudget, CIRCUIT_ERROR_ALLOWANCE,
+        };
+        let mut circuit = Circuit::new(2, 0);
+        circuit.operations = vec![cx_op(0, 1), cx_op(0, 1)];
+        assert!(TwoQubitBlockSynthesisPass
+            .run(&circuit, &mut PropertySet::new())
+            .operations
+            .is_empty());
+        let mut properties = PropertySet::new();
+        properties.insert(
+            "numerical_budget",
+            NumericalBudget {
+                charged_error: CIRCUIT_ERROR_ALLOWANCE,
+                ..NumericalBudget::default()
+            },
+        );
+        for rejected in 1..=3 {
+            let output = TwoQubitBlockSynthesisPass.run(&circuit, &mut properties);
+            assert_eq!(output, circuit);
+            let budget = snapshot(&properties);
+            assert_eq!(budget.charged_error, CIRCUIT_ERROR_ALLOWANCE);
+            assert_eq!(budget.accepted, 0);
+            assert_eq!(budget.rejected, rejected);
+        }
+    }
 
     #[test]
     fn pure_cx_group_fast_path_is_exact_and_avoids_kak() {

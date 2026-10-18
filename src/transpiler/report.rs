@@ -54,6 +54,8 @@ pub struct PassDiagnostic {
 /// Full transpilation report.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct TranspilationReport {
+    /// Shared numerical replacement ledger; not a proof of equivalence.
+    pub numerical_budget: super::numerical_policy::NumericalBudget,
     pub stages: Vec<StageSnapshot>,
     pub pass_diagnostics: Vec<PassDiagnostic>,
     /// Physical location of each logical input qubit, when routing ran.

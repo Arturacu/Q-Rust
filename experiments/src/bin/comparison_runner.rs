@@ -142,6 +142,12 @@ fn compile_one(request: &Value) -> Result<Value, String> {
         "two_qubit_block_synthesis":block_synthesis_enabled, "two_qubit_block_stats":block_stats,
         "recover_phase_gadgets":phase_recovery_enabled, "post_block_fusion":post_block_fusion_enabled,
         "phase_gadgets_recovered":report.phase_gadgets_recovered, "post_block_fusion_stats":fusion_stats,
+        "numerical_budget": {
+            "accepted":report.numerical_budget.accepted, "rejected":report.numerical_budget.rejected,
+            "residual_sum":report.numerical_budget.residual_sum,
+            "charged_error":report.numerical_budget.charged_error,
+            "allowance":q_rust::transpiler::numerical_policy::CIRCUIT_ERROR_ALLOWANCE
+        },
         "pipeline":"Q-Rust public transpile_with_report O3; U/CX; optional exact phase recovery and diagonal routing dependencies; deterministic candidate ties and seeded layout starts; optional post-routing two-qubit block synthesis and checked local fusion"
     }))
 }
