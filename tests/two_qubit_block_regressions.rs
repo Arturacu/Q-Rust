@@ -538,6 +538,10 @@ fn pipeline_w_state_improvement_preserves_arbitrary_inputs_not_only_preparation(
                 .backend(Backend::all_to_all(width))
                 .target_basis(["u", "cx"])
                 .two_qubit_block_synthesis(enabled)
+                // Isolate the block-synthesis contribution from the newer
+                // exact Clifford passes, which can expose the same reduction.
+                .encoded_swap_recognition(false)
+                .clifford_simplification(false)
                 .build()
         };
         let (before, before_report) = transpile_with_report(&source, Some(config(false))).unwrap();
