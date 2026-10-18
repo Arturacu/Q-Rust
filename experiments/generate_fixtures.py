@@ -11,11 +11,11 @@ Produces a standard suite of algorithmic benchmark circuits spanning a range of 
 Design constraints (verified against Q-Rust's parser in `src/parser/`):
   * STRICT OpenQASM 2.0 only — never 3.0 syntax.
   * Every emitted gate name is one Q-Rust parses natively
-    (`h, x, s, sdg, t, cx, ccx, swap, crz, rz, ...`).  In particular the QFT
-    uses controlled-RZ (`crz`) for its phase rotations, NOT `cp`/`cu1`, which
-    Q-Rust would treat as unsupported custom gates.
-  * Output is fully deterministic (fixed RNG seeds) so the fixture suite — and
-    therefore every downstream benchmark number — is reproducible.
+    (`h, x, s, sdg, t, cx, ccx, swap, crz, u3, rz, ...`).  The QFT's
+    controlled phase CP(theta) is represented exactly by CRZ(theta) and
+    U3(0, 0, theta/2) on the control; bare CRZ is not a controlled phase.
+  * Fixture output is deterministic (fixed RNG seeds). Compiler routing still
+    uses randomness, so downstream measurements require repeated trials.
 
 The script also writes `fixtures/manifest.json`, recording for each fixture its
 family, nominal `n`, true qubit count, and source-level gate tallies.  This
@@ -81,25 +81,29 @@ def make_ghz(n: int) -> Fixture:
 
 
 # --------------------------------------------------------------------------- #
-# QFT (textbook, controlled-RZ phase rotations + final bit-reversal swaps)     #
+# QFT (controlled phases + final bit-reversal swaps)                           #
 # --------------------------------------------------------------------------- #
 def make_qft(n: int) -> Fixture:
     """n-qubit QFT.
 
-    Each qubit gets a Hadamard followed by a descending chain of controlled
-    phase rotations implemented with `crz(pi / 2**k)` (Q-Rust-native), and the
-    routine closes with the standard bit-reversal SWAP network.  This is a
-    legitimate QFT up to single-qubit phases, which is irrelevant for the
-    transpiler-equivalence harness (it compares input vs. output, both built
-    from the same primitives).
+    With q[0] the least significant bit, the matrix element (y, x) is
+    exp(2*pi*i*x*y / 2**n) / sqrt(2**n).  Process targets from high to low
+    and finish with bit-reversal SWAPs.  Each controlled phase uses the
+    exact identity CP(theta) = P_control(theta/2) CRZ(theta), where
+    P(phi) = U3(0, 0, phi) = diag(1, exp(i*phi)).  The control phase cannot
+    be dropped: it changes relative phases, not merely a global phase.
     """
+    if n < 1:
+        raise ValueError("QFT needs at least one qubit")
     fx = Fixture(name=f"qft_{n}", family="qft", nominal_n=n, num_qubits=n,
-                 notes="Hadamard + crz(pi/2^k) phase ladder, then bit-reversal swaps.")
-    for j in range(n):
+                 notes="QFT with q[0] least significant: exact controlled phases "
+                       "via u3(0,0,theta/2) on control + crz(theta), then bit-reversal swaps.")
+    for j in reversed(range(n)):
         _tally(fx, f"h q[{j}];\n", 1, False)
-        for k in range(j + 1, n):
-            angle = math.pi / (2 ** (k - j))
-            _tally(fx, f"crz({angle:.12g}) q[{k}],q[{j}];\n", 2, False)
+        for k in reversed(range(j)):
+            angle = math.pi / (2 ** (j - k))
+            _tally(fx, f"u3(0,0,{angle / 2:.17g}) q[{k}];\n", 1, False)
+            _tally(fx, f"crz({angle:.17g}) q[{k}],q[{j}];\n", 2, False)
     for i in range(n // 2):
         _tally(fx, f"swap q[{i}],q[{n - 1 - i}];\n", 2, False)
     return fx
@@ -246,19 +250,33 @@ def make_ising(n: int, steps: int = 3) -> Fixture:
 
 
 # --------------------------------------------------------------------------- #
-# W-state preparation (ry/cx cascade)                                          #
+# W-state preparation (single-excitation transfer by ry/cx)                    #
 # --------------------------------------------------------------------------- #
 def make_wstate(n: int) -> Fixture:
+    """Prepare sum_k |2**k>/sqrt(n) from |0...0> using a moving excitation.
+
+    Start in |1_0>.  At step k the remaining amplitude sqrt((n-k+1)/n)
+    sits on q[k-1].  CRY(2*acos(1/sqrt(n-k+1))) onto q[k], then a CX
+    from q[k] back to q[k-1], leaves amplitude 1/sqrt(n) at q[k-1]
+    and transfers the remainder to q[k].  Previous excitations have the
+    control at zero and are unchanged.  Thus no vacuum or multi-excitation
+    amplitude remains after each step.  Expand CRY into RY/CX so the QASM
+    uses gates in the standard qelib1.inc as well as Q-Rust's parser.
+    """
+    if n < 1:
+        raise ValueError("W-state preparation needs at least one qubit")
     fx = Fixture(name=f"wstate_{n}", family="wstate", nominal_n=n, num_qubits=n,
-                 notes="W-state preparation via a ry/cx cascade.")
-    _tally(fx, f"ry({2 * math.acos(math.sqrt(1 / n)):.9g}) q[0];\n", 1, False)
+                 notes="W-state from |0...0>: initial X, then controlled-RY "
+                       "and reverse-CX excitation transfers (expanded into ry/cx).")
+    _tally(fx, "x q[0];\n", 1, False)
     for k in range(1, n):
-        rem = n - k
-        theta = 2 * math.acos(math.sqrt(1 / rem)) if rem > 0 else 0.0
-        _tally(fx, f"ry({theta / 2:.9g}) q[{k}];\n", 1, False)
+        rem = n - k + 1
+        theta = 2 * math.acos(math.sqrt(1 / rem))
+        _tally(fx, f"ry({theta / 2:.17g}) q[{k}];\n", 1, False)
         _tally(fx, f"cx q[{k - 1}],q[{k}];\n", 2, True)
-        _tally(fx, f"ry({-theta / 2:.9g}) q[{k}];\n", 1, False)
+        _tally(fx, f"ry({-theta / 2:.17g}) q[{k}];\n", 1, False)
         _tally(fx, f"cx q[{k - 1}],q[{k}];\n", 2, True)
+        _tally(fx, f"cx q[{k}],q[{k - 1}];\n", 2, True)
     return fx
 
 
@@ -283,11 +301,11 @@ def make_graphstate(n: int) -> Fixture:
 # Driver                                                                       #
 # --------------------------------------------------------------------------- #
 def build_all() -> List[Fixture]:
-    # Suite design: the widths <= 18 are the *verifiable core* (every one is
-    # certified by the harness on every topology it fits); the 22- and
-    # 25-qubit GHZ/QFT fixtures are retained solely as compile-time *scaling*
-    # probes and are flagged wherever they appear. The extra sub-14-qubit
-    # widths and second Clifford seeds densify the verified core.
+    # Suite design: widths <= 18 form the core for numerical equivalence
+    # checks when supported by the harness. The 22- and 25-qubit GHZ/QFT
+    # fixtures are compile-time scaling probes. Numerical comparisons provide
+    # evidence, not formal certification; wider checks may use sampling.
+    # Extra sub-14-qubit widths and second Clifford seeds densify the core.
     fixtures: List[Fixture] = []
     for n in (3, 5, 7, 8, 10, 12, 14, 18, 22, 25):
         fixtures.append(make_ghz(n))

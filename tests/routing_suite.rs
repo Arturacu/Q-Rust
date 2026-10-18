@@ -69,10 +69,8 @@ fn route_with_props(
     beam: usize,
     bidir: usize,
 ) -> (Circuit, PropertySet) {
-    // Loop 3 review §"Build break: missing `lookahead_strategy`": this
-    // helper now uses `..Default::default()` so future field additions
-    // to `BeamSabrePass` don't break the test suite. The default is
-    // classical SABRE, matching the routing pipeline's historical behavior.
+    // Keep the default classical-SABRE lookahead explicit so this helper
+    // follows the production routing pipeline.
     let pass = BeamSabrePass {
         backend: backend.clone(),
         beam_width: beam,

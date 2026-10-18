@@ -5,6 +5,7 @@ use crate::ir::{Circuit, GateDefinition, Operation};
 use crate::SHIFT_GUARD;
 use nalgebra::{DMatrix, DVector};
 use num_complex::Complex;
+use std::collections::HashSet;
 
 type C = Complex<f64>;
 
@@ -12,8 +13,9 @@ pub const MAX_QUBITS: usize = 14;
 
 /// Maximum qubit count for state-vector evolution.
 ///
-/// State-vector evolution is `O(g · 2^n)` per gate (vs `O(g · 4^n)` for the
-/// full unitary materialization in [`circuit_to_unitary`]). We allow up to
+/// For one- and two-qubit gates, state-vector evolution is `O(g · 2^n)`
+/// for `g` gates. The current full-unitary implementation instead uses dense
+/// matrix products (`O(g · 8^n)`). We allow up to
 /// 24 qubits (~ 256 MiB for the state vector) — well within reach of a
 /// 2024-era workstation.
 pub const MAX_STATE_VECTOR_QUBITS: usize = 24;
@@ -23,6 +25,105 @@ pub const MAX_STATE_VECTOR_QUBITS: usize = 24;
 /// matrix; at n=12 this is 256 MiB peak. A native in-place 3q kernel
 /// is left as future work.
 pub const MAX_3Q_EMBED_QUBITS: usize = 12;
+
+/// Validate the logical prefix of a layout. Extra entries can describe padded
+/// physical wires, but do not turn those wires into logical output qubits.
+pub(crate) fn validate_layout(
+    n_logical: usize,
+    n_physical: usize,
+    initial_layout: &[usize],
+    final_layout: &[usize],
+) -> Result<()> {
+    if n_physical < n_logical {
+        return Err(QRustError::Simulation(format!(
+            "layout-aware verification: physical width {n_physical} is smaller than logical width {n_logical}"
+        )));
+    }
+    for (label, layout) in [
+        ("initial_layout", initial_layout),
+        ("final_layout", final_layout),
+    ] {
+        let logical_slice = layout.get(..n_logical).ok_or_else(|| {
+            QRustError::Simulation(format!(
+                "{label}: layout length is smaller than logical width {n_logical}"
+            ))
+        })?;
+        if logical_slice.iter().any(|&p| p >= n_physical) {
+            return Err(QRustError::Simulation(format!(
+                "{label}: physical qubit out of range"
+            )));
+        }
+        if logical_slice.iter().copied().collect::<HashSet<_>>().len() != n_logical {
+            return Err(QRustError::Simulation(format!(
+                "{label}: layout is not injective"
+            )));
+        }
+    }
+    Ok(())
+}
+
+fn validate_state_width(n: usize) -> Result<()> {
+    if n > MAX_STATE_VECTOR_QUBITS || n >= SHIFT_GUARD {
+        return Err(QRustError::Simulation(format!(
+            "state-vector simulation: {n} qubits exceeds practical limit ({MAX_STATE_VECTOR_QUBITS})"
+        )));
+    }
+    Ok(())
+}
+
+fn checked_fidelity(value: f64) -> Result<f64> {
+    if !value.is_finite() {
+        return Err(QRustError::Simulation(
+            "non-finite fidelity during simulation".into(),
+        ));
+    }
+    Ok(value.clamp(0.0, 1.0))
+}
+
+/// Unitary simulation never silently drops operations with classical or
+/// nonunitary semantics. The verifier separately handles matching terminal
+/// readout by comparing the readout maps and simulating their unitary prefixes.
+fn prepare_unitary_circuit(circuit: &Circuit) -> Result<Circuit> {
+    crate::transpiler::validate_circuit_structure(circuit)
+        .map_err(|e| QRustError::Simulation(format!("invalid circuit: {e}")))?;
+    for op in &circuit.operations {
+        match op {
+            Operation::Gate { .. } | Operation::Barrier { .. } => {}
+            Operation::Measure { .. } | Operation::Reset { .. } | Operation::Conditional { .. } => {
+                return Err(QRustError::Simulation(
+                    "unitary simulation does not support measurement, reset, or conditional operations; use the verifier for matching terminal readout".into(),
+                ));
+            }
+        }
+    }
+    let unrolled = crate::transpiler::decomposition::try_unroll_custom_gates(circuit)
+        .map_err(|e| QRustError::Simulation(format!("custom-gate unroll failed: {e}")))?;
+    crate::transpiler::validate_circuit_structure(&unrolled)
+        .map_err(|e| QRustError::Simulation(format!("invalid unrolled circuit: {e}")))?;
+    if unrolled
+        .operations
+        .iter()
+        .any(|op| !matches!(op, Operation::Gate { .. } | Operation::Barrier { .. }))
+    {
+        return Err(QRustError::Simulation(
+            "custom-gate expansion contains nonunitary operations".into(),
+        ));
+    }
+    Ok(unrolled)
+}
+
+fn checked_gate_unitary(name: &crate::ir::GateType, params: &[f64]) -> Result<DMatrix<C>> {
+    let matrix = name.unitary(params);
+    if matrix
+        .iter()
+        .any(|z| !z.re.is_finite() || !z.im.is_finite())
+    {
+        return Err(QRustError::Simulation(format!(
+            "gate {name:?} produced a non-finite matrix"
+        )));
+    }
+    Ok(matrix)
+}
 
 fn embed_single_qubit(gate_2x2: &DMatrix<C>, target: usize, n_qubits: usize) -> DMatrix<C> {
     debug_assert!(n_qubits < SHIFT_GUARD);
@@ -113,6 +214,8 @@ fn embed_3q(gate_8x8: &DMatrix<C>, q0: usize, q1: usize, q2: usize, n_qubits: us
     full
 }
 
+/// Construct a floating-point unitary. Measurements, resets, and conditionals
+/// are rejected; barriers have no unitary effect.
 pub fn try_circuit_to_unitary(circuit: &Circuit) -> Result<DMatrix<C>> {
     if circuit.num_qubits > MAX_QUBITS {
         return Err(QRustError::Simulation(format!(
@@ -120,8 +223,7 @@ pub fn try_circuit_to_unitary(circuit: &Circuit) -> Result<DMatrix<C>> {
             circuit.num_qubits, MAX_QUBITS
         )));
     }
-    let unrolled = crate::transpiler::decomposition::try_unroll_custom_gates(circuit)
-        .map_err(|e| QRustError::Simulation(format!("custom-gate unroll failed: {e}")))?;
+    let unrolled = prepare_unitary_circuit(circuit)?;
     let n = unrolled.num_qubits;
     if n > MAX_QUBITS || n >= SHIFT_GUARD {
         return Err(QRustError::Simulation(format!(
@@ -139,7 +241,7 @@ pub fn try_circuit_to_unitary(circuit: &Circuit) -> Result<DMatrix<C>> {
             params,
         } = op
         {
-            let local_u = name.unitary(params);
+            let local_u = checked_gate_unitary(name, params)?;
             let gate_u = match name.num_qubits() {
                 0 => continue,
                 1 => {
@@ -223,7 +325,25 @@ pub fn extract_logical_unitary(
     initial_layout: &[usize],
     final_layout: &[usize],
 ) -> DMatrix<C> {
-    let n_physical = (u_routed.nrows() as f64).log2().round() as usize;
+    try_extract_logical_unitary(u_routed, n_logical, initial_layout, final_layout)
+        .unwrap_or_else(|e| panic!("extract_logical_unitary: {e}"))
+}
+
+/// Extract the clean-ancilla block without renormalizing it. Its norm deficit
+/// records leakage into other ancilla states. The result need not be unitary.
+pub fn try_extract_logical_unitary(
+    u_routed: &DMatrix<C>,
+    n_logical: usize,
+    initial_layout: &[usize],
+    final_layout: &[usize],
+) -> Result<DMatrix<C>> {
+    if !u_routed.is_square() || !u_routed.nrows().is_power_of_two() {
+        return Err(QRustError::Simulation(
+            "routed matrix must be square with a power-of-two dimension".into(),
+        ));
+    }
+    let n_physical = u_routed.nrows().trailing_zeros() as usize;
+    validate_layout(n_logical, n_physical, initial_layout, final_layout)?;
     let dim_logical = 1usize << n_logical;
     let mut u_logical = DMatrix::<C>::zeros(dim_logical, dim_logical);
 
@@ -233,36 +353,25 @@ pub fn extract_logical_unitary(
             let bit = (col_l >> param_i) & 1;
             x_in |= bit << initial_layout[param_i];
         }
-        let output_col = u_routed.column(x_in);
-
-        for row_p in 0..u_routed.nrows() {
-            let amp = output_col[row_p];
-            if amp.norm() < 1e-9 {
-                continue;
+        // Enumerate only clean output rows. Extra layout entries describe
+        // physical padding and must not be interpreted as logical qubits.
+        for row_l in 0..dim_logical {
+            let mut row_p = 0usize;
+            for (l_q, &p_q) in final_layout[..n_logical].iter().enumerate() {
+                row_p |= ((row_l >> l_q) & 1) << p_q;
             }
-            let mut row_l = 0usize;
-            let mut ancilla_violation = false;
-            for p_q in 0..n_physical {
-                let bit = (row_p >> p_q) & 1;
-                if let Some(l_q) = final_layout.iter().position(|&x| x == p_q) {
-                    row_l |= bit << l_q;
-                } else if bit == 1 {
-                    ancilla_violation = true;
-                }
-            }
-            if !ancilla_violation {
-                u_logical[(row_l, col_l)] += amp;
-            }
+            u_logical[(row_l, col_l)] = u_routed[(row_p, x_in)];
         }
     }
-    u_logical
+    Ok(u_logical)
 }
 
 // ─── State-vector evolution ──────────────────────────────────────────────────
 //
 // Unblocks verification at >14 qubits by avoiding full unitary materialization.
 // Memory: O(2^n) for the state vector vs O(4^n) for the unitary.
-// Time: O(g · 2^n) per gate vs O(g · 4^n).
+// Time for g one-/two-qubit gates: O(g · 2^n), vs dense O(g · 8^n).
+// Three-qubit gates currently use the explicitly bounded dense fallback.
 
 /// Apply a 1-qubit gate to a state vector in-place.
 /// Touches each amplitude exactly once: O(2^n).
@@ -382,7 +491,7 @@ fn apply_gate_to_state(
     params: &[f64],
     n: usize,
 ) -> Result<()> {
-    let local_u = name.unitary(params);
+    let local_u = checked_gate_unitary(name, params)?;
     match name.num_qubits() {
         0 => Ok(()),
         1 => {
@@ -426,20 +535,15 @@ fn apply_gate_to_state(
 
 /// Evolves an initial state vector through a circuit.
 ///
-/// `O(g · 2^n)` time, `O(2^n)` memory — vs `O(g · 4^n)` / `O(4^n)` for
-/// `try_circuit_to_unitary`. Supports up to [`MAX_STATE_VECTOR_QUBITS`].
+/// For one-/two-qubit gates: `O(g · 2^n)` time, `O(2^n)` memory, vs
+/// `O(g · 8^n)` / `O(4^n)` for the current dense `try_circuit_to_unitary`.
+/// Supports up to [`MAX_STATE_VECTOR_QUBITS`]; three-qubit gates use a dense
+/// fallback with the smaller [`MAX_3Q_EMBED_QUBITS`] limit.
+/// Nonunitary and conditional operations are rejected, including terminal
+/// measurements. The input may be unnormalized, but all amplitudes must be finite.
 pub fn evolve_state(circuit: &Circuit, init: &DVector<C>) -> Result<DVector<C>> {
     let n = circuit.num_qubits;
-    if n > MAX_STATE_VECTOR_QUBITS {
-        return Err(QRustError::Simulation(format!(
-            "evolve_state: {n} qubits exceeds practical limit ({MAX_STATE_VECTOR_QUBITS})"
-        )));
-    }
-    if n >= SHIFT_GUARD {
-        return Err(QRustError::Simulation(format!(
-            "evolve_state: {n} qubits exceeds SHIFT_GUARD"
-        )));
-    }
+    validate_state_width(n)?;
     let expected_dim = 1usize << n;
     if init.len() != expected_dim {
         return Err(QRustError::Simulation(format!(
@@ -448,10 +552,12 @@ pub fn evolve_state(circuit: &Circuit, init: &DVector<C>) -> Result<DVector<C>> 
             expected_dim
         )));
     }
-    //
-    // `try_circuit_to_unitary` above.
-    let unrolled = crate::transpiler::decomposition::try_unroll_custom_gates(circuit)
-        .map_err(|e| QRustError::Simulation(format!("custom-gate unroll failed: {e}")))?;
+    if init.iter().any(|z| !z.re.is_finite() || !z.im.is_finite()) {
+        return Err(QRustError::Simulation(
+            "evolve_state: non-finite input amplitude".into(),
+        ));
+    }
+    let unrolled = prepare_unitary_circuit(circuit)?;
     let mut state = init.clone();
     for op in &unrolled.operations {
         if let Operation::Gate {
@@ -523,13 +629,11 @@ fn haar_random_state(n: usize, rng: &mut SplitMix64) -> DVector<C> {
 ///
 /// Cost: `O(k · g · 2^n)` time, `O(2^n)` memory. Practical to ~22 qubits.
 ///
-/// **Statistical caveat**: this is a probabilistic check, not a proof.
-/// For two unitaries differing by an `O(1)`-norm perturbation, a single
-/// Haar sample's `1 - fidelity` is concentrated around its mean with
-/// std-dev `O(1/√d)` where `d = 2^n` (Mele 2024, §III.A). So `k`
-/// independent samples give a per-sample false-positive rate of roughly
-/// `O(d^{-1/2}) = 2^{-n/2}`, and `k` samples accumulate (informally)
-/// to `O(2^{-nk/2})` — e.g. `k=4, n=8` yields `< 2^{-16}`.
+/// **Statistical caveat**: this is a probabilistic check, not a proof. The
+/// probability of missing a discrepancy depends on the spectrum of the
+/// relative unitary, the tolerance, and the number of samples; no universal
+/// false-positive bound is inferred from `k` alone. A fixed seed makes the
+/// check reproducible, not exhaustive.
 ///
 /// References:
 /// - Burgholzer & Wille 2021 (IEEE TCAD 40), §III: motivation for
@@ -548,13 +652,17 @@ pub fn equivalence_by_sampling(c1: &Circuit, c2: &Circuit, k: usize, seed: u64) 
             "equivalence_by_sampling: k must be >= 1".into(),
         ));
     }
+    validate_state_width(c1.num_qubits)?;
+    // Validate before any exponentially sized allocation.
+    let c1 = prepare_unitary_circuit(c1)?;
+    let c2 = prepare_unitary_circuit(c2)?;
     let mut rng = SplitMix64::new(seed);
     let mut min_fid = 1.0_f64;
     for _ in 0..k {
         let psi = haar_random_state(c1.num_qubits, &mut rng);
-        let psi1 = evolve_state(c1, &psi)?;
-        let psi2 = evolve_state(c2, &psi)?;
-        let overlap = psi1.dotc(&psi2).norm_sqr();
+        let psi1 = evolve_state(&c1, &psi)?;
+        let psi2 = evolve_state(&c2, &psi)?;
+        let overlap = checked_fidelity(psi1.dotc(&psi2).norm_sqr())?;
         if overlap < min_fid {
             min_fid = overlap;
         }
@@ -576,13 +684,17 @@ pub fn equivalence_by_sampling(c1: &Circuit, c2: &Circuit, k: usize, seed: u64) 
 ///
 /// This is the state-vector analogue of [`extract_logical_unitary`], costing
 /// `O(k · g · 2^{n_phys})` time and `O(2^{n_phys})` memory rather than the
-/// `O(4^{n_phys})` of full unitary materialisation — so it certifies routed
+/// `O(4^{n_phys})` of full unitary materialisation — so it samples routed
 /// circuits up to [`MAX_STATE_VECTOR_QUBITS`] physical qubits, well beyond the
 /// 14-qubit exact boundary.
 ///
 /// `initial_layout[i]` / `final_layout[i]` give the physical position of
 /// logical qubit `i` at the circuit's input / output. Returns the minimum
 /// state fidelity over `k` samples (`1.0` ⇒ strong evidence of equivalence).
+/// The clean-ancilla projection is never renormalized: leakage reduces the
+/// overlap with the expected full state, even if the conditional logical state
+/// agrees. The same statistical limitations as [`equivalence_by_sampling`]
+/// apply; sampling is not an exhaustive or formal equivalence proof.
 pub fn equivalence_by_sampling_with_layout(
     logical: &Circuit,
     routed: &Circuit,
@@ -593,46 +705,22 @@ pub fn equivalence_by_sampling_with_layout(
 ) -> Result<f64> {
     let n_log = logical.num_qubits;
     let n_phys = routed.num_qubits;
-    if n_phys > MAX_STATE_VECTOR_QUBITS {
-        return Err(QRustError::Simulation(format!(
-            "equivalence_by_sampling_with_layout: {n_phys} physical qubits exceeds \
-             practical limit ({MAX_STATE_VECTOR_QUBITS})"
-        )));
-    }
+    validate_state_width(n_phys)?;
     if k == 0 {
         return Err(QRustError::Simulation(
             "equivalence_by_sampling_with_layout: k must be >= 1".into(),
         ));
     }
-    if initial_layout.len() < n_log || final_layout.len() < n_log {
-        return Err(QRustError::Simulation(format!(
-            "equivalence_by_sampling_with_layout: layout length < logical qubits \
-             ({} / {} vs {n_log})",
-            initial_layout.len(),
-            final_layout.len()
-        )));
-    }
-    if initial_layout
-        .iter()
-        .chain(final_layout)
-        .take(2 * n_log)
-        .any(|&p| p >= n_phys)
-    {
-        return Err(QRustError::Simulation(
-            "equivalence_by_sampling_with_layout: layout index out of physical range".into(),
-        ));
-    }
+    validate_layout(n_log, n_phys, initial_layout, final_layout)?;
+    let logical = prepare_unitary_circuit(logical)?;
+    let routed = prepare_unitary_circuit(routed)?;
 
     // Ensure the logical circuit is <=2-qubit so it evolves at any width the
     // physical circuit reaches (evolve_state's 3-qubit kernel is capped low).
-    let logical2 = crate::transpiler::decomposition::decompose_basis(logical);
-
-    // Precompute which physical qubits carry logical output (the rest are
-    // ancillas that must return to |0>).
-    let mut is_output = vec![false; n_phys];
-    for &p in &final_layout[..n_log] {
-        is_output[p] = true;
-    }
+    let logical2 =
+        crate::transpiler::decomposition::try_decompose_basis(&logical).map_err(|e| {
+            QRustError::Simulation(format!("logical circuit decomposition failed: {e}"))
+        })?;
 
     let dim_log = 1usize << n_log;
     let dim_phys = 1usize << n_phys;
@@ -654,42 +742,23 @@ pub fn equivalence_by_sampling_with_layout(
             }
             phys_in[big] = psi[x];
         }
-        let out_phys = evolve_state(routed, &phys_in)?;
+        let out_phys = evolve_state(&routed, &phys_in)?;
 
         // Read the logical output back, discarding branches where an ancilla
         // did not return to |0> (a correct routing leaves them there).
         let mut out_log_routed = DVector::<C>::zeros(dim_log);
-        for big in 0..dim_phys {
-            let amp = out_phys[big];
-            if amp.norm() < 1e-12 {
-                continue;
+        for x in 0..dim_log {
+            let mut big = 0usize;
+            for (i, &p) in final_layout[..n_log].iter().enumerate() {
+                big |= ((x >> i) & 1) << p;
             }
-            let mut ancilla_clean = true;
-            for p in 0..n_phys {
-                if !is_output[p] && (big >> p) & 1 == 1 {
-                    ancilla_clean = false;
-                    break;
-                }
-            }
-            if !ancilla_clean {
-                continue;
-            }
-            let mut x = 0usize;
-            for i in 0..n_log {
-                if (big >> final_layout[i]) & 1 == 1 {
-                    x |= 1 << i;
-                }
-            }
-            out_log_routed[x] += amp;
+            out_log_routed[x] = out_phys[big];
         }
 
-        let na = out_log.norm_squared();
-        let nb = out_log_routed.norm_squared();
-        let fid = if na > 0.0 && nb > 0.0 {
-            out_log.dotc(&out_log_routed).norm_sqr() / (na * nb)
-        } else {
-            0.0
-        };
+        // Inputs have unit norm and both circuits are unitary. This overlap is
+        // exactly <expected logical output,0_ancilla | actual physical output>.
+        // Dividing by the projected norm would condition away dirty ancillas.
+        let fid = checked_fidelity(out_log.dotc(&out_log_routed).norm_sqr())?;
         if fid < min_fid {
             min_fid = fid;
         }

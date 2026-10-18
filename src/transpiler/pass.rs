@@ -25,6 +25,17 @@ pub trait Pass {
     /// Runs the pass, possibly reading or writing properties.
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit;
 
+    /// Fallible execution for compiler pipelines. Existing infallible passes
+    /// inherit this adapter; passes that can fail must override it so failures
+    /// cannot be mistaken for a successfully transformed circuit.
+    fn try_run(
+        &self,
+        circuit: &Circuit,
+        property_set: &mut PropertySet,
+    ) -> crate::error::Result<Circuit> {
+        Ok(self.run(circuit, property_set))
+    }
+
     /// Returns `true` if this pass only reads the circuit (does not
     /// transform it). Default: `false` (transformation pass).
     ///
@@ -93,12 +104,17 @@ impl PassManager {
     /// in the pipeline can populate analysis data the predicate consults.
     ///
     /// # Example
-    /// ```ignore
-    /// pm.add_pass(Box::new(profiler::CircuitProfilerPass));
+    /// ```no_run
+    /// use q_rust::transpiler::optimization::InverseCancellationPass;
+    /// use q_rust::transpiler::pass::PassManager;
+    /// use q_rust::transpiler::profiler::{CircuitProfilerPass, ProfileReport};
+    ///
+    /// let mut pm = PassManager::new();
+    /// pm.add_pass(Box::new(CircuitProfilerPass));
     /// pm.add_conditional(
-    ///     Box::new(optimization::InverseCancellationPass),
+    ///     Box::new(InverseCancellationPass),
     ///     |ps| {
-    ///         ps.get::<profiler::ProfileReport>("profile_report")
+    ///         ps.get::<ProfileReport>("profile_report")
     ///             .map(|r| !r.can_bypass_inverse_cancellation())
     ///             .unwrap_or(true)
     ///     },
@@ -130,6 +146,57 @@ impl PassManager {
             }
         }
         current
+    }
+
+    /// Runs passes in order and stops immediately on the first error.
+    pub fn try_run(&mut self, circuit: &Circuit) -> crate::error::Result<Circuit> {
+        let mut current = circuit.clone();
+        for entry in &self.entries {
+            match entry {
+                PassEntry::Always(pass) => {
+                    current = pass.try_run(&current, &mut self.property_set)?;
+                }
+                PassEntry::Conditional { pass, predicate } => {
+                    if predicate(&self.property_set) {
+                        current = pass.try_run(&current, &mut self.property_set)?;
+                    }
+                }
+            }
+        }
+        Ok(current)
+    }
+
+    /// Run the same pass sequence and collect diagnostics outside benchmark runs.
+    /// Metric capture is deliberately opt-in because counting gates/depth takes time.
+    pub fn try_run_profiled(
+        &mut self,
+        circuit: &Circuit,
+    ) -> crate::error::Result<(Circuit, Vec<super::report::PassDiagnostic>)> {
+        let mut current = circuit.clone();
+        let mut diagnostics = Vec::new();
+        for entry in &self.entries {
+            let pass = match entry {
+                PassEntry::Always(pass) => pass,
+                PassEntry::Conditional { pass, predicate } => {
+                    if !predicate(&self.property_set) {
+                        continue;
+                    }
+                    pass
+                }
+            };
+            let started = std::time::Instant::now();
+            current = pass.try_run(&current, &mut self.property_set)?;
+            let elapsed_ns = started.elapsed().as_nanos() as u64;
+            diagnostics.push(super::report::PassDiagnostic {
+                elapsed_ns,
+                layout_route_evaluations: self
+                    .property_set
+                    .get::<usize>("layout_route_evaluations")
+                    .copied(),
+                output: super::report::StageSnapshot::capture(pass.name(), &current),
+            });
+        }
+        Ok((current, diagnostics))
     }
 
     /// Returns the number of registered entries (conditional + unconditional).

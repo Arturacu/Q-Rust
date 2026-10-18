@@ -4,11 +4,12 @@ use q_rust::backend::{Backend, BackendConfig};
 use q_rust::error::QRustError;
 use q_rust::ir::Circuit;
 use q_rust::parser::parse_qasm;
-use q_rust::simulator::{circuit_to_unitary, extract_logical_unitary, unitary_fidelity};
 use q_rust::transpiler::pass::Pass;
 use q_rust::transpiler::property_set::PropertySet;
 use q_rust::transpiler::routing::{BeamSabrePass, LookaheadStrategy};
-use q_rust::transpiler::{transpile, TranspilerConfig};
+use q_rust::transpiler::target_basis::validate_circuit_basis;
+use q_rust::transpiler::{transpile, transpile_with_report, TranspilerConfig};
+use q_rust::verify::{verify_equivalence_with_layout, Verdict};
 use std::collections::HashSet;
 
 fn load_backend(name: &str) -> Backend {
@@ -29,8 +30,8 @@ fn load_circuit(fixture: &str) -> Circuit {
 }
 
 fn verify_basis_only(label: &str, circuit: &Circuit, target_basis: HashSet<String>) {
-    let u_orig = circuit_to_unitary(circuit);
     let b = Backend::all_to_all(circuit.num_qubits);
+    let expected_basis = target_basis.clone();
 
     let cfg = TranspilerConfig::builder()
         .optimization_level(2)
@@ -39,22 +40,28 @@ fn verify_basis_only(label: &str, circuit: &Circuit, target_basis: HashSet<Strin
         .target_basis(target_basis)
         .build();
 
-    let compiled =
-        transpile(circuit, Some(cfg)).unwrap_or_else(|e| panic!("[{label}] transpile failed: {e}"));
+    let (compiled, report) = transpile_with_report(circuit, Some(cfg))
+        .unwrap_or_else(|e| panic!("[{label}] transpile failed: {e}"));
+    validate_circuit_basis(&compiled, &expected_basis)
+        .unwrap_or_else(|e| panic!("[{label}] output basis is not closed: {e}"));
 
-    let u_out = circuit_to_unitary(&compiled);
-    let fid = unitary_fidelity(&u_orig, &u_out);
+    // Even all-to-all routing can absorb source SWAPs into the output layout.
+    // Preserve terminal measurements and validate their classical destinations
+    // through the reported layout before comparing the unitary prefixes.
+    let initial = report.initial_layout.as_deref().expect("initial layout");
+    let final_layout = report.final_layout.as_deref().expect("final layout");
+    let verdict = verify_equivalence_with_layout(circuit, &compiled, initial, final_layout)
+        .unwrap_or_else(|e| panic!("[{label}] basis-translation verification failed: {e}"));
     assert!(
-        (fid - 1.0).abs() < 1e-6,
-        "[{label}] basis-translation fidelity = {fid:.10} (expected ≈ 1.0)"
+        matches!(verdict, Verdict::ExactlyEquivalent { fidelity } if (fidelity - 1.0).abs() < 1e-6),
+        "[{label}] basis-translation verification: {verdict:?}"
     );
 }
 
 fn verify_routed(label: &str, circuit: &Circuit, backend: &Backend, target_basis: HashSet<String>) {
-    let u_orig = circuit_to_unitary(circuit);
+    let expected_basis = target_basis.clone();
 
-    // Loop 3 review §"Build break": added `lookahead_strategy` field.
-    // Default is classical SABRE, matching pre-loop-3 behavior.
+    // Keep the router's default classical-SABRE lookahead strategy explicit.
     let router = BeamSabrePass {
         backend: backend.clone(),
         beam_width: 4,
@@ -81,16 +88,18 @@ fn verify_routed(label: &str, circuit: &Circuit, backend: &Backend, target_basis
         .build();
     let translated = transpile(&routed, Some(cfg))
         .unwrap_or_else(|e| panic!("[{label}] basis translation failed: {e}"));
+    validate_circuit_basis(&translated, &expected_basis)
+        .unwrap_or_else(|e| panic!("[{label}] output basis is not closed: {e}"));
 
     let mut padded = translated.clone();
     padded.num_qubits = backend.num_qubits;
-    let u_phys = circuit_to_unitary(&padded);
-    let u_log = extract_logical_unitary(&u_phys, circuit.num_qubits, &initial, &final_l);
-
-    let fid = unitary_fidelity(&u_orig, &u_log);
+    // Check measurement destinations through the final layout as well as the
+    // routed unitary, including the requirement that unused wires stay clean.
+    let verdict = verify_equivalence_with_layout(circuit, &padded, &initial, &final_l)
+        .unwrap_or_else(|e| panic!("[{label}] routed verification failed: {e}"));
     assert!(
-        (fid - 1.0).abs() < 1e-6,
-        "[{label}] routed fidelity = {fid:.10} (expected ≈ 1.0)"
+        matches!(verdict, Verdict::ExactlyEquivalent { fidelity } if (fidelity - 1.0).abs() < 1e-6),
+        "[{label}] routed verification: {verdict:?}"
     );
 }
 
@@ -440,7 +449,7 @@ fn test_gateset_rejects_no_entangler() {
 }
 
 #[test]
-fn test_gateset_accepts_solovay_kitaev_basis() {
+fn test_gateset_rejects_unimplemented_clifford_t_lowering() {
     let c = load_circuit("bell_state.qasm");
     let b = Backend::all_to_all(2);
     let cfg = TranspilerConfig::builder()
@@ -449,11 +458,15 @@ fn test_gateset_accepts_solovay_kitaev_basis() {
         .backend(b)
         .target_basis(["h", "t", "cx"].iter().map(|s| s.to_string()))
         .build();
-    assert!(transpile(&c, Some(cfg)).is_ok());
+    let result = transpile(&c, Some(cfg));
+    assert!(
+        matches!(result, Err(QRustError::UntranslatableGate { .. })),
+        "Clifford+T is universal, but exact arbitrary-angle synthesis is not implemented: {result:?}"
+    );
 }
 
 #[test]
-fn test_gateset_accepts_rz_cx() {
+fn test_gateset_rejects_single_rotation_axis() {
     let c = load_circuit("bell_state.qasm");
     let b = Backend::all_to_all(2);
     let cfg = TranspilerConfig::builder()
@@ -462,7 +475,10 @@ fn test_gateset_accepts_rz_cx() {
         .backend(b)
         .target_basis(["rz", "cx"].iter().map(|s| s.to_string()))
         .build();
-    assert!(transpile(&c, Some(cfg)).is_ok());
+    assert!(matches!(
+        transpile(&c, Some(cfg)),
+        Err(QRustError::NonUniversalBasisGateSet { .. })
+    ));
 }
 
 // ===========================================================================

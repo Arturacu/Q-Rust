@@ -1,8 +1,7 @@
-//! [E2E-NEW-FEATURE] Per-stage transpilation report.
+//! Per-stage transpilation report.
 //!
-//! Tracks gate count, two-qubit gate count, and depth as the circuit
-//! flows through the pipeline, mirroring thesis Figure 4.1's dashed
-//! per-stage annotations ("Fewer gates", "SWAPs inserted", "{U,CX} only").
+//! Tracks gate count, two-qubit gate count, depth, and (when routing runs)
+//! the initial/final logical-to-physical layouts.
 //!
 //! Stage names are stable strings (`"1. parsed"`, `"2. optimized"`,
 //! `"3. routed+decomposed"` or `"3. decomposed"`) so the CLI smoke
@@ -44,10 +43,32 @@ impl StageSnapshot {
     }
 }
 
+/// Optional per-pass evidence. Timing excludes the following metric capture.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PassDiagnostic {
+    pub elapsed_ns: u64,
+    pub layout_route_evaluations: Option<usize>,
+    pub output: StageSnapshot,
+}
+
 /// Full transpilation report.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct TranspilationReport {
+    /// Shared numerical replacement ledger; not a proof of equivalence.
+    pub numerical_budget: super::numerical_policy::NumericalBudget,
     pub stages: Vec<StageSnapshot>,
+    pub pass_diagnostics: Vec<PassDiagnostic>,
+    /// Physical location of each logical input qubit, when routing ran.
+    pub initial_layout: Option<Vec<usize>>,
+    /// Physical location of each logical output qubit, when routing ran.
+    pub final_layout: Option<Vec<usize>>,
+    /// Cheap block-synthesis counters, when that cleanup pass ran. These do
+    /// not enable per-pass clocks or diagnostic circuit captures.
+    pub two_qubit_block_stats: Option<super::block_synthesis::TwoQubitBlockStats>,
+    /// Exact CX-RZ-CX patterns recovered before routing, when enabled.
+    pub phase_gadgets_recovered: Option<usize>,
+    /// Numerical local-fusion counters, without detailed profiling clocks.
+    pub post_block_fusion_stats: Option<super::local_cleanup::PostBlockFusionStats>,
 }
 
 impl TranspilationReport {

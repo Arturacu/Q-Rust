@@ -2,8 +2,8 @@
 
 use q_rust::ir::{GateType, Operation};
 use q_rust::parser::parse_qasm;
-use q_rust::simulator::{circuit_to_unitary, unitary_fidelity};
 use q_rust::transpiler::{transpile, TranspilerConfig};
+use q_rust::verify::{verify_equivalence, Verdict};
 
 fn config_default() -> TranspilerConfig {
     TranspilerConfig::default()
@@ -30,7 +30,6 @@ fn run_and_check(qasm: &str, config: TranspilerConfig, fixture_name: &str) {
     let original_qubits = circuit.num_qubits;
     let original_cbits = circuit.num_cbits;
     let decompose = config.decompose_basis;
-    let u_orig = circuit_to_unitary(&circuit);
 
     let result = transpile(&circuit, Some(config)).expect("transpile failed");
 
@@ -66,11 +65,13 @@ fn run_and_check(qasm: &str, config: TranspilerConfig, fixture_name: &str) {
         .count();
     assert_eq!(rm, om, "[{fixture_name}] measurement count");
 
-    let u_res = circuit_to_unitary(&result);
-    let fid = unitary_fidelity(&u_orig, &u_res);
+    // Fixtures include terminal readout. The verifier checks the full readout
+    // map and classical width before comparing the unitary prefixes.
+    let verdict = verify_equivalence(&circuit, &result)
+        .unwrap_or_else(|e| panic!("[{fixture_name}] verification failed: {e}"));
     assert!(
-        fid > FIDELITY_THRESHOLD,
-        "[{fixture_name}] fidelity {fid} below threshold"
+        matches!(verdict, Verdict::ExactlyEquivalent { fidelity } if fidelity > FIDELITY_THRESHOLD),
+        "[{fixture_name}] expected exact equivalence above fidelity threshold: {verdict:?}"
     );
 }
 

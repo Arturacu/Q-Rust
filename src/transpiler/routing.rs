@@ -26,6 +26,20 @@ use std::collections::HashSet;
 /// SABRE relative-score heuristic. Per Li et al. 2019, ASPLOS, §III.B.
 pub const DEFAULT_LOOKAHEAD_WEIGHT: f64 = 0.5;
 
+/// Routing SWAPs use undirected connectivity; native CX direction is repaired
+/// separately, after all entangling-gate lowering has completed.
+pub(crate) fn undirected_backend(backend: &Backend) -> Backend {
+    let mut graph = backend.clone();
+    let edges: Vec<_> = (0..backend.num_qubits)
+        .flat_map(|a| {
+            (0..backend.num_qubits)
+                .filter_map(move |b| (a != b && backend.is_adjacent(a, b)).then_some((a, b)))
+        })
+        .collect();
+    graph.set_coupling_map(edges);
+    graph
+}
+
 /// Strategy for combining front-layer and extended-layer scores during
 /// the SABRE swap-selection heuristic.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -119,47 +133,141 @@ impl Layout {
 // ─── Gate dependency tracking ──────────────────────────────────────────────
 
 #[derive(Clone, Debug)]
-struct TwoQGate {
+pub(crate) struct TwoQGate {
     circuit_index: usize,
-    logical_qubits: [usize; 2],
-    successors: Vec<usize>,
+    pub(crate) logical_qubits: [usize; 2],
+    pub(crate) successors: Vec<usize>,
 }
 
-fn build_gate_graph(circuit: &Circuit) -> (Vec<TwoQGate>, Vec<u16>, Vec<Vec<(usize, Operation)>>) {
+/// Exact, syntactic diagonal classification. In particular, a nearly-zero U
+/// angle is never rounded into this class.
+fn is_diagonal(name: &GateType, params: &[f64]) -> bool {
+    matches!(
+        name,
+        GateType::ID
+            | GateType::Z
+            | GateType::S
+            | GateType::Sdg
+            | GateType::T
+            | GateType::Tdg
+            | GateType::RZ
+            | GateType::CZ
+            | GateType::CRZ
+            | GateType::RZZ
+    ) || matches!(name, GateType::U) && params.first() == Some(&0.0)
+}
+
+/// Bound each commuting epoch so a long pair of diagonal layers separated by
+/// a local fence cannot create a quadratic-size dependency graph. The added
+/// ordering is conservative: it reduces search freedom, never changes semantics.
+const MAX_DIAGONAL_EPOCH: usize = 64;
+
+/// A diagonal epoch can contain mutually commuting interactions sharing a
+/// wire. Every interaction after a non-diagonal local gate depends on *all*
+/// interactions before that gate, not merely the last interaction in the
+/// original list. This also makes reconstruction's per-wire local-gate cursor
+/// safe: it cannot flush a non-diagonal local gate past an unfinished epoch.
+pub(crate) fn build_gate_graph(
+    circuit: &Circuit,
+    commute_diagonal: bool,
+) -> (Vec<TwoQGate>, Vec<usize>, Vec<Vec<(usize, Operation)>>) {
     let mut two_q: Vec<TwoQGate> = Vec::new();
     let mut single_q: Vec<Vec<(usize, Operation)>> = vec![vec![]; circuit.num_qubits];
-    let mut last_2q: Vec<Option<usize>> = vec![None; circuit.num_qubits];
+    let mut diagonal_epoch: Vec<Vec<usize>> = vec![vec![]; circuit.num_qubits];
+    let mut fence: Vec<Vec<usize>> = vec![vec![]; circuit.num_qubits];
 
     for (i, op) in circuit.operations.iter().enumerate() {
         match op {
-            Operation::Gate { qubits, .. } if qubits.len() >= 2 => {
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } if qubits.len() >= 2 => {
                 let idx = two_q.len();
+                let diagonal = commute_diagonal && is_diagonal(name, params);
+                let mut predecessors = Vec::new();
+                for &q in &qubits[..2] {
+                    if diagonal {
+                        if diagonal_epoch[q].len() == MAX_DIAGONAL_EPOCH {
+                            fence[q] = std::mem::take(&mut diagonal_epoch[q]);
+                        }
+                        predecessors.extend(fence[q].iter().copied());
+                        diagonal_epoch[q].push(idx);
+                    } else {
+                        predecessors.extend(fence[q].iter().copied());
+                        predecessors.extend(diagonal_epoch[q].iter().copied());
+                        diagonal_epoch[q].clear();
+                        fence[q] = vec![idx];
+                    }
+                }
+                predecessors.sort_unstable();
+                predecessors.dedup();
                 two_q.push(TwoQGate {
                     circuit_index: i,
                     logical_qubits: [qubits[0], qubits[1]],
                     successors: Vec::new(),
                 });
-                for &q in &qubits[..2] {
-                    if let Some(prev) = last_2q[q] {
-                        two_q[prev].successors.push(idx);
-                    }
-                    last_2q[q] = Some(idx);
+                for prev in predecessors {
+                    two_q[prev].successors.push(idx);
                 }
             }
-            Operation::Gate { qubits, .. } if qubits.len() == 1 => {
-                single_q[qubits[0]].push((i, op.clone()));
+            Operation::Gate {
+                name,
+                qubits,
+                params,
+            } if qubits.len() == 1 => {
+                let q = qubits[0];
+                single_q[q].push((i, op.clone()));
+                if commute_diagonal && !is_diagonal(name, params) && !diagonal_epoch[q].is_empty() {
+                    fence[q] = std::mem::take(&mut diagonal_epoch[q]);
+                }
             }
-            _ => {}
+            _ => {
+                // The router handles barriers by separate segments. The layout
+                // cost model sees the whole circuit, so fence each wire here.
+                // This does not add cross-wire barrier edges to the layout cost
+                // approximation; actual routing segment boundaries enforce the
+                // global barrier. The public router rejects unsupported semantics.
+                for q in 0..circuit.num_qubits {
+                    if !diagonal_epoch[q].is_empty() {
+                        fence[q] = std::mem::take(&mut diagonal_epoch[q]);
+                    }
+                }
+            }
         }
     }
 
-    let mut preds = vec![0u16; two_q.len()];
+    let mut preds = vec![0usize; two_q.len()];
     for g in &two_q {
         for &s in &g.successors {
             preds[s] += 1;
         }
     }
     (two_q, preds, single_q)
+}
+
+/// Reverse the actual partial order, including one-qubit fences. Rebuilding a
+/// strict per-wire order would silently discard the commutation treatment.
+pub(crate) fn reverse_gate_graph(gates: &[TwoQGate]) -> Vec<TwoQGate> {
+    let n = gates.len();
+    let mut reversed: Vec<_> = gates
+        .iter()
+        .rev()
+        .map(|g| TwoQGate {
+            circuit_index: g.circuit_index,
+            logical_qubits: g.logical_qubits,
+            successors: Vec::new(),
+        })
+        .collect();
+    for (i, gate) in gates.iter().enumerate() {
+        for &successor in &gate.successors {
+            reversed[n - 1 - successor].successors.push(n - 1 - i);
+        }
+    }
+    for gate in &mut reversed {
+        gate.successors.sort_unstable();
+    }
+    reversed
 }
 
 // ─── Routing action & beam ─────────────────────────────────────────────────
@@ -174,7 +282,7 @@ enum RoutingAction {
 struct Beam {
     layout: Layout,
     actions: Vec<RoutingAction>,
-    remaining_deps: Vec<u16>,
+    remaining_deps: Vec<usize>,
     front_layer: Vec<usize>,
     cumulative_cost: f64,
     executed_count: usize,
@@ -184,7 +292,7 @@ struct Beam {
 }
 
 impl Beam {
-    fn new(layout: Layout, preds: &[u16], n_gates: usize) -> Self {
+    fn new(layout: Layout, preds: &[usize], n_gates: usize) -> Self {
         let remaining = preds.to_vec();
         let front: Vec<usize> = (0..n_gates).filter(|&i| remaining[i] == 0).collect();
         Beam {
@@ -236,6 +344,45 @@ fn safe_dist(dist: &[Vec<usize>], a: usize, b: usize) -> f64 {
     }
 }
 
+/// Build a deterministic extended layer once per routing step, shared by every
+/// candidate score. Zero preserves the immediate-successor legacy policy.
+pub(crate) fn extended_layer<T>(
+    front: &[usize],
+    gates: &[T],
+    remaining: &[usize],
+    limit: usize,
+    successors: fn(&T) -> &[usize],
+) -> Vec<usize> {
+    if limit == 0 {
+        let mut layer: Vec<_> = front
+            .iter()
+            .flat_map(|&g| successors(&gates[g]).iter().copied())
+            .collect();
+        layer.sort_unstable();
+        layer.dedup();
+        return layer;
+    }
+    let mut deps = remaining.to_vec();
+    let mut queue = front.to_vec();
+    let mut layer = Vec::with_capacity(limit);
+    let mut cursor = 0;
+    while cursor < queue.len() && layer.len() < limit {
+        for &next in successors(&gates[queue[cursor]]) {
+            deps[next] -= 1;
+            if deps[next] == 0 {
+                queue.push(next);
+                layer.push(next);
+                if layer.len() == limit {
+                    break;
+                }
+            }
+        }
+        cursor += 1;
+    }
+    layer
+}
+
+#[allow(clippy::too_many_arguments)]
 fn relative_score(
     layout: &Layout,
     swap: (usize, usize),
@@ -243,18 +390,16 @@ fn relative_score(
     gates: &[TwoQGate],
     dist: &[Vec<usize>],
     strategy: LookaheadStrategy,
+    extended: &[usize],
+    normalize: bool,
 ) -> f64 {
     let (pa, pb) = swap;
     let mut delta_f = 0.0;
     let mut delta_e = 0.0;
-    let mut extended_layer: HashSet<usize> = HashSet::new();
 
     for &g in front {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
-        for &succ in &gates[g].successors {
-            extended_layer.insert(succ);
-        }
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
             continue;
         }
@@ -276,7 +421,7 @@ fn relative_score(
         delta_f += safe_dist(dist, np0, np1) - old;
     }
 
-    for &g in &extended_layer {
+    for &g in extended {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
@@ -300,13 +445,17 @@ fn relative_score(
         delta_e += safe_dist(dist, np0, np1) - old;
     }
 
+    if normalize && matches!(strategy, LookaheadStrategy::Static { .. }) {
+        delta_f /= front.len().max(1) as f64;
+        delta_e /= extended.len().max(1) as f64;
+    }
     match strategy {
         LookaheadStrategy::Static { weight } => delta_f + weight * delta_e,
         LookaheadStrategy::DynamicV2 => {
-            if front.is_empty() || extended_layer.is_empty() {
+            if front.is_empty() || extended.is_empty() {
                 return delta_f;
             }
-            let scaled_e = delta_e * (front.len() as f64 / extended_layer.len() as f64);
+            let scaled_e = delta_e * (front.len() as f64 / extended.len() as f64);
             delta_f.max(scaled_e)
         }
     }
@@ -320,18 +469,23 @@ fn cmp_f64(a: f64, b: f64) -> Ordering {
 #[allow(clippy::too_many_arguments)]
 fn beam_sabre_forward(
     gates: &[TwoQGate],
-    preds: &[u16],
+    preds: &[usize],
     backend: &Backend,
     dist: &[Vec<usize>],
     initial_layout: &Layout,
     beam_width: usize,
     branch_factor: usize,
     strategy: LookaheadStrategy,
+    lookahead_size: usize,
+    rank_progress: bool,
 ) -> Result<Vec<Beam>> {
     if gates.is_empty() {
         return Ok(vec![Beam::new(initial_layout.clone(), preds, 0)]);
     }
     let mut beams = vec![Beam::new(initial_layout.clone(), preds, gates.len())];
+    let neighbors: Vec<_> = (0..backend.num_qubits)
+        .map(|p| backend.neighbors(p))
+        .collect();
 
     loop {
         for beam in &mut beams {
@@ -350,20 +504,29 @@ fn beam_sabre_forward(
                 new_beams.push(beam.clone());
                 continue;
             }
-            let mut candidates: HashSet<(usize, usize)> = HashSet::new();
+            let extended = extended_layer(
+                &beam.front_layer,
+                gates,
+                &beam.remaining_deps,
+                lookahead_size,
+                |g| &g.successors,
+            );
+            let mut candidates = Vec::new();
             for &gate_idx in &beam.front_layer {
                 let g = &gates[gate_idx];
                 let p0 = beam.layout.l2p(g.logical_qubits[0]);
                 let p1 = beam.layout.l2p(g.logical_qubits[1]);
-                for n in backend.neighbors(p0) {
+                for &n in &neighbors[p0] {
                     let edge = if p0 < n { (p0, n) } else { (n, p0) };
-                    candidates.insert(edge);
+                    candidates.push(edge);
                 }
-                for n in backend.neighbors(p1) {
+                for &n in &neighbors[p1] {
                     let edge = if p1 < n { (p1, n) } else { (n, p1) };
-                    candidates.insert(edge);
+                    candidates.push(edge);
                 }
             }
+            candidates.sort_unstable();
+            candidates.dedup();
             let mut scored: Vec<(f64, (usize, usize))> = candidates
                 .iter()
                 .map(|&swap| {
@@ -374,23 +537,18 @@ fn beam_sabre_forward(
                         gates,
                         dist,
                         strategy,
+                        &extended,
+                        lookahead_size > 0,
                     );
                     (beam.cumulative_cost + SWAP_COST + delta, swap)
                 })
                 .collect();
-            scored.sort_by(|a, b| cmp_f64(a.0, b.0));
+            scored.sort_by(|a, b| cmp_f64(a.0, b.0).then_with(|| a.1.cmp(&b.1)));
             if scored.is_empty() {
                 // Beam is stuck (no path in disconnected topology). Drop it.
                 continue;
             }
-            let best_delta = relative_score(
-                &beam.layout,
-                scored[0].1,
-                &beam.front_layer,
-                gates,
-                dist,
-                strategy,
-            );
+            let best_delta = scored[0].0 - beam.cumulative_cost - SWAP_COST;
             let effective_branch = if best_delta >= 0.0 {
                 1
             } else {
@@ -405,7 +563,45 @@ fn beam_sabre_forward(
                 }
             }
         }
-        new_beams.sort_by(|a, b| cmp_f64(a.cumulative_cost, b.cumulative_cost));
+        if rank_progress {
+            for child in &mut new_beams {
+                execute_routable(child, gates, dist);
+            }
+            let distance = |beam: &Beam| -> usize {
+                beam.front_layer
+                    .iter()
+                    .map(|&g| {
+                        let [a, b] = gates[g].logical_qubits;
+                        dist[beam.layout.l2p(a)][beam.layout.l2p(b)]
+                    })
+                    .fold(0usize, usize::saturating_add)
+            };
+            new_beams.sort_by(|a, b| {
+                cmp_f64(a.cumulative_cost, b.cumulative_cost)
+                    .then_with(|| b.executed_count.cmp(&a.executed_count))
+                    .then_with(|| distance(a).cmp(&distance(b)))
+                    .then_with(|| {
+                        a.layout
+                            .logical_to_physical
+                            .cmp(&b.layout.logical_to_physical)
+                    })
+            });
+            let mut seen = HashSet::new();
+            new_beams.retain(|beam| {
+                seen.insert((
+                    beam.layout.logical_to_physical.clone(),
+                    beam.remaining_deps.clone(),
+                    beam.front_layer.clone(),
+                ))
+            });
+            // Every unfinished child has exhausted its free gates. It needs
+            // another SWAP, so cannot improve this completed child's cost.
+            if let Some(completed) = new_beams.iter().find(|b| b.complete) {
+                return Ok(vec![completed.clone()]);
+            }
+        } else {
+            new_beams.sort_by(|a, b| cmp_f64(a.cumulative_cost, b.cumulative_cost));
+        }
 
         // Extract witness BEFORE dropping stuck beams.
         let pre_prune_witness: Option<(usize, usize)> = beams
@@ -588,6 +784,96 @@ impl Default for BeamSabrePass {
 
 impl BeamSabrePass {
     pub fn try_run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Result<Circuit> {
+        crate::transpiler::validate_circuit_structure(circuit)?;
+        crate::transpiler::validate_static_semantics(circuit)?;
+        if circuit.num_qubits > self.backend.num_qubits {
+            return Err(QRustError::InsufficientQubits {
+                circuit: circuit.num_qubits,
+                backend: self.backend.num_qubits,
+            });
+        }
+        if circuit.operations.iter().any(|op| matches!(op,
+            Operation::Gate { name, qubits, .. } if qubits.len() > 2 || matches!(name, GateType::Custom(_))
+        )) {
+            return Err(QRustError::Unsupported("unroll custom and high-arity gates before routing".into()));
+        }
+        let requested_layout =
+            if let Some(l2p) = property_set.get::<Vec<usize>>("sabre_initial_layout") {
+                if l2p.len() != circuit.num_qubits {
+                    return Err(QRustError::Routing(
+                        "initial layout length does not match circuit width".into(),
+                    ));
+                }
+                Layout::from_l2p(l2p.clone(), self.backend.num_qubits)?
+            } else {
+                Layout::trivial(circuit.num_qubits, self.backend.num_qubits)
+            };
+
+        // A barrier is a scheduling boundary. Route each unitary segment in
+        // order while carrying its final placement into the next segment.
+        // Later segments must not freely choose a new initial placement.
+        if circuit.operations.iter().any(Operation::is_barrier) {
+            let mut output = Circuit::new(self.backend.num_qubits, circuit.num_cbits);
+            output.custom_gates = circuit.custom_gates.clone();
+            let mut initial = requested_layout.logical_to_physical.clone();
+            let mut current = initial.clone();
+            let mut first = true;
+            let mut swaps = 0usize;
+            let mut start = 0usize;
+            for boundary in 0..=circuit.operations.len() {
+                if boundary < circuit.operations.len() && !circuit.operations[boundary].is_barrier()
+                {
+                    continue;
+                }
+                let mut segment = Circuit::new(circuit.num_qubits, circuit.num_cbits);
+                segment.custom_gates = circuit.custom_gates.clone();
+                segment.operations = circuit.operations[start..boundary].to_vec();
+                let mut properties = PropertySet::new();
+                properties.insert("sabre_initial_layout", current.clone());
+                if let Some(value) = property_set.get::<usize>("routing_lookahead_size") {
+                    properties.insert("routing_lookahead_size", *value);
+                }
+                if let Some(value) = property_set.get::<bool>("routing_rank_progress") {
+                    properties.insert("routing_rank_progress", *value);
+                }
+                if let Some(value) = property_set.get::<bool>("routing_commute_diagonal") {
+                    properties.insert("routing_commute_diagonal", *value);
+                }
+                let mut segment_pass = self.clone();
+                if !first {
+                    segment_pass.bidir_iterations = 1;
+                }
+                let routed = segment_pass.try_run(&segment, &mut properties)?;
+                if first {
+                    initial = properties
+                        .get::<Vec<usize>>("initial_layout")
+                        .unwrap()
+                        .clone();
+                    first = false;
+                }
+                current = properties
+                    .get::<Vec<usize>>("final_layout")
+                    .unwrap()
+                    .clone();
+                swaps += properties
+                    .get::<usize>("swaps_inserted")
+                    .copied()
+                    .unwrap_or(0);
+                output.operations.extend(routed.operations);
+                if boundary < circuit.operations.len() {
+                    if let Operation::Barrier { qubits } = &circuit.operations[boundary] {
+                        output.add_op(Operation::Barrier {
+                            qubits: qubits.iter().map(|&q| current[q]).collect(),
+                        });
+                    }
+                }
+                start = boundary + 1;
+            }
+            property_set.insert("initial_layout", initial);
+            property_set.insert("final_layout", current);
+            property_set.insert("swaps_inserted", swaps);
+            return Ok(output);
+        }
         let has_2q = circuit.operations.iter().any(|op| {
             if let Operation::Gate { qubits, .. } = op {
                 qubits.len() >= 2
@@ -595,72 +881,71 @@ impl BeamSabrePass {
                 false
             }
         });
-        if !has_2q {
-            return Ok(circuit.clone());
-        }
-
         if self.beam_width < 1 || self.branch_factor < 1 || self.bidir_iterations < 1 {
             return Err(QRustError::InvalidConfig(format!(
                 "BeamSabrePass: beam_width={}, branch_factor={}, bidir_iterations={} (all must be >= 1)",
                 self.beam_width, self.branch_factor, self.bidir_iterations
             )));
         }
-        if circuit.num_qubits > self.backend.num_qubits {
-            return Err(QRustError::InsufficientQubits {
-                circuit: circuit.num_qubits,
-                backend: self.backend.num_qubits,
-            });
-        }
-
-        if self.backend.is_fully_connected() {
-            let trivial = Layout::trivial(circuit.num_qubits, self.backend.num_qubits);
-            property_set.insert("initial_layout", trivial.logical_to_physical.clone());
-            property_set.insert("final_layout", trivial.logical_to_physical.clone());
+        if !has_2q || self.backend.is_fully_connected() {
+            property_set.insert(
+                "initial_layout",
+                requested_layout.logical_to_physical.clone(),
+            );
+            property_set.insert("final_layout", requested_layout.logical_to_physical.clone());
             property_set.insert("swaps_inserted", 0_usize);
-            return Ok(circuit.clone());
+            let width = requested_layout
+                .logical_to_physical
+                .iter()
+                .copied()
+                .max()
+                .map_or(circuit.num_qubits, |q| circuit.num_qubits.max(q + 1));
+            let mut output = Circuit::new(width, circuit.num_cbits);
+            output.custom_gates = circuit.custom_gates.clone();
+            for op in &circuit.operations {
+                if let Operation::Gate {
+                    name,
+                    qubits,
+                    params,
+                } = op
+                {
+                    output.add_op(Operation::Gate {
+                        name: name.clone(),
+                        qubits: qubits.iter().map(|&q| requested_layout.l2p(q)).collect(),
+                        params: params.clone(),
+                    });
+                } else {
+                    emit_non_gate_op(op, &requested_layout, &mut output);
+                }
+            }
+            return Ok(output);
         }
 
-        let dist = self.backend.shortest_path_matrix();
-        let (gates, preds, single_q_ops) = build_gate_graph(circuit);
+        let connectivity = undirected_backend(&self.backend);
+        let dist = connectivity.shortest_path_matrix();
+        let commute_diagonal = property_set
+            .get::<bool>("routing_commute_diagonal")
+            .copied()
+            .unwrap_or(false);
+        let (gates, preds, single_q_ops) = build_gate_graph(circuit, commute_diagonal);
 
-        let mut best_layout =
-            if let Some(l2p) = property_set.get::<Vec<usize>>("sabre_initial_layout") {
-                Layout::from_l2p(l2p.clone(), self.backend.num_qubits).map_err(|e| {
-                    QRustError::Routing(format!(
-                        "invalid sabre_initial_layout from earlier pass: {e}"
-                    ))
-                })?
-            } else {
-                Layout::trivial(circuit.num_qubits, self.backend.num_qubits)
-            };
+        let lookahead_size = property_set
+            .get::<usize>("routing_lookahead_size")
+            .copied()
+            .unwrap_or(20);
+        let rank_progress = property_set
+            .get::<bool>("routing_rank_progress")
+            .copied()
+            .unwrap_or(true);
+        let mut best_layout = requested_layout;
 
         let mut best_beam: Option<Beam> = None;
         let mut best_cost = f64::MAX;
         let mut best_initial_layout = best_layout.clone();
 
-        let reversed_gates: Vec<TwoQGate> = {
-            let mut rg = gates.clone();
-            rg.reverse();
-            let mut reversed: Vec<TwoQGate> = Vec::new();
-            let mut last_on: Vec<Option<usize>> = vec![None; circuit.num_qubits];
-            for (i, gate) in rg.iter().enumerate() {
-                let new_gate = TwoQGate {
-                    circuit_index: gate.circuit_index,
-                    logical_qubits: gate.logical_qubits,
-                    successors: Vec::new(),
-                };
-                for &q in &gate.logical_qubits {
-                    if let Some(prev) = last_on[q] {
-                        reversed[prev].successors.push(i);
-                    }
-                    last_on[q] = Some(i);
-                }
-                reversed.push(new_gate);
-            }
-            reversed
-        };
-        let reversed_preds: Vec<u16> = {
-            let mut counts = vec![0u16; reversed_gates.len()];
+        let reversed_gates = reverse_gate_graph(&gates);
+        let reversed_preds: Vec<usize> = {
+            let mut counts = vec![0usize; reversed_gates.len()];
             for g in &reversed_gates {
                 for &s in &g.successors {
                     counts[s] += 1;
@@ -674,12 +959,14 @@ impl BeamSabrePass {
             let fwd = beam_sabre_forward(
                 &gates,
                 &preds,
-                &self.backend,
+                &connectivity,
                 &dist,
                 &current_initial,
                 self.beam_width,
                 self.branch_factor,
                 self.lookahead_strategy,
+                lookahead_size,
+                rank_progress,
             )?;
             let fwd_best = fwd
                 .iter()
@@ -698,12 +985,14 @@ impl BeamSabrePass {
                 let bwd = beam_sabre_forward(
                     &reversed_gates,
                     &reversed_preds,
-                    &self.backend,
+                    &connectivity,
                     &dist,
                     &fwd_best.layout,
                     self.beam_width,
                     self.branch_factor,
                     self.lookahead_strategy,
+                    lookahead_size,
+                    rank_progress,
                 )?;
                 let bwd_best = bwd
                     .iter()
@@ -745,6 +1034,10 @@ impl Pass for BeamSabrePass {
         "BeamSabrePass"
     }
 
+    fn try_run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Result<Circuit> {
+        BeamSabrePass::try_run(self, circuit, property_set)
+    }
+
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {
         match self.try_run(circuit, property_set) {
             Ok(c) => c,
@@ -772,6 +1065,155 @@ mod tests {
             branch_factor: branch,
             bidir_iterations: bidir,
             lookahead_strategy: LookaheadStrategy::default(),
+        }
+    }
+
+    #[test]
+    fn long_diagonal_epochs_bound_edges_without_losing_fence_dependencies() {
+        let count = MAX_DIAGONAL_EPOCH * 3 + 5;
+        let mut circuit = Circuit::new(3, 0);
+        for pair in [[0, 1], [0, 2]] {
+            for _ in 0..count {
+                circuit.add_op(Operation::Gate {
+                    name: GateType::RZZ,
+                    qubits: pair.to_vec(),
+                    params: vec![0.013],
+                });
+            }
+            circuit.add_op(Operation::Gate {
+                name: GateType::H,
+                qubits: vec![0],
+                params: vec![],
+            });
+        }
+        let (gates, predecessors, _) = build_gate_graph(&circuit, true);
+        assert!(predecessors.iter().all(|&n| n <= 4 * MAX_DIAGONAL_EPOCH));
+        assert!(predecessors.iter().sum::<usize>() <= 4 * MAX_DIAGONAL_EPOCH * gates.len());
+        // Every interaction before H reaches every interaction after H even
+        // when the original layer is split into several bounded epochs.
+        for source in 0..count {
+            let mut reachable = vec![false; gates.len()];
+            reachable[source] = true;
+            for (i, gate) in gates.iter().enumerate() {
+                if reachable[i] {
+                    for &successor in &gate.successors {
+                        reachable[successor] = true;
+                    }
+                }
+            }
+            assert!(reachable[count..].iter().all(|&r| r));
+        }
+    }
+
+    #[test]
+    fn diagonal_epoch_fence_waits_for_every_interaction_and_reverse_preserves_it() {
+        let mut circuit = Circuit::new(4, 0);
+        for pair in [[0, 1], [0, 2]] {
+            circuit.add_op(Operation::Gate {
+                name: GateType::RZZ,
+                qubits: pair.to_vec(),
+                params: vec![0.2],
+            });
+        }
+        circuit.add_op(Operation::Gate {
+            name: GateType::H,
+            qubits: vec![0],
+            params: vec![],
+        });
+        for pair in [[0, 3], [0, 1]] {
+            circuit.add_op(Operation::Gate {
+                name: GateType::RZZ,
+                qubits: pair.to_vec(),
+                params: vec![0.3],
+            });
+        }
+        let (gates, predecessors, _) = build_gate_graph(&circuit, true);
+        assert_eq!(predecessors, vec![0, 0, 2, 2]);
+        assert_eq!(gates[0].successors, vec![2, 3]);
+        assert_eq!(gates[1].successors, vec![2, 3]);
+        let reversed = reverse_gate_graph(&gates);
+        assert_eq!(reversed[0].successors, vec![2, 3]);
+        assert_eq!(reversed[1].successors, vec![2, 3]);
+    }
+
+    #[test]
+    fn only_exact_diagonal_locals_allow_routing_reordering() {
+        for theta in [0.0, 1e-15, -1e-15, std::f64::consts::TAU] {
+            let mut circuit = Circuit::new(3, 0);
+            circuit.add_op(Operation::Gate {
+                name: GateType::RZZ,
+                qubits: vec![0, 1],
+                params: vec![0.2],
+            });
+            circuit.add_op(Operation::Gate {
+                name: GateType::U,
+                qubits: vec![0],
+                params: vec![theta, 0.3, -0.1],
+            });
+            circuit.add_op(Operation::Gate {
+                name: GateType::RZZ,
+                qubits: vec![0, 2],
+                params: vec![0.4],
+            });
+            let (_, predecessors, _) = build_gate_graph(&circuit, true);
+            assert_eq!(predecessors, vec![0, usize::from(theta != 0.0)]);
+            let (_, strict, _) = build_gate_graph(&circuit, false);
+            assert_eq!(strict, vec![0, 1]);
+        }
+    }
+
+    #[test]
+    fn extended_layer_sees_beyond_repeated_pair_and_counts_duplicate_dependencies() {
+        // CX(0,1), CX(0,1), CX(0,2): the old layer saw only the
+        // repeated first pair, hiding the next interaction partner.
+        let mut circuit = Circuit::new(3, 0);
+        for pair in [[0, 1], [0, 1], [0, 2]] {
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: pair.to_vec(),
+                params: vec![],
+            });
+        }
+        let (gates, preds, _) = build_gate_graph(&circuit, false);
+        assert_eq!(
+            extended_layer(&[0], &gates, &preds, 0, |g| &g.successors),
+            vec![1]
+        );
+        assert_eq!(
+            extended_layer(&[0], &gates, &preds, 20, |g| &g.successors),
+            vec![1, 2]
+        );
+        assert_eq!(
+            extended_layer(&[0], &gates, &preds, 1, |g| &g.successors),
+            vec![1]
+        );
+    }
+
+    #[test]
+    fn tied_routes_are_reproducible() {
+        let mut circuit = Circuit::new(5, 0);
+        for pair in [[0, 4], [1, 3], [0, 2], [2, 4], [0, 3]] {
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: pair.to_vec(),
+                params: vec![],
+            });
+        }
+        let pass = default_pass(Backend::linear(5), 4, 3, 2);
+        let mut first = PropertySet::new();
+        let expected = pass.try_run(&circuit, &mut first).unwrap();
+        for _ in 0..8 {
+            let mut properties = PropertySet::new();
+            let output = pass.try_run(&circuit, &mut properties).unwrap();
+            assert_eq!(output.operations, expected.operations);
+            assert_eq!(
+                properties.get::<Vec<usize>>("initial_layout"),
+                first.get::<Vec<usize>>("initial_layout")
+            );
+            assert_eq!(
+                properties.get::<Vec<usize>>("final_layout"),
+                first.get::<Vec<usize>>("final_layout")
+            );
         }
     }
 

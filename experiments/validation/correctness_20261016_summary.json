@@ -1,0 +1,61 @@
+{
+  "tests": {
+    "workspace_all_features_passed": 305,
+    "workspace_ignored_cli": 4,
+    "cli_explicit_passed": 4,
+    "python_passed": 11,
+    "clippy": "passed --workspace --all-targets --all-features -D warnings",
+    "format": "passed"
+  },
+  "main_sweep": {
+    "cells": 597,
+    "trials": 597,
+    "cell_status": {
+      "ok": 584,
+      "unverifiable": 13
+    },
+    "trial_status": {
+      "ok": 584,
+      "unverifiable": 13
+    },
+    "verification_classes": {
+      "NumericalOperator": 241,
+      "Sampled": 343,
+      "Unverifiable": 13
+    }
+  },
+  "qft_w_repeats": {
+    "cells": 33,
+    "trials": 99,
+    "cell_status": {
+      "ok": 33
+    },
+    "trial_status": {
+      "ok": 99
+    },
+    "verification_classes": {
+      "NumericalOperator": 69,
+      "Sampled": 30
+    }
+  },
+  "independent_checks": {
+    "main": {
+      "output_passed": 241,
+      "output_failed": 0,
+      "output_skipped": 356,
+      "source_fixture_passed": 8
+    },
+    "repeated": {
+      "output_passed": 69,
+      "output_failed": 0,
+      "output_skipped": 30,
+      "source_fixture_passed": 8
+    }
+  },
+  "limitations": [
+    "13 width22/25 main outputs exceed layout-aware verification budget",
+    "Independent Qiskit checks capped at8 physical qubits",
+    "Numerical and sampled checks are not formal proof",
+    "Cross-tool performance baselines not rerun"
+  ]
+}

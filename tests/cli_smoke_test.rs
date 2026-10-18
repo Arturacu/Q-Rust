@@ -1,4 +1,4 @@
-//! [E2E-NEW-FEATURE] Smoke tests for the `qrust` CLI binary.
+//! Smoke tests for the `qrust` CLI binary.
 //!
 //! These tests are `#[ignore]` by default — they invoke `cargo run`
 //! recursively, which is fragile in some CI environments. Run with
@@ -55,4 +55,23 @@ fn test_cli_with_report() {
     assert_eq!(code, 0, "stderr: {stderr}");
     assert!(stderr.contains("Transpilation Report"));
     assert!(stderr.contains("parsed"));
+}
+
+#[test]
+#[ignore]
+fn test_cli_verifies_routed_output_with_layout() {
+    let (code, _stdout, stderr) = cargo_run(&[
+        "tests/fixtures/ghz_3.qasm",
+        "--opt",
+        "2",
+        "--backend",
+        "linear-3",
+        "--verify",
+        "--report",
+    ]);
+    assert_eq!(code, 0, "stderr: {stderr}");
+    assert!(
+        stderr.contains("Equivalence: exactly equivalent"),
+        "{stderr}"
+    );
 }

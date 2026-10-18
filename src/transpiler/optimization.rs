@@ -2,7 +2,9 @@
 
 use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::dag::{DAGCircuit, DAGNode};
+use crate::transpiler::numerical_policy::accept_rewrite;
 use crate::transpiler::pass::Pass;
+use crate::transpiler::property_set::PropertySet;
 use crate::transpiler::synthesis::zyz::{u_to_matrix, zyz_decomposition};
 use petgraph::graph::NodeIndex;
 use petgraph::visit::EdgeRef;
@@ -26,14 +28,14 @@ impl Pass for GateFusionPass {
     fn run(
         &self,
         circuit: &Circuit,
-        _property_set: &mut crate::transpiler::property_set::PropertySet,
+        property_set: &mut crate::transpiler::property_set::PropertySet,
     ) -> Circuit {
         // Process in segments separated by barriers, so we don't fuse across them.
-        run_in_segments(circuit, |seg| fuse_segment(seg))
+        run_in_segments(circuit, |seg| fuse_segment(seg, property_set))
     }
 }
 
-fn fuse_segment(circuit: &Circuit) -> Circuit {
+fn fuse_segment(circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
     let mut dag = DAGCircuit::from(circuit);
     let mut progress = true;
 
@@ -77,11 +79,20 @@ fn fuse_segment(circuit: &Circuit) -> Circuit {
                     let c_matrix = [[c00, c01], [c10, c11]];
                     let (theta, phi, lambda, _) = zyz_decomposition(c_matrix);
 
-                    dag.graph[src] = DAGNode::Op(Operation::Gate {
+                    let replacement = Operation::Gate {
                         name: GateType::U,
                         qubits: vec![sq],
                         params: vec![theta, phi, lambda],
-                    });
+                    };
+                    let (DAGNode::Op(first), DAGNode::Op(second)) =
+                        (&dag.graph[src], &dag.graph[dst])
+                    else {
+                        unreachable!()
+                    };
+                    if !accept_rewrite(properties, &[first, second], Some(&replacement)) {
+                        continue;
+                    }
+                    dag.graph[src] = DAGNode::Op(replacement);
                     dag.remove_node(dst);
                     progress = true;
                     break;
@@ -94,7 +105,7 @@ fn fuse_segment(circuit: &Circuit) -> Circuit {
 
 /// Splits `circuit` into segments separated by `Barrier` ops, runs `f` on each,
 /// and re-assembles. Barriers are preserved.
-fn run_in_segments<F: Fn(&Circuit) -> Circuit>(circuit: &Circuit, f: F) -> Circuit {
+fn run_in_segments<F: FnMut(&Circuit) -> Circuit>(circuit: &Circuit, mut f: F) -> Circuit {
     let mut result = Circuit::new(circuit.num_qubits, circuit.num_cbits);
     result.custom_gates = circuit.custom_gates.clone();
     let mut current = Circuit::new(circuit.num_qubits, circuit.num_cbits);
@@ -254,7 +265,7 @@ fn commutes_with_cx(op: &Operation, ctrl: usize, target: usize) -> bool {
                     | GateType::Tdg
                     | GateType::RZ
                     | GateType::ID => true,
-                    GateType::U => !params.is_empty() && params[0].abs() < 1e-9,
+                    GateType::U => params.len() == 3 && params[0] == 0.0,
                     _ => false,
                 }
             } else if q == target {
@@ -264,7 +275,7 @@ fn commutes_with_cx(op: &Operation, ctrl: usize, target: usize) -> bool {
                         let phi = params[1];
                         let lambda = params[2];
                         let pi_2 = std::f64::consts::FRAC_PI_2;
-                        (phi - -pi_2).abs() < 1e-9 && (lambda - pi_2).abs() < 1e-9
+                        phi == -pi_2 && lambda == pi_2
                     }
                     _ => false,
                 }
@@ -379,12 +390,14 @@ fn involves_any(op: &Operation, qubits: &[usize]) -> bool {
 
 #[derive(Debug, Clone, Copy)]
 pub struct ParameterSimplificationPass {
+    /// Candidate threshold only. Every changed operation must also pass the
+    /// local residual check and shared circuit allowance. Zero is exact-only.
     pub epsilon: f64,
 }
 
 impl Default for ParameterSimplificationPass {
     fn default() -> Self {
-        Self { epsilon: 1e-9 }
+        Self { epsilon: 0.0 }
     }
 }
 
@@ -396,7 +409,7 @@ impl Pass for ParameterSimplificationPass {
     fn run(
         &self,
         circuit: &Circuit,
-        _property_set: &mut crate::transpiler::property_set::PropertySet,
+        property_set: &mut crate::transpiler::property_set::PropertySet,
     ) -> Circuit {
         let mut out = Circuit::new(circuit.num_qubits, circuit.num_cbits);
         out.custom_gates = circuit.custom_gates.clone();
@@ -416,28 +429,25 @@ impl Pass for ParameterSimplificationPass {
                         GateType::RX | GateType::RY | GateType::RZ | GateType::U
                     ) {
                         for p in &mut np {
-                            *p %= two_pi;
-                            if *p < 0.0 {
-                                *p += two_pi;
+                            // Preserve small negative angles. Adding 2pi can
+                            // round a nonzero rotation onto the identity.
+                            if p.abs() >= two_pi && p.is_finite() {
+                                *p %= two_pi;
                             }
                         }
                         match name {
                             GateType::RX | GateType::RY | GateType::RZ => {
                                 if let Some(theta) = np.first() {
-                                    if theta.abs() < self.epsilon
-                                        || (theta - two_pi).abs() < self.epsilon
-                                    {
+                                    if theta.abs() <= self.epsilon {
                                         keep = false;
                                     }
                                 }
                             }
                             GateType::U if np.len() >= 3 => {
                                 let theta = np[0];
-                                if theta.abs() < self.epsilon {
+                                if theta.abs() <= self.epsilon {
                                     let phase_sum = (np[1] + np[2]) % two_pi;
-                                    if phase_sum.abs() < self.epsilon
-                                        || (phase_sum - two_pi).abs() < self.epsilon
-                                    {
+                                    if phase_sum.abs() <= self.epsilon {
                                         keep = false;
                                     }
                                 }
@@ -445,12 +455,19 @@ impl Pass for ParameterSimplificationPass {
                             _ => {}
                         }
                     }
-                    if keep {
-                        out.add_op(Operation::Gate {
-                            name: name.clone(),
-                            qubits: qubits.clone(),
-                            params: np,
-                        });
+                    let candidate = keep.then(|| Operation::Gate {
+                        name: name.clone(),
+                        qubits: qubits.clone(),
+                        params: np,
+                    });
+                    if candidate.as_ref() == Some(op) {
+                        out.add_op(op.clone());
+                    } else if accept_rewrite(property_set, &[op], candidate.as_ref()) {
+                        if let Some(candidate) = candidate {
+                            out.add_op(candidate);
+                        }
+                    } else {
+                        out.add_op(op.clone());
                     }
                 }
                 other => out.add_op(other.clone()),
@@ -462,12 +479,13 @@ impl Pass for ParameterSimplificationPass {
 
 #[derive(Debug, Clone, Copy)]
 pub struct GateCrystallizationPass {
+    /// Candidate threshold, never permission to discard an unchecked error.
     pub epsilon: f64,
 }
 
 impl Default for GateCrystallizationPass {
     fn default() -> Self {
-        Self { epsilon: 1e-9 }
+        Self { epsilon: 0.0 }
     }
 }
 
@@ -479,7 +497,7 @@ impl Pass for GateCrystallizationPass {
     fn run(
         &self,
         circuit: &Circuit,
-        _property_set: &mut crate::transpiler::property_set::PropertySet,
+        property_set: &mut crate::transpiler::property_set::PropertySet,
     ) -> Circuit {
         let mut out = Circuit::new(circuit.num_qubits, circuit.num_cbits);
         out.custom_gates = circuit.custom_gates.clone();
@@ -497,11 +515,11 @@ impl Pass for GateCrystallizationPass {
 
                 if params.len() == 1 {
                     let t = params[0];
-                    let is_pi = (t - pi).abs() < self.epsilon || (t + pi).abs() < self.epsilon;
-                    let is_pi2 = (t - pi / 2.0).abs() < self.epsilon;
-                    let is_mpi2 = (t + pi / 2.0).abs() < self.epsilon;
-                    let is_pi4 = (t - pi / 4.0).abs() < self.epsilon;
-                    let is_mpi4 = (t + pi / 4.0).abs() < self.epsilon;
+                    let is_pi = (t - pi).abs() <= self.epsilon || (t + pi).abs() <= self.epsilon;
+                    let is_pi2 = (t - pi / 2.0).abs() <= self.epsilon;
+                    let is_mpi2 = (t + pi / 2.0).abs() <= self.epsilon;
+                    let is_pi4 = (t - pi / 4.0).abs() <= self.epsilon;
+                    let is_mpi4 = (t + pi / 4.0).abs() <= self.epsilon;
 
                     match name {
                         GateType::RX if is_pi => {
@@ -536,19 +554,19 @@ impl Pass for GateCrystallizationPass {
                     let theta = params[0];
                     let phi = params[1];
                     let lambda = params[2];
-                    if (theta - pi / 2.0).abs() < self.epsilon
-                        && phi.abs() < self.epsilon
-                        && (lambda - pi).abs() < self.epsilon
+                    if (theta - pi / 2.0).abs() <= self.epsilon
+                        && phi.abs() <= self.epsilon
+                        && (lambda - pi).abs() <= self.epsilon
                     {
                         new_name = GateType::H;
                         new_params.clear();
-                    } else if theta.abs() < self.epsilon && phi.abs() < self.epsilon {
-                        let is_pi = (lambda - pi).abs() < self.epsilon
-                            || (lambda + pi).abs() < self.epsilon;
-                        let is_pi2 = (lambda - pi / 2.0).abs() < self.epsilon;
-                        let is_mpi2 = (lambda + pi / 2.0).abs() < self.epsilon;
-                        let is_pi4 = (lambda - pi / 4.0).abs() < self.epsilon;
-                        let is_mpi4 = (lambda + pi / 4.0).abs() < self.epsilon;
+                    } else if theta.abs() <= self.epsilon && phi.abs() <= self.epsilon {
+                        let is_pi = (lambda - pi).abs() <= self.epsilon
+                            || (lambda + pi).abs() <= self.epsilon;
+                        let is_pi2 = (lambda - pi / 2.0).abs() <= self.epsilon;
+                        let is_mpi2 = (lambda + pi / 2.0).abs() <= self.epsilon;
+                        let is_pi4 = (lambda - pi / 4.0).abs() <= self.epsilon;
+                        let is_mpi4 = (lambda + pi / 4.0).abs() <= self.epsilon;
                         if is_pi {
                             new_name = GateType::Z;
                             new_params.clear();
@@ -570,11 +588,16 @@ impl Pass for GateCrystallizationPass {
                         }
                     }
                 }
-                out.add_op(Operation::Gate {
+                let candidate = Operation::Gate {
                     name: new_name,
                     qubits: qubits.clone(),
                     params: new_params,
-                });
+                };
+                if candidate == *op || accept_rewrite(property_set, &[op], Some(&candidate)) {
+                    out.add_op(candidate);
+                } else {
+                    out.add_op(op.clone());
+                }
             } else {
                 out.add_op(op.clone());
             }
@@ -594,13 +617,13 @@ impl Pass for RotationMergePass {
     fn run(
         &self,
         circuit: &Circuit,
-        _property_set: &mut crate::transpiler::property_set::PropertySet,
+        property_set: &mut crate::transpiler::property_set::PropertySet,
     ) -> Circuit {
-        run_in_segments(circuit, rotation_merge_segment)
+        run_in_segments(circuit, |seg| rotation_merge_segment(seg, property_set))
     }
 }
 
-fn rotation_merge_segment(circuit: &Circuit) -> Circuit {
+fn rotation_merge_segment(circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
     let mut dag = DAGCircuit::from(circuit);
     let mut progress = true;
     while progress {
@@ -656,13 +679,27 @@ fn rotation_merge_segment(circuit: &Circuit) -> Circuit {
                 _ => None,
             };
             if let (Some((sn, sq, sp)), Some((dn, dq, dp))) = (src_info, dst_info) {
-                if sq == dq && sn == dn {
+                // A direct DAG edge on one operand is insufficient for a
+                // controlled rotation: another operand may have an intervening
+                // noncommuting gate. Require adjacency on every affected wire.
+                if sq == dq && sn == dn && is_strictly_adjacent(&dag, src, dst, &sq) {
                     let new_theta = sp[0] + dp[0];
-                    dag.graph[src] = DAGNode::Op(Operation::Gate {
+                    let replacement = Operation::Gate {
                         name: sn,
                         qubits: sq,
                         params: vec![new_theta],
-                    });
+                    };
+                    let (DAGNode::Op(first), DAGNode::Op(second)) =
+                        (&dag.graph[src], &dag.graph[dst])
+                    else {
+                        unreachable!()
+                    };
+                    if !new_theta.is_finite()
+                        || !accept_rewrite(properties, &[first, second], Some(&replacement))
+                    {
+                        continue;
+                    }
+                    dag.graph[src] = DAGNode::Op(replacement);
                     dag.remove_node(dst);
                     progress = true;
                     break;
@@ -763,13 +800,13 @@ impl Pass for InverseCancellationPass {
     fn run(
         &self,
         circuit: &Circuit,
-        _property_set: &mut crate::transpiler::property_set::PropertySet,
+        property_set: &mut crate::transpiler::property_set::PropertySet,
     ) -> Circuit {
-        run_in_segments(circuit, inverse_cancel_segment)
+        run_in_segments(circuit, |seg| inverse_cancel_segment(seg, property_set))
     }
 }
 
-fn inverse_cancel_segment(circuit: &Circuit) -> Circuit {
+fn inverse_cancel_segment(circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
     let mut dag = DAGCircuit::from(circuit);
     let mut progress = true;
     while progress {
@@ -799,6 +836,14 @@ fn inverse_cancel_segment(circuit: &Circuit) -> Circuit {
             if are_inverses(&src_op, &dst_op) {
                 let shared = get_shared_qubits(&src_op, &dst_op);
                 if is_strictly_adjacent(&dag, src, dst, &shared) {
+                    // Named inverse identities are structural. Floating-point
+                    // angle sums, including exact-looking multiples of pi,
+                    // must also agree with the unreduced source operators.
+                    if matches!(&src_op, Operation::Gate { params, .. } if !params.is_empty())
+                        && !accept_rewrite(properties, &[&src_op, &dst_op], None)
+                    {
+                        continue;
+                    }
                     dag.remove_node(src);
                     dag.remove_node(dst);
                     progress = true;
@@ -874,19 +919,140 @@ fn are_inverses(op1: &Operation, op2: &Operation) -> bool {
                 | (GateType::Tdg, GateType::T) => true,
                 (GateType::RX, GateType::RX)
                 | (GateType::RY, GateType::RY)
-                | (GateType::RZ, GateType::RZ)
-                | (GateType::CRX, GateType::CRX)
+                | (GateType::RZ, GateType::RZ) => {
+                    rotation_angles_cancel(p1, p2, 2.0 * std::f64::consts::PI)
+                }
+                (GateType::CRX, GateType::CRX)
                 | (GateType::CRY, GateType::CRY)
-                | (GateType::CRZ, GateType::CRZ) => match (p1.first(), p2.first()) {
-                    (Some(a), Some(b)) => {
-                        (a + b).abs() < 1e-9 || (a + b - 2.0 * std::f64::consts::PI).abs() < 1e-9
-                    }
-                    _ => false,
-                },
+                | (GateType::CRZ, GateType::CRZ) => {
+                    // R(2π)=-I is a global phase only for an uncontrolled
+                    // rotation. Controlling it yields Z on the control wire.
+                    rotation_angles_cancel(p1, p2, 4.0 * std::f64::consts::PI)
+                }
                 _ => false,
             }
         }
         _ => false,
+    }
+}
+
+fn rotation_angles_cancel(first: &[f64], second: &[f64], period: f64) -> bool {
+    let ([a], [b]) = (first, second) else {
+        return false;
+    };
+    let sum = a + b;
+    if !sum.is_finite() {
+        return false;
+    }
+    let remainder = sum.rem_euclid(period);
+    remainder == 0.0
+}
+
+/// Choose between the two exact three-CX decompositions of each SWAP.
+/// A neighboring CX on the same two wires cancels the matching endpoint CX.
+/// This is a local algebraic rewrite, not numerical two-qubit synthesis.
+#[derive(Debug, Clone, Copy)]
+pub struct OrientSwapDecompositionPass;
+
+impl Pass for OrientSwapDecompositionPass {
+    fn name(&self) -> &str {
+        "OrientSwapDecompositionPass"
+    }
+    fn run(&self, circuit: &Circuit, _: &mut PropertySet) -> Circuit {
+        let mut preference = vec![[0usize; 2]; circuit.operations.len()];
+        for reverse in [false, true] {
+            let mut nearest = vec![None; circuit.num_qubits];
+            for offset in 0..circuit.operations.len() {
+                let i = if reverse {
+                    circuit.operations.len() - 1 - offset
+                } else {
+                    offset
+                };
+                if let Operation::Gate { name, qubits, .. } = &circuit.operations[i] {
+                    if matches!(name, GateType::SWAP) && qubits.len() == 2 {
+                        let [a, b] = [qubits[0], qubits[1]];
+                        if let (Some(left), Some(right)) = (nearest[a], nearest[b]) {
+                            if left == right {
+                                if let Operation::Gate {
+                                    name: GateType::CX,
+                                    qubits: previous,
+                                    ..
+                                } = &circuit.operations[left]
+                                {
+                                    if previous == qubits {
+                                        preference[i][0] += 1;
+                                    } else if previous[0] == b && previous[1] == a {
+                                        preference[i][1] += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    for &q in qubits {
+                        nearest[q] = Some(i);
+                    }
+                } else {
+                    // Do not expose a cancellation across a scheduling or
+                    // nonunitary boundary, even on disjoint wires.
+                    nearest.fill(None);
+                }
+            }
+        }
+        let mut output = circuit.clone();
+        for (i, operation) in output.operations.iter_mut().enumerate() {
+            if preference[i][1] > preference[i][0] {
+                if let Operation::Gate {
+                    name: GateType::SWAP,
+                    qubits,
+                    ..
+                } = operation
+                {
+                    qubits.swap(0, 1);
+                }
+            }
+        }
+        output
+    }
+}
+
+/// Extract a logical terminal permutation before the router pays to realize it.
+/// The existing elision pass records inverse permutation `p[l]`; after routing,
+/// output logical wire `l` is read at the routed location of `p[l]`.
+#[derive(Debug, Clone, Copy)]
+pub struct ExtractOutputPermutationPass;
+
+impl Pass for ExtractOutputPermutationPass {
+    fn name(&self) -> &str {
+        "ExtractOutputPermutationPass"
+    }
+    fn run(&self, circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
+        properties.remove::<Vec<usize>>("logical_output_permutation");
+        let mut temporary = PropertySet::new();
+        let output = TrailingSwapElisionPass.run(circuit, &mut temporary);
+        if let Some(permutation) = temporary.get::<Vec<usize>>("final_layout") {
+            properties.insert("logical_output_permutation", permutation.clone());
+        }
+        output
+    }
+}
+
+/// Compose an extracted logical permutation with the physical output mapping.
+#[derive(Debug, Clone, Copy)]
+pub struct ApplyOutputPermutationPass;
+
+impl Pass for ApplyOutputPermutationPass {
+    fn name(&self) -> &str {
+        "ApplyOutputPermutationPass"
+    }
+    fn run(&self, circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
+        if let (Some(permutation), Some(layout)) = (
+            properties.remove::<Vec<usize>>("logical_output_permutation"),
+            properties.get::<Vec<usize>>("final_layout"),
+        ) {
+            let composed: Vec<usize> = permutation.iter().map(|&q| layout[q]).collect();
+            properties.insert("final_layout", composed);
+        }
+        circuit.clone()
     }
 }
 

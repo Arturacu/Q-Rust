@@ -1,7 +1,7 @@
 //! Iterative SABRE-based layout discovery.
 //!
 //! Leverages BeamSABRE-style routing with cheap greedy scoring to discover
-//! near-optimal initial qubit placements via repeated forward/backward
+//! candidate low-cost initial qubit placements via repeated forward/backward
 //! passes. When the circuit's interaction graph is a subgraph of the hardware
 //! topology, this often converges to a zero-SWAP layout.
 
@@ -10,40 +10,14 @@ use crate::backend::Backend;
 use crate::ir::{Circuit, GateType, Operation};
 use crate::transpiler::pass::Pass;
 use crate::transpiler::property_set::PropertySet;
-use crate::transpiler::routing::Layout;
+use crate::transpiler::routing::{
+    build_gate_graph, extended_layer, reverse_gate_graph, Layout, TwoQGate,
+};
+#[cfg(test)]
 use std::collections::HashSet;
 
-#[derive(Clone, Debug)]
-struct TwoQGate {
-    logical_qubits: [usize; 2],
-    successors: Vec<usize>,
-}
-
-fn build_2q_graph(circuit: &Circuit) -> Vec<TwoQGate> {
-    let mut gates: Vec<TwoQGate> = Vec::new();
-    let mut last_on_qubit: Vec<Option<usize>> = vec![None; circuit.num_qubits];
-    for op in &circuit.operations {
-        if let Operation::Gate { qubits, .. } = op {
-            if qubits.len() >= 2 {
-                let idx = gates.len();
-                gates.push(TwoQGate {
-                    logical_qubits: [qubits[0], qubits[1]],
-                    successors: Vec::new(),
-                });
-                for &q in &qubits[..2] {
-                    if let Some(prev) = last_on_qubit[q] {
-                        gates[prev].successors.push(idx);
-                    }
-                    last_on_qubit[q] = Some(idx);
-                }
-            }
-        }
-    }
-    gates
-}
-
-fn pred_counts(gates: &[TwoQGate]) -> Vec<u16> {
-    let mut counts = vec![0u16; gates.len()];
+fn pred_counts(gates: &[TwoQGate]) -> Vec<usize> {
+    let mut counts = vec![0usize; gates.len()];
     for g in gates {
         for &s in &g.successors {
             counts[s] += 1;
@@ -52,33 +26,15 @@ fn pred_counts(gates: &[TwoQGate]) -> Vec<u16> {
     counts
 }
 
-fn reverse_graph(gates: &[TwoQGate], num_qubits: usize) -> Vec<TwoQGate> {
-    let mut reversed: Vec<TwoQGate> = Vec::new();
-    let mut last_on_qubit: Vec<Option<usize>> = vec![None; num_qubits];
-    for gate in gates.iter().rev() {
-        let idx = reversed.len();
-        reversed.push(TwoQGate {
-            logical_qubits: gate.logical_qubits,
-            successors: Vec::new(),
-        });
-        for &q in &gate.logical_qubits {
-            if let Some(prev) = last_on_qubit[q] {
-                reversed[prev].successors.push(idx);
-            }
-            last_on_qubit[q] = Some(idx);
-        }
-    }
-    reversed
-}
-
 const SWAP_COST: f64 = 3.0;
 
 fn greedy_sabre_cost(
     gates: &[TwoQGate],
-    preds: &[u16],
+    preds: &[usize],
     backend: &Backend,
     dist: &[Vec<usize>],
     initial_layout: &Layout,
+    lookahead_size: usize,
 ) -> (f64, Layout) {
     if gates.is_empty() {
         return (0.0, initial_layout.clone());
@@ -93,6 +49,9 @@ fn greedy_sabre_cost(
 
     let max_swaps = total * dist.len() * 3;
     let mut swap_count = 0usize;
+    let neighbors: Vec<_> = (0..backend.num_qubits)
+        .map(|p| backend.neighbors(p))
+        .collect();
 
     while executed < total {
         loop {
@@ -124,35 +83,51 @@ fn greedy_sabre_cost(
             break;
         }
 
-        let mut candidates: HashSet<(usize, usize)> = HashSet::new();
+        let extended = extended_layer(&front, gates, &remaining, lookahead_size, |g| &g.successors);
+        let mut candidates = Vec::new();
         for &g in &front {
             let p0 = layout.l2p(gates[g].logical_qubits[0]);
             let p1 = layout.l2p(gates[g].logical_qubits[1]);
-            for n in backend.neighbors(p0) {
+            for &n in &neighbors[p0] {
                 let edge = if p0 < n { (p0, n) } else { (n, p0) };
-                candidates.insert(edge);
+                candidates.push(edge);
             }
-            for n in backend.neighbors(p1) {
+            for &n in &neighbors[p1] {
                 let edge = if p1 < n { (p1, n) } else { (n, p1) };
-                candidates.insert(edge);
+                candidates.push(edge);
             }
         }
 
+        candidates.sort_unstable();
+        candidates.dedup();
         let best_swap = candidates
             .iter()
             .map(|&swap| {
-                let delta = relative_score(&layout, swap, &front, gates, dist);
+                let delta = relative_score(
+                    &layout,
+                    swap,
+                    &front,
+                    gates,
+                    dist,
+                    &extended,
+                    lookahead_size > 0,
+                );
                 (delta, swap)
             })
-            .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap())
-            .map(|(_, s)| s)
-            .expect("no SWAP candidates on a connected graph");
+            .min_by(|a, b| a.0.partial_cmp(&b.0).unwrap().then_with(|| a.1.cmp(&b.1)))
+            .map(|(_, s)| s);
+        let Some(best_swap) = best_swap else {
+            // A disconnected candidate placement is not a valid layout.
+            // Let other trials compete; the checked router reports failure
+            // if no complete placement is found.
+            return (f64::INFINITY, layout);
+        };
 
         layout.swap_physical(best_swap.0, best_swap.1);
         cost += SWAP_COST;
         swap_count += 1;
         if swap_count > max_swaps {
-            break;
+            return (f64::INFINITY, layout);
         }
     }
     (cost, layout)
@@ -164,17 +139,15 @@ fn relative_score(
     front: &[usize],
     gates: &[TwoQGate],
     dist: &[Vec<usize>],
+    extended: &[usize],
+    normalize: bool,
 ) -> f64 {
     let (pa, pb) = swap;
     let mut delta = 0.0;
-    let mut extended_layer = HashSet::new();
 
     for &g in front {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
-        for &succ in &gates[g].successors {
-            extended_layer.insert(succ);
-        }
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
             continue;
         }
@@ -196,8 +169,15 @@ fn relative_score(
         delta += dist[np0][np1] as f64 - old;
     }
 
-    let lookahead_weight = 0.5;
-    for g in extended_layer {
+    if normalize {
+        delta /= front.len().max(1) as f64;
+    }
+    let lookahead_weight = if normalize {
+        0.5 / extended.len().max(1) as f64
+    } else {
+        0.5
+    };
+    for &g in extended {
         let p0 = layout.l2p(gates[g].logical_qubits[0]);
         let p1 = layout.l2p(gates[g].logical_qubits[1]);
         if p0 != pa && p0 != pb && p1 != pa && p1 != pb {
@@ -260,7 +240,42 @@ impl Pass for SabreLayoutPass {
         "SabreLayoutPass"
     }
 
+    fn try_run(
+        &self,
+        circuit: &Circuit,
+        property_set: &mut PropertySet,
+    ) -> crate::error::Result<Circuit> {
+        crate::transpiler::validate_circuit_structure(circuit)?;
+        if self.num_trials == 0 || self.num_iterations == 0 {
+            return Err(crate::error::QRustError::InvalidConfig(
+                "SABRE layout requires at least one trial and iteration".into(),
+            ));
+        }
+        if circuit.num_qubits > self.backend.num_qubits {
+            return Err(crate::error::QRustError::InsufficientQubits {
+                circuit: circuit.num_qubits,
+                backend: self.backend.num_qubits,
+            });
+        }
+        property_set.remove::<String>("sabre_layout_error");
+        Ok(self.discover(circuit, property_set))
+    }
+
     fn run(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {
+        match self.try_run(circuit, property_set) {
+            Ok(output) => output,
+            Err(error) => {
+                property_set.remove::<Vec<usize>>("sabre_initial_layout");
+                property_set.remove::<usize>("layout_route_evaluations");
+                property_set.insert("sabre_layout_error", error.to_string());
+                circuit.clone()
+            }
+        }
+    }
+}
+
+impl SabreLayoutPass {
+    fn discover(&self, circuit: &Circuit, property_set: &mut PropertySet) -> Circuit {
         let has_2q = circuit.operations.iter().any(|op| {
             if let Operation::Gate { qubits, .. } = op {
                 qubits.len() >= 2
@@ -276,19 +291,40 @@ impl Pass for SabreLayoutPass {
 
         let num_logical = circuit.num_qubits;
         let num_physical = self.backend.num_qubits;
-        let dist = self.backend.shortest_path_matrix();
-        let fwd_gates = build_2q_graph(circuit);
+        let connectivity = crate::transpiler::routing::undirected_backend(&self.backend);
+        let dist = connectivity.shortest_path_matrix();
+        let commute_diagonal = property_set
+            .get::<bool>("routing_commute_diagonal")
+            .copied()
+            .unwrap_or(false);
+        let (fwd_gates, _, _) = build_gate_graph(circuit, commute_diagonal);
         let fwd_preds = pred_counts(&fwd_gates);
-        let rev_gates = reverse_graph(&fwd_gates, num_logical);
+        let rev_gates = reverse_gate_graph(&fwd_gates);
         let rev_preds = pred_counts(&rev_gates);
 
+        let lookahead_size = property_set
+            .get::<usize>("routing_lookahead_size")
+            .copied()
+            .unwrap_or(20);
         let trivial = Layout::trivial(num_logical, num_physical);
-        let (trivial_cost, _) =
-            greedy_sabre_cost(&fwd_gates, &fwd_preds, &self.backend, &dist, &trivial);
+        let (trivial_cost, _) = greedy_sabre_cost(
+            &fwd_gates,
+            &fwd_preds,
+            &connectivity,
+            &dist,
+            &trivial,
+            lookahead_size,
+        );
+        let mut evaluations = 1usize;
         let mut best_cost = trivial_cost;
         let mut best_layout = trivial.clone();
 
         for trial in 0..self.num_trials {
+            // Zero is a proven lower bound on SWAP count. Searching another
+            // placement cannot improve it (and used to waste hundreds of routes).
+            if best_cost == 0.0 {
+                break;
+            }
             let mut layout = if trial == 0 {
                 trivial.clone()
             } else {
@@ -296,21 +332,46 @@ impl Pass for SabreLayoutPass {
             };
 
             for _ in 0..self.num_iterations {
-                let (_, fwd_final) =
-                    greedy_sabre_cost(&fwd_gates, &fwd_preds, &self.backend, &dist, &layout);
-                let (_, bwd_final) =
-                    greedy_sabre_cost(&rev_gates, &rev_preds, &self.backend, &dist, &fwd_final);
+                evaluations += 2;
+                let (_, fwd_final) = greedy_sabre_cost(
+                    &fwd_gates,
+                    &fwd_preds,
+                    &connectivity,
+                    &dist,
+                    &layout,
+                    lookahead_size,
+                );
+                let (_, bwd_final) = greedy_sabre_cost(
+                    &rev_gates,
+                    &rev_preds,
+                    &connectivity,
+                    &dist,
+                    &fwd_final,
+                    lookahead_size,
+                );
+                let converged = layout.logical_to_physical == bwd_final.logical_to_physical;
                 layout = bwd_final;
+                if converged {
+                    break;
+                }
             }
 
-            let (final_cost, _) =
-                greedy_sabre_cost(&fwd_gates, &fwd_preds, &self.backend, &dist, &layout);
+            evaluations += 1;
+            let (final_cost, _) = greedy_sabre_cost(
+                &fwd_gates,
+                &fwd_preds,
+                &connectivity,
+                &dist,
+                &layout,
+                lookahead_size,
+            );
             if final_cost < best_cost {
                 best_cost = final_cost;
                 best_layout = layout;
             }
         }
 
+        property_set.insert("layout_route_evaluations", evaluations);
         property_set.insert(
             "sabre_initial_layout",
             best_layout.logical_to_physical.clone(),
@@ -334,6 +395,90 @@ fn random_layout(num_logical: usize, num_physical: usize, seed: u64) -> Layout {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn direct_layout_run_validates_local_operands_and_search_dimensions() {
+        let mut circuit = Circuit::new(2, 0);
+        circuit.add_op(Operation::Gate {
+            name: GateType::CX,
+            qubits: vec![0, 1],
+            params: vec![],
+        });
+        circuit.add_op(Operation::Gate {
+            name: GateType::U,
+            qubits: vec![99],
+            params: vec![0.2, 0.3, 0.4],
+        });
+        for pass in [
+            SabreLayoutPass {
+                backend: Backend::linear(2),
+                num_trials: 1,
+                num_iterations: 1,
+            },
+            SabreLayoutPass {
+                backend: Backend::linear(2),
+                num_trials: 0,
+                num_iterations: 1,
+            },
+            SabreLayoutPass {
+                backend: Backend::linear(2),
+                num_trials: 1,
+                num_iterations: 0,
+            },
+            SabreLayoutPass {
+                backend: Backend::linear(1),
+                num_trials: 1,
+                num_iterations: 1,
+            },
+        ] {
+            let mut properties = PropertySet::new();
+            let output = pass.run(&circuit, &mut properties);
+            assert_eq!(output.operations, circuit.operations);
+            assert!(properties.get::<String>("sabre_layout_error").is_some());
+            assert!(pass.try_run(&circuit, &mut properties).is_err());
+        }
+        circuit.operations.pop();
+        for (trials, iterations, width) in [(0, 1, 2), (1, 0, 2), (1, 1, 1)] {
+            let pass = SabreLayoutPass {
+                backend: Backend::linear(width),
+                num_trials: trials,
+                num_iterations: iterations,
+            };
+            let mut properties = PropertySet::new();
+            assert_eq!(
+                pass.run(&circuit, &mut properties).operations,
+                circuit.operations
+            );
+            assert!(properties.get::<String>("sabre_layout_error").is_some());
+        }
+    }
+
+    #[test]
+    fn zero_swap_lower_bound_stops_all_remaining_layout_trials() {
+        let mut circuit = Circuit::new(8, 0);
+        for q in 0..7 {
+            circuit.add_op(Operation::Gate {
+                name: GateType::CX,
+                qubits: vec![q, q + 1],
+                params: vec![],
+            });
+        }
+        let pass = SabreLayoutPass {
+            backend: Backend::linear(8),
+            num_trials: 50,
+            num_iterations: 5,
+        };
+        let mut properties = PropertySet::new();
+        pass.try_run(&circuit, &mut properties).unwrap();
+        assert_eq!(
+            properties.get::<usize>("layout_route_evaluations"),
+            Some(&1)
+        );
+        assert_eq!(
+            properties.get::<Vec<usize>>("sabre_initial_layout"),
+            Some(&(0..8).collect())
+        );
+    }
 
     #[test]
     fn test_random_layout_valid() {

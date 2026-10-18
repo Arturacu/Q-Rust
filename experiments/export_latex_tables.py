@@ -197,7 +197,8 @@ def t_verification(recs):
         ])
     return tabular(
         "Verification verdicts by topology (layout-aware harness). $F_{\\min}$ "
-        "is the worst-case process fidelity over verified runs.",
+        "is the minimum recorded fidelity: process fidelity for exact checks "
+        "and sampled output-state fidelity for statistical checks.",
         "tab:verify",
         ["Topology", "Exact", "Stat.", "Unver.", "NotEq.", "$F_{\\min}$"], rows)
 

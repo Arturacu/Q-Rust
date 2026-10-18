@@ -57,7 +57,10 @@ impl Operation {
                         if i > 0 {
                             w.write_str(", ")?;
                         }
-                        write!(w, "{:.10}", p)?;
+                        // Shortest decimal that round-trips to the same f64.
+                        // Fixed decimal precision silently erased small gates
+                        // after the compiler's numerical checks had finished.
+                        write!(w, "{}", p)?;
                     }
                     w.write_char(')')?;
                 }

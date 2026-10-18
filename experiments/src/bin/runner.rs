@@ -6,70 +6,22 @@
 //! the matrix by invoking this binary once per cell, which also gives us a true
 //! per-circuit peak-RSS reading (one process == one transpilation).
 //!
-//! ## Why a bespoke runner instead of the CLI?
-//! The `qrust` CLI emits no timings and only a human-readable fidelity string.
-//! Here we drive the transpiler passes *directly*, faithfully reproducing
-//! `transpile()`'s two-`PassManager` structure (one `PropertySet` for the
-//! optimization stage, one shared across all lowering passes — see
-//! `src/transpiler/mod.rs::build_pass_manager_for`).  Driving the passes
-//! ourselves buys three things the public API cannot give:
-//!   1. a true 5-stage µs breakdown (Parse → LogicOpt → Routing → BasisDecomp → Cleanup),
-//!   2. the `initial_layout`/`final_layout` permutation from the property set,
-//!      enabling *layout-aware* verification of routed circuits, and
-//!   3. a clean Stage-5 (cleanup) bypass toggle for the cleanup-ablation study.
-//!
-//! ## Faithfulness contract
-//! With cleanup enabled, the pass list and ordering here are identical to
-//! `build_pass_manager_for`, so the produced circuit matches `transpile()`
-//! exactly.  The only intentional deviation is `target_basis = {u, cx}` forced
-//! on every run: Q-Rust's rz/sx translator is unwired and it has no
-//! Solovay–Kitaev, so {U,CX} is the only basis it can actually emit.
+//! Uses the canonical public compiler pipeline, including its final legality
+//! checks. Timing covers parsing and complete transpilation separately. Raw
+//! output QASM and layouts can be retained for independent validation.
 
 use std::time::Instant;
 
 use q_rust::backend::Backend;
 use q_rust::ir::{Circuit, GateType, Operation};
 use q_rust::parser::parse_qasm;
-use q_rust::simulator::{
-    equivalence_by_sampling, equivalence_by_sampling_with_layout, extract_logical_unitary,
-    try_circuit_to_unitary, unitary_fidelity,
-};
-use q_rust::transpiler::decomposition::{
-    decompose_basis, BasisDecompositionPass, CxDirectionPass, HighArityDecompositionPass,
-};
-use q_rust::transpiler::layout::SabreLayoutPass;
-use q_rust::transpiler::optimization::{
-    CommutationCancellationPass, CrossConjugationPass, GateCrystallizationPass, GateFusionPass,
-    InverseCancellationPass, ParameterSimplificationPass, RotationMergePass,
-    SwapSimplificationPass, TrailingSwapElisionPass,
-};
-use q_rust::transpiler::pass::Pass;
-use q_rust::transpiler::property_set::PropertySet;
-use q_rust::transpiler::routing::{BeamSabrePass, LookaheadStrategy};
-use q_rust::transpiler::target_basis::TargetBasisPass;
-use q_rust::transpiler::KakSynthesisPass;
+use q_rust::transpiler::{transpile_with_report, TranspilerConfig};
+use q_rust::verify::{verify_equivalence_with_layout_configured, Verdict, VerificationConfig};
 
 use serde_json::{json, Value};
 
-/// Full-unitary materialization cap.  At n qubits the unitary is a 2^n × 2^n
-/// dense complex matrix and `circuit_to_unitary` is O(g · 8^n), so exact
-/// verification is only tractable for small circuits.  Above this we fall back
-/// to state-vector sampling (identity layout) or declare the run unverifiable
-/// (non-trivial routing layout, which sampling cannot account for).
+/// Dense checks are numerical operator comparisons, not formal proofs.
 const EXACT_MAX_QUBITS: usize = 8;
-
-/// Largest width the state-vector sampler can handle (mirrors the library's
-/// `MAX_STATE_VECTOR_QUBITS - 2` safety margin used by `verify_equivalence`).
-const SAMPLE_MAX_QUBITS: usize = 22;
-
-/// Practical cap for the *layout-aware* state-vector sampler. It evolves the
-/// (wider, routed) physical circuit, so it is markedly more expensive than the
-/// plain sampler; verifying a routed 22-qubit circuit costs minutes. Capping at
-/// 20 keeps re-runs tractable while still certifying the grid (16q) and every
-/// circuit up to 18 qubits; wider routed circuits are reported Unverifiable.
-const LAYOUT_SAMPLE_MAX_QUBITS: usize = 20;
-
-/// Fixed seed so the statistical verdict is reproducible across runs.
 const VERIFY_SEED: u64 = 0x00C0_FFEE_DEAD_BEEF;
 const VERIFY_SAMPLES: usize = 8;
 
@@ -156,272 +108,83 @@ fn resolve_backend(topology: &str, n_logical: usize) -> Option<Backend> {
     }
 }
 
-// --------------------------------------------------------------------------- //
-// Stage runners — each mirrors a slice of build_pass_manager_for and threads   //
-// the supplied PropertySet (opt stage gets its own; all lowering passes share  //
-// one, exactly as transpile() does).                                           //
-// --------------------------------------------------------------------------- //
-fn run_pass(p: &dyn Pass, c: &Circuit, ps: &mut PropertySet) -> Circuit {
-    p.run(c, ps)
-}
-
-/// Stage 2: logic optimization (backend-independent).
-fn stage_logic_opt(circuit: &Circuit, opt: u8, ps: &mut PropertySet) -> Circuit {
-    let mut c = circuit.clone();
-    if opt >= 1 {
-        c = run_pass(&GateCrystallizationPass { epsilon: 1e-9 }, &c, ps);
-        c = run_pass(&ParameterSimplificationPass::default(), &c, ps);
-    }
-    if opt >= 2 {
-        c = run_pass(&RotationMergePass, &c, ps);
-        c = run_pass(&CrossConjugationPass, &c, ps);
-        c = run_pass(&InverseCancellationPass, &c, ps);
-        c = run_pass(&CommutationCancellationPass, &c, ps);
-        c = run_pass(&ParameterSimplificationPass::default(), &c, ps);
-    }
-    c
-}
-
-/// Stage 3: layout + routing + CX-direction (only when a backend is present).
-fn stage_routing(
-    circuit: &Circuit,
-    opt: u8,
-    backend: &Option<Backend>,
-    ps: &mut PropertySet,
-) -> Circuit {
-    let mut c = circuit.clone();
-    if let Some(backend) = backend {
-        // Mirror the library: reduce >2-qubit gates before routing.
-        c = run_pass(&HighArityDecompositionPass, &c, ps);
-        if opt >= 2 {
-            let (num_trials, num_iterations) = if opt == 2 { (10, 3) } else { (50, 5) };
-            c = run_pass(
-                &SabreLayoutPass {
-                    backend: backend.clone(),
-                    num_trials,
-                    num_iterations,
-                },
-                &c,
-                ps,
-            );
-        }
-        let (beam_width, branch_factor, bidir_iterations) = match opt {
-            0 | 1 => (1, 1, 1),
-            2 => (4, 3, 2),
-            _ => (8, 5, 4),
-        };
-        c = run_pass(
-            &BeamSabrePass {
-                backend: backend.clone(),
-                beam_width,
-                branch_factor,
-                bidir_iterations,
-                lookahead_strategy: LookaheadStrategy::default(),
-            },
-            &c,
-            ps,
-        );
-        c = run_pass(
-            &CxDirectionPass {
-                backend: backend.clone(),
-            },
-            &c,
-            ps,
-        );
-        // Fold trailing SWAPs (e.g. the QFT bit-reversal network) into the
-        // output layout (mirrors the library pipeline).
-        c = run_pass(&TrailingSwapElisionPass, &c, ps);
-    }
-    c
-}
-
-/// Stage 4: target-basis translation + basis decomposition + KAK synthesis.
-/// We force the basis to {u, cx} (the only set Q-Rust can actually emit).
-fn stage_basis_decomp(circuit: &Circuit, ps: &mut PropertySet) -> Result<Circuit, String> {
-    let basis: std::collections::HashSet<String> =
-        ["u", "cx"].iter().map(|s| s.to_string()).collect();
-    let tb = TargetBasisPass::new(basis).map_err(|e| format!("target basis: {e}"))?;
-    let mut c = run_pass(&tb, circuit, ps);
-    c = run_pass(&BasisDecompositionPass, &c, ps);
-    c = run_pass(&KakSynthesisPass, &c, ps);
-    Ok(c)
-}
-
-/// Stage 5: post-routing cleanup (level-3 only). Bypassed entirely when
-/// `enabled == false` — this is the cleanup-ablation toggle.
-fn stage_cleanup(circuit: &Circuit, opt: u8, enabled: bool, ps: &mut PropertySet) -> Circuit {
-    let mut c = circuit.clone();
-    if opt >= 3 && enabled {
-        c = run_pass(&GateFusionPass, &c, ps);
-        c = run_pass(&SwapSimplificationPass, &c, ps);
-        c = run_pass(&InverseCancellationPass, &c, ps);
-        c = run_pass(&ParameterSimplificationPass::default(), &c, ps);
-    }
-    c
-}
-
-// --------------------------------------------------------------------------- //
-// Verification (layout-aware)                                                  //
-// --------------------------------------------------------------------------- //
 struct VerifyResult {
-    class: &'static str, // "Exact" | "Statistical" | "Unverifiable" | "NotEquivalent"
+    class: &'static str,
     fidelity: Option<f64>,
     verified: bool,
     method: String,
 }
 
-fn is_identity(layout: &Option<Vec<usize>>, n: usize) -> bool {
-    match layout {
-        None => true,
-        Some(v) => v.len() == n && v.iter().enumerate().all(|(i, &x)| i == x),
+fn verify(
+    orig: &Circuit,
+    output: &Circuit,
+    initial: &Option<Vec<usize>>,
+    final_layout: &Option<Vec<usize>>,
+) -> VerifyResult {
+    let initial = initial
+        .clone()
+        .unwrap_or_else(|| (0..orig.num_qubits).collect());
+    let final_layout = final_layout
+        .clone()
+        .unwrap_or_else(|| (0..output.num_qubits).collect());
+    let config = VerificationConfig {
+        max_exact_qubits: EXACT_MAX_QUBITS,
+        samples: if output.num_qubits >= 18 {
+            2
+        } else {
+            VERIFY_SAMPLES
+        },
+        seed: VERIFY_SEED,
+        ..VerificationConfig::default()
+    };
+    match verify_equivalence_with_layout_configured(orig, output, &initial, &final_layout, &config)
+    {
+        Ok(Verdict::ExactlyEquivalent { fidelity }) => VerifyResult {
+            class: "NumericalOperator",
+            fidelity: Some(fidelity),
+            verified: true,
+            method: "full floating-point operator comparison, including layout and clean ancillas"
+                .into(),
+        },
+        Ok(Verdict::StatisticallyEquivalent {
+            min_fidelity,
+            samples,
+        }) => VerifyResult {
+            class: "Sampled",
+            fidelity: Some(min_fidelity),
+            verified: true,
+            method: format!("{samples} seeded Haar inputs; numerical evidence, not proof"),
+        },
+        Ok(Verdict::NotEquivalent { fidelity, method }) => VerifyResult {
+            class: "NotEquivalent",
+            fidelity: Some(fidelity),
+            verified: false,
+            method: method.into(),
+        },
+        Ok(Verdict::Unverifiable { reason }) => VerifyResult {
+            class: "Unverifiable",
+            fidelity: None,
+            verified: false,
+            method: reason,
+        },
+        Err(error) => VerifyResult {
+            class: "Unverifiable",
+            fidelity: None,
+            verified: false,
+            method: error.to_string(),
+        },
     }
 }
 
-fn verify(
-    orig: &Circuit,
-    transpiled: &Circuit,
-    initial_layout: &Option<Vec<usize>>,
-    final_layout: &Option<Vec<usize>>,
-) -> VerifyResult {
-    let n_log = orig.num_qubits;
-    let n_phys = transpiled.num_qubits;
-    let identity =
-        n_phys == n_log && is_identity(initial_layout, n_log) && is_identity(final_layout, n_log);
-
-    if identity {
-        // No routing permutation: a direct comparison is valid.
-        if n_log <= EXACT_MAX_QUBITS {
-            match (
-                try_circuit_to_unitary(orig),
-                try_circuit_to_unitary(transpiled),
-            ) {
-                (Ok(u1), Ok(u2)) => {
-                    let fid = unitary_fidelity(&u1, &u2);
-                    let ok = (fid - 1.0).abs() < 1e-9;
-                    VerifyResult {
-                        class: if ok { "Exact" } else { "NotEquivalent" },
-                        fidelity: Some(fid),
-                        verified: ok,
-                        method: "exact-unitary".into(),
-                    }
-                }
-                _ => VerifyResult {
-                    class: "Unverifiable",
-                    fidelity: None,
-                    verified: false,
-                    method: "exact-unitary-failed".into(),
-                },
-            }
-        } else if n_log <= SAMPLE_MAX_QUBITS {
-            // Decompose the source so the sampler never sees a >2-qubit gate it
-            // cannot embed at this width (e.g. the 16-qubit adder's Toffolis);
-            // use fewer Haar samples for wide circuits (each is 2^{-n/2}-tight).
-            let orig2 = decompose_basis(orig);
-            let samples = if n_log >= 18 { 2 } else { VERIFY_SAMPLES };
-            match equivalence_by_sampling(&orig2, transpiled, samples, VERIFY_SEED) {
-                Ok(min_fid) => {
-                    let ok = (min_fid - 1.0).abs() < 1e-6;
-                    VerifyResult {
-                        class: if ok { "Statistical" } else { "NotEquivalent" },
-                        fidelity: Some(min_fid),
-                        verified: ok,
-                        method: format!("statistical-{samples}-haar"),
-                    }
-                }
-                Err(e) => VerifyResult {
-                    class: "Unverifiable",
-                    fidelity: None,
-                    verified: false,
-                    method: format!("sampling-error: {e}"),
-                },
-            }
-        } else {
-            VerifyResult {
-                class: "Unverifiable",
-                fidelity: None,
-                verified: false,
-                method: format!("{n_log} qubits exceeds sampling limit {SAMPLE_MAX_QUBITS}"),
-            }
-        }
+fn verification_status(v: &VerifyResult) -> &'static str {
+    if v.verified {
+        "ok"
+    } else if v.class == "NotEquivalent" {
+        "incorrect"
+    } else if v.class == "Skipped" {
+        "unchecked"
     } else {
-        // Routing applied a layout permutation and/or widened the register.
-        // The only layout-aware primitive we have needs the full routed
-        // unitary, so this is feasible only for small physical widths.
-        if n_phys <= EXACT_MAX_QUBITS {
-            let init = initial_layout
-                .clone()
-                .unwrap_or_else(|| (0..n_log).collect());
-            let fin = final_layout
-                .clone()
-                .unwrap_or_else(|| (0..n_phys).collect());
-            match (
-                try_circuit_to_unitary(orig),
-                try_circuit_to_unitary(transpiled),
-            ) {
-                (Ok(u_orig), Ok(u_routed)) => {
-                    let u_log = extract_logical_unitary(&u_routed, n_log, &init, &fin);
-                    let fid = unitary_fidelity(&u_orig, &u_log);
-                    let ok = (fid - 1.0).abs() < 1e-6;
-                    VerifyResult {
-                        class: if ok { "Exact" } else { "NotEquivalent" },
-                        fidelity: Some(fid),
-                        verified: ok,
-                        method: "exact-layout-aware".into(),
-                    }
-                }
-                _ => VerifyResult {
-                    class: "Unverifiable",
-                    fidelity: None,
-                    verified: false,
-                    method: "layout-aware-unitary-failed".into(),
-                },
-            }
-        } else if n_phys <= LAYOUT_SAMPLE_MAX_QUBITS {
-            // Layout-aware state-vector sampling: O(2^n_phys), certifies routed
-            // circuits well beyond the exact boundary. Fewer Haar samples for
-            // wide circuits (each is already 2^{-n_phys/2} concentrated).
-            let init = initial_layout
-                .clone()
-                .unwrap_or_else(|| (0..n_log).collect());
-            let fin = final_layout
-                .clone()
-                .unwrap_or_else(|| (0..n_phys).collect());
-            let samples = if n_phys >= 18 { 2 } else { VERIFY_SAMPLES };
-            match equivalence_by_sampling_with_layout(
-                orig,
-                transpiled,
-                &init,
-                &fin,
-                samples,
-                VERIFY_SEED,
-            ) {
-                Ok(min_fid) => {
-                    let ok = (min_fid - 1.0).abs() < 1e-6;
-                    VerifyResult {
-                        class: if ok { "Statistical" } else { "NotEquivalent" },
-                        fidelity: Some(min_fid),
-                        verified: ok,
-                        method: format!("statistical-layout-aware-{samples}-haar"),
-                    }
-                }
-                Err(e) => VerifyResult {
-                    class: "Unverifiable",
-                    fidelity: None,
-                    verified: false,
-                    method: format!("layout-aware-sampling-error: {e}"),
-                },
-            }
-        } else {
-            VerifyResult {
-                class: "Unverifiable",
-                fidelity: None,
-                verified: false,
-                method: format!(
-                    "routed width {n_phys} exceeds layout-aware sampling budget \
-                     {LAYOUT_SAMPLE_MAX_QUBITS}"
-                ),
-            }
-        }
+        "unverifiable"
     }
 }
 
@@ -570,47 +333,30 @@ fn main() {
 
     let pre = count(&parsed);
 
-    // --- Stages 2–5 (timed); two PropertySets, exactly as transpile() ---
-    let mut opt_ps = PropertySet::new();
-    let t_opt = Instant::now();
-    let after_opt = stage_logic_opt(&parsed, args.opt, &mut opt_ps);
-    let us_opt = t_opt.elapsed().as_micros() as u64;
-
-    let mut low_ps = PropertySet::new();
-
-    let t_route = Instant::now();
-    let after_route = stage_routing(&after_opt, args.opt, &backend, &mut low_ps);
-    let us_route = t_route.elapsed().as_micros() as u64;
-
-    let t_decomp = Instant::now();
-    let after_decomp = match stage_basis_decomp(&after_route, &mut low_ps) {
-        Ok(c) => c,
-        Err(e) => {
-            emit_error(&mut out, &e);
+    let mut builder = TranspilerConfig::builder()
+        .optimization_level(args.opt)
+        .post_routing_cleanup(args.cleanup)
+        .target_basis(["u", "cx"]);
+    if let Some(backend) = backend {
+        builder = builder.backend(backend);
+    }
+    let t_transpile = Instant::now();
+    let (final_circuit, report) = match transpile_with_report(&parsed, Some(builder.build())) {
+        Ok(result) => result,
+        Err(error) => {
+            emit_error(&mut out, &format!("transpile: {error}"));
             return;
         }
     };
-    let us_decomp = t_decomp.elapsed().as_micros() as u64;
-
-    // Controlled ablation: metrics of the *same* routed+decomposed circuit
-    // before cleanup, so `pre_cleanup` vs `post` isolates the cleanup effect
-    // from routing randomness (the two share one routing).
-    let pre_cleanup = count(&after_decomp);
-
-    let t_clean = Instant::now();
-    let final_circuit = stage_cleanup(&after_decomp, args.opt, args.cleanup, &mut low_ps);
-    let us_clean = t_clean.elapsed().as_micros() as u64;
-
-    // Peak RSS captured *before* verification (which materializes unitaries and
-    // would otherwise dominate the reading). This is the transpilation peak.
+    let us_transpile = t_transpile.elapsed().as_micros() as u64;
+    // Capture process peak before verification allocates simulator memory.
     let peak_rss = peak_rss_bytes();
-
     let post = count(&final_circuit);
-    let us_total = us_parse + us_opt + us_route + us_decomp + us_clean;
+    let us_total = us_parse + us_transpile;
 
     // --- Verification (layout-aware) ---
-    let initial_layout = low_ps.get::<Vec<usize>>("initial_layout").cloned();
-    let final_layout = low_ps.get::<Vec<usize>>("final_layout").cloned();
+    let initial_layout = report.initial_layout;
+    let final_layout = report.final_layout;
     let v = if args.no_verify {
         VerifyResult {
             class: "Skipped",
@@ -622,7 +368,9 @@ fn main() {
         verify(&parsed, &final_circuit, &initial_layout, &final_layout)
     };
 
-    out["status"] = json!("ok");
+    out["schema_version"] = json!(2);
+    out["compiled"] = json!(true);
+    out["status"] = json!(verification_status(&v));
     out["pre"] = json!({
         "gates": pre.gates, "cx": pre.cx, "two_q": pre.two_q, "depth": pre.depth,
     });
@@ -630,15 +378,11 @@ fn main() {
         "gates": post.gates, "cx": post.cx, "two_q": post.two_q,
         "swaps": post.swaps, "depth": post.depth, "num_qubits": final_circuit.num_qubits,
     });
-    out["pre_cleanup"] = json!({
-        "gates": pre_cleanup.gates, "cx": pre_cleanup.cx, "depth": pre_cleanup.depth,
-    });
     out["cx_reduction_pct"] = pct_reduction(pre.cx, post.cx);
     out["two_q_reduction_pct"] = pct_reduction(pre.two_q, post.two_q);
     out["depth_reduction_pct"] = pct_reduction(pre.depth, post.depth);
     out["timing_us"] = json!({
-        "parse": us_parse, "logic_opt": us_opt, "routing": us_route,
-        "basis_decomp": us_decomp, "cleanup": us_clean, "total": us_total,
+        "parse": us_parse, "transpile": us_transpile, "total": us_total,
     });
     out["peak_rss_bytes"] = json!(peak_rss);
     out["verification"] = json!({
@@ -664,4 +408,25 @@ fn emit_error(out: &mut Value, msg: &str) {
     out["status"] = json!("error");
     out["error"] = json!(msg);
     println!("{out}");
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn nonpassing_verification_never_reports_success() {
+        for (class, expected) in [
+            ("NotEquivalent", "incorrect"),
+            ("Skipped", "unchecked"),
+            ("Unverifiable", "unverifiable"),
+        ] {
+            let result = VerifyResult {
+                class,
+                fidelity: None,
+                verified: false,
+                method: String::new(),
+            };
+            assert_eq!(verification_status(&result), expected);
+        }
+    }
 }
