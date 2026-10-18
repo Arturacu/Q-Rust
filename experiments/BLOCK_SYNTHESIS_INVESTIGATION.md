@@ -3,7 +3,7 @@
 The new O3 pass closes the W-state CX gap on all-to-all and line targets, but
 it does **not** close the QFT-14 linear-target gap. It is a measured trade-off:
 less entangling work, more synthesis time, and sometimes more single-qubit gates
-or depth. This investigation extends the immutable
+or depth. This investigation extends the historical
 [routing study](ROUTING_INVESTIGATION.md) and uses its same corrected fixtures
 and comparator recipes. See [exact compact results](block_results_20261016.json)
 and [all primary cells](block_cells_20261016.csv).
@@ -33,7 +33,7 @@ of decomposing its axes separately. Stable ZYZ phase extraction fixes an actual
 near-diagonal conditioning failure exposed by an independent W-transfer test.
 No acceptance tolerance was loosened. Reduced-CX candidates use a `1e-12`
 internal reconstruction limit, with a full three-CX fallback at `1e-10`.
-These are implementations of established synthesis results, not new theorems:
+The synthesis follows established results from
 [Vatan and Williams](https://arxiv.org/abs/quant-ph/0308006) and
 [Shende, Bullock and Markov](https://arxiv.org/abs/quant-ph/0308045).
 
@@ -108,7 +108,8 @@ first-session timing spread, measured **1.3116** (1.2348–1.3981). The full new
 compiler versus the saved old compiler cost 1.2918 and 1.2781 times as much in
 those respective sessions. New code with the pass disabled left CX, total gate
 count and depth unchanged in every case; its aggregate timing interval includes
-parity. Do not attribute all timing changes to shared KAK code or Rust.
+parity. These measurements do not isolate the timing effects of shared KAK code
+or the implementation language.
 
 Total gate count increased by a geometric factor of **1.0418** (1.0062–1.0832),
 and depth by **1.0143** (1.0001–1.0307). Total gates increased on 18 cases;
@@ -151,8 +152,8 @@ Qiskit still wins this QFT case in both time and CX. For W-14 all-to-all all
 four compilers now use 26 CX, but Q-Rust depth is 65 versus 53 for all three
 baselines. On W-14 line Q-Rust/Qiskit/TKET have 26 CX; Cirq has 47. The primary
 line timings were 0.818, 3.547, 175.929 and 456.233 ms respectively. W-14
-all-to-all showed much larger timing spread and must not be silently replaced
-with the line case: its Q-Rust median was 2.817 ms and Qiskit's 36.264 ms.
+all-to-all showed much larger timing spread than the line case: its Q-Rust
+median was 2.817 ms and Qiskit's 36.264 ms.
 All medians and ranges remain in the cell table.
 
 The separate alternative-recipe campaign still favors Q-Rust in compilation
@@ -190,33 +191,33 @@ Separate diagnostic pass profiles (excluded from headline timing) measured
 3.241 ms / 2.88% for Clifford-12 line, with five accepted replacements.
 Profiled QASM, layouts and counters exactly match the uninstrumented outputs.
 
-## Timing limits and publication implications
+## Timing limits and scope
 
-All local builds, simulations, rendering and other agent compute were paused
+All local builds, simulations, rendering and other compute tasks were paused
 while timing. The desktop's OS/background load, frequency and scheduling were
 not controlled. QFT-14 pass-on medians were 267.76 ms in the first revision run,
 50.18 ms in the primary campaign, and 52.52 ms in the retained revision repeat.
 The repeat strengthens the aggregate overhead observation, but does not repair
-primary session noise. Keep campaigns separate, retain all ranges and avoid
-precise deployment latency claims. The 2,000-draw fixture-cluster intervals
-resample related topology cases together; they do not model host/session noise.
+primary session noise. The campaigns remain separate, with all timing ranges
+retained; they do not establish precise deployment latency. The 2,000-draw
+fixture-cluster intervals resample related topology cases together; they do not
+model host/session noise.
 
-A defensible result is: on this fixed small-circuit corpus and specified
-recipes, bounded block synthesis reduces CX while preserving independent
-numerical equivalence checks and Q-Rust's aggregate compilation speed advantage.
+On this fixed small-circuit corpus and specified recipes, bounded block
+synthesis reduces CX while preserving independent numerical equivalence checks
+and Q-Rust's aggregate compilation speed advantage.
 It closes a diagnosed W-state gap, quantifies the price in compile time and
 local gates, and establishes why this particular local intervention cannot
 close the QFT gap. It does not establish whole-circuit optimality, Rust as the
-cause of speed, broad hardware quality or a novel synthesis algorithm.
+cause of speed or broad hardware quality.
 
-Before publication, prioritize an untouched external circuit holdout, broader
-widths/topologies, matched-cost Pareto comparisons, controlled repeated sessions
-and another machine. For implementation, investigate local-gate/depth-aware
-selection or cleanup for W, and routing/partition objectives that account for
-post-synthesis CX for QFT. The current corpus motivated the intervention and
-must be described as development evidence. These results strengthen a careful
-compiler engineering/evaluation paper; they are not sufficient on their own
-for a general algorithmic superiority claim.
+The current corpus motivated the intervention and provides development
+evidence. Generalization remains untested on an untouched external circuit
+holdout and broader widths/topologies. Matched-cost Pareto comparisons,
+controlled repeated sessions and another machine would help distinguish
+search-budget and machine effects. Potential implementation improvements
+include local-gate/depth-aware selection or cleanup for W, and routing/partition
+objectives that account for post-synthesis CX for QFT.
 
 ## Reproduction and artifacts
 
@@ -234,6 +235,6 @@ routing study. Do not rerun into existing raw-output directories.
 `Q_Rust_Block_Synthesis_Investigation_20261016.zip` retains all five campaigns,
 raw QASM and trials, validation, summary audits, exact binaries, frozen source,
 design declarations, generated stress suite, classification and profile
-diagnostics, figures and the updated publication plan. Its manifest hashes
+diagnostics and figures. Its manifest hashes
 every payload. The post-results session repeat remains explicitly labeled;
 none of the original campaigns or earlier bundles was overwritten.

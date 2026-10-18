@@ -104,8 +104,8 @@ all exclusions and failures remain in the denominator report. Confidence
 intervals resample **fixtures**, keeping their topology cases together. They
 describe sensitivity within this in-house corpus, not an unseen population.
 
-Use “within X% of the best observed baseline median” when reporting descriptive
-cost margins. No tested baseline establishes the optimum. Runtime measurements
+Descriptive cost margins are measured relative to the best observed baseline
+median. No tested baseline establishes the optimum. Runtime measurements
 cannot isolate a language effect: Qiskit already contains native Rust code and
 TKET has a C++ core. Memory, deployment size, cold start, external holdout
 circuits, directed native targets and equal-search-budget comparisons require

@@ -474,9 +474,9 @@ def narrative(summary):
         quality = tails["worst_cx_count"][0]
         speed = tails["slowest_relative_cases"][0]
         lines.append(f"| {tool} | {quality['case_id']} | {quality['qrust']['cx_count']} / {quality['baseline']['cx_count']} | {speed['case_id']} | {speed['compile_speed_ratio']:.3g} |")
-    lines += ["", "## What the evidence supports", "",
+    lines += ["", "## Measurement scope", "",
               "The measurements support comparisons of the specified compiler recipes on these corrected, static circuits and target graphs, under the recorded single-machine conditions. "
-              "Any speed claim should quote the paired ratio and name this scope. Any compactness claim should name CX count or depth and include the loss cases. "
+              "Speed is summarized by paired runtime ratios; output size and depth are reported separately, including cases where Q-Rust performs worse. "
               "The per-family and per-topology tables can identify useful subsets, but a subset selected after viewing these results is exploratory and needs a separate confirmation corpus.", "",
               "The experiment does not isolate the effect of Rust: the tools differ in algorithms, search effort, representations and API overhead, and competitors have native implementations. "
               "Seven trials equalize repetitions, not optimization work or runtime budgets. These recipes are documented choices, not a search over every available competitor pipeline. "
