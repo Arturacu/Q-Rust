@@ -1,0 +1,57 @@
+{
+  "passed": true,
+  "scope": "Fresh safe extraction of all four hash-bound archives; full new-study and cross-run analysis rerun using only extracted evidence",
+  "archives": {
+    "retention": {
+      "archive_sha256": "9a42db714c9d5a294eb285aec3bcb0ad84286836af756b265ce2a5361e832cec",
+      "payload_files": 107
+    },
+    "baseline_routing": {
+      "archive_sha256": "39d4d8a5ab9e70e642c6e56de7bfca5ffd13a99bbaa59ad0fe9767084380b6c2",
+      "payload_files": 100
+    },
+    "baseline_compatibility": {
+      "archive_sha256": "edd32f94666b28c2c101cfe0487950c327e4f848cff001e39fb3da7e91ac2e1d",
+      "payload_files": 62
+    },
+    "baseline_original": {
+      "archive_sha256": "d45176c9cbcf1c7645dfed44a343ec704fb34b9ab55002dcef4c62248285716f",
+      "payload_files": 368
+    }
+  },
+  "outputs": [
+    {
+      "path": "study/analysis/external_summary.json",
+      "sha256": "73a1ca16aa41e28bbee44b7c50d10088ab7f50a90a6d400b0949402f5f6d7145",
+      "byte_identical": true
+    },
+    {
+      "path": "study/analysis/session_1_primary_cells.csv",
+      "sha256": "d978338c0dfac2f3c3a5b8620f07758a8b4d5720859a2a5edfc8dffe06f58cfa",
+      "byte_identical": true
+    },
+    {
+      "path": "study/analysis/session_1_light_cells.csv",
+      "sha256": "2777cee97cdefec5706b915bc8e6be07ab14ba2a3ebeaf47ca770c4fa5ee2be1",
+      "byte_identical": true
+    },
+    {
+      "path": "study/analysis/session_2_primary_cells.csv",
+      "sha256": "df8168a010e7e0d544b2ace7cfe957722d3300ab5ac81bc8f798cdd1257aeede",
+      "byte_identical": true
+    },
+    {
+      "path": "study/analysis/session_2_light_cells.csv",
+      "sha256": "3804de338894ee7a12870baed82dfa873c08dc7eed0165af0d34b5325fecf457",
+      "byte_identical": true
+    },
+    {
+      "path": "retention_analysis/retention_comparison.json",
+      "sha256": "d2f6b5be02d50d9a36ffa956bcb1c23875ce63a856ae8c8f4b5e9d3205d0acac",
+      "byte_identical": true
+    }
+  ],
+  "bootstrap_draws": 2000,
+  "sessions_analyzed_separately": true,
+  "script_sha256": "766937d67d416c37bb5fb3da14930afa23753af1b912cbe1ce067496d2ee8b0f"
+}

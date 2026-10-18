@@ -1,0 +1,36 @@
+{
+  "max_residual": 4.5309512666641535e-09,
+  "oracle_sha256": "55de70f9fe47d9fcaeb1497bd04b377e5582afc9289e6948dc6c32ebe5bda6d4",
+  "protocol_sha256": "796370eec57ba02935171dd974db0a21064ee2a8c8770a435bbe00dd126c371e",
+  "sessions": [
+    {
+      "counts": {
+        "cirq_one_pass_passed": 700,
+        "cirq_passed": 700,
+        "qiskit_passed": 700,
+        "qrust_passed": 700,
+        "tket_light_passed": 700,
+        "tket_passed": 700
+      },
+      "session": "session_01",
+      "validated_sha256": "341a8376447ed9c2dbdfb2444be6b8fc3e96a112ec83c4abffbfbf25aac97032"
+    },
+    {
+      "counts": {
+        "cirq_one_pass_passed": 700,
+        "cirq_passed": 700,
+        "qiskit_passed": 700,
+        "qrust_passed": 700,
+        "tket_light_passed": 700,
+        "tket_passed": 700
+      },
+      "session": "session_02",
+      "validated_sha256": "55af4b2867b82f694d0c0a261e6ac60f6e35e684fd1fff9b8fe61338526c5eb2"
+    }
+  ],
+  "unique_artifacts": 630,
+  "unique_evidence_classes": {
+    "full_isometry": 423,
+    "sampled_isometry": 207
+  }
+}
