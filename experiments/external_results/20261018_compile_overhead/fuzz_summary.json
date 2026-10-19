@@ -1,0 +1,24 @@
+{
+  "baseline_output_parity_checks": 128,
+  "baseline_output_parity_passed": 128,
+  "comparisons_sha256": "53117e08459155b03f24f3822a7da4fce9f3592584048ce69006149cce7b906c",
+  "compiled_outputs": 384,
+  "expected_retention_comparisons": 91,
+  "failures": [],
+  "fixtures": 64,
+  "full_isometry_checks": 384,
+  "maximum_input_residual": 4.579504770221121e-15,
+  "parity_excluded_fields": [
+    "compile_ns",
+    "parse_ns",
+    "pass_diagnostics"
+  ],
+  "passed": true,
+  "provenance_sha256": "cf5e66ab41215bb52c0f265927527ccc78fd5b80a8cb81089b44fcf52b675ec8",
+  "records_sha256": "32cd5838588d338d39c7817b229fb39dd38f399c41c9c90f3de6e7623ce49857",
+  "relative_phase_negative_controls": 128,
+  "retention_comparisons": 91,
+  "schema": 1,
+  "selected_retained_inputs": 46,
+  "topologies": 2
+}

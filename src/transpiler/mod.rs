@@ -28,6 +28,7 @@ pub use report::{PassDiagnostic, StageSnapshot, TranspilationReport};
 use crate::error::{QRustError, Result};
 use crate::ir::{Circuit, GateDefinition, GateType, Operation};
 use pass::{Pass, PassManager};
+use std::cell::OnceCell;
 use std::collections::HashSet;
 
 /// Independently configurable routing policies for reproducible search ablations.
@@ -84,7 +85,8 @@ pub struct TranspilerConfig {
     /// At level 3, retain a bounded set of routing alternatives and accept
     /// only final-output Pareto improvements in two-qubit count and depths.
     /// When cross-block Clifford rewrites run before routing, also retain one
-    /// independently routed and lowered continuation without those rewrites.
+    /// separately lowered continuation without those rewrites. Identical
+    /// prepared routing inputs may reuse one immutable routing checkpoint.
     /// Disable for a matched comparison with the single-route pipeline.
     pub retain_routing_candidates: bool,
 
@@ -457,6 +459,10 @@ impl Pass for NativeBasisTranslationPass {
 enum Stage {
     /// Optimization passes (levels 1–2 entries).
     Optimize,
+    /// Logical permutations, exact Clifford rewrites and high-arity expansion.
+    PrepareRouting,
+    /// Original unsplit path when no continuation can reuse routing.
+    PrepareAndRoute,
     /// Layout and routing, stopping before output-permutation composition.
     LayoutAndRoute,
     /// Final maps, basis translation, decomposition and post-routing cleanup.
@@ -799,8 +805,8 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                 }
             }
         }
-        Stage::LayoutAndRoute => {
-            if let Some(ref backend) = config.backend {
+        Stage::PrepareRouting | Stage::PrepareAndRoute | Stage::LayoutAndRoute => {
+            if config.backend.is_some() && stage != Stage::LayoutAndRoute {
                 // Multi-qubit gates (e.g. CCX) must be reduced to ≤2-qubit
                 // operations before routing: the SWAP router cannot make a
                 // 3-qubit interaction adjacent and would otherwise corrupt the
@@ -817,7 +823,12 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
                     }
                 }
                 pm.add_pass(Box::new(decomposition::HighArityDecompositionPass));
-
+            }
+            if let Some(backend) = config
+                .backend
+                .as_ref()
+                .filter(|_| stage != Stage::PrepareRouting)
+            {
                 if config.optimization_level >= 2 {
                     // More trials remain available explicitly. On the
                     // development corpus, 10×3 matched 50×5 output exactly;
@@ -934,6 +945,215 @@ fn build_pass_manager_for(config: &TranspilerConfig, stage: Stage) -> Result<Pas
 struct LoweredCandidate {
     circuit: Circuit,
     properties: property_set::PropertySet,
+    // Lowered candidates are immutable. Cache unavailable costs too, and do
+    // not scan a single candidate when no comparison ever needs its cost.
+    cost: OnceCell<Option<[usize; 3]>>,
+}
+
+impl LoweredCandidate {
+    fn output_cost(&self) -> Option<[usize; 3]> {
+        *self
+            .cost
+            .get_or_init(|| candidate_selection::output_cost(&self.circuit))
+    }
+}
+
+fn prefer_lowered(
+    candidate: &LoweredCandidate,
+    current: &LoweredCandidate,
+    reference: &LoweredCandidate,
+) -> bool {
+    match (
+        candidate.output_cost(),
+        current.output_cost(),
+        reference.output_cost(),
+    ) {
+        (Some(candidate), Some(current), Some(reference)) => {
+            candidate_selection::prefer_cost(candidate, current, reference)
+        }
+        _ => false,
+    }
+}
+
+#[derive(PartialEq, Eq)]
+struct RoutingContextKey {
+    logical_permutation: Option<Vec<usize>>,
+    // Bit identity prevents floating metadata from silently merging branches.
+    numerical_budget: (usize, usize, u64, u64),
+    optimization_level: u8,
+    physical_width: Option<usize>,
+    directed_edges: Vec<(usize, usize)>,
+    layout_trials: Option<usize>,
+    layout_iterations: Option<usize>,
+    lookahead_size: usize,
+    lookahead_weight: Option<u64>,
+    rank_progress: bool,
+    commute_diagonal: bool,
+    retain_candidates: bool,
+    elide_output_permutations: bool,
+}
+
+impl RoutingContextKey {
+    fn new(config: &TranspilerConfig, properties: &property_set::PropertySet) -> Self {
+        let budget = numerical_policy::snapshot(properties);
+        Self {
+            logical_permutation: properties
+                .get::<Vec<usize>>("logical_output_permutation")
+                .cloned(),
+            numerical_budget: (
+                budget.accepted,
+                budget.rejected,
+                budget.residual_sum.to_bits(),
+                budget.charged_error.to_bits(),
+            ),
+            optimization_level: config.optimization_level,
+            physical_width: config.backend.as_ref().map(|backend| backend.num_qubits),
+            directed_edges: config.backend.as_ref().map_or_else(Vec::new, |backend| {
+                backend
+                    .coupling_map
+                    .raw_edges()
+                    .iter()
+                    .map(|edge| (edge.source().index(), edge.target().index()))
+                    .collect()
+            }),
+            layout_trials: config.routing_search.layout_trials,
+            layout_iterations: config.routing_search.layout_iterations,
+            lookahead_size: config.routing_search.lookahead_size,
+            lookahead_weight: match config.lookahead_strategy {
+                routing::LookaheadStrategy::Static { weight } => Some(weight.to_bits()),
+                routing::LookaheadStrategy::DynamicV2 => None,
+            },
+            rank_progress: config.routing_search.rank_progress,
+            commute_diagonal: config.optimization_level >= 3
+                && config.routing_search.commute_diagonal,
+            retain_candidates: config.retain_routing_candidates
+                && config.optimization_level >= 3
+                && config.decompose_basis,
+            elide_output_permutations: config.routing_search.elide_output_permutations,
+        }
+    }
+}
+
+/// Circuit equality normally considers +0 and -0 equal. Route reuse promises
+/// identical inputs, including parameter bits and custom-definition literals.
+fn same_circuit_bits(left: &Circuit, right: &Circuit) -> bool {
+    use crate::ir::ast::{Expr, ParsedStatement};
+    fn expr_bits(left: &Expr, right: &Expr) -> bool {
+        match (left, right) {
+            (Expr::Float(a), Expr::Float(b)) => a.to_bits() == b.to_bits(),
+            (Expr::Var(a), Expr::Var(b)) => a == b,
+            (Expr::Add(a, b), Expr::Add(c, d))
+            | (Expr::Sub(a, b), Expr::Sub(c, d))
+            | (Expr::Mul(a, b), Expr::Mul(c, d))
+            | (Expr::Div(a, b), Expr::Div(c, d)) => expr_bits(a, c) && expr_bits(b, d),
+            _ => false,
+        }
+    }
+    fn statement_bits(left: &ParsedStatement, right: &ParsedStatement) -> bool {
+        if left != right {
+            return false;
+        }
+        match (left, right) {
+            (ParsedStatement::Gate(_, _, a), ParsedStatement::Gate(_, _, b)) => {
+                a.iter().zip(b).all(|(a, b)| expr_bits(a, b))
+            }
+            (ParsedStatement::GateDef(_, _, _, a), ParsedStatement::GateDef(_, _, _, b)) => {
+                a.iter().zip(b).all(|(a, b)| statement_bits(a, b))
+            }
+            (ParsedStatement::If(_, _, a), ParsedStatement::If(_, _, b)) => statement_bits(a, b),
+            _ => true,
+        }
+    }
+    left == right
+        && left
+            .operations
+            .iter()
+            .zip(&right.operations)
+            .all(|(a, b)| match (a, b) {
+                (Operation::Gate { params: a, .. }, Operation::Gate { params: b, .. }) => {
+                    a.iter().zip(b).all(|(a, b)| a.to_bits() == b.to_bits())
+                }
+                // Prepared routing inputs contain only gates and barriers. Do not
+                // extend reuse to unsupported/dynamic operations by assumption.
+                (Operation::Barrier { .. }, Operation::Barrier { .. }) => true,
+                _ => false,
+            })
+        && left.custom_gates.defs.iter().all(|(name, definition)| {
+            let other = &right.custom_gates.defs[name];
+            definition
+                .body
+                .iter()
+                .zip(&other.body)
+                .all(|(a, b)| statement_bits(a, b))
+        })
+}
+
+struct RoutingCheckpoint {
+    prepared: Circuit,
+    context: RoutingContextKey,
+    routed: Circuit,
+    initial_layout: Option<Vec<usize>>,
+    final_layout: Option<Vec<usize>>,
+    swaps_inserted: Option<usize>,
+    alternatives: Vec<routing::RoutingOutputCandidate>,
+}
+
+impl RoutingCheckpoint {
+    fn capture(
+        prepared: &Circuit,
+        context: RoutingContextKey,
+        routed: &Circuit,
+        properties: &property_set::PropertySet,
+    ) -> Self {
+        Self {
+            prepared: prepared.clone(),
+            context,
+            routed: routed.clone(),
+            initial_layout: properties.get::<Vec<usize>>("initial_layout").cloned(),
+            final_layout: properties.get::<Vec<usize>>("final_layout").cloned(),
+            swaps_inserted: properties.get::<usize>("swaps_inserted").copied(),
+            alternatives: properties
+                .get::<Vec<routing::RoutingOutputCandidate>>("routing_output_candidates")
+                .cloned()
+                .unwrap_or_default(),
+        }
+    }
+
+    fn restore(&self, properties: &mut property_set::PropertySet) -> Circuit {
+        // Only routing outputs cross this boundary. The new branch keeps its
+        // own prefix ledger, logical permutation and Clifford diagnostics.
+        if let Some(value) = &self.initial_layout {
+            properties.insert("initial_layout", value.clone());
+        }
+        if let Some(value) = &self.final_layout {
+            properties.insert("final_layout", value.clone());
+        }
+        if let Some(value) = self.swaps_inserted {
+            properties.insert("swaps_inserted", value);
+        }
+        properties.insert("routing_output_candidates", self.alternatives.clone());
+        properties.insert("layout_route_evaluations", 0usize);
+        self.routed.clone()
+    }
+}
+
+struct RoutingReuse {
+    enabled: bool,
+    checkpoints: Vec<RoutingCheckpoint>,
+}
+
+impl RoutingReuse {
+    fn new(config: &TranspilerConfig) -> Self {
+        Self {
+            enabled: config.retain_routing_candidates
+                && config.optimization_level >= 3
+                && config.decompose_basis
+                && config.backend.is_some()
+                && config.routing_search.elide_output_permutations
+                && config.clifford_simplification,
+            checkpoints: Vec::new(),
+        }
+    }
 }
 
 fn run_stage(
@@ -986,6 +1206,7 @@ fn lower_candidate(
     Ok(LoweredCandidate {
         circuit: output,
         properties: manager.property_set,
+        cost: OnceCell::new(),
     })
 }
 
@@ -996,25 +1217,89 @@ fn route_and_lower(
     terminal: &[Operation],
     label: &str,
     diagnostics: &mut Vec<PassDiagnostic>,
+    reuse: &mut RoutingReuse,
 ) -> Result<Vec<LoweredCandidate>> {
-    let mut router = build_pass_manager_for(config, Stage::LayoutAndRoute)?;
-    numerical_policy::fork(prefix_properties, &mut router.property_set);
+    let stage = if reuse.enabled {
+        Stage::PrepareRouting
+    } else {
+        Stage::PrepareAndRoute
+    };
+    let mut preparation = build_pass_manager_for(config, stage)?;
+    numerical_policy::fork(prefix_properties, &mut preparation.property_set);
     if let Some(stats) = prefix_properties
         .get::<clifford_simplification::CliffordSimplificationStats>(
             "clifford_simplification_stats",
         )
     {
-        router
+        preparation
             .property_set
             .insert("clifford_simplification_stats", stats.clone());
     }
-    let routed = run_stage(
-        &mut router,
+    let prepared = run_stage(
+        &mut preparation,
         after_opt,
         config.profile_passes,
         label,
         diagnostics,
     )?;
+    let mut router = if reuse.enabled {
+        let mut router = build_pass_manager_for(config, Stage::LayoutAndRoute)?;
+        router.property_set = preparation.property_set;
+        router
+    } else {
+        preparation
+    };
+    let context = reuse
+        .enabled
+        .then(|| RoutingContextKey::new(config, &router.property_set));
+    let checkpoint = context.as_ref().and_then(|context| {
+        reuse.checkpoints.iter().find(|checkpoint| {
+            checkpoint.context == *context && same_circuit_bits(&checkpoint.prepared, &prepared)
+        })
+    });
+    let routed = if !reuse.enabled {
+        // Keep the original single stage and its copy count when reuse cannot
+        // be useful (lower levels, opt-outs, no backend, or no Clifford pass).
+        prepared
+    } else if let Some(checkpoint) = checkpoint {
+        let started = config.profile_passes.then(std::time::Instant::now);
+        let output = checkpoint.restore(&mut router.property_set);
+        if let Some(started) = started {
+            let elapsed_ns = started.elapsed().as_nanos() as u64;
+            let name = if label.is_empty() {
+                "ReuseRoutingCheckpoint".to_owned()
+            } else {
+                format!("{label}::ReuseRoutingCheckpoint")
+            };
+            diagnostics.push(PassDiagnostic {
+                elapsed_ns,
+                layout_route_evaluations: Some(0),
+                output: StageSnapshot::capture(name, &output),
+            });
+        }
+        output
+    } else {
+        let output = run_stage(
+            &mut router,
+            &prepared,
+            config.profile_passes,
+            label,
+            diagnostics,
+        )?;
+        if let Some(context) = context {
+            // There are at most two route policies in each of the primary and
+            // pre-Clifford continuations. Keep this cache local and bounded.
+            if reuse.checkpoints.len() < 4 {
+                reuse.checkpoints.push(RoutingCheckpoint::capture(
+                    &prepared,
+                    context,
+                    &output,
+                    &router.property_set,
+                ));
+            }
+        }
+        output
+    };
     let alternatives = router
         .property_set
         .remove::<Vec<routing::RoutingOutputCandidate>>("routing_output_candidates")
@@ -1071,6 +1356,24 @@ fn finish_compilation(
     terminal: &[Operation],
     diagnostics: &mut Vec<PassDiagnostic>,
 ) -> Result<LoweredCandidate> {
+    finish_compilation_with_reuse(
+        after_opt,
+        prefix_properties,
+        config,
+        terminal,
+        diagnostics,
+        &mut RoutingReuse::new(config),
+    )
+}
+
+fn finish_compilation_with_reuse(
+    after_opt: &Circuit,
+    prefix_properties: &property_set::PropertySet,
+    config: &TranspilerConfig,
+    terminal: &[Operation],
+    diagnostics: &mut Vec<PassDiagnostic>,
+    reuse: &mut RoutingReuse,
+) -> Result<LoweredCandidate> {
     let mut candidates = route_and_lower(
         after_opt,
         prefix_properties,
@@ -1078,6 +1381,7 @@ fn finish_compilation(
         terminal,
         "",
         diagnostics,
+        reuse,
     )?;
     let retain_local = config.retain_routing_candidates
         && config.optimization_level >= 3
@@ -1098,6 +1402,7 @@ fn finish_compilation(
             terminal,
             "retained-input",
             diagnostics,
+            reuse,
         ) {
             Ok(retained) => candidates.extend(retained),
             Err(error) => warn_diagnostic(format_args!("discarded retained input: {error}")),
@@ -1108,11 +1413,7 @@ fn finish_compilation(
     // could make the result depend on which candidate happened to run first.
     let mut best = 0;
     for index in 1..candidates.len() {
-        if candidate_selection::prefer_output(
-            &candidates[index].circuit,
-            &candidates[best].circuit,
-            &candidates[0].circuit,
-        ) {
+        if prefer_lowered(&candidates[index], &candidates[best], &candidates[0]) {
             best = index;
         }
     }
@@ -1140,21 +1441,23 @@ fn finish_compilation(
         && config.clifford_simplification;
     if let Some(attempted_simplification) = attempted_simplification.filter(|_| retain_pre_clifford)
     {
-        let rewritten_output_cost = candidate_selection::output_cost(&candidates[best].circuit)
+        let rewritten_output_cost = candidates[best]
+            .output_cost()
             .expect("validated lowered output has a structural cost");
         let mut retained_config = config.clone();
         retained_config.clifford_simplification = false;
         let first_diagnostic = diagnostics.len();
-        // Share only the optimization prefix. This continuation owns its
-        // numerical ledger, logical permutation, physical maps and cleanup
-        // counters. Disabling this one pass bounds the extra compilation and
-        // prevents recursion through this retention boundary.
-        let retained = finish_compilation(
+        // Share the optimization prefix, and reuse routing only when its full
+        // prepared input and context match. This continuation still owns its
+        // ledger, logical permutation, physical maps and all lowering counters.
+        // Disabling this one pass prevents recursive quality continuations.
+        let retained = finish_compilation_with_reuse(
             after_opt,
             prefix_properties,
             &retained_config,
             terminal,
             diagnostics,
+            reuse,
         );
         for entry in &mut diagnostics[first_diagnostic..] {
             entry.output.stage = format!("pre-clifford-input::{}", entry.output.stage);
@@ -1169,7 +1472,8 @@ fn finish_compilation(
         };
         match retained {
             Ok(retained) => {
-                let retained_cost = candidate_selection::output_cost(&retained.circuit)
+                let retained_cost = retained
+                    .output_cost()
                     .expect("validated retained output has a structural cost");
                 stats.retained_output_cost = Some(retained_cost);
                 let reference = candidates.len();
@@ -1179,18 +1483,18 @@ fn finish_compilation(
                 // rewrites, not an intermediate routing score or a moving
                 // winner. Reconsider every rewritten route against it.
                 for index in 0..reference {
-                    if candidate_selection::prefer_output(
-                        &candidates[index].circuit,
-                        &candidates[best].circuit,
-                        &candidates[reference].circuit,
+                    if prefer_lowered(
+                        &candidates[index],
+                        &candidates[best],
+                        &candidates[reference],
                     ) {
                         best = index;
                     }
                 }
                 stats.selected_retained_input = best == reference;
-                stats.selected_output_cost =
-                    candidate_selection::output_cost(&candidates[best].circuit)
-                        .expect("validated selected output has a structural cost");
+                stats.selected_output_cost = candidates[best]
+                    .output_cost()
+                    .expect("validated selected output has a structural cost");
             }
             Err(error) => {
                 stats.retained_compilation_failed = true;
@@ -1318,6 +1622,9 @@ pub fn transpile_with_report(
 
     Ok((final_circuit, report))
 }
+
+#[cfg(test)]
+mod routing_reuse_tests;
 
 #[cfg(test)]
 mod tests {

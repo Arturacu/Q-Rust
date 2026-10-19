@@ -1,0 +1,3481 @@
+{
+  "comparisons": [
+    {
+      "case_id": "mqtbench__ae_n10__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 90,
+          "old": 90
+        },
+        "depth": {
+          "delta": 0,
+          "new": 97,
+          "old": 97
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 244,
+          "old": 244
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 48,
+          "old": 48
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__ae_n10__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 142,
+          "old": 142
+        },
+        "depth": {
+          "delta": 0,
+          "new": 153,
+          "old": 153
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 340,
+          "old": 340
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 89,
+          "old": 89
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__ae_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 20,
+          "old": 20
+        },
+        "depth": {
+          "delta": 0,
+          "new": 37,
+          "old": 37
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 59,
+          "old": 59
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 18,
+          "old": 18
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__ae_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 26,
+          "old": 26
+        },
+        "depth": {
+          "delta": 0,
+          "new": 46,
+          "old": 46
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 71,
+          "old": 71
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 24,
+          "old": 24
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__dj_n10__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        },
+        "depth": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 28,
+          "old": 28
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__dj_n10__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        },
+        "depth": {
+          "delta": 0,
+          "new": 18,
+          "old": 18
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 35,
+          "old": 35
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__dj_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__dj_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        },
+        "depth": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 15,
+          "old": 15
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__grover_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 168,
+          "old": 168
+        },
+        "depth": {
+          "delta": 0,
+          "new": 267,
+          "old": 267
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 380,
+          "old": 380
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 142,
+          "old": 142
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__grover_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 273,
+          "old": 273
+        },
+        "depth": {
+          "delta": 0,
+          "new": 364,
+          "old": 364
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 485,
+          "old": 485
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 239,
+          "old": 239
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qnn_n10__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        },
+        "depth": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 29,
+          "old": 29
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qnn_n10__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        },
+        "depth": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 29,
+          "old": 29
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qnn_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 14,
+          "old": 14
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qnn_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 14,
+          "old": 14
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qpeexact_n10__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 85,
+          "old": 85
+        },
+        "depth": {
+          "delta": 0,
+          "new": 83,
+          "old": 83
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 223,
+          "old": 223
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 41,
+          "old": 41
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qpeexact_n10__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 126,
+          "old": 126
+        },
+        "depth": {
+          "delta": 0,
+          "new": 105,
+          "old": 105
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 314,
+          "old": 314
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 56,
+          "old": 56
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qpeexact_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 19,
+          "old": 19
+        },
+        "depth": {
+          "delta": 0,
+          "new": 35,
+          "old": 35
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 51,
+          "old": 51
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qpeexact_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 29,
+          "old": 29
+        },
+        "depth": {
+          "delta": 0,
+          "new": 40,
+          "old": 40
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 71,
+          "old": 71
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qpeinexact_n10__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 90,
+          "old": 90
+        },
+        "depth": {
+          "delta": 0,
+          "new": 97,
+          "old": 97
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 234,
+          "old": 234
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 48,
+          "old": 48
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qpeinexact_n10__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 134,
+          "old": 134
+        },
+        "depth": {
+          "delta": 0,
+          "new": 115,
+          "old": 115
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 328,
+          "old": 328
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 63,
+          "old": 63
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qpeinexact_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 20,
+          "old": 20
+        },
+        "depth": {
+          "delta": 0,
+          "new": 37,
+          "old": 37
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 54,
+          "old": 54
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 18,
+          "old": 18
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qpeinexact_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 30,
+          "old": 30
+        },
+        "depth": {
+          "delta": 0,
+          "new": 41,
+          "old": 41
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 72,
+          "old": 72
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 23,
+          "old": 23
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qwalk_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 330,
+          "old": 330
+        },
+        "depth": {
+          "delta": 0,
+          "new": 577,
+          "old": 577
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 705,
+          "old": 705
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 318,
+          "old": 318
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__qwalk_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 612,
+          "old": 612
+        },
+        "depth": {
+          "delta": 0,
+          "new": 747,
+          "old": 747
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 1017,
+          "old": 1017
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 498,
+          "old": 498
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__vqe_real_amp_n10__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 27,
+          "old": 27
+        },
+        "depth": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 67,
+          "old": 67
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__vqe_real_amp_n10__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 27,
+          "old": 27
+        },
+        "depth": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 67,
+          "old": 67
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__vqe_real_amp_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "depth": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 32,
+          "old": 32
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__vqe_real_amp_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "depth": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 32,
+          "old": 32
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__vqe_su2_n10__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 27,
+          "old": 27
+        },
+        "depth": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 67,
+          "old": 67
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__vqe_su2_n10__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 27,
+          "old": 27
+        },
+        "depth": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 67,
+          "old": 67
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__vqe_su2_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "depth": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 32,
+          "old": 32
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "mqtbench__vqe_su2_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "depth": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 32,
+          "old": 32
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__adder_n10__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 65,
+          "old": 65
+        },
+        "depth": {
+          "delta": 0,
+          "new": 95,
+          "old": 95
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 134,
+          "old": 134
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 55,
+          "old": 55
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__adder_n10__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 94,
+          "old": 94
+        },
+        "depth": {
+          "delta": 0,
+          "new": 125,
+          "old": 125
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 163,
+          "old": 163
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 84,
+          "old": 84
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__adder_n4__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        },
+        "depth": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 21,
+          "old": 21
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__adder_n4__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        },
+        "depth": {
+          "delta": 0,
+          "new": 15,
+          "old": 15
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 27,
+          "old": 27
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__basis_change_n3__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        },
+        "depth": {
+          "delta": 0,
+          "new": 21,
+          "old": 21
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 33,
+          "old": 33
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__basis_change_n3__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        },
+        "depth": {
+          "delta": 0,
+          "new": 21,
+          "old": 21
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 33,
+          "old": 33
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__basis_test_n4__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        },
+        "depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 34,
+          "old": 34
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__basis_test_n4__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        },
+        "depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 34,
+          "old": 34
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__basis_trotter_n4__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 199,
+          "old": 199
+        },
+        "depth": {
+          "delta": 0,
+          "new": 267,
+          "old": 267
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 541,
+          "old": 541
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 133,
+          "old": 133
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__basis_trotter_n4__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 235,
+          "old": 235
+        },
+        "depth": {
+          "delta": 0,
+          "new": 303,
+          "old": 303
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 627,
+          "old": 627
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 151,
+          "old": 151
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__bell_n4__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "depth": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__bell_n4__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "depth": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__bv_n14__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "depth": {
+          "delta": 0,
+          "new": 15,
+          "old": 15
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 40,
+          "old": 40
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__bv_n14__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 24,
+          "old": 24
+        },
+        "depth": {
+          "delta": 0,
+          "new": 26,
+          "old": 26
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 51,
+          "old": 51
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 24,
+          "old": 24
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__cat_state_n4__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__cat_state_n4__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__deutsch_n2__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__deutsch_n2__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__dnn_n2__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "depth": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__dnn_n2__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "depth": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__dnn_n8__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 64,
+          "old": 64
+        },
+        "depth": {
+          "delta": 0,
+          "new": 33,
+          "old": 33
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 176,
+          "old": 176
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__dnn_n8__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 109,
+          "old": 109
+        },
+        "depth": {
+          "delta": 0,
+          "new": 53,
+          "old": 53
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 251,
+          "old": 251
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 31,
+          "old": 31
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        },
+        "depth": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 26,
+          "old": 26
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__error_correctiond3_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "depth": {
+          "delta": 0,
+          "new": 19,
+          "old": 19
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 39,
+          "old": 39
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__fredkin_n3__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "depth": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 18,
+          "old": 18
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__fredkin_n3__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "depth": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__grover_n2__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__grover_n2__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__hhl_n7__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 92,
+          "old": 92
+        },
+        "depth": {
+          "delta": 0,
+          "new": 151,
+          "old": 151
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 221,
+          "old": 221
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 75,
+          "old": 75
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__hhl_n7__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 195,
+          "old": 195
+        },
+        "depth": {
+          "delta": 0,
+          "new": 240,
+          "old": 240
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 335,
+          "old": 335
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 160,
+          "old": 160
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__hs4_n4__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__hs4_n4__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__ising_n10__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 90,
+          "old": 90
+        },
+        "depth": {
+          "delta": 0,
+          "new": 41,
+          "old": 41
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 235,
+          "old": 235
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 20,
+          "old": 20
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__ising_n10__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 78,
+          "old": 78
+        },
+        "depth": {
+          "delta": 0,
+          "new": 65,
+          "old": 65
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 198,
+          "old": 198
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 32,
+          "old": 32
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__iswap_n2__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__iswap_n2__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__linearsolver_n3__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "depth": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__linearsolver_n3__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "depth": {
+          "delta": 0,
+          "new": 9,
+          "old": 9
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__lpn_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__lpn_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__multiply_n13__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 40,
+          "old": 40
+        },
+        "depth": {
+          "delta": 0,
+          "new": 39,
+          "old": 39
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 92,
+          "old": 92
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 23,
+          "old": 23
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__multiply_n13__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 102,
+          "old": 102
+        },
+        "depth": {
+          "delta": 0,
+          "new": 66,
+          "old": 66
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 154,
+          "old": 154
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 51,
+          "old": 51
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__pea_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "depth": {
+          "delta": 0,
+          "new": 31,
+          "old": 31
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 44,
+          "old": 44
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 15,
+          "old": 15
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__pea_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 25,
+          "old": 25
+        },
+        "depth": {
+          "delta": 0,
+          "new": 36,
+          "old": 36
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 57,
+          "old": 57
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 19,
+          "old": 19
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__qaoa_n6__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 36,
+          "old": 36
+        },
+        "depth": {
+          "delta": 0,
+          "new": 45,
+          "old": 45
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 96,
+          "old": 96
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__qaoa_n6__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 68,
+          "old": 68
+        },
+        "depth": {
+          "delta": 0,
+          "new": 73,
+          "old": 73
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 146,
+          "old": 146
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 42,
+          "old": 42
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__qec_en_n5__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "depth": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 14,
+          "old": 14
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__qec_en_n5__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 20,
+          "old": 20
+        },
+        "depth": {
+          "delta": 0,
+          "new": 21,
+          "old": 21
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 32,
+          "old": 32
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 16,
+          "old": 16
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__qft_n4__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "depth": {
+          "delta": 0,
+          "new": 21,
+          "old": 21
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 34,
+          "old": 34
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 10,
+          "old": 10
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__qft_n4__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 15,
+          "old": 15
+        },
+        "depth": {
+          "delta": 0,
+          "new": 27,
+          "old": 27
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 41,
+          "old": 41
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__qrng_n4__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__qrng_n4__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        },
+        "depth": {
+          "delta": 0,
+          "new": 1,
+          "old": 1
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 0,
+          "old": 0
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__quantumwalks_n2__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "depth": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__quantumwalks_n2__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        },
+        "depth": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 11,
+          "old": 11
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 3,
+          "old": 3
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__sat_n11__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 252,
+          "old": 252
+        },
+        "depth": {
+          "delta": 0,
+          "new": 387,
+          "old": 387
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 597,
+          "old": 597
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 204,
+          "old": 204
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__sat_n11__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 510,
+          "old": 510
+        },
+        "depth": {
+          "delta": 0,
+          "new": 534,
+          "old": 534
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 855,
+          "old": 855
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 346,
+          "old": 346
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__sat_n7__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 60,
+          "old": 60
+        },
+        "depth": {
+          "delta": 0,
+          "new": 84,
+          "old": 84
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 151,
+          "old": 151
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 45,
+          "old": 45
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__sat_n7__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 110,
+          "old": 110
+        },
+        "depth": {
+          "delta": 0,
+          "new": 119,
+          "old": 119
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 201,
+          "old": 201
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 77,
+          "old": 77
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__simon_n6__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 14,
+          "old": 14
+        },
+        "depth": {
+          "delta": 0,
+          "new": 26,
+          "old": 26
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 38,
+          "old": 38
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 14,
+          "old": 14
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__simon_n6__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        },
+        "depth": {
+          "delta": 0,
+          "new": 35,
+          "old": 35
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 46,
+          "old": 46
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 22,
+          "old": 22
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__teleportation_n3__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__teleportation_n3__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        },
+        "depth": {
+          "delta": 0,
+          "new": 4,
+          "old": 4
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 5,
+          "old": 5
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 2,
+          "old": 2
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__toffoli_n3__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        },
+        "depth": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 17,
+          "old": 17
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__toffoli_n3__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        },
+        "depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 18,
+          "old": 18
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 7,
+          "old": 7
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__variational_n4__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 28,
+          "old": 28
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__variational_n4__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "depth": {
+          "delta": 0,
+          "new": 13,
+          "old": 13
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 28,
+          "old": 28
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__wstate_n3__all_to_all",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        },
+        "depth": {
+          "delta": 0,
+          "new": 12,
+          "old": 12
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 18,
+          "old": 18
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 6,
+          "old": 6
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "qasmbench__wstate_n3__linear",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        },
+        "depth": {
+          "delta": 0,
+          "new": 14,
+          "old": 14
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 20,
+          "old": 20
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 8,
+          "old": 8
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "external"
+    },
+    {
+      "case_id": "cat22_square",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 28,
+          "old": 28
+        },
+        "depth": {
+          "delta": 0,
+          "new": 29,
+          "old": 29
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 29,
+          "old": 29
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 28,
+          "old": 28
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "matched"
+    },
+    {
+      "case_id": "cat22_heavy-hex",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 51,
+          "old": 51
+        },
+        "depth": {
+          "delta": 0,
+          "new": 52,
+          "old": 52
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 52,
+          "old": 52
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 51,
+          "old": 51
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "matched"
+    },
+    {
+      "case_id": "ghz23_square",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 33,
+          "old": 33
+        },
+        "depth": {
+          "delta": 0,
+          "new": 31,
+          "old": 31
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 34,
+          "old": 34
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 30,
+          "old": 30
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "matched"
+    },
+    {
+      "case_id": "ghz23_heavy-hex",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 52,
+          "old": 52
+        },
+        "depth": {
+          "delta": 0,
+          "new": 53,
+          "old": 53
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 53,
+          "old": 53
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 52,
+          "old": 52
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "matched"
+    },
+    {
+      "case_id": "clifford20_square",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 4416,
+          "old": 4416
+        },
+        "depth": {
+          "delta": 0,
+          "new": 2464,
+          "old": 2464
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 6467,
+          "old": 6467
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 2017,
+          "old": 2017
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "matched"
+    },
+    {
+      "case_id": "clifford20_heavy-hex",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 7898,
+          "old": 7898
+        },
+        "depth": {
+          "delta": 0,
+          "new": 3612,
+          "old": 3612
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 10123,
+          "old": 10123
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 3138,
+          "old": 3138
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "matched"
+    },
+    {
+      "case_id": "bv100_square",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 309,
+          "old": 309
+        },
+        "depth": {
+          "delta": 0,
+          "new": 263,
+          "old": 263
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 513,
+          "old": 513
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 247,
+          "old": 247
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "matched"
+    },
+    {
+      "case_id": "bv100_heavy-hex",
+      "metrics": {
+        "cx_count": {
+          "delta": 0,
+          "new": 345,
+          "old": 345
+        },
+        "depth": {
+          "delta": 0,
+          "new": 343,
+          "old": 343
+        },
+        "gate_count": {
+          "delta": 0,
+          "new": 546,
+          "old": 546
+        },
+        "two_q_depth": {
+          "delta": 0,
+          "new": 328,
+          "old": 328
+        }
+      },
+      "new_evidence_classification": "verified",
+      "new_outcome": "passed",
+      "old_evidence_classification": "verified",
+      "old_outcome": "passed",
+      "semantically_eligible": true,
+      "structural_regression": false,
+      "suite": "matched"
+    }
+  ],
+  "counts": {
+    "external:new:passed": 100,
+    "external:old:passed": 100,
+    "matched:new:passed": 8,
+    "matched:old:passed": 8
+  },
+  "evidence_classifications": {
+    "external:new:verified": 100,
+    "external:old:verified": 100,
+    "matched:new:verified": 8,
+    "matched:old:verified": 8
+  },
+  "new_definite_failures": [],
+  "new_not_passed": [],
+  "protocol_sha256": "18c8599ed67798dac3eced32126f354468971ca31f3cec19791e56026a18bd45",
+  "raw_sha256": "d9ad520c60fba04e3ff7214f919ba4ee38b85e7f9b09d71d3c70bb183a07f73e",
+  "schema": 1,
+  "scope": "Untimed diagnostic; no speed claims. Structural deltas on unverified outputs are diagnostic only. Large-output non-Clifford recognition failure is unverified, not proven incorrect.",
+  "structural_regressions": [],
+  "unique_artifacts": 108,
+  "validated_sha256": "8fb10a1db32c8734dd0f9d0dc19a2f08376c76b45d496d821f0ce6df171d6903"
+}

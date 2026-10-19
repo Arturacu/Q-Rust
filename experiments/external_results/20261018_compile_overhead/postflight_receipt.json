@@ -1,0 +1,52 @@
+{
+  "all_stages_completed": true,
+  "stages": [
+    {
+      "name": "python_final_with_binary",
+      "exit_code": 0,
+      "wall_seconds": 14.563038249994861,
+      "log_sha256": "4dc1fa90c21bf72891547de4d4bd050bb641d83f667e85ec6394e2b851789f90"
+    },
+    {
+      "name": "strict_result_parity_tests",
+      "exit_code": 0,
+      "wall_seconds": 0.058916791997035034,
+      "log_sha256": "bd8fc1d0c6f7df30a00972a3078896da46d54d270b89df9703935a96369b7e1f"
+    },
+    {
+      "name": "canonical_replay_tests",
+      "exit_code": 0,
+      "wall_seconds": 0.09585125000739936,
+      "log_sha256": "2dd89309efa0132e6ea92e4b9259c06f257f4a7f6cc41e74a9ea981ef2cfbe76"
+    },
+    {
+      "name": "packaging_boundary_tests",
+      "exit_code": 0,
+      "wall_seconds": 0.06875133300491143,
+      "log_sha256": "ec3cfdc4c76f46be738f23c2af6940c5a1f753d12784210312f717b84eb6d4b3"
+    },
+    {
+      "name": "official_and_paired_validation",
+      "exit_code": 0,
+      "wall_seconds": 18.57873529198696,
+      "log_sha256": "d876265d0690389a7d4ca809e01041a3d208f544817f2ee538fb9273630be014"
+    },
+    {
+      "name": "external_sdk_analysis",
+      "exit_code": 0,
+      "wall_seconds": 2.394568749994505,
+      "log_sha256": "af76cb99a3c7f9d7cc6ce5bd7baa467e7efd6ac37d30b4c01ee3fa0b1c5ff0b3"
+    },
+    {
+      "name": "independent_paired_replay",
+      "exit_code": 0,
+      "wall_seconds": 9.608688583000912,
+      "log_sha256": "23a4a8fa73128528dc7e45b2e7cb8cdfc27065df81fde9c33c1cca7b728f8eac"
+    }
+  ],
+  "campaign": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/campaign_release",
+  "paired_protocol_sha256": "17ea13aa2e1a5ca334979dd99d936badcad04ba575ad610823472d653fcd678a",
+  "canonical_replay_receipt_sha256": "6825f1343524bd1918c42b0cccf460745a5e8f4f184da50ebf19e0b16e2fe1f6",
+  "canonical_summary_sha256": "678039396d5e5ab8d5856b2f146ef541b2c55bd8fd52f5d1f6b4575038716c0b",
+  "excluded_replay_field": "validation.validation_ns"
+}

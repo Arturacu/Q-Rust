@@ -1,0 +1,92 @@
+{
+  "passed": true,
+  "rederivations": [
+    {
+      "byte_identical": true,
+      "expected_sha256": "ce4d2d4c8fa9a9b62709e5eb1f1c2d16e4e201381261a87bb6f0a60f1a6dc307",
+      "name": "report_metrics",
+      "rederived_sha256": "ce4d2d4c8fa9a9b62709e5eb1f1c2d16e4e201381261a87bb6f0a60f1a6dc307",
+      "reference": "analysis/reporting/report_metrics.json",
+      "run": {
+        "command": [
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted/analysis/reporting/compute_metrics.py",
+          "--analysis",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted/analysis",
+          "--campaign",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted/campaign",
+          "--output",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/recomputed_report_metrics.json"
+        ],
+        "exit_code": 0,
+        "log_sha256": "f14135cb4939226b8b804de6a305e4a407f39c77a5f2811e102a2f876b3c1ab9"
+      },
+      "script_sha256": "7ff0979d9bee791bd5ad813061a294977278686cd6fa53f44743219a77e22f32"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "68f3ad873964b518e23a7dead108780f01af8bae607e308e9b51ca76f5a3917f",
+      "name": "case_timings",
+      "rederived_sha256": "68f3ad873964b518e23a7dead108780f01af8bae607e308e9b51ca76f5a3917f",
+      "reference": "analysis/reporting/case_timings.json",
+      "run": {
+        "command": [
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted/analysis/reporting/derive_case_timings.py",
+          "--analysis",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted/analysis",
+          "--output",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/recomputed_case_timings.json"
+        ],
+        "exit_code": 0,
+        "log_sha256": "64edcbbf8b544b66ae58c1f0ea6c3e7ea838b69246983d02b00f77d06065d039"
+      },
+      "script_sha256": "69e9fe23cf519d7588ecf02146264c62257627f49cb1d1d07b1b8534d45f6aaa"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "703f5a1ae847d7f7a354c52f42e5a00315c1b4617171406e9a876bdbce934531",
+      "name": "native_parity",
+      "rederived_sha256": "703f5a1ae847d7f7a354c52f42e5a00315c1b4617171406e9a876bdbce934531",
+      "reference": "verification/formal_output_parity.json",
+      "run": {
+        "command": [
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted/verification/verify_formal_output_parity.py",
+          "--campaign",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted/campaign",
+          "--completion",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted/receipts/timing_completion.json",
+          "--allow-relocated",
+          "--output",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/recomputed_native_parity.json"
+        ],
+        "exit_code": 0,
+        "log_sha256": "6b433280a7cd7280cc3032c56ee7fe2659fd831e4daf73295263d332a04b5beb"
+      },
+      "script_sha256": "8cdb48f62af91bc72b926a817c7e4111bf5dea763de45f711aa5d354e33a5524"
+    },
+    {
+      "byte_identical": true,
+      "expected_sha256": "001d8fec3a3617fdb705e2d164995502b7f4bb42853135e4f120a1f0cb6fb741",
+      "name": "report_document",
+      "rederived_sha256": "001d8fec3a3617fdb705e2d164995502b7f4bb42853135e4f120a1f0cb6fb741",
+      "reference": "report/COMPILATION_OVERHEAD.md",
+      "run": {
+        "command": [
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted/analysis/reporting/render_report.py",
+          "--evidence-root",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/extracted",
+          "--output",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/package_audit/recomputed_report_document.md"
+        ],
+        "exit_code": 0,
+        "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "script_sha256": "ec1a5404e23508fdd6d7bcbdae3f27b160a6c635858aac67bf42110d8f3b5dc5"
+    }
+  ],
+  "schema": 1,
+  "scope": "Reporting JSON, native old/new parity and final report bytes are reproduced from freshly extracted paths. Relocation changes only the absolute campaign-location check; protocol, schedule, output-content and row-identity checks remain active. The archive manifest separately binds every frozen binary and source file."
+}
