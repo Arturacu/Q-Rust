@@ -23,7 +23,6 @@
 //! improvements already accepted; this is deliberately not a fixed-point or
 //! globally optimal Clifford optimizer.
 
-use super::optimization::ExtractOutputPermutationPass;
 use super::pass::Pass;
 use super::property_set::PropertySet;
 use crate::ir::{Circuit, GateType, Operation};
@@ -424,17 +423,24 @@ fn synthesize(table: Clifford) -> Option<Vec<SmallGate>> {
 /// Remove redundant local frames exposed by deleting an interaction. Only
 /// disjoint operations are reordered; all unsupported and dynamic operations
 /// flush the frames on their wires (barriers/dynamic operations flush all).
-fn fold_local(circuit: &Circuit) -> Circuit {
-    let mut out = circuit.clone();
-    out.operations.clear();
+fn fold_local<'a>(
+    circuit: &Circuit,
+    operations: impl IntoIterator<Item = &'a Operation>,
+) -> Circuit {
+    let mut out = Circuit::new(circuit.num_qubits, circuit.num_cbits);
+    out.custom_gates = circuit.custom_gates.clone();
+    out.operations.reserve(circuit.operations.len());
     let mut pending = vec![Clifford::identity(); circuit.num_qubits];
     let flush = |q: usize, pending: &mut Vec<Clifford>, out: &mut Circuit| {
+        if pending[q] == Clifford::identity() {
+            return;
+        }
         for gate in &frames().words[&pending[q]] {
             out.operations.push(gate.operation([q, q]));
         }
         pending[q] = Clifford::identity();
     };
-    for op in &circuit.operations {
+    for op in operations {
         if let Operation::Gate {
             name,
             qubits,
@@ -469,16 +475,28 @@ fn fold_local(circuit: &Circuit) -> Circuit {
 /// (CX-equivalent cost, depth, two-qubit depth). Local gates preserve causal
 /// dependencies in the latter even though they have zero entangling weight.
 fn cost(circuit: &Circuit, elide: bool) -> (usize, usize, usize) {
-    let projected;
-    let c = if elide {
-        projected = ExtractOutputPermutationPass.run(circuit, &mut PropertySet::new());
-        &projected
+    // The caller validates once and enables elision only for static circuits.
+    // Project wire labels while scoring, without cloning/revalidating a whole
+    // circuit. This is the same permutation update as the extraction pass.
+    let mut permutation: Vec<_> = if elide {
+        (0..circuit.num_qubits).collect()
     } else {
-        circuit
+        Vec::new()
     };
     let mut count = 0;
-    let mut layers = vec![0; c.num_qubits];
-    for op in &c.operations {
+    let mut layers = vec![[0, 0]; circuit.num_qubits];
+    for op in &circuit.operations {
+        if elide {
+            if let Operation::Gate {
+                name: GateType::SWAP,
+                qubits,
+                ..
+            } = op
+            {
+                permutation.swap(qubits[0], qubits[1]);
+                continue;
+            }
+        }
         let wires = op.qubits();
         let weight = match op {
             Operation::Gate {
@@ -492,12 +510,45 @@ fn cost(circuit: &Circuit, elide: bool) -> (usize, usize, usize) {
             _ => 0,
         };
         count += weight;
-        let d = wires.iter().map(|&q| layers[q]).max().unwrap_or(0) + weight;
+        let map = |q: usize| if elide { permutation[q] } else { q };
+        let mut next = [0, 0];
         for &q in wires {
-            layers[q] = d;
+            let current = layers[map(q)];
+            next[0] = next[0].max(current[0]);
+            next[1] = next[1].max(current[1]);
+        }
+        next[0] += usize::from(!matches!(op, Operation::Barrier { .. }));
+        next[1] += weight;
+        for &q in wires {
+            layers[map(q)] = next;
         }
     }
-    (count, c.depth(), layers.into_iter().max().unwrap_or(0))
+    (
+        count,
+        layers.iter().map(|v| v[0]).max().unwrap_or(0),
+        layers.iter().map(|v| v[1]).max().unwrap_or(0),
+    )
+}
+
+/// Fold the exact edited stream without constructing and then discarding an
+/// intermediate deep clone. The slices preserve remove-end/splice-cut/
+/// remove-start ordering, including either boundary cut.
+fn folded_replacement(
+    circuit: &Circuit,
+    start: usize,
+    end: usize,
+    cut: usize,
+    replacement: &[Operation],
+) -> Circuit {
+    fold_local(
+        circuit,
+        circuit.operations[..start]
+            .iter()
+            .chain(&circuit.operations[start + 1..cut])
+            .chain(replacement)
+            .chain(&circuit.operations[cut..end])
+            .chain(&circuit.operations[end + 1..]),
+    )
 }
 
 fn axis_commutes_with_interaction(
@@ -592,6 +643,20 @@ impl Pass for CliffordSimplificationPass {
     }
 
     fn run(&self, circuit: &Circuit, properties: &mut PropertySet) -> Circuit {
+        self.run_internal(circuit, properties, cost, folded_replacement)
+    }
+}
+
+impl CliffordSimplificationPass {
+    // Static function arguments keep the production path monomorphized while
+    // tests can compare the same search against the frozen allocating helpers.
+    fn run_internal(
+        &self,
+        circuit: &Circuit,
+        properties: &mut PropertySet,
+        score: impl Fn(&Circuit, bool) -> (usize, usize, usize),
+        replace: impl Fn(&Circuit, usize, usize, usize, &[Operation]) -> Circuit,
+    ) -> Circuit {
         if super::validate_circuit_structure(circuit).is_err() {
             return circuit.clone();
         }
@@ -601,12 +666,13 @@ impl Pass for CliffordSimplificationPass {
                 .operations
                 .iter()
                 .all(|op| matches!(op, Operation::Gate { .. } | Operation::Barrier { .. }));
-        let mut quality = cost(&output, elide);
+        let mut quality = score(&output, elide);
         let mut stats = properties
             .get::<CliffordSimplificationStats>("clifford_simplification_stats")
             .cloned()
             .unwrap_or_default();
         let mut evaluations = 0;
+        let mut left = Vec::with_capacity(LOOKAHEAD);
         'sweeps: for _ in 0..SWEEPS {
             let before = stats.rewrites;
             let mut start = 0;
@@ -649,7 +715,8 @@ impl Pass for CliffordSimplificationPass {
                 };
                 stats.candidates += 1;
                 // left[cut-start-1] is L A L† immediately before `cut`.
-                let mut left = vec![(Pauli::hermitian(0, 1), Pauli::hermitian(2, 0))];
+                left.clear();
+                left.push((Pauli::hermitian(0, 1), Pauli::hermitian(2, 0)));
                 for cut in start + 1..end {
                     let Some(next) =
                         transport_axes(*left.last().unwrap(), &output.operations[cut], pair, false)
@@ -700,14 +767,10 @@ impl Pass for CliffordSimplificationPass {
                         if swap {
                             word.insert(0, SmallGate::Swap);
                         }
-                        let mut candidate = output.clone();
-                        candidate.operations.remove(end);
-                        candidate
-                            .operations
-                            .splice(cut..cut, word.into_iter().map(|g| g.operation(pair)));
-                        candidate.operations.remove(start);
-                        candidate = fold_local(&candidate);
-                        let next = cost(&candidate, elide);
+                        let replacement: Vec<_> =
+                            word.into_iter().map(|g| g.operation(pair)).collect();
+                        let candidate = replace(&output, start, end, cut, &replacement);
+                        let next = score(&candidate, elide);
                         if next.0 < quality.0 && next.1 <= quality.1 && next.2 <= quality.2 {
                             stats.rewrites += 1;
                             stats.interior_rewrites += usize::from(cut > start + 1 && cut < end);
@@ -735,6 +798,99 @@ mod tests {
     use super::*;
     use nalgebra::DMatrix;
     use num_complex::Complex64 as C;
+
+    // Frozen PR17 helpers intentionally retain their old allocations and
+    // independent Circuit::depth/permutation-extraction calls for parity.
+    fn legacy_fold_local(circuit: &Circuit) -> Circuit {
+        let mut out = circuit.clone();
+        out.operations.clear();
+        let mut pending = vec![Clifford::identity(); circuit.num_qubits];
+        let flush = |q: usize, pending: &mut Vec<Clifford>, out: &mut Circuit| {
+            for gate in &frames().words[&pending[q]] {
+                out.operations.push(gate.operation([q, q]));
+            }
+            pending[q] = Clifford::identity();
+        };
+        for op in &circuit.operations {
+            if let Operation::Gate {
+                name,
+                qubits,
+                params,
+            } = op
+            {
+                if params.is_empty() && qubits.len() == 1 {
+                    if *name == GateType::ID {
+                        continue;
+                    }
+                    if let Some(gate) = local_gate(name, 0) {
+                        pending[qubits[0]] = gate.table().compose(pending[qubits[0]]);
+                        continue;
+                    }
+                }
+                for &q in qubits {
+                    flush(q, &mut pending, &mut out);
+                }
+            } else {
+                for q in 0..circuit.num_qubits {
+                    flush(q, &mut pending, &mut out);
+                }
+            }
+            out.operations.push(op.clone());
+        }
+        for q in 0..circuit.num_qubits {
+            flush(q, &mut pending, &mut out);
+        }
+        out
+    }
+
+    fn legacy_cost(circuit: &Circuit, elide: bool) -> (usize, usize, usize) {
+        let projected;
+        let c = if elide {
+            projected = super::super::optimization::ExtractOutputPermutationPass
+                .run(circuit, &mut PropertySet::new());
+            &projected
+        } else {
+            circuit
+        };
+        let mut count = 0;
+        let mut layers = vec![0; c.num_qubits];
+        for op in &c.operations {
+            let wires = op.qubits();
+            let weight = match op {
+                Operation::Gate {
+                    name: GateType::CX | GateType::CY | GateType::CZ,
+                    ..
+                } => 1,
+                Operation::Gate {
+                    name: GateType::SWAP,
+                    ..
+                } => 3,
+                _ => 0,
+            };
+            count += weight;
+            let d = wires.iter().map(|&q| layers[q]).max().unwrap_or(0) + weight;
+            for &q in wires {
+                layers[q] = d;
+            }
+        }
+        (count, c.depth(), layers.into_iter().max().unwrap_or(0))
+    }
+
+    fn legacy_replacement(
+        circuit: &Circuit,
+        start: usize,
+        end: usize,
+        cut: usize,
+        replacement: &[Operation],
+    ) -> Circuit {
+        let mut candidate = circuit.clone();
+        candidate.operations.remove(end);
+        candidate
+            .operations
+            .splice(cut..cut, replacement.iter().cloned());
+        candidate.operations.remove(start);
+        legacy_fold_local(&candidate)
+    }
 
     // Literal matrices: these do not call gate_def, the simulator, numerical
     // synthesis or the production signed-Pauli action/compose functions.
@@ -835,6 +991,162 @@ mod tests {
     fn word_table(word: &[SmallGate]) -> Clifford {
         word.iter()
             .fold(Clifford::identity(), |a, gate| gate.table().compose(a))
+    }
+
+    fn parity_fixture(seed: u64, dynamic: bool) -> Circuit {
+        let width = 2 + seed as usize % 5;
+        let mut circuit = Circuit::new(width, width);
+        circuit.register_custom_gate("opaque".into(), vec![], vec!["a".into()], vec![]);
+        let mut state = seed + 1;
+        for index in 0..64 {
+            state = state.wrapping_mul(6364136223846793005).wrapping_add(1);
+            let a = ((state >> 32) as usize) % width;
+            let b = (a + 1 + ((state >> 40) as usize) % (width - 1)) % width;
+            let operation = match (state >> 48) % 17 {
+                0 => SmallGate::Swap.operation([a, b]),
+                1 => Operation::Barrier { qubits: vec![] },
+                2 => Operation::Barrier { qubits: vec![a, b] },
+                3 => Operation::Gate {
+                    name: GateType::U,
+                    qubits: vec![a],
+                    params: vec![0.13, -0.27, 0.41],
+                },
+                4 => Operation::Gate {
+                    name: GateType::Custom("opaque".into()),
+                    qubits: vec![a],
+                    params: vec![],
+                },
+                5 => SmallGate::H(0).operation([a, b]),
+                6 => SmallGate::S(0).operation([a, b]),
+                7 => SmallGate::Sdg(0).operation([a, b]),
+                8 => SmallGate::SX(0).operation([a, b]),
+                9 => SmallGate::Y(0).operation([a, b]),
+                10 => Operation::Gate {
+                    name: GateType::ID,
+                    qubits: vec![a],
+                    params: vec![],
+                },
+                11 => Operation::Gate {
+                    name: GateType::CY,
+                    qubits: vec![a, b],
+                    params: vec![],
+                },
+                12 => Operation::Gate {
+                    name: GateType::CZ,
+                    qubits: vec![a, b],
+                    params: vec![],
+                },
+                _ => SmallGate::CX(0).operation([a, b]),
+            };
+            circuit.operations.push(operation);
+            if index % 11 == 0 {
+                circuit.operations.extend([
+                    SmallGate::CX(0).operation([a, b]),
+                    SmallGate::S(0).operation([a, b]),
+                    SmallGate::CX(0).operation([a, b]),
+                ]);
+            }
+            if dynamic && index % 13 == 0 {
+                circuit.operations.extend([
+                    Operation::Measure { qubit: a, cbit: a },
+                    Operation::Reset { qubit: b },
+                ]);
+            }
+        }
+        circuit
+    }
+
+    #[test]
+    fn streaming_cost_matches_extraction_and_literal_depth_with_all_fences() {
+        for seed in 0..96 {
+            for dynamic in [false, true] {
+                let circuit = parity_fixture(seed, dynamic);
+                assert_eq!(cost(&circuit, false), legacy_cost(&circuit, false));
+                if !dynamic {
+                    assert_eq!(cost(&circuit, true), legacy_cost(&circuit, true));
+                }
+            }
+        }
+        // A conditional barrier has one literal layer under Circuit::depth,
+        // unlike a top-level barrier. Preserve that existing convention.
+        let mut circuit = Circuit::new(3, 1);
+        circuit.operations = vec![
+            SmallGate::CX(0).operation([0, 2]),
+            Operation::Conditional {
+                condition: crate::ir::ClassicalCondition {
+                    creg: "c".into(),
+                    value: 1,
+                },
+                op: Box::new(Operation::Barrier { qubits: vec![0, 1] }),
+            },
+            Operation::Barrier { qubits: vec![] },
+            SmallGate::H(0).operation([1, 2]),
+        ];
+        assert_eq!(cost(&circuit, false), legacy_cost(&circuit, false));
+    }
+
+    #[test]
+    fn streamed_edit_matches_legacy_order_and_metadata_at_every_cut() {
+        for seed in 0..8 {
+            let circuit = parity_fixture(seed, true);
+            for start in [0, 3, 11] {
+                let end = start + 8;
+                for cut in start + 1..=end {
+                    for replacement in [
+                        vec![],
+                        vec![SmallGate::H(0).operation([0, 1])],
+                        vec![
+                            SmallGate::Swap.operation([1, 0]),
+                            SmallGate::CX(0).operation([1, 0]),
+                        ],
+                    ] {
+                        assert_eq!(
+                            folded_replacement(&circuit, start, end, cut, &replacement),
+                            legacy_replacement(&circuit, start, end, cut, &replacement),
+                            "seed {seed}, cut {start}/{cut}/{end}"
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn full_search_matches_legacy_helpers_in_outputs_and_cumulative_counters() {
+        for seed in 0..96 {
+            for dynamic in [false, true] {
+                let circuit = parity_fixture(seed, dynamic);
+                for allow_swap_replacements in [false, true] {
+                    assert!(super::super::validate_circuit_structure(&circuit).is_ok());
+                    let pass = CliffordSimplificationPass {
+                        allow_swap_replacements,
+                    };
+                    let mut current = PropertySet::new();
+                    let mut legacy = PropertySet::new();
+                    let prefix = CliffordSimplificationStats {
+                        candidates: 3,
+                        rewrites: 2,
+                        cx_removed: 4,
+                        candidate_evaluations: 7,
+                        ..CliffordSimplificationStats::default()
+                    };
+                    current.insert("clifford_simplification_stats", prefix.clone());
+                    legacy.insert("clifford_simplification_stats", prefix);
+                    let actual = pass.run(&circuit, &mut current);
+                    let expected =
+                        pass.run_internal(&circuit, &mut legacy, legacy_cost, legacy_replacement);
+                    assert_eq!(
+                        actual, expected,
+                        "seed {seed}, dynamic {dynamic}, elide {allow_swap_replacements}"
+                    );
+                    assert_eq!(
+                        current.get::<CliffordSimplificationStats>("clifford_simplification_stats"),
+                        legacy.get::<CliffordSimplificationStats>("clifford_simplification_stats"),
+                        "seed {seed}, dynamic {dynamic}, elide {allow_swap_replacements}"
+                    );
+                }
+            }
+        }
     }
 
     #[test]

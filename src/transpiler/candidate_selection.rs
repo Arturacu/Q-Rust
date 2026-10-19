@@ -111,7 +111,11 @@ pub(crate) fn output_cost(circuit: &Circuit) -> Option<[usize; 3]> {
     ])
 }
 
-fn prefer_cost(candidate: [usize; 3], current: [usize; 3], incumbent: [usize; 3]) -> bool {
+pub(crate) fn prefer_cost(
+    candidate: [usize; 3],
+    current: [usize; 3],
+    incumbent: [usize; 3],
+) -> bool {
     candidate.iter().zip(incumbent).all(|(a, b)| *a <= b) && candidate < current
 }
 
@@ -122,7 +126,8 @@ fn prefer_cost(candidate: [usize; 3], current: [usize; 3], incumbent: [usize; 3]
 ///
 /// The reference must not be replaced by an intermediate winner: two outputs
 /// may each improve the canonical circuit while trading depth against count.
-pub(crate) fn prefer_output(candidate: &Circuit, current: &Circuit, incumbent: &Circuit) -> bool {
+#[cfg(test)]
+fn prefer_output(candidate: &Circuit, current: &Circuit, incumbent: &Circuit) -> bool {
     let (Some(candidate), Some(current), Some(incumbent)) = (
         output_cost(candidate),
         output_cost(current),
