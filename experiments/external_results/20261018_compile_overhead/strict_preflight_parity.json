@@ -1,0 +1,1753 @@
+{
+  "cases": 108,
+  "comparisons": [
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__ae_n10__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__ae_n10__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__ae_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__ae_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__dj_n10__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__dj_n10__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__dj_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__dj_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__grover_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__grover_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qnn_n10__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qnn_n10__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qnn_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qnn_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qpeexact_n10__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qpeexact_n10__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qpeexact_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qpeexact_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qpeinexact_n10__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qpeinexact_n10__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qpeinexact_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qpeinexact_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qwalk_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__qwalk_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__vqe_real_amp_n10__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__vqe_real_amp_n10__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__vqe_real_amp_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__vqe_real_amp_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__vqe_su2_n10__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__vqe_su2_n10__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__vqe_su2_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "mqtbench__vqe_su2_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__adder_n10__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__adder_n10__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__adder_n4__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__adder_n4__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__basis_change_n3__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__basis_change_n3__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__basis_test_n4__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__basis_test_n4__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__basis_trotter_n4__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__basis_trotter_n4__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__bell_n4__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__bell_n4__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__bv_n14__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__bv_n14__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__cat_state_n4__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__cat_state_n4__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__deutsch_n2__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__deutsch_n2__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__dnn_n2__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__dnn_n2__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__dnn_n8__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__dnn_n8__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__error_correctiond3_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__fredkin_n3__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__fredkin_n3__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__grover_n2__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__grover_n2__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__hhl_n7__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__hhl_n7__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__hs4_n4__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__hs4_n4__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__ising_n10__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__ising_n10__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__iswap_n2__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__iswap_n2__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__linearsolver_n3__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__linearsolver_n3__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__lpn_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__lpn_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__multiply_n13__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__multiply_n13__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__pea_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__pea_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__qaoa_n6__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__qaoa_n6__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__qec_en_n5__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__qec_en_n5__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__qft_n4__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__qft_n4__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__qrng_n4__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__qrng_n4__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__quantumwalks_n2__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__quantumwalks_n2__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__sat_n11__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__sat_n11__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__sat_n7__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__sat_n7__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__simon_n6__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__simon_n6__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__teleportation_n3__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__teleportation_n3__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__toffoli_n3__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__toffoli_n3__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__variational_n4__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__variational_n4__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__wstate_n3__all_to_all",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "qasmbench__wstate_n3__linear",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "external"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "cat22_square",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "matched"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "cat22_heavy-hex",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "matched"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "ghz23_square",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "matched"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "ghz23_heavy-hex",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "matched"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "clifford20_square",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "matched"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "clifford20_heavy-hex",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "matched"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "bv100_square",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "matched"
+    },
+    {
+      "all_structural_costs_unchanged": true,
+      "both_verified": true,
+      "case_id": "bv100_heavy-hex",
+      "result_parity": {
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true
+      },
+      "suite": "matched"
+    }
+  ],
+  "driver_sha256": "f9c4ec95ad8378fa8dae07cc960a2c96c1917806441c43567b9c775796d577a3",
+  "native_result_excluded_fields": [
+    "compile_ns",
+    "parse_ns",
+    "pass_diagnostics"
+  ],
+  "original_summary_sha256": "eb78e4fb619ae670fc660430fc0ce502d30f60df0025f0f1d9a8722f5dc30cd5",
+  "parity_helper_sha256": "11d65353e91ea66e4ea0b26ee3e8ce35c653a4af86e165ff84b0154c8759974c",
+  "passed": true,
+  "raw_sha256": "d9ad520c60fba04e3ff7214f919ba4ee38b85e7f9b09d71d3c70bb183a07f73e",
+  "scope": "Run the unchanged 100+8 preflight, then require exact native-result parity.",
+  "transport_envelope_fields_separated": [
+    "case_id",
+    "noncompile_nonparse_request_ns",
+    "output_sha256",
+    "request_wall_ns",
+    "seed",
+    "suite",
+    "variant"
+  ]
+}

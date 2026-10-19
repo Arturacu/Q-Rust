@@ -1,0 +1,3377 @@
+{
+  "cases": [
+    {
+      "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 5292,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 5375,
+                "pass": "retained-input::BeamSabrePass"
+              },
+              {
+                "median_ns": 3959,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              },
+              {
+                "median_ns": 5000,
+                "pass": "pre-clifford-input::retained-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 85708,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 4542,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 255875,
+                "pass": "retained-input::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 15250,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 18875,
+                "pass": "retained-input::SabreLayoutPass"
+              },
+              {
+                "median_ns": 12875,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              },
+              {
+                "median_ns": 16250,
+                "pass": "pre-clifford-input::retained-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 1553000,
+          "unprofiled_compile_median_ns": 1518333
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 5500,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 6125,
+                "pass": "retained-input::BeamSabrePass"
+              },
+              {
+                "median_ns": 4500,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 30250,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 5000,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 115209,
+                "pass": "retained-input::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [
+              {
+                "median_ns": 2250,
+                "pass": "pre-clifford-input::retained-input::ReuseRoutingCheckpoint"
+              }
+            ],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 14750,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 18917,
+                "pass": "retained-input::SabreLayoutPass"
+              },
+              {
+                "median_ns": 14375,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 1472667,
+          "unprofiled_compile_median_ns": 1472334
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 8667,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 8417,
+                "pass": "retained-input::BeamSabrePass"
+              },
+              {
+                "median_ns": 6375,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              },
+              {
+                "median_ns": 8542,
+                "pass": "pre-clifford-input::retained-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 46792,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 7125,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 164250,
+                "pass": "retained-input::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 25875,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 27750,
+                "pass": "retained-input::SabreLayoutPass"
+              },
+              {
+                "median_ns": 21208,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              },
+              {
+                "median_ns": 26708,
+                "pass": "pre-clifford-input::retained-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 2237625,
+          "unprofiled_compile_median_ns": 2288875
+        }
+      }
+    },
+    {
+      "case_id": "qasmbench__error_correctiond3_n5__linear",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 462833,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 764500,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 94333,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 34833,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 44000,
+                "pass": "refined_layout_forward::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 86250,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 98500,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 3125750,
+          "unprofiled_compile_median_ns": 3079625
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 515792,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 831459,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 29250,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 20792,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 23292,
+                "pass": "refined_layout_forward::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 86292,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 107125,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 3196208,
+          "unprofiled_compile_median_ns": 3197917
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 586125,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 934875,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 32083,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 23750,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 27459,
+                "pass": "refined_layout_forward::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 107084,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 124708,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 3624875,
+          "unprofiled_compile_median_ns": 3551208
+        }
+      }
+    },
+    {
+      "case_id": "qasmbench__qec_en_n5__all_to_all",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 2500,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 2958,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 22583,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 1916,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 8042,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 9958,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 311708,
+          "unprofiled_compile_median_ns": 308459
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 3083,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 3250,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 10083,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 2250,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 9625,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 10958,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 357625,
+          "unprofiled_compile_median_ns": 325167
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 2708,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 3417,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 8083,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 2250,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 8833,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 11000,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 329750,
+          "unprofiled_compile_median_ns": 323666
+        }
+      }
+    },
+    {
+      "case_id": "qasmbench__qec_en_n5__linear",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 537542,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 409459,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 23291,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 20000,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 41667,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 41584,
+                "pass": "refined_layout_forward::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 67875,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 71083,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 2153458,
+          "unprofiled_compile_median_ns": 2054334
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 533875,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 406458,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 7792,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 9500,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 18958,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 19000,
+                "pass": "refined_layout_forward::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 64833,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 66625,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 2027791,
+          "unprofiled_compile_median_ns": 2145875
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 574834,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 436542,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 8250,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 13750,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 20084,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 19625,
+                "pass": "refined_layout_forward::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 71042,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 71458,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 2198500,
+          "unprofiled_compile_median_ns": 2124792
+        }
+      }
+    },
+    {
+      "case_id": "mqtbench__ae_n10__linear",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 14547375,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 14633875,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 39625,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 269875,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 267416,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 4160416,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 4338167,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 47850208,
+          "unprofiled_compile_median_ns": 48131291
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 15005916,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 15833,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 108000,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 114625,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [
+              {
+                "median_ns": 13208,
+                "pass": "pre-clifford-input::ReuseRoutingCheckpoint"
+              }
+            ],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 4329375,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 29674708,
+          "unprofiled_compile_median_ns": 29393750
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 14406334,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 14526792,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 16042,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 119584,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 109458,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 4093750,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 4087917,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 47427917,
+          "unprofiled_compile_median_ns": 47623625
+        }
+      }
+    },
+    {
+      "case_id": "mqtbench__qpeexact_n10__linear",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 14703625,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 19416,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 25417,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 24083,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 4581708,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 23695125,
+          "unprofiled_compile_median_ns": 23396000
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 14781875,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 8458,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 24041,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 24959,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 4608000,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 23943959,
+          "unprofiled_compile_median_ns": 23969250
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 14615292,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 8333,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 25625,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 24084,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 4679792,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 23642625,
+          "unprofiled_compile_median_ns": 23485709
+        }
+      }
+    },
+    {
+      "case_id": "mqtbench__qpeexact_n5__all_to_all",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 3583,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 3417,
+                "pass": "retained-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 5875,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 2792,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 3833,
+                "pass": "retained-input::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 9667,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 10583,
+                "pass": "retained-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 928500,
+          "unprofiled_compile_median_ns": 925916
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 3375,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 3291,
+                "pass": "retained-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 2708,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 2709,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 3708,
+                "pass": "retained-input::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 9125,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 10292,
+                "pass": "retained-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 924125,
+          "unprofiled_compile_median_ns": 907625
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 3666,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 3625,
+                "pass": "retained-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 2750,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 2958,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 3959,
+                "pass": "retained-input::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 10250,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 11542,
+                "pass": "retained-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 969208,
+          "unprofiled_compile_median_ns": 1115333
+        }
+      }
+    },
+    {
+      "case_id": "qasmbench__basis_trotter_n4__linear",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 20097417,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 417375,
+                "pass": "retained-input::BeamSabrePass"
+              },
+              {
+                "median_ns": 20738000,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              },
+              {
+                "median_ns": 389292,
+                "pass": "pre-clifford-input::retained-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 389708,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 3180708,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 3093000,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 187292,
+                "pass": "retained-input::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 876834,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 358958,
+                "pass": "retained-input::SabreLayoutPass"
+              },
+              {
+                "median_ns": 860833,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              },
+              {
+                "median_ns": 320250,
+                "pass": "pre-clifford-input::retained-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 146464459,
+          "unprofiled_compile_median_ns": 146104333
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 20609291,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 379667,
+                "pass": "retained-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 151000,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 1153958,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 1093250,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 180417,
+                "pass": "retained-input::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [
+              {
+                "median_ns": 89167,
+                "pass": "pre-clifford-input::ReuseRoutingCheckpoint"
+              },
+              {
+                "median_ns": 43583,
+                "pass": "pre-clifford-input::retained-input::ReuseRoutingCheckpoint"
+              }
+            ],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 855291,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 317083,
+                "pass": "retained-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 123384542,
+          "unprofiled_compile_median_ns": 121475250
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 20006042,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 385750,
+                "pass": "retained-input::BeamSabrePass"
+              },
+              {
+                "median_ns": 20009083,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              },
+              {
+                "median_ns": 400334,
+                "pass": "pre-clifford-input::retained-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 146583,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 1211208,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 1022375,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 177417,
+                "pass": "retained-input::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 785333,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 314125,
+                "pass": "retained-input::SabreLayoutPass"
+              },
+              {
+                "median_ns": 860291,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              },
+              {
+                "median_ns": 337709,
+                "pass": "pre-clifford-input::retained-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 139162875,
+          "unprofiled_compile_median_ns": 141226209
+        }
+      }
+    },
+    {
+      "case_id": "cat22_square",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 526833,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 545875,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 5792,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 13583,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 585875,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 620333,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 2637333,
+          "unprofiled_compile_median_ns": 2479375
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 508041,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 2917,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 7667,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [
+              {
+                "median_ns": 1250,
+                "pass": "pre-clifford-input::ReuseRoutingCheckpoint"
+              }
+            ],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 600958,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 1364875,
+          "unprofiled_compile_median_ns": 1403917
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 495250,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 521750,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 3000,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 7708,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 560625,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 575875,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 2422375,
+          "unprofiled_compile_median_ns": 2428334
+        }
+      }
+    },
+    {
+      "case_id": "cat22_heavy-hex",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 2190667,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 5750,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 8625,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 1349625,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 3741375,
+          "unprofiled_compile_median_ns": 3924584
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 2264666,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 3000,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 8375,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 1374083,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 3893417,
+          "unprofiled_compile_median_ns": 3852667
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 2176208,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 3167,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 7833,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 1347750,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 3727208,
+          "unprofiled_compile_median_ns": 3790083
+        }
+      }
+    },
+    {
+      "case_id": "ghz23_square",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 1307583,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 1187583,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 6959,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 27042,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 15416,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 15625,
+                "pass": "refined_layout_forward::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 681167,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 626334,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 4605291,
+          "unprofiled_compile_median_ns": 4488167
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 1154500,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 3209,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 11333,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 8791,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 8792,
+                "pass": "refined_layout_forward::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [
+              {
+                "median_ns": 2917,
+                "pass": "pre-clifford-input::ReuseRoutingCheckpoint"
+              }
+            ],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 656041,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 2539250,
+          "unprofiled_compile_median_ns": 2509625
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 1191041,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 1221917,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 3208,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 11833,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 9250,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 9041,
+                "pass": "refined_layout_forward::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 606458,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 653125,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 4495291,
+          "unprofiled_compile_median_ns": 4246583
+        }
+      }
+    },
+    {
+      "case_id": "ghz23_heavy-hex",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 2302208,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 6000,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 8834,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 1594583,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 4136541,
+          "unprofiled_compile_median_ns": 3983125
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 2369167,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 3042,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 8917,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 1505750,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 4087750,
+          "unprofiled_compile_median_ns": 4175666
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 2251041,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 3167,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 8125,
+                "pass": "CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 1489667,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 3960709,
+          "unprofiled_compile_median_ns": 4101500
+        }
+      }
+    },
+    {
+      "case_id": "bv100_square",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 47880875,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 48121625,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 69042,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 4474709,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 4552416,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 13466375,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 14094084,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 141938583,
+          "unprofiled_compile_median_ns": 140867250
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 48513834,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 35417,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 1852292,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 1659542,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [
+              {
+                "median_ns": 17916,
+                "pass": "pre-clifford-input::ReuseRoutingCheckpoint"
+              }
+            ],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 13566833,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 75381541,
+          "unprofiled_compile_median_ns": 74525875
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 47508500,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 48342000,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 33083,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 1683209,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 1713291,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 13937916,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 14089500,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 136905291,
+          "unprofiled_compile_median_ns": 136517958
+        }
+      }
+    },
+    {
+      "case_id": "bv100_heavy-hex",
+      "variants": {
+        "baseline_profile_v2": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 49892542,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 52157375,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 69708,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 10699792,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 10919750,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 16763583,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 17188083,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 168850875,
+          "unprofiled_compile_median_ns": 164256500
+        },
+        "final_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 50912875,
+                "pass": "BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 35125,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 3839167,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 3829583,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [
+              {
+                "median_ns": 18875,
+                "pass": "pre-clifford-input::ReuseRoutingCheckpoint"
+              }
+            ],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 16677792,
+                "pass": "SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 86494584,
+          "unprofiled_compile_median_ns": 85516375
+        },
+        "pass_only_profile": {
+          "passes": {
+            "BeamSabrePass": [
+              {
+                "median_ns": 50477750,
+                "pass": "BeamSabrePass"
+              },
+              {
+                "median_ns": 50095750,
+                "pass": "pre-clifford-input::BeamSabrePass"
+              }
+            ],
+            "CliffordSimplificationPass": [
+              {
+                "median_ns": 33500,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 3781167,
+                "pass": "CliffordSimplificationPass"
+              },
+              {
+                "median_ns": 3707458,
+                "pass": "equal_swap_depth::CliffordSimplificationPass"
+              }
+            ],
+            "ReuseRoutingCheckpoint": [],
+            "SabreLayoutPass": [
+              {
+                "median_ns": 16567083,
+                "pass": "SabreLayoutPass"
+              },
+              {
+                "median_ns": 16018291,
+                "pass": "pre-clifford-input::SabreLayoutPass"
+              }
+            ]
+          },
+          "profiled_compile_median_ns": 151598500,
+          "unprofiled_compile_median_ns": 153768000
+        }
+      }
+    }
+  ],
+  "exact_result_excluded_fields": [
+    "compile_ns",
+    "parse_ns",
+    "pass_diagnostics"
+  ],
+  "schema": 1,
+  "scope": "Separate bounded diagnostic runs with three repetitions per profile mode. Pass medians are diagnostic and are not a partition of total compilation time; retained and alternate paths are included. Formal speed claims require the isolated paired campaign.",
+  "source_sha256": {
+    "baseline_profile_v2/raw.jsonl": "4e5ed9f320dad4cba0d8c17617452aa6053f0a5223364a67956b1d608390221c",
+    "baseline_profile_v2/summary.json": "a74d79d2c8b744d8f8266ab09c0a9d9c94103856fa936c78a861bb17ec47c8c9",
+    "final_profile/raw.jsonl": "e9449f3a287ae6436c8a23599c1e0d11a238ed83bf2965838bd55ddedaa67e02",
+    "final_profile/summary.json": "7ff8e55ae7c16f542963397aab7b64f69486a1b0ad4b40b97a60ab03376e8d0b",
+    "pass_only_profile/raw.jsonl": "23a83dc51132678f68db08741a66bee10c646d058aa05578dd1ca42b80c0a2b1",
+    "pass_only_profile/summary.json": "c8b0769b79c54ca79a50f4c2322d83f9bf1b38ef6b2f96c2cdb7a032f0634835"
+  },
+  "strict_saved_result_parity": {
+    "checks": [
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "qasmbench__error_correctiond3_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "qasmbench__qec_en_n5__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "mqtbench__ae_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "mqtbench__ae_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "mqtbench__ae_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "mqtbench__ae_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "mqtbench__ae_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "mqtbench__ae_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "mqtbench__ae_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "mqtbench__ae_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n10__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "mqtbench__qpeexact_n5__all_to_all",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "qasmbench__basis_trotter_n4__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__basis_trotter_n4__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "qasmbench__basis_trotter_n4__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__basis_trotter_n4__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "qasmbench__basis_trotter_n4__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__basis_trotter_n4__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "qasmbench__basis_trotter_n4__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "qasmbench__basis_trotter_n4__linear",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "cat22_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "cat22_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "cat22_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "cat22_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "cat22_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "cat22_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "ghz23_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "ghz23_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "ghz23_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "ghz23_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "ghz23_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "ghz23_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "bv100_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "bv100_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "bv100_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "bv100_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "bv100_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      },
+      {
+        "case_id": "bv100_square",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": true,
+        "repeat": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "warmup",
+        "profile_passes": false,
+        "repeat": 0
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 1
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 2
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 2
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": false,
+        "repeat": 3
+      },
+      {
+        "case_id": "bv100_heavy-hex",
+        "changed_fields": [],
+        "excluded_fields": [
+          "compile_ns",
+          "parse_ns",
+          "pass_diagnostics"
+        ],
+        "failures": [],
+        "passed": true,
+        "phase": "diagnostic",
+        "profile_passes": true,
+        "repeat": 3
+      }
+    ],
+    "passed": 112,
+    "requests": 112
+  },
+  "transport_envelope_fields_removed": [
+    "noncompile_nonparse_request_ns",
+    "output_sha256",
+    "request_wall_ns"
+  ]
+}
