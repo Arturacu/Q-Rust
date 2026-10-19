@@ -459,6 +459,7 @@ pub(crate) fn validate_circuit_structure(circuit: &Circuit) -> Result<()> {
             | GateType::CRX
             | GateType::CRY
             | GateType::CRZ
+            | GateType::CU1
             | GateType::RXX
             | GateType::RYY
             | GateType::RZZ => (name.num_qubits(), 1),

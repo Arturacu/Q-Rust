@@ -458,10 +458,16 @@ The library has zero `unsafe` blocks. The `try_*` variants of public APIs return
 
 ### Reproducing the cross-tool benchmarks
 
-The [external benchmark study](experiments/EXTERNAL_BENCHMARKS.md) compares
+The [external compatibility follow-up](experiments/EXTERNAL_COMPATIBILITY_FOLLOWUP.md)
+fixes Q-Rust CU1 support and Cirq adapter closure. All six recipes now pass
+the numerical checks on 100/100 cases in both sessions. It reports speed,
+CX count and depth on both the original shared cases and the expanded cohort,
+with separate raw evidence and unchanged original results.
+
+The [original external benchmark study](experiments/EXTERNAL_BENCHMARKS.md) compares
 50 circuits from pinned QASMBench and MQT Bench sources across two topologies,
 six recipes and two sessions of seven trials. It retains input/adapter failures
-and independent output checks. Q-Rust accepts 82 of 100 cases; speed and quality
+and independent output checks. That version of Q-Rust accepts 82 of 100 cases; speed and quality
 comparisons are explicitly conditional on those successful cases. Methods,
 recipe settings, per-case results and compressed raw evidence are included.
 

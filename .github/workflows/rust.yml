@@ -4,7 +4,8 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    # Stacked changes need the same checks before their base reaches main.
+    branches: [ "main", "codex/**" ]
 
 env:
   CARGO_TERM_COLOR: always
