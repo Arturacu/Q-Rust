@@ -1,0 +1,75 @@
+{
+  "all_raw_pairs_exactly_preserved": 18,
+  "candidates": {
+    "by_family": {
+      "bmw_quark_cardinality": 3,
+      "bmw_quark_copula": 3,
+      "graphstate": 3,
+      "qaoa": 3,
+      "qftentangled": 3,
+      "vqe_two_local": 3
+    },
+    "by_holdout_class": {
+      "new_generator_known_coarse_family": 6,
+      "new_instance_known_generator": 12
+    },
+    "candidates": 18,
+    "excluded": 0,
+    "selected": 18
+  },
+  "cases": 54,
+  "inventory_classifications": {
+    "explicit_input": 44168,
+    "explicit_output": 655569,
+    "unclassified_qasm": 2020
+  },
+  "inventory_sha256": "1d99b118473a8841f6f2765913d27517e9599771d5e826b28d2fb91afafc9a40",
+  "manifest_sha256": "af42239f227805ffb57e5cffe95d9df5ab4cff8f1fe8d2a876f0d7270654a3c4",
+  "max_sampled_source_worker_rss_bytes": 115097600,
+  "max_source_worker_seconds": 0.7898200419876957,
+  "normalization_max_residual": 2.3493562771700696e-14,
+  "plan_sha256": "debdc911ca1df853fc925c19eb74208f1009ccb014cdbcfd4b7f82b34b01b78f",
+  "previous_input_pairs_exactly_preserved": 17,
+  "qft14_reference": {
+    "elapsed_seconds": 0.4120037499960745,
+    "rss_limit_bytes": 2147483648,
+    "rss_scope": "Child process only; sampled, not exact peak",
+    "sampled_rss_bytes": 103514112,
+    "timeout_seconds": 120
+  },
+  "selected_compiler_calls": 0,
+  "selection_sha256": "a5caec1fc15c4ef2072a469140d84f6262174fc5856b74016d95501fda60dffb",
+  "source_controls_sha256": "21c92bd02e212c37214b3a933833099503140fcffd2f0b7418aa5921681028ed",
+  "source_gates_by_family": {
+    "bmw_quark_cardinality": {
+      "10": 259,
+      "14": 371,
+      "6": 147
+    },
+    "bmw_quark_copula": {
+      "10": 350,
+      "14": 686,
+      "6": 126
+    },
+    "graphstate": {
+      "10": 25,
+      "14": 35,
+      "6": 15
+    },
+    "qaoa": {
+      "10": 78,
+      "14": 154,
+      "6": 34
+    },
+    "qftentangled": {
+      "10": 70,
+      "14": 126,
+      "6": 30
+    },
+    "vqe_two_local": {
+      "10": 175,
+      "14": 329,
+      "6": 69
+    }
+  }
+}

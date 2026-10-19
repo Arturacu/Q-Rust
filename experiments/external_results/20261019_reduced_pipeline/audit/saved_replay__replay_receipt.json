@@ -1,0 +1,100 @@
+{
+  "analysis_sha256": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed",
+  "cells_and_analysis_byte_identical": true,
+  "commands": [
+    {
+      "command": [
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/ladder_study.py",
+        "validate",
+        "--repo",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_pr_publish",
+        "--study",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_saved_replay_20261019/campaign",
+        "--binary",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/compiler_work/comparison_runner_ladder",
+        "--clone-freeze",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/compiler_work/clone_freeze.json",
+        "--clone-root",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/compiler_work/source",
+        "--public-binary",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_compile_overhead_20261018/comparison_runner_final",
+        "--legacy-helper",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_frozen_holdout_20261018/heldout",
+        "--plan",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/protocol_plan.json",
+        "--compiler-freeze",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/compiler_freeze.json",
+        "--allow-relocated",
+        "--generator-root",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_external_20261018/sources/mqtbench"
+      ],
+      "exit_code": 0,
+      "log_sha256": "2cf0ff11c54deaf462d4f67f4a0c7745d66ecbaef8010a3106f657b2baa2aed6",
+      "phase": "validate"
+    },
+    {
+      "command": [
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/ladder_study.py",
+        "analyze",
+        "--repo",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_pr_publish",
+        "--study",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_saved_replay_20261019/campaign",
+        "--binary",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/compiler_work/comparison_runner_ladder",
+        "--clone-freeze",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/compiler_work/clone_freeze.json",
+        "--clone-root",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/compiler_work/source",
+        "--public-binary",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_compile_overhead_20261018/comparison_runner_final",
+        "--legacy-helper",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_frozen_holdout_20261018/heldout",
+        "--plan",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/protocol_plan.json",
+        "--compiler-freeze",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/compiler_freeze.json",
+        "--allow-relocated",
+        "--generator-root",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_external_20261018/sources/mqtbench"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "phase": "analyze"
+    }
+  ],
+  "excluded_field": "Only validation.validation_ns; derived validation-file hashes are checked against both actual files before comparison.",
+  "no_compiler_execution": true,
+  "passed": true,
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "replay_helper_sha256": "ca31ca5cd20dfe771d0f36ff505b1b2fdf7c8174c8cdf465aeff25c3a4fc47b3",
+  "schema": 1,
+  "validated_artifacts": [
+    {
+      "file": "session_01/validated.jsonl",
+      "reference_sha256": "8de5f7f31fc4b0c4f3499d11719fa83da1f999dcf5970a1faf1f380bb6e31a8e",
+      "replay_sha256": "22cb43d19e061b8ceb82489786faa1528ca00711e8cc4dda306e450de1e1ec89",
+      "semantic_equality": true
+    },
+    {
+      "file": "session_01/warmup_validated.jsonl",
+      "reference_sha256": "6698a07bc9aed67c4e519cc6519d0406cc82a3519de39fd54dc213502494266f",
+      "replay_sha256": "acded0f45fea1ea4c874f01a42dc6639ba4fa9fcb1e397c24a04cda8bba108ad",
+      "semantic_equality": true
+    },
+    {
+      "file": "session_02/validated.jsonl",
+      "reference_sha256": "347fd5c2ec869454bf9288d7e2b7a258f945277bff02b048a5c17ee859ba8839",
+      "replay_sha256": "248380268d533f18d05180af84d5d01abfc4e365b2deccdac9ef576f2aea81ff",
+      "semantic_equality": true
+    },
+    {
+      "file": "session_02/warmup_validated.jsonl",
+      "reference_sha256": "a36da34b7ed7de4d2f5c2413c899a8647796d5cc932b972bcdd761156c613498",
+      "replay_sha256": "36e24f5bb7524de886d33965473302078df75f3c67dd7d2c907c41e3125ef608",
+      "semantic_equality": true
+    }
+  ]
+}

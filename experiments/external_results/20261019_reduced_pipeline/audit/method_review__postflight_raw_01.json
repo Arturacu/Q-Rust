@@ -1,0 +1,88 @@
+{
+  "passed": true,
+  "phase": "raw",
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "raw": {
+    "balanced_case_recipe_position_sets": 540,
+    "initial_warmups": 1080,
+    "integrity": {
+      "frozen_files_hashed": 11112,
+      "package_versions_checked": 35,
+      "source_inventory_files": 104,
+      "timing_completion_sha256": "77832303c435537f5d4d167dfc94f012d7c3b6906a54d578099f0ee3942d89f3"
+    },
+    "replacement_warmups": 0,
+    "sessions": [
+      {
+        "initial_warmup_rows": 540,
+        "replacement_warmup_rows": 0,
+        "session": 1,
+        "timed_rows": 2700,
+        "timed_sha256": "3f4c2d39b2677d337a380181aa8ec7b56ab1529e1ebda9e2cf2cd3c27153dcc4",
+        "timed_statuses": {
+          "R0/compiled": 270,
+          "R1/compiled": 270,
+          "R2/compiled": 270,
+          "R3/compiled": 270,
+          "R4/compiled": 270,
+          "R5/compiled": 270,
+          "R6/compiled": 270,
+          "cirq/compiled": 270,
+          "qiskit/compiled": 270,
+          "tket/compiled": 270
+        },
+        "warmup_sha256": "f7bca40ba3b0e7641893757e5bf6d3cd686dfc49f874250cf92511f7cf7cf814",
+        "warmup_statuses": {
+          "R0/compiled": 54,
+          "R1/compiled": 54,
+          "R2/compiled": 54,
+          "R3/compiled": 54,
+          "R4/compiled": 54,
+          "R5/compiled": 54,
+          "R6/compiled": 54,
+          "cirq/compiled": 54,
+          "qiskit/compiled": 54,
+          "tket/compiled": 54
+        }
+      },
+      {
+        "initial_warmup_rows": 540,
+        "replacement_warmup_rows": 0,
+        "session": 2,
+        "timed_rows": 2700,
+        "timed_sha256": "2851f7f0b9137b11bebef87853441c2d1bf55e0894103a6887ce64b598193029",
+        "timed_statuses": {
+          "R0/compiled": 270,
+          "R1/compiled": 270,
+          "R2/compiled": 270,
+          "R3/compiled": 270,
+          "R4/compiled": 270,
+          "R5/compiled": 270,
+          "R6/compiled": 270,
+          "cirq/compiled": 270,
+          "qiskit/compiled": 270,
+          "tket/compiled": 270
+        },
+        "warmup_sha256": "6395b911491d3356321cc611d6c1047d1da9c368af28297f7bbda2c3e77ed936",
+        "warmup_statuses": {
+          "R0/compiled": 54,
+          "R1/compiled": 54,
+          "R2/compiled": 54,
+          "R3/compiled": 54,
+          "R4/compiled": 54,
+          "R5/compiled": 54,
+          "R6/compiled": 54,
+          "cirq/compiled": 54,
+          "qiskit/compiled": 54,
+          "tket/compiled": 54
+        }
+      }
+    ],
+    "timed_requests": 5400
+  },
+  "schema": "qrust_independent_postflight_audit_v1",
+  "source_sha256": {
+    "independent_audit.py": "394c83cb1ee1f640af494ac929525aea5e34202bb7233eb6e3f66cacc34a4c12",
+    "postflight_audit_v1.py": "c9b1991f551a96f4497e0676f6d575be7e9230ac349e4ca8b2cd0767ace8ac44"
+  }
+}

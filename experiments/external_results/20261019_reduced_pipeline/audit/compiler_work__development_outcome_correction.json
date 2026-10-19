@@ -1,0 +1,30 @@
+{
+  "correction": "Initial progress summary and development_revision.json mislabeled all168 v1 nonpassing outputs as width failures. Correct counts from unchanged validation rows:144 width-contract failures and24 barrier-parser unsupported;144 passed. No prior artifact is modified.",
+  "studies": {
+    "development_attempt1": {
+      "outcomes": {
+        "declared width does not match QASM register width": 144,
+        "passed": 144,
+        "unsupported gate: barrier": 24
+      },
+      "parity_passes": 104,
+      "receipt_sha256": "9f19562186a4f7bdcd151f4326a311beec98ef39165b8f088d5393bee4693901",
+      "request_count": 312,
+      "validation_sha256": "45a1807fa1bbcb9834f82460cc2d54c0b07f064648723c82b0f30069e0f6ed85"
+    },
+    "development_attempt2": {
+      "outcomes": {
+        "passed": 288,
+        "unsupported gate: barrier": 24
+      },
+      "parity_passes": 104,
+      "receipt_sha256": "a6ad36147d505c1edb6a7d70e1942c236162ea070dde5b20e22dfd63a90175c7",
+      "request_count": 312,
+      "validation_sha256": "b9d96db4adb00f856dc7dbc82fd96024a59b16fb923abd41dd558d36c80f31f6"
+    }
+  },
+  "supersedes_inaccurate_count_in": {
+    "path": "development_revision.json",
+    "sha256": "7c6aeff62eec5fe1206b59e933e0c65e37355b619a22ff57d5ece272ad1596f8"
+  }
+}

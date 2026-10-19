@@ -1,0 +1,37 @@
+{
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "sessions": [
+    {
+      "counts": {
+        "R0/verified": 54,
+        "R1/verified": 54,
+        "R2/verified": 54,
+        "R3/verified": 54,
+        "R4/verified": 54,
+        "R5/verified": 54,
+        "R6/verified": 54,
+        "cirq/verified": 54,
+        "qiskit/verified": 54,
+        "tket/verified": 54
+      },
+      "session": 1,
+      "warmup_validated_sha256": "6698a07bc9aed67c4e519cc6519d0406cc82a3519de39fd54dc213502494266f"
+    },
+    {
+      "counts": {
+        "R0/verified": 54,
+        "R1/verified": 54,
+        "R2/verified": 54,
+        "R3/verified": 54,
+        "R4/verified": 54,
+        "R5/verified": 54,
+        "R6/verified": 54,
+        "cirq/verified": 54,
+        "qiskit/verified": 54,
+        "tket/verified": 54
+      },
+      "session": 2,
+      "warmup_validated_sha256": "a36da34b7ed7de4d2f5c2413c899a8647796d5cc932b972bcdd761156c613498"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/reporting/audit_variability.py",
+    "--campaign",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/corpus_work/campaign",
+    "--output",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/reporting/variability.json"
+  ],
+  "exit_code": 0,
+  "finished_utc": "2026-10-19T07:01:34.782607+00:00",
+  "log_sha256": "f9bdb54b24e35b9d0107c5a4c8e3315b61e3f97f68ffbcb694d3c989373595b3",
+  "phase": "variability",
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "started_utc": "2026-10-19T07:01:34.269412+00:00"
+}

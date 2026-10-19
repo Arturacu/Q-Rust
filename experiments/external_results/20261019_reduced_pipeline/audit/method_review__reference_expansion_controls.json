@@ -1,0 +1,189 @@
+{
+  "control_helper_sha256": "b52e2ff6cf1e23999fb844e11bf6193ee3a953c2c037319a17f99932b4184b4b",
+  "numpy_version": "2.5.4",
+  "passed": true,
+  "qiskit_version": "2.5.2",
+  "reference_expansion_sha256": "9604b3ce48a5ce9815be7b57573249f2a91fb024cf6da910c3eb3d7e1c8b918a",
+  "schema": "qrust_independent_reference_expansion_controls_v1",
+  "scope": "Synthetic-only source-reference admission controls. QFT6/QFT10 compare every dense operator column without phase alignment. No selected generator input, compiler result or shared normalizer is used.",
+  "test_count": 12,
+  "tests": [
+    {
+      "comparison": "complete dense operators, no global-phase alignment",
+      "expansion": {
+        "definition_expansions": {
+          "qft": 1
+        },
+        "expanded_gate_count": 24,
+        "expanded_global_phase": 0.173,
+        "maximum_leaf_width": 2,
+        "method": "Independent recursive Qiskit operation.definition expansion of gates wider than two qubits",
+        "nested_global_phases": [
+          {
+            "depth": 0,
+            "operation": "qft",
+            "phase": 0.0
+          }
+        ],
+        "optimization": "none",
+        "outer_global_phase": 0.173,
+        "reference_is_common_normalizer_output": false
+      },
+      "max_absolute_residual": 5.074058753878557e-15,
+      "name": "QFT_6_all_columns_dense_reference",
+      "passed": true,
+      "qubits": 6,
+      "source_unchanged": true
+    },
+    {
+      "comparison": "complete dense operators, no global-phase alignment",
+      "expansion": {
+        "definition_expansions": {
+          "qft": 1
+        },
+        "expanded_gate_count": 60,
+        "expanded_global_phase": 0.173,
+        "maximum_leaf_width": 2,
+        "method": "Independent recursive Qiskit operation.definition expansion of gates wider than two qubits",
+        "nested_global_phases": [
+          {
+            "depth": 0,
+            "operation": "qft",
+            "phase": 0.0
+          }
+        ],
+        "optimization": "none",
+        "outer_global_phase": 0.173,
+        "reference_is_common_normalizer_output": false
+      },
+      "max_absolute_residual": 2.1782045085477772e-14,
+      "name": "QFT_10_all_columns_dense_reference",
+      "passed": true,
+      "qubits": 10,
+      "source_unchanged": true
+    },
+    {
+      "comparison": "complete dense operators, no global-phase alignment",
+      "expansion": {
+        "definition_expansions": {
+          "circuit-57": 1,
+          "circuit-58": 1
+        },
+        "expanded_gate_count": 6,
+        "expanded_global_phase": 0.5910000000000006,
+        "maximum_leaf_width": 2,
+        "method": "Independent recursive Qiskit operation.definition expansion of gates wider than two qubits",
+        "nested_global_phases": [
+          {
+            "depth": 0,
+            "operation": "circuit-58",
+            "phase": 6.090185307179587
+          },
+          {
+            "depth": 1,
+            "operation": "circuit-57",
+            "phase": 0.371
+          }
+        ],
+        "optimization": "none",
+        "outer_global_phase": 0.413,
+        "reference_is_common_normalizer_output": false
+      },
+      "max_absolute_residual": 2.9893669801409083e-16,
+      "name": "nested_global_phases_and_nontrivial_wire_maps",
+      "passed": true,
+      "qubits": 5,
+      "source_unchanged": true
+    },
+    {
+      "comparison": "complete dense operators, no global-phase alignment",
+      "expansion": {
+        "definition_expansions": {
+          "ccircuit-69": 1,
+          "ccx": 1
+        },
+        "expanded_gate_count": 25,
+        "expanded_global_phase": 6.0021853071795865,
+        "maximum_leaf_width": 2,
+        "method": "Independent recursive Qiskit operation.definition expansion of gates wider than two qubits",
+        "nested_global_phases": [
+          {
+            "depth": 0,
+            "operation": "ccircuit-69",
+            "phase": 0.0
+          },
+          {
+            "depth": 1,
+            "operation": "ccx",
+            "phase": 0.0
+          }
+        ],
+        "optimization": "none",
+        "outer_global_phase": 6.0021853071795865,
+        "reference_is_common_normalizer_output": false
+      },
+      "max_absolute_residual": 4.577566798522237e-16,
+      "name": "controlled_definition_phase_on_superposed_control",
+      "passed": true,
+      "qubits": 4,
+      "source_unchanged": true
+    },
+    {
+      "comparison": "complete dense operators, no global-phase alignment",
+      "expansion": {
+        "definition_expansions": {},
+        "expanded_gate_count": 2,
+        "expanded_global_phase": 0.37,
+        "maximum_leaf_width": 2,
+        "method": "Independent recursive Qiskit operation.definition expansion of gates wider than two qubits",
+        "nested_global_phases": [],
+        "optimization": "none",
+        "outer_global_phase": 0.37,
+        "reference_is_common_normalizer_output": false
+      },
+      "max_absolute_residual": 0.0,
+      "name": "one_and_two_qubit_leaves_preserve_outer_phase",
+      "passed": true,
+      "qubits": 2,
+      "source_unchanged": true
+    },
+    {
+      "error": "Wide operation lacks an exact SDK definition: missing-definition",
+      "name": "missing_wide_definition_rejected",
+      "passed": true
+    },
+    {
+      "error": "Reference definition recursion limit",
+      "name": "recursive_definition_bound",
+      "passed": true
+    },
+    {
+      "error": "Reference expanded gate limit",
+      "name": "expanded_gate_limit",
+      "passed": true
+    },
+    {
+      "error": "Reference must be a static unitary circuit",
+      "name": "measurement_rejected",
+      "passed": true
+    },
+    {
+      "error": "Reference must be a static unitary circuit",
+      "name": "reset_rejected",
+      "passed": true
+    },
+    {
+      "expected": "must disagree",
+      "max_absolute_residual": 0.08682666257364584,
+      "name": "negative_control_nested_phase_omission",
+      "passed": true
+    },
+    {
+      "expected": "must disagree",
+      "max_absolute_residual": 0.97686959837511,
+      "name": "negative_control_wrong_definition_wire_map",
+      "passed": true
+    }
+  ],
+  "tolerance": 1e-12
+}

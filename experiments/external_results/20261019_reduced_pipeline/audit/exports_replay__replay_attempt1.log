@@ -1,0 +1,6 @@
+{"job": "tables", "returncode": 0, "elapsed_s": 0.09357523918151855}
+{"job": "plots", "returncode": 0, "elapsed_s": 7.938855886459351}
+{"job": "report_v2", "returncode": 0, "elapsed_s": 0.06958127021789551}
+{"job": "stage_interpretation", "returncode": 0, "elapsed_s": 0.09894800186157227}
+{"job": "variability", "returncode": 0, "elapsed_s": 0.4310750961303711}
+{"outputs_compared": 16, "all_outputs_byte_identical": true, "archived_inputs_unchanged": true, "receipt_sha256": "0795e248f3fb5637b4cdaba3c1497b07b07bcb097c7a207a26de9545b119799d"}

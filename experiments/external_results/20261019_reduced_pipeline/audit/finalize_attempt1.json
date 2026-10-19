@@ -1,0 +1,8 @@
+{
+  "cause": "Finalizer used an incorrect key for the successful export replay comparison list. The receipt stores comparisons.",
+  "error": "KeyError: outputs",
+  "passed": false,
+  "phase": "delivery summary construction after verified copies",
+  "resolution": "Separate finalizer v2 reads comparisons and reuses only already-copied byte-identical files; no study evidence, analysis, report or archive was changed.",
+  "schema": 1
+}

@@ -1,0 +1,42 @@
+{
+  "admitted_for_equal_width_barrier_free_heldout": true,
+  "correction_sha256": "5f4d126bf1fc60f6a02304548ea21f141aae3c70a7473588e00933ee6d941353",
+  "diagnostics_sha256": "cdef2a8648d4d4d1c3e802d4944c810136e2c38533f29ca7414cd9a76a109ccb",
+  "native_parity_checks": 104,
+  "native_parity_passed": true,
+  "retained_unsupported_barrier_outputs": 24,
+  "revision_sha256": "7c6aeff62eec5fe1206b59e933e0c65e37355b619a22ff57d5ece272ad1596f8",
+  "schema": 1,
+  "scope": "Admission under explicit equal physical/logical width and barrier-free formal input contract; not a claim all development outputs independently verified. Rust barrier/spare tests remain separate implementation evidence.",
+  "strict_independently_verified_outputs": 288,
+  "studies": {
+    "development_attempt1": {
+      "outcomes": {
+        "declared width does not match QASM register width": 144,
+        "passed": 144,
+        "unsupported gate: barrier": 24
+      },
+      "parity_passes": 104,
+      "receipt_sha256": "9f19562186a4f7bdcd151f4326a311beec98ef39165b8f088d5393bee4693901",
+      "request_count": 312,
+      "validation_sha256": "45a1807fa1bbcb9834f82460cc2d54c0b07f064648723c82b0f30069e0f6ed85"
+    },
+    "development_attempt2": {
+      "outcomes": {
+        "passed": 288,
+        "unsupported gate: barrier": 24
+      },
+      "parity_passes": 104,
+      "receipt_sha256": "a6ad36147d505c1edb6a7d70e1942c236162ea070dde5b20e22dfd63a90175c7",
+      "request_count": 312,
+      "validation_sha256": "b9d96db4adb00f856dc7dbc82fd96024a59b16fb923abd41dd558d36c80f31f6"
+    }
+  },
+  "test_logs": {
+    "adapter_tests_attempt2.log": "fcb7b544424f7b03d518d38a764b9e7e3fb6a8b0beae9edba7df888e5c0b7824",
+    "ladder_tests_attempt1.log": "1e65c1179b09c7d5c83a10eb87df6e352cf548128e9382fbd485f5ec8ec5b994",
+    "workspace_tests_attempt1.log": "c5ed311f78956408e5a820fc877644ef3068884efbef08a481127828a9954bc8"
+  },
+  "unqualified_attempt_receipt_preserved": true,
+  "unsupported_is_not_semantic_failure": true
+}

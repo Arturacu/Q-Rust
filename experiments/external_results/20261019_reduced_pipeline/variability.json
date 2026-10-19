@@ -1,0 +1,71 @@
+{
+  "analysis_sha256": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed",
+  "cell_agreement": {
+    "changed_median_quality_cells": [],
+    "stable_complete_cells_by_tool": {
+      "R0": 54,
+      "R1": 54,
+      "R2": 54,
+      "R3": 54,
+      "R4": 54,
+      "R5": 54,
+      "R6": 54,
+      "cirq": 54,
+      "qiskit": 54,
+      "tket": 54
+    }
+  },
+  "input_sha256": {
+    "session_01/cells.json": "a35dd30e4ddd849c9c0e28d4a7229ebcf5591c05af88e6622405e09f7675f215",
+    "session_01/session.json": "ba2ba73f99934c6d8a07fb275052743b45d739ff3049bb6d81bc4957fef86ee0",
+    "session_01/timed.jsonl": "3f4c2d39b2677d337a380181aa8ec7b56ab1529e1ebda9e2cf2cd3c27153dcc4",
+    "session_01/validated.jsonl": "8de5f7f31fc4b0c4f3499d11719fa83da1f999dcf5970a1faf1f380bb6e31a8e",
+    "session_02/cells.json": "bce1ce26232e2df879f1cdd9e4321de245acdf00659e5e5a575ed8ca7c95a8a7",
+    "session_02/session.json": "d664b64d18aebcdcc330cdd168e9f08646f8bc3dc8d3c3c9982215a41d741a68",
+    "session_02/timed.jsonl": "2851f7f0b9137b11bebef87853441c2d1bf55e0894103a6887ce64b598193029",
+    "session_02/validated.jsonl": "347fd5c2ec869454bf9288d7e2b7a258f945277bff02b048a5c17ee859ba8839"
+  },
+  "interpretation": "Pairs are corresponding requests across sessions, not separately consumed internal seeds. Agreement does not imply validation eligibility. Timings are not part of this agreement test.",
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "schema": 1,
+  "source_sha256": "c3b59113b09c5517d02a734e12ff7892fc3b36db2f0c368a09ccde133557282a",
+  "trial_agreement": {
+    "by_tool": {
+      "R0": {
+        "identical_artifact": 270
+      },
+      "R1": {
+        "identical_artifact": 270
+      },
+      "R2": {
+        "identical_artifact": 270
+      },
+      "R3": {
+        "identical_artifact": 270
+      },
+      "R4": {
+        "identical_artifact": 270
+      },
+      "R5": {
+        "identical_artifact": 270
+      },
+      "R6": {
+        "identical_artifact": 270
+      },
+      "cirq": {
+        "identical_artifact": 270
+      },
+      "qiskit": {
+        "identical_artifact": 270
+      },
+      "tket": {
+        "identical_artifact": 270
+      }
+    },
+    "changed_pairs": [],
+    "counts": {
+      "identical_artifact": 2700
+    },
+    "paired_request_identities": 2700
+  }
+}

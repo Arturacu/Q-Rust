@@ -1,0 +1,44 @@
+{
+  "max_residual": 6.3488762467508525e-12,
+  "oracle_sha256": "55de70f9fe47d9fcaeb1497bd04b377e5582afc9289e6948dc6c32ebe5bda6d4",
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "sessions": [
+    {
+      "counts": {
+        "R0_passed": 270,
+        "R1_passed": 270,
+        "R2_passed": 270,
+        "R3_passed": 270,
+        "R4_passed": 270,
+        "R5_passed": 270,
+        "R6_passed": 270,
+        "cirq_passed": 270,
+        "qiskit_passed": 270,
+        "tket_passed": 270
+      },
+      "session": "session_01",
+      "validated_sha256": "8de5f7f31fc4b0c4f3499d11719fa83da1f999dcf5970a1faf1f380bb6e31a8e"
+    },
+    {
+      "counts": {
+        "R0_passed": 270,
+        "R1_passed": 270,
+        "R2_passed": 270,
+        "R3_passed": 270,
+        "R4_passed": 270,
+        "R5_passed": 270,
+        "R6_passed": 270,
+        "cirq_passed": 270,
+        "qiskit_passed": 270,
+        "tket_passed": 270
+      },
+      "session": "session_02",
+      "validated_sha256": "347fd5c2ec869454bf9288d7e2b7a258f945277bff02b048a5c17ee859ba8839"
+    }
+  ],
+  "unique_artifacts": 532,
+  "unique_evidence_classes": {
+    "full_isometry": 172,
+    "sampled_isometry": 360
+  }
+}

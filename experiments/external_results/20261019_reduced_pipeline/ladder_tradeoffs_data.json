@@ -1,0 +1,1728 @@
+{
+  "cohort_rule": "Identical eligible all-seven-arm cohort in both sessions; positive-ratio subsets may differ by metric.",
+  "input_sha256": {
+    "analysis.json": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed",
+    "plot_ladder.py": "eb12325ebca9f21c35f2bac7adfb0873175c2208e64da907dfcd191cc5065f35",
+    "protocol.json": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9"
+  },
+  "interpretation": "Executed pipeline time and circuit structure for the same experimental binary; no code-size or memory inference.",
+  "intervals": "Marginal 95% fixture-cluster bootstrap intervals from analysis; not a joint confidence region.",
+  "panels": [
+    {
+      "metric": "cx_count",
+      "points": [
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R0",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              11.16452749908532,
+              19.032704829729624
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 14.655228994057838,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.3246570523722871,
+              1.5210589568562398
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.4206432151218276,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R1",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              6.058019109491659,
+              11.835547515191962
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 8.494728378502057,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.3273268972992756,
+              1.5281032957141463
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.4206432151218276,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R2",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              4.308501735701622,
+              8.107715753025873
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 5.915089156569773,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.2027794456494532,
+              1.3488100935367318
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.2698677638090456,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R3",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.6139541881701485,
+              4.7985672044675205
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 3.5426893456160786,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.1633918414031588,
+              1.2918921453384056
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.22494190885046,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R4",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.1396098450316337,
+              3.522967328955038
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 2.7385562380189046,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.101072240656434,
+              1.2041902583137487
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.1475581121632137,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R5",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.4488187439786733,
+              1.9808398638674072
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.6946194287666732,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0069216901243359,
+              1.0557314074403492
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.027974865379005,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R6",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        }
+      ],
+      "session": 1,
+      "title": "CX count"
+    },
+    {
+      "metric": "depth",
+      "points": [
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R0",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              11.16452749908532,
+              19.032704829729624
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 14.655228994057838,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.4521892825767644,
+              1.762957338307113
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.5987503650209818,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R1",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              6.058019109491659,
+              11.835547515191962
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 8.494728378502057,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.3063344514023238,
+              1.5432690271829603
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.4157145866826233,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R2",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              4.308501735701622,
+              8.107715753025873
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 5.915089156569773,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0985741689154345,
+              1.3319987291075766
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.2051076941630787,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R3",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.6139541881701485,
+              4.7985672044675205
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 3.5426893456160786,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0742342307728365,
+              1.3165636169542698
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.1858499950977597,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R4",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.1396098450316337,
+              3.522967328955038
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 2.7385562380189046,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0538131016499073,
+              1.2588368675257988
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.1465555339135702,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R5",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.4488187439786733,
+              1.9808398638674072
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.6946194287666732,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              0.9783926169832035,
+              1.0637335622790012
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0198033711518055,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R6",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        }
+      ],
+      "session": 1,
+      "title": "Total depth"
+    },
+    {
+      "metric": "two_q_depth",
+      "points": [
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R0",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              11.16452749908532,
+              19.032704829729624
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 14.655228994057838,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.3261818408812338,
+              1.6713444448222272
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.484036332560101,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R1",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              6.058019109491659,
+              11.835547515191962
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 8.494728378502057,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.3156847118139208,
+              1.6811102188035367
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.484036332560101,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R2",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              4.308501735701622,
+              8.107715753025873
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 5.915089156569773,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.1667018593090532,
+              1.4533423823946916
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.3016833213252716,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R3",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.6139541881701485,
+              4.7985672044675205
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 3.5426893456160786,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.1357198969383706,
+              1.4047738517959492
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.2541003002691995,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R4",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.1396098450316337,
+              3.522967328955038
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 2.7385562380189046,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.084954555626439,
+              1.3344774444017244
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.1970507035528788,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R5",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.4488187439786733,
+              1.9808398638674072
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.6946194287666732,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              0.988231747695084,
+              1.0846265981166385
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0332408772891923,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R6",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        }
+      ],
+      "session": 1,
+      "title": "Two-qubit depth"
+    },
+    {
+      "metric": "cx_count",
+      "points": [
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R0",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              10.989787770421328,
+              19.071725409219646
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 14.531678853585769,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.3271429501631373,
+              1.530762169970021
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.4206432151218276,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R1",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              5.940276440772038,
+              11.700509304392323
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 8.487677853162078,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.3271251742205277,
+              1.525827396603754
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.4206432151218276,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R2",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              4.262981860194894,
+              8.016599325970835
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 5.878572336294961,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.2011260765124476,
+              1.3477156941751085
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.2698677638090456,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R3",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.6084728134030724,
+              4.704545653371278
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 3.5251687996976115,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.165744253091909,
+              1.2935721777406286
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.22494190885046,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R4",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.1299712197384424,
+              3.4573227632056676
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 2.7334343436070365,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.1024757831797938,
+              1.208053461783232
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.1475581121632137,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R5",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.4510753457844592,
+              1.9766946868627815
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.6935289370882747,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.006387206932869,
+              1.053297729429316
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.027974865379005,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R6",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        }
+      ],
+      "session": 2,
+      "title": "CX count"
+    },
+    {
+      "metric": "depth",
+      "points": [
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R0",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              10.989787770421328,
+              19.071725409219646
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 14.531678853585769,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.458837474002528,
+              1.7675960345025814
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.5987503650209818,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R1",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              5.940276440772038,
+              11.700509304392323
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 8.487677853162078,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.308159780934309,
+              1.5443155560589794
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.4157145866826233,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R2",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              4.262981860194894,
+              8.016599325970835
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 5.878572336294961,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0934536361224962,
+              1.331613220279013
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.2051076941630787,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R3",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.6084728134030724,
+              4.704545653371278
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 3.5251687996976115,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0765585460682072,
+              1.311197330249702
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.1858499950977597,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R4",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.1299712197384424,
+              3.4573227632056676
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 2.7334343436070365,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0523013454226189,
+              1.2639469136437282
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.1465555339135702,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R5",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.4510753457844592,
+              1.9766946868627815
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.6935289370882747,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              0.9761868108366751,
+              1.0622970859641214
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0198033711518055,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R6",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        }
+      ],
+      "session": 2,
+      "title": "Total depth"
+    },
+    {
+      "metric": "two_q_depth",
+      "points": [
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R0",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              10.989787770421328,
+              19.071725409219646
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 14.531678853585769,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.3233469211325388,
+              1.6829585938059244
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.484036332560101,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R1",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              5.940276440772038,
+              11.700509304392323
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 8.487677853162078,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.3207292309901046,
+              1.6740767423804934
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.484036332560101,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R2",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              4.262981860194894,
+              8.016599325970835
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 5.878572336294961,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.171582983762968,
+              1.4566071925391397
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.3016833213252716,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R3",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.6084728134030724,
+              4.704545653371278
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 3.5251687996976115,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.1336211053765868,
+              1.3942019727426491
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.2541003002691995,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R4",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              2.1299712197384424,
+              3.4573227632056676
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 2.7334343436070365,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0851033620261925,
+              1.3332662539857245
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.1970507035528788,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R5",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.4510753457844592,
+              1.9766946868627815
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.6935289370882747,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              0.9834875355692098,
+              1.084437400391595
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0332408772891923,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        },
+        {
+          "omission_reason": null,
+          "plotted": true,
+          "recipe": "R6",
+          "x": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "reference / candidate; >1 faster",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          },
+          "y": {
+            "bootstrap_fixture_clusters": 18,
+            "ci95": [
+              1.0,
+              1.0
+            ],
+            "cohort_cells": 54,
+            "positive_ratio_cells": 54,
+            "ratio_definition": "candidate / reference; <1 fewer or shallower",
+            "value": 1.0,
+            "zero_cases": {
+              "both_zero": 0,
+              "denominator_zero": 0,
+              "numerator_zero": 0
+            }
+          }
+        }
+      ],
+      "session": 2,
+      "title": "Two-qubit depth"
+    }
+  ],
+  "primary_case_ids": [
+    "reduced_ladder__bmw_quark_cardinality_n10_s53__all_to_all",
+    "reduced_ladder__bmw_quark_cardinality_n10_s53__grid",
+    "reduced_ladder__bmw_quark_cardinality_n10_s53__linear",
+    "reduced_ladder__bmw_quark_cardinality_n14_s53__all_to_all",
+    "reduced_ladder__bmw_quark_cardinality_n14_s53__grid",
+    "reduced_ladder__bmw_quark_cardinality_n14_s53__linear",
+    "reduced_ladder__bmw_quark_cardinality_n6_s53__all_to_all",
+    "reduced_ladder__bmw_quark_cardinality_n6_s53__grid",
+    "reduced_ladder__bmw_quark_cardinality_n6_s53__linear",
+    "reduced_ladder__bmw_quark_copula_n10_s53__all_to_all",
+    "reduced_ladder__bmw_quark_copula_n10_s53__grid",
+    "reduced_ladder__bmw_quark_copula_n10_s53__linear",
+    "reduced_ladder__bmw_quark_copula_n14_s53__all_to_all",
+    "reduced_ladder__bmw_quark_copula_n14_s53__grid",
+    "reduced_ladder__bmw_quark_copula_n14_s53__linear",
+    "reduced_ladder__bmw_quark_copula_n6_s53__all_to_all",
+    "reduced_ladder__bmw_quark_copula_n6_s53__grid",
+    "reduced_ladder__bmw_quark_copula_n6_s53__linear",
+    "reduced_ladder__graphstate_n10_s53__all_to_all",
+    "reduced_ladder__graphstate_n10_s53__grid",
+    "reduced_ladder__graphstate_n10_s53__linear",
+    "reduced_ladder__graphstate_n14_s53__all_to_all",
+    "reduced_ladder__graphstate_n14_s53__grid",
+    "reduced_ladder__graphstate_n14_s53__linear",
+    "reduced_ladder__graphstate_n6_s53__all_to_all",
+    "reduced_ladder__graphstate_n6_s53__grid",
+    "reduced_ladder__graphstate_n6_s53__linear",
+    "reduced_ladder__qaoa_n10_s53__all_to_all",
+    "reduced_ladder__qaoa_n10_s53__grid",
+    "reduced_ladder__qaoa_n10_s53__linear",
+    "reduced_ladder__qaoa_n14_s53__all_to_all",
+    "reduced_ladder__qaoa_n14_s53__grid",
+    "reduced_ladder__qaoa_n14_s53__linear",
+    "reduced_ladder__qaoa_n6_s53__all_to_all",
+    "reduced_ladder__qaoa_n6_s53__grid",
+    "reduced_ladder__qaoa_n6_s53__linear",
+    "reduced_ladder__qftentangled_n10__all_to_all",
+    "reduced_ladder__qftentangled_n10__grid",
+    "reduced_ladder__qftentangled_n10__linear",
+    "reduced_ladder__qftentangled_n14__all_to_all",
+    "reduced_ladder__qftentangled_n14__grid",
+    "reduced_ladder__qftentangled_n14__linear",
+    "reduced_ladder__qftentangled_n6__all_to_all",
+    "reduced_ladder__qftentangled_n6__grid",
+    "reduced_ladder__qftentangled_n6__linear",
+    "reduced_ladder__vqe_two_local_n10_s53__all_to_all",
+    "reduced_ladder__vqe_two_local_n10_s53__grid",
+    "reduced_ladder__vqe_two_local_n10_s53__linear",
+    "reduced_ladder__vqe_two_local_n14_s53__all_to_all",
+    "reduced_ladder__vqe_two_local_n14_s53__grid",
+    "reduced_ladder__vqe_two_local_n14_s53__linear",
+    "reduced_ladder__vqe_two_local_n6_s53__all_to_all",
+    "reduced_ladder__vqe_two_local_n6_s53__grid",
+    "reduced_ladder__vqe_two_local_n6_s53__linear"
+  ],
+  "primary_paired_cells": 54,
+  "schema": "qrust_ladder_plot_data_v1",
+  "source_case_ids": [
+    "reduced_ladder__bmw_quark_cardinality_n10_s53__all_to_all",
+    "reduced_ladder__bmw_quark_cardinality_n10_s53__grid",
+    "reduced_ladder__bmw_quark_cardinality_n10_s53__linear",
+    "reduced_ladder__bmw_quark_cardinality_n14_s53__all_to_all",
+    "reduced_ladder__bmw_quark_cardinality_n14_s53__grid",
+    "reduced_ladder__bmw_quark_cardinality_n14_s53__linear",
+    "reduced_ladder__bmw_quark_cardinality_n6_s53__all_to_all",
+    "reduced_ladder__bmw_quark_cardinality_n6_s53__grid",
+    "reduced_ladder__bmw_quark_cardinality_n6_s53__linear",
+    "reduced_ladder__bmw_quark_copula_n10_s53__all_to_all",
+    "reduced_ladder__bmw_quark_copula_n10_s53__grid",
+    "reduced_ladder__bmw_quark_copula_n10_s53__linear",
+    "reduced_ladder__bmw_quark_copula_n14_s53__all_to_all",
+    "reduced_ladder__bmw_quark_copula_n14_s53__grid",
+    "reduced_ladder__bmw_quark_copula_n14_s53__linear",
+    "reduced_ladder__bmw_quark_copula_n6_s53__all_to_all",
+    "reduced_ladder__bmw_quark_copula_n6_s53__grid",
+    "reduced_ladder__bmw_quark_copula_n6_s53__linear",
+    "reduced_ladder__graphstate_n10_s53__all_to_all",
+    "reduced_ladder__graphstate_n10_s53__grid",
+    "reduced_ladder__graphstate_n10_s53__linear",
+    "reduced_ladder__graphstate_n14_s53__all_to_all",
+    "reduced_ladder__graphstate_n14_s53__grid",
+    "reduced_ladder__graphstate_n14_s53__linear",
+    "reduced_ladder__graphstate_n6_s53__all_to_all",
+    "reduced_ladder__graphstate_n6_s53__grid",
+    "reduced_ladder__graphstate_n6_s53__linear",
+    "reduced_ladder__qaoa_n10_s53__all_to_all",
+    "reduced_ladder__qaoa_n10_s53__grid",
+    "reduced_ladder__qaoa_n10_s53__linear",
+    "reduced_ladder__qaoa_n14_s53__all_to_all",
+    "reduced_ladder__qaoa_n14_s53__grid",
+    "reduced_ladder__qaoa_n14_s53__linear",
+    "reduced_ladder__qaoa_n6_s53__all_to_all",
+    "reduced_ladder__qaoa_n6_s53__grid",
+    "reduced_ladder__qaoa_n6_s53__linear",
+    "reduced_ladder__qftentangled_n10__all_to_all",
+    "reduced_ladder__qftentangled_n10__grid",
+    "reduced_ladder__qftentangled_n10__linear",
+    "reduced_ladder__qftentangled_n14__all_to_all",
+    "reduced_ladder__qftentangled_n14__grid",
+    "reduced_ladder__qftentangled_n14__linear",
+    "reduced_ladder__qftentangled_n6__all_to_all",
+    "reduced_ladder__qftentangled_n6__grid",
+    "reduced_ladder__qftentangled_n6__linear",
+    "reduced_ladder__vqe_two_local_n10_s53__all_to_all",
+    "reduced_ladder__vqe_two_local_n10_s53__grid",
+    "reduced_ladder__vqe_two_local_n10_s53__linear",
+    "reduced_ladder__vqe_two_local_n14_s53__all_to_all",
+    "reduced_ladder__vqe_two_local_n14_s53__grid",
+    "reduced_ladder__vqe_two_local_n14_s53__linear",
+    "reduced_ladder__vqe_two_local_n6_s53__all_to_all",
+    "reduced_ladder__vqe_two_local_n6_s53__grid",
+    "reduced_ladder__vqe_two_local_n6_s53__linear"
+  ],
+  "source_cases": 54,
+  "statistic": "Cell-weighted geometric mean of paired ratios from the frozen analysis; no recomputation or family reweighting.",
+  "synthetic": false,
+  "x_axis": "R6 compile time / recipe compile time; right is faster",
+  "y_axis": "Recipe structural cost / R6 structural cost; up is more or deeper",
+  "zero_policy": "Omit nonpositive ratio cases from geometric summaries; disclose counts and never substitute pseudocounts."
+}
