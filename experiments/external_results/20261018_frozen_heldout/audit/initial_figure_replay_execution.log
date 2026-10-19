@@ -1,0 +1,3 @@
+2026-10-18 21:24:52.067 system_profiler[58560:884377] XType: Using static font registry.
+Matplotlib is building the font cache; this may take a moment.
+{"output": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/figure_replay", "paired_cases": {"qiskit": 84, "cirq": 84, "tket": 84}, "session": 1}

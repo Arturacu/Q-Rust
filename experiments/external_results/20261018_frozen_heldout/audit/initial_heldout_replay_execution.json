@@ -1,0 +1,13 @@
+{
+  "command": [
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_frozen_holdout_20261018/replay_heldout.py",
+    "--study",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_frozen_holdout_20261018",
+    "--output",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/heldout_replay"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 660.6952175000042,
+  "log_sha256": "b6cdb58ec5ef4c306730c15f5b9676a68b3b585ab1b188ce2faa1437ae85a00b"
+}

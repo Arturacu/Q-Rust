@@ -1,0 +1,6 @@
+{"totals": {"passed": 116, "failed_or_unsupported": 10, "diagnostic_error": 2}}
+{"planned_interventions": 124, "analytic_witnesses": 4, "total_artifacts": 128, "compiled_interventions": 122, "verified_interventions": 112, "verified_analytic_witnesses": 4, "unsupported_compiled_interventions": 10, "error_interventions": 2, "exact_sdk_trace_native_pairs": 12, "qualified_negative_controls_rejected": 348}
+{"unique_artifacts":2,"validated":{"passed":16}}
+{"unique_artifacts":11,"validated":{"passed":48}}
+{"unique_artifacts":11,"validated":{"passed":24,"timeout":8,"unverified_output":32}}
+{"all_passed": true, "tracks": ["cat_ghz", "dense/baseline_trace", "dense/qrust_ablation", "dense/sdk_ablation_v2"]}

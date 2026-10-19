@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/preserve_baselines.py",
+    "check"
+  ],
+  "exit_code": 0,
+  "log_sha256": "c5102f0bba346d4e8c9394408aa93261ad451a26ed4e45e7d78f45ea04da5f5e"
+}

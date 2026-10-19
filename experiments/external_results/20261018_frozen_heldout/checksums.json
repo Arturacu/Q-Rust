@@ -1,0 +1,13 @@
+{
+  "archive_audit": {
+    "all_payload_hashes_match": true,
+    "manifest_sha256": "9d8f39a43dae4bde7178364da011c6bb754ba6d94f0bdbe4e555a1a35326f564",
+    "payload_files": 706
+  },
+  "archive_bytes": 47049231,
+  "archive_sha256": "a0672991aeb43970a0ac9d5c8ef2423dd8433ffe6b6a968386e47867cc1a4399",
+  "compiler_freeze_sha256": "017b43a310f44edbc20f21c8f674a5b2b57a772a65fc77e6aa5080dd93a9c0cc",
+  "manifest_sha256": "9d8f39a43dae4bde7178364da011c6bb754ba6d94f0bdbe4e555a1a35326f564",
+  "preservation_manifest_sha256": "557e4b24b1a76ce9963585b5b1bd4d19a8c6f7cb1b722d5e091524b1bc28fb3d",
+  "schema": 1
+}

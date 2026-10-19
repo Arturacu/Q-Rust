@@ -1,0 +1,84 @@
+{
+  "analysis_sha256": "e1ac43759543da6eddf500db999624ab7ed327ae5acd5cd2fab46a971e56661f",
+  "cells_and_analysis_byte_identical": true,
+  "commands": [
+    {
+      "command": [
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_frozen_holdout_20261018/heldout/heldout_study.py",
+        "validate",
+        "--repo",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_pr_publish",
+        "--study",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/heldout_replay/campaign",
+        "--binary",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_compile_overhead_20261018/comparison_runner_final",
+        "--plan",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_frozen_holdout_20261018/heldout/protocol_plan.json",
+        "--compiler-freeze",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_frozen_holdout_20261018/compiler_freeze.json",
+        "--allow-relocated",
+        "--generator-root",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_external_20261018/sources/mqtbench"
+      ],
+      "exit_code": 0,
+      "log_sha256": "91895ae274f67c94c74a53c45d137e969134667554e6e1abe77801e3a93b7c78",
+      "phase": "validate"
+    },
+    {
+      "command": [
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_frozen_holdout_20261018/heldout/heldout_study.py",
+        "analyze",
+        "--repo",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_pr_publish",
+        "--study",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/heldout_replay/campaign",
+        "--binary",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_compile_overhead_20261018/comparison_runner_final",
+        "--plan",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_frozen_holdout_20261018/heldout/protocol_plan.json",
+        "--compiler-freeze",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_frozen_holdout_20261018/compiler_freeze.json",
+        "--allow-relocated",
+        "--generator-root",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018/extracted/working/qrust_external_20261018/sources/mqtbench"
+      ],
+      "exit_code": 0,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "phase": "analyze"
+    }
+  ],
+  "excluded_field": "Only validation.validation_ns; derived validation-file hashes are checked against both actual files before comparison.",
+  "no_compiler_execution": true,
+  "passed": true,
+  "protocol_sha256": "0df4e083af1e0fc5df62ef92e25abb408156ed6189cd728c2663a871f2577297",
+  "replay_helper_sha256": "7f6824a9a37d33460a87e21ffef3ba23c0b1b177d6a0075e9e56e2cfc35f7b74",
+  "schema": 1,
+  "validated_artifacts": [
+    {
+      "file": "session_01/validated.jsonl",
+      "reference_sha256": "47471c6990b915714cdb88b11140b29c82a1f423eeb40ce68aef8ec4deb27a63",
+      "replay_sha256": "6347a637173a46ebfb99b41316bd2d8b16eb4cfddf02600b186d806da3148e54",
+      "semantic_equality": true
+    },
+    {
+      "file": "session_01/warmup_validated.jsonl",
+      "reference_sha256": "6f24f019e1111d6c0d266706f82df943ae20a3826a55e533a68a22b4d5ee926d",
+      "replay_sha256": "4b1e507a9aa760928a869b02ecdfbb6d85a21b83659747ed5935be1704930394",
+      "semantic_equality": true
+    },
+    {
+      "file": "session_02/validated.jsonl",
+      "reference_sha256": "a24b85aa9cadd0aec42b0bd6b46471fe0663c6b6f66fc46e4ac9445af2218aac",
+      "replay_sha256": "f7fd300064894f8e2dedc514a50a1353ea6fe1bbfb02acf3958e16f67cee1e2f",
+      "semantic_equality": true
+    },
+    {
+      "file": "session_02/warmup_validated.jsonl",
+      "reference_sha256": "4cdf150dd105832792d09548591eba7d8bbf5bff4dec35f41c9204da6b9c471a",
+      "replay_sha256": "b78d44b306bdcc795ba0e8e7d9f40f6931e845402fa6062c06a1d83ffb4efd78",
+      "semantic_equality": true
+    }
+  ]
+}

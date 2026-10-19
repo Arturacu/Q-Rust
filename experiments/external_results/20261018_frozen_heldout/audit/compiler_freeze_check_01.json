@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/freeze_environment.py",
+    "check"
+  ],
+  "exit_code": 0,
+  "log_sha256": "e3c806d5ce3caac41a174494c8ac45bdbecc590d1ffc9134efb848ead79dcd6a"
+}

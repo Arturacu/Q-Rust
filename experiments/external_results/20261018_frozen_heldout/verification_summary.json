@@ -1,0 +1,50 @@
+{
+  "archive_all_payload_hashes_match": true,
+  "archive_payload_files": 706,
+  "archive_sha256": "a0672991aeb43970a0ac9d5c8ef2423dd8433ffe6b6a968386e47867cc1a4399",
+  "control_replay": {
+    "passed": true,
+    "receipt": "audit/control_replay_receipt.json"
+  },
+  "evidence_tests_passed": 75,
+  "heldout_replay": {
+    "cells_and_analysis_byte_identical": true,
+    "final_archive_binding": "presentation_revision_binding.json",
+    "passed": true,
+    "receipt": "audit/heldout_replay_receipt.json"
+  },
+  "historical_files_preserved": 1547,
+  "limitations": "Replays validate saved outputs, not fresh compiler executions. Larger general-circuit correctness checks remain sampled; unsupported diagnostic outputs and timeouts retain their original statuses. The held-out replay uses the first archive extraction; exact computational-input equality to the final presentation revision is separately verified.",
+  "passed": true,
+  "production_compiler_or_adapter_changes": false,
+  "report_and_figures_byte_identical": true,
+  "report_sha256": "68b0078b111de9e669d4901bc51c44f9cbcbc5ea45d0a7d979c9184549b0b4d3",
+  "schema": 1,
+  "test_logs": [
+    {
+      "archive_relative": "working/qrust_frozen_holdout_20261018/cat_ghz/unit_tests_v3.log",
+      "passed_tests": 5,
+      "sha256": "c410f7851c424346e086146ae56d9ca785b8ec31d0b0f78c735bf48a0d6e3554"
+    },
+    {
+      "archive_relative": "working/qrust_frozen_holdout_20261018/heldout/unit_tests_final.log",
+      "passed_tests": 19,
+      "sha256": "e503f7995d61566bbd510ab560a7ca1b444179bbb37d4448271998a86e59aa84"
+    },
+    {
+      "archive_relative": "working/qrust_frozen_holdout_20261018/dense/evidence_tests_attempt1.log",
+      "passed_tests": 13,
+      "sha256": "16450f3ae591cc8a69766b12c6eb4c5b3f1381953d625ca0035f44ccc9e86d87"
+    },
+    {
+      "archive_relative": "working/qrust_frozen_holdout_20261018/root_helper_tests_02.log",
+      "passed_tests": 27,
+      "sha256": "300c97066e19c998216e92240b3c26e20b18b7e6f04713975abe3f1c7e9995a5"
+    },
+    {
+      "archive_relative": "working/qrust_frozen_holdout_20261018/reporting_tests_01.log",
+      "passed_tests": 11,
+      "sha256": "033f34e17f81198b4e4880a372dcbc5f52dbfca4864565abb623c671f3c7eff3"
+    }
+  ]
+}

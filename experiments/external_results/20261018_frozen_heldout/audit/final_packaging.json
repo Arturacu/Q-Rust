@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/package_study.py",
+    "--study",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018",
+    "--repo",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish",
+    "--destination",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/external_results/20261018_frozen_heldout_final",
+    "--scratch",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final",
+    "--report",
+    "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/FROZEN_HELDOUT_STUDY.md"
+  ],
+  "local_text_policy_checked": true,
+  "exit_code": 0,
+  "elapsed_seconds": 27.077444833994377,
+  "log_sha256": "22304640da4b96f5c1860beff1d73a0c9980cddb2beb3e31c9f1c5c805847e80"
+}

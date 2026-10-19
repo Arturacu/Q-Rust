@@ -1,0 +1,60 @@
+{
+  "all_passed": true,
+  "derived_hash_policy": "validated_sha256 / summary_sha256 are checked against each original and fresh file before comparison of all remaining semantic fields. Every compiler, parser, transport and pass timing remains compared.",
+  "environment_evidence": {
+    "freeze_sha256": "017b43a310f44edbc20f21c8f674a5b2b57a772a65fc77e6aa5080dd93a9c0cc",
+    "installed_files_checked": 10706,
+    "package_versions_equal": true,
+    "python_version_equal": true
+  },
+  "excluded_semantic_fields": [
+    "validation.validation_ns when present",
+    "negative_controls.<name>.validation_ns when present"
+  ],
+  "no_compiler_execution": true,
+  "replay_helper_sha256": "341157683e16935e92efe1fc003f2e111a6839512aec2ac6cde86f43cfa14e68",
+  "schema": 1,
+  "tracks": [
+    {
+      "byte_identical_validated": true,
+      "derivation_source_sha256": "aaeed750e96fe51807d7b5cd86914db08c2c3365598aeac2286a4deacbcf5577",
+      "derived_summary_equal": true,
+      "native_sdk_pairs": 12,
+      "original_validated_sha256": "d319c670fad52503db18e3f2e3702040135b82a57fcbc9b761f57766205a885e",
+      "replay_validated_sha256": "d319c670fad52503db18e3f2e3702040135b82a57fcbc9b761f57766205a885e",
+      "rows": 128,
+      "semantic_equality": true,
+      "track": "cat_ghz"
+    },
+    {
+      "accounting_equal": true,
+      "accounting_source_sha256": "366978ea5d843127226535db6eedf17ffab99622c561389d46913298e5e19af1",
+      "byte_identical_validated": true,
+      "original_validated_sha256": "7ef89b6c07db7ee2317558b61e46074ef7de7fb3e55f01682b330a29bb00bb0a",
+      "replay_validated_sha256": "7ef89b6c07db7ee2317558b61e46074ef7de7fb3e55f01682b330a29bb00bb0a",
+      "rows": 16,
+      "semantic_equality": true,
+      "track": "dense/baseline_trace"
+    },
+    {
+      "accounting_equal": true,
+      "accounting_source_sha256": "366978ea5d843127226535db6eedf17ffab99622c561389d46913298e5e19af1",
+      "byte_identical_validated": true,
+      "original_validated_sha256": "2b269e069d5bc8fd7f21e5a46601310b517868f25581157bdea7a324d0783394",
+      "replay_validated_sha256": "2b269e069d5bc8fd7f21e5a46601310b517868f25581157bdea7a324d0783394",
+      "rows": 48,
+      "semantic_equality": true,
+      "track": "dense/qrust_ablation"
+    },
+    {
+      "accounting_equal": true,
+      "accounting_source_sha256": "366978ea5d843127226535db6eedf17ffab99622c561389d46913298e5e19af1",
+      "byte_identical_validated": true,
+      "original_validated_sha256": "ce660da15b4e4d3c8bf89e6082751c1cafd7681898086df08ae32ddda696958b",
+      "replay_validated_sha256": "ce660da15b4e4d3c8bf89e6082751c1cafd7681898086df08ae32ddda696958b",
+      "rows": 64,
+      "semantic_equality": true,
+      "track": "dense/sdk_ablation_v2"
+    }
+  ]
+}
