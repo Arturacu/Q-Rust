@@ -1,0 +1,1035 @@
+{
+  "estimator": "Absolute milliseconds are median across the82 common eligible case medians; full-request speed ratio is equal-case geometric mean of baseline/Q-Rust request_wall_ns medians. Not isolated serialization.",
+  "sessions": {
+    "1": {
+      "common_cells": 82,
+      "common_fixtures": 41,
+      "absolute_ms": {
+        "qrust": {
+          "compile_ns": 0.4158955,
+          "parse_ns": 0.027291,
+          "request_wall_ns": 0.5429375,
+          "noncompile_nonparse_request_ns": 0.085895
+        },
+        "qiskit": {
+          "compile_ns": 2.554792,
+          "parse_ns": 0.2125835,
+          "request_wall_ns": 3.0330625,
+          "noncompile_nonparse_request_ns": 0.1983745
+        },
+        "cirq": {
+          "compile_ns": 43.511292,
+          "parse_ns": 5.099229,
+          "request_wall_ns": 48.9525625,
+          "noncompile_nonparse_request_ns": 0.400167
+        },
+        "tket": {
+          "compile_ns": 134.8754375,
+          "parse_ns": 1.137771,
+          "request_wall_ns": 137.0535205,
+          "noncompile_nonparse_request_ns": 0.4978125
+        },
+        "cirq_one_pass": {
+          "compile_ns": 30.940292,
+          "parse_ns": 5.0513125,
+          "request_wall_ns": 37.792771,
+          "noncompile_nonparse_request_ns": 0.3940615
+        },
+        "tket_light": {
+          "compile_ns": 14.6884585,
+          "parse_ns": 1.1355205,
+          "request_wall_ns": 16.1488755,
+          "noncompile_nonparse_request_ns": 0.3719585
+        }
+      },
+      "request_speed_ratios": {
+        "qiskit": 4.115297416273015,
+        "cirq": 82.03408555342355,
+        "tket": 188.10038395442194,
+        "cirq_one_pass": 54.18430933665275,
+        "tket_light": 25.420600057195994
+      },
+      "compile_speed_ratios": {
+        "qiskit": 4.491790601885476,
+        "cirq": 88.31845955310123,
+        "tket": 243.1475319292401,
+        "cirq_one_pass": 54.03029658310289,
+        "tket_light": 29.642120380300128
+      },
+      "maximum_residual_by_recipe": {
+        "qrust": 2.5030233502174633e-13,
+        "qiskit": 2.761949077961824e-12,
+        "cirq": 1.048481730231986e-11,
+        "tket": 4.5309512666641535e-09,
+        "cirq_one_pass": 1.028004652811384e-11,
+        "tket_light": 3.246028847635396e-14
+      },
+      "subgroups": {
+        "primary": {
+          "by_suite": {
+            "mqt": {
+              "qiskit": {
+                "pairs": 18,
+                "speed": 5.222192667294566,
+                "cx_ratio": 0.9819153009333791,
+                "depth_ratio": 0.8244342105973143
+              },
+              "cirq": {
+                "pairs": 18,
+                "speed": 134.22640215819357,
+                "cx_ratio": 0.7728117797800473,
+                "depth_ratio": 0.49382168142480887
+              },
+              "tket": {
+                "pairs": 18,
+                "speed": 530.3854659819987,
+                "cx_ratio": 0.8845921491567781,
+                "depth_ratio": 0.9345662256734348
+              }
+            },
+            "qasmbench": {
+              "qiskit": {
+                "pairs": 64,
+                "speed": 4.305428304745171,
+                "cx_ratio": 1.0329512577242463,
+                "depth_ratio": 0.9982576820346507
+              },
+              "cirq": {
+                "pairs": 64,
+                "speed": 78.50983100659725,
+                "cx_ratio": 0.7956309593343289,
+                "depth_ratio": 0.6821984718044001
+              },
+              "tket": {
+                "pairs": 64,
+                "speed": 195.25599350193764,
+                "cx_ratio": 1.0711753665752632,
+                "depth_ratio": 1.1034845964011721
+              }
+            }
+          },
+          "by_width_bin": {
+            "11-14": {
+              "qiskit": {
+                "pairs": 6,
+                "speed": 1.3361054732459345,
+                "cx_ratio": 1.0098825997067085,
+                "depth_ratio": 0.8557327907757168
+              },
+              "cirq": {
+                "pairs": 6,
+                "speed": 99.16870653732366,
+                "cx_ratio": 0.6626473103201949,
+                "depth_ratio": 0.46822893335982607
+              },
+              "tket": {
+                "pairs": 6,
+                "speed": 227.15323038377892,
+                "cx_ratio": 0.6403238136676446,
+                "depth_ratio": 0.7228636398713553
+              }
+            },
+            "2-6": {
+              "qiskit": {
+                "pairs": 58,
+                "speed": 6.8101153561578185,
+                "cx_ratio": 1.0370303696274144,
+                "depth_ratio": 0.9822064878611478
+              },
+              "cirq": {
+                "pairs": 58,
+                "speed": 83.89042145719819,
+                "cx_ratio": 0.8144833122853335,
+                "depth_ratio": 0.6861902193336348
+              },
+              "tket": {
+                "pairs": 58,
+                "speed": 231.2770348194596,
+                "cx_ratio": 1.1355255000031401,
+                "depth_ratio": 1.1458323953706628
+              }
+            },
+            "7-10": {
+              "qiskit": {
+                "pairs": 18,
+                "speed": 1.7602628782410121,
+                "cx_ratio": 0.9772789683158118,
+                "depth_ratio": 0.9144111264447856
+              },
+              "cirq": {
+                "pairs": 18,
+                "speed": 100.29024032452332,
+                "cx_ratio": 0.763674936163431,
+                "depth_ratio": 0.5494015908566735
+              },
+              "tket": {
+                "pairs": 18,
+                "speed": 292.25555179144106,
+                "cx_ratio": 0.8758020655703902,
+                "depth_ratio": 0.9531205747724245
+              }
+            }
+          },
+          "by_topology": {
+            "all_to_all": {
+              "qiskit": {
+                "pairs": 41,
+                "speed": 5.294913976562898,
+                "cx_ratio": 1.027311937878016,
+                "depth_ratio": 0.9775834092422877
+              },
+              "cirq": {
+                "pairs": 41,
+                "speed": 80.0814199437895,
+                "cx_ratio": 0.9465615375620097,
+                "depth_ratio": 0.7947221698401814
+              },
+              "tket": {
+                "pairs": 41,
+                "speed": 314.91219863831395,
+                "cx_ratio": 1.1362921421590022,
+                "depth_ratio": 1.126867398525027
+              }
+            },
+            "linear": {
+              "qiskit": {
+                "pairs": 41,
+                "speed": 3.8104835886840425,
+                "cx_ratio": 1.0152072537129335,
+                "depth_ratio": 0.9372478027535385
+              },
+              "cirq": {
+                "pairs": 41,
+                "speed": 97.40274714544076,
+                "cx_ratio": 0.6600660885915844,
+                "depth_ratio": 0.5081515033742073
+              },
+              "tket": {
+                "pairs": 41,
+                "speed": 187.7371614657035,
+                "cx_ratio": 0.9264634208772405,
+                "depth_ratio": 1.0045727820946568
+              }
+            }
+          }
+        },
+        "light": {
+          "by_suite": {
+            "mqt": {
+              "qiskit": {
+                "pairs": 18,
+                "speed": 5.222192667294566,
+                "cx_ratio": 0.9819153009333791,
+                "depth_ratio": 0.8244342105973143
+              },
+              "cirq": {
+                "pairs": 18,
+                "speed": 75.83232948120329,
+                "cx_ratio": 0.7699913152193456,
+                "depth_ratio": 0.4891394795076627
+              },
+              "tket": {
+                "pairs": 18,
+                "speed": 41.105852206388455,
+                "cx_ratio": 0.8820312461601932,
+                "depth_ratio": 0.9323810497203836
+              }
+            },
+            "qasmbench": {
+              "qiskit": {
+                "pairs": 64,
+                "speed": 4.305428304745171,
+                "cx_ratio": 1.0329512577242463,
+                "depth_ratio": 0.9982576820346507
+              },
+              "cirq": {
+                "pairs": 64,
+                "speed": 49.1170819424558,
+                "cx_ratio": 0.786402814857503,
+                "depth_ratio": 0.6792608497347888
+              },
+              "tket": {
+                "pairs": 64,
+                "speed": 27.03792409837213,
+                "cx_ratio": 0.7099550550865011,
+                "depth_ratio": 0.7534891292975933
+              }
+            }
+          },
+          "by_width_bin": {
+            "11-14": {
+              "qiskit": {
+                "pairs": 6,
+                "speed": 1.3361054732459345,
+                "cx_ratio": 1.0098825997067085,
+                "depth_ratio": 0.8557327907757168
+              },
+              "cirq": {
+                "pairs": 6,
+                "speed": 53.43705053936261,
+                "cx_ratio": 0.6598530816477239,
+                "depth_ratio": 0.46764025603868226
+              },
+              "tket": {
+                "pairs": 6,
+                "speed": 24.06843841212456,
+                "cx_ratio": 0.6384450817988846,
+                "depth_ratio": 0.7212612160250136
+              }
+            },
+            "2-6": {
+              "qiskit": {
+                "pairs": 58,
+                "speed": 6.8101153561578185,
+                "cx_ratio": 1.0370303696274144,
+                "depth_ratio": 0.9822064878611478
+              },
+              "cirq": {
+                "pairs": 58,
+                "speed": 53.06080299106885,
+                "cx_ratio": 0.8025819473923362,
+                "depth_ratio": 0.6786105290555065
+              },
+              "tket": {
+                "pairs": 58,
+                "speed": 29.791203130692107,
+                "cx_ratio": 0.7602810237014163,
+                "depth_ratio": 0.7973608189076329
+              }
+            },
+            "7-10": {
+              "qiskit": {
+                "pairs": 18,
+                "speed": 1.7602628782410121,
+                "cx_ratio": 0.9772789683158118,
+                "depth_ratio": 0.9144111264447856
+              },
+              "cirq": {
+                "pairs": 18,
+                "speed": 57.48753597518952,
+                "cx_ratio": 0.7662481010013636,
+                "depth_ratio": 0.5556671147176951
+              },
+              "tket": {
+                "pairs": 18,
+                "speed": 31.263856620206386,
+                "cx_ratio": 0.7384453809249303,
+                "depth_ratio": 0.7883627920405486
+              }
+            }
+          },
+          "by_topology": {
+            "all_to_all": {
+              "qiskit": {
+                "pairs": 41,
+                "speed": 5.294913976562898,
+                "cx_ratio": 1.027311937878016,
+                "depth_ratio": 0.9775834092422877
+              },
+              "cirq": {
+                "pairs": 41,
+                "speed": 50.457445489046876,
+                "cx_ratio": 0.9400143969343349,
+                "depth_ratio": 0.7901597583672932
+              },
+              "tket": {
+                "pairs": 41,
+                "speed": 26.92739976165263,
+                "cx_ratio": 0.8016314906509905,
+                "depth_ratio": 0.815100564805088
+              }
+            },
+            "linear": {
+              "qiskit": {
+                "pairs": 41,
+                "speed": 3.8104835886840425,
+                "cx_ratio": 1.0152072537129335,
+                "depth_ratio": 0.9372478027535385
+              },
+              "cirq": {
+                "pairs": 41,
+                "speed": 57.85613838678704,
+                "cx_ratio": 0.6516793489606494,
+                "depth_ratio": 0.5055355304561311
+              },
+              "tket": {
+                "pairs": 41,
+                "speed": 32.63052906770073,
+                "cx_ratio": 0.6932675043063565,
+                "depth_ratio": 0.7648209308944101
+              }
+            }
+          }
+        }
+      },
+      "slow_cases": {
+        "primary": {
+          "qiskit": [
+            {
+              "case_id": "qasmbench__sat_n11__linear",
+              "compile_speed_ratio": 0.19202090704998898,
+              "qrust_ms": 72.275333,
+              "baseline_ms": 13.878375
+            },
+            {
+              "case_id": "qasmbench__dnn_n8__all_to_all",
+              "compile_speed_ratio": 0.26718765973808606,
+              "qrust_ms": 11.05325,
+              "baseline_ms": 2.953292
+            },
+            {
+              "case_id": "qasmbench__hhl_n7__linear",
+              "compile_speed_ratio": 0.27360712545346255,
+              "qrust_ms": 27.7035,
+              "baseline_ms": 7.579875
+            }
+          ],
+          "cirq": [
+            {
+              "case_id": "qasmbench__qrng_n4__all_to_all",
+              "compile_speed_ratio": 19.06588810603867,
+              "qrust_ms": 0.062166,
+              "baseline_ms": 1.18525
+            },
+            {
+              "case_id": "qasmbench__dnn_n8__all_to_all",
+              "compile_speed_ratio": 20.369989188700156,
+              "qrust_ms": 11.05325,
+              "baseline_ms": 225.154583
+            },
+            {
+              "case_id": "qasmbench__dnn_n2__all_to_all",
+              "compile_speed_ratio": 21.40046029766359,
+              "qrust_ms": 1.503375,
+              "baseline_ms": 32.172917
+            }
+          ],
+          "tket": [
+            {
+              "case_id": "qasmbench__sat_n11__linear",
+              "compile_speed_ratio": 27.00112200105671,
+              "qrust_ms": 72.275333,
+              "baseline_ms": 1951.515084
+            },
+            {
+              "case_id": "qasmbench__multiply_n13__linear",
+              "compile_speed_ratio": 41.83430894232796,
+              "qrust_ms": 10.67675,
+              "baseline_ms": 446.654458
+            },
+            {
+              "case_id": "qasmbench__dnn_n8__linear",
+              "compile_speed_ratio": 50.155034410021834,
+              "qrust_ms": 19.990833,
+              "baseline_ms": 1002.640917
+            }
+          ]
+        },
+        "light": {
+          "qiskit": [
+            {
+              "case_id": "qasmbench__sat_n11__linear",
+              "compile_speed_ratio": 0.19202090704998898,
+              "qrust_ms": 72.275333,
+              "baseline_ms": 13.878375
+            },
+            {
+              "case_id": "qasmbench__dnn_n8__all_to_all",
+              "compile_speed_ratio": 0.26718765973808606,
+              "qrust_ms": 11.05325,
+              "baseline_ms": 2.953292
+            },
+            {
+              "case_id": "qasmbench__hhl_n7__linear",
+              "compile_speed_ratio": 0.27360712545346255,
+              "qrust_ms": 27.7035,
+              "baseline_ms": 7.579875
+            }
+          ],
+          "cirq": [
+            {
+              "case_id": "qasmbench__dnn_n8__all_to_all",
+              "compile_speed_ratio": 15.236853414154208,
+              "qrust_ms": 11.05325,
+              "baseline_ms": 168.41675
+            },
+            {
+              "case_id": "qasmbench__dnn_n8__linear",
+              "compile_speed_ratio": 15.80923571318914,
+              "qrust_ms": 19.990833,
+              "baseline_ms": 316.039791
+            },
+            {
+              "case_id": "qasmbench__qrng_n4__all_to_all",
+              "compile_speed_ratio": 18.633577839976837,
+              "qrust_ms": 0.062166,
+              "baseline_ms": 1.158375
+            }
+          ],
+          "tket": [
+            {
+              "case_id": "qasmbench__sat_n11__linear",
+              "compile_speed_ratio": 3.3355836215932757,
+              "qrust_ms": 72.275333,
+              "baseline_ms": 241.080417
+            },
+            {
+              "case_id": "qasmbench__multiply_n13__linear",
+              "compile_speed_ratio": 4.362442503570843,
+              "qrust_ms": 10.67675,
+              "baseline_ms": 46.576708
+            },
+            {
+              "case_id": "mqtbench__grover_n5__linear",
+              "compile_speed_ratio": 5.874795606047599,
+              "qrust_ms": 28.353334,
+              "baseline_ms": 166.570042
+            }
+          ]
+        }
+      },
+      "slowest_absolute_qrust": [
+        {
+          "case_id": "qasmbench__sat_n11__linear",
+          "compile_ms": 72.275333,
+          "qiskit_ms": 13.878375
+        },
+        {
+          "case_id": "mqtbench__grover_n5__linear",
+          "compile_ms": 28.353334,
+          "qiskit_ms": 9.934625
+        },
+        {
+          "case_id": "qasmbench__hhl_n7__linear",
+          "compile_ms": 27.7035,
+          "qiskit_ms": 7.579875
+        },
+        {
+          "case_id": "qasmbench__dnn_n8__linear",
+          "compile_ms": 19.990833,
+          "qiskit_ms": 5.579333
+        },
+        {
+          "case_id": "qasmbench__basis_trotter_n4__linear",
+          "compile_ms": 17.275708,
+          "qiskit_ms": 8.97725
+        }
+      ]
+    },
+    "2": {
+      "common_cells": 82,
+      "common_fixtures": 41,
+      "absolute_ms": {
+        "qrust": {
+          "compile_ns": 0.405979,
+          "parse_ns": 0.0273755,
+          "request_wall_ns": 0.5390835,
+          "noncompile_nonparse_request_ns": 0.0846045
+        },
+        "qiskit": {
+          "compile_ns": 2.5695835,
+          "parse_ns": 0.2133125,
+          "request_wall_ns": 3.051271,
+          "noncompile_nonparse_request_ns": 0.1994575
+        },
+        "cirq": {
+          "compile_ns": 43.700437,
+          "parse_ns": 5.145125,
+          "request_wall_ns": 49.121125,
+          "noncompile_nonparse_request_ns": 0.4079165
+        },
+        "tket": {
+          "compile_ns": 138.329479,
+          "parse_ns": 1.197229,
+          "request_wall_ns": 140.8134375,
+          "noncompile_nonparse_request_ns": 0.5235
+        },
+        "cirq_one_pass": {
+          "compile_ns": 30.334292,
+          "parse_ns": 5.0857915,
+          "request_wall_ns": 37.3519585,
+          "noncompile_nonparse_request_ns": 0.3937295
+        },
+        "tket_light": {
+          "compile_ns": 14.5109375,
+          "parse_ns": 1.163625,
+          "request_wall_ns": 16.1860835,
+          "noncompile_nonparse_request_ns": 0.383958
+        }
+      },
+      "request_speed_ratios": {
+        "qiskit": 4.129029217455653,
+        "cirq": 82.63280671819268,
+        "tket": 190.82728950458682,
+        "cirq_one_pass": 53.92147513485415,
+        "tket_light": 25.55537269334398
+      },
+      "compile_speed_ratios": {
+        "qiskit": 4.522834763164382,
+        "cirq": 89.12652407330134,
+        "tket": 247.49767342919745,
+        "cirq_one_pass": 53.946955792158036,
+        "tket_light": 29.846787363068916
+      },
+      "maximum_residual_by_recipe": {
+        "qrust": 2.5030233502174633e-13,
+        "qiskit": 2.761949077961824e-12,
+        "cirq": 1.048481730231986e-11,
+        "tket": 4.5309512666641535e-09,
+        "cirq_one_pass": 1.028004652811384e-11,
+        "tket_light": 3.246028847635396e-14
+      },
+      "subgroups": {
+        "primary": {
+          "by_suite": {
+            "mqt": {
+              "qiskit": {
+                "pairs": 18,
+                "speed": 5.349634856830629,
+                "cx_ratio": 0.9819153009333791,
+                "depth_ratio": 0.8244342105973143
+              },
+              "cirq": {
+                "pairs": 18,
+                "speed": 135.9942031034271,
+                "cx_ratio": 0.7728117797800473,
+                "depth_ratio": 0.49382168142480887
+              },
+              "tket": {
+                "pairs": 18,
+                "speed": 540.3986810840842,
+                "cx_ratio": 0.8845921491567781,
+                "depth_ratio": 0.9345662256734348
+              }
+            },
+            "qasmbench": {
+              "qiskit": {
+                "pairs": 64,
+                "speed": 4.314235246782645,
+                "cx_ratio": 1.0329512577242463,
+                "depth_ratio": 0.9982576820346507
+              },
+              "cirq": {
+                "pairs": 64,
+                "speed": 79.13959401942479,
+                "cx_ratio": 0.7956309593343289,
+                "depth_ratio": 0.6821984718044001
+              },
+              "tket": {
+                "pairs": 64,
+                "speed": 198.69507710631407,
+                "cx_ratio": 1.0711753665752632,
+                "depth_ratio": 1.1034845964011721
+              }
+            }
+          },
+          "by_width_bin": {
+            "11-14": {
+              "qiskit": {
+                "pairs": 6,
+                "speed": 1.367878746433013,
+                "cx_ratio": 1.0098825997067085,
+                "depth_ratio": 0.8557327907757168
+              },
+              "cirq": {
+                "pairs": 6,
+                "speed": 100.21602259480174,
+                "cx_ratio": 0.6626473103201949,
+                "depth_ratio": 0.46822893335982607
+              },
+              "tket": {
+                "pairs": 6,
+                "speed": 230.39470386550536,
+                "cx_ratio": 0.6403238136676446,
+                "depth_ratio": 0.7228636398713553
+              }
+            },
+            "2-6": {
+              "qiskit": {
+                "pairs": 58,
+                "speed": 6.855077837183987,
+                "cx_ratio": 1.0370303696274144,
+                "depth_ratio": 0.9822064878611478
+              },
+              "cirq": {
+                "pairs": 58,
+                "speed": 84.67670708775412,
+                "cx_ratio": 0.8144833122853335,
+                "depth_ratio": 0.6861902193336348
+              },
+              "tket": {
+                "pairs": 58,
+                "speed": 236.29295602962986,
+                "cx_ratio": 1.1355255000031401,
+                "depth_ratio": 1.1458323953706628
+              }
+            },
+            "7-10": {
+              "qiskit": {
+                "pairs": 18,
+                "speed": 1.764383755914127,
+                "cx_ratio": 0.9772789683158118,
+                "depth_ratio": 0.9144111264447856
+              },
+              "cirq": {
+                "pairs": 18,
+                "speed": 101.08859373502472,
+                "cx_ratio": 0.763674936163431,
+                "depth_ratio": 0.5494015908566735
+              },
+              "tket": {
+                "pairs": 18,
+                "speed": 294.2859678191865,
+                "cx_ratio": 0.8758020655703902,
+                "depth_ratio": 0.9531205747724245
+              }
+            }
+          },
+          "by_topology": {
+            "all_to_all": {
+              "qiskit": {
+                "pairs": 41,
+                "speed": 5.313182777541049,
+                "cx_ratio": 1.027311937878016,
+                "depth_ratio": 0.9775834092422877
+              },
+              "cirq": {
+                "pairs": 41,
+                "speed": 81.12049510695923,
+                "cx_ratio": 0.9465615375620097,
+                "depth_ratio": 0.7947221698401814
+              },
+              "tket": {
+                "pairs": 41,
+                "speed": 321.3085932820666,
+                "cx_ratio": 1.1362921421590022,
+                "depth_ratio": 1.126867398525027
+              }
+            },
+            "linear": {
+              "qiskit": {
+                "pairs": 41,
+                "speed": 3.850052812291035,
+                "cx_ratio": 1.0152072537129335,
+                "depth_ratio": 0.9372478027535385
+              },
+              "cirq": {
+                "pairs": 41,
+                "speed": 97.92269244554086,
+                "cx_ratio": 0.6600660885915844,
+                "depth_ratio": 0.5081515033742073
+              },
+              "tket": {
+                "pairs": 41,
+                "speed": 190.64257736515552,
+                "cx_ratio": 0.9264634208772405,
+                "depth_ratio": 1.0045727820946568
+              }
+            }
+          }
+        },
+        "light": {
+          "by_suite": {
+            "mqt": {
+              "qiskit": {
+                "pairs": 18,
+                "speed": 5.349634856830629,
+                "cx_ratio": 0.9819153009333791,
+                "depth_ratio": 0.8244342105973143
+              },
+              "cirq": {
+                "pairs": 18,
+                "speed": 75.97889362075469,
+                "cx_ratio": 0.7699913152193456,
+                "depth_ratio": 0.4891394795076627
+              },
+              "tket": {
+                "pairs": 18,
+                "speed": 42.112891383266586,
+                "cx_ratio": 0.8820312461601932,
+                "depth_ratio": 0.9323810497203836
+              }
+            },
+            "qasmbench": {
+              "qiskit": {
+                "pairs": 64,
+                "speed": 4.314235246782645,
+                "cx_ratio": 1.0329512577242463,
+                "depth_ratio": 0.9982576820346507
+              },
+              "cirq": {
+                "pairs": 64,
+                "speed": 48.99341912050121,
+                "cx_ratio": 0.786402814857503,
+                "depth_ratio": 0.6792608497347888
+              },
+              "tket": {
+                "pairs": 64,
+                "speed": 27.09229547668103,
+                "cx_ratio": 0.7099550550865011,
+                "depth_ratio": 0.7534891292975933
+              }
+            }
+          },
+          "by_width_bin": {
+            "11-14": {
+              "qiskit": {
+                "pairs": 6,
+                "speed": 1.367878746433013,
+                "cx_ratio": 1.0098825997067085,
+                "depth_ratio": 0.8557327907757168
+              },
+              "cirq": {
+                "pairs": 6,
+                "speed": 53.47742161381334,
+                "cx_ratio": 0.6598530816477239,
+                "depth_ratio": 0.46764025603868226
+              },
+              "tket": {
+                "pairs": 6,
+                "speed": 24.317218213989662,
+                "cx_ratio": 0.6384450817988846,
+                "depth_ratio": 0.7212612160250136
+              }
+            },
+            "2-6": {
+              "qiskit": {
+                "pairs": 58,
+                "speed": 6.855077837183987,
+                "cx_ratio": 1.0370303696274144,
+                "depth_ratio": 0.9822064878611478
+              },
+              "cirq": {
+                "pairs": 58,
+                "speed": 53.055823020210134,
+                "cx_ratio": 0.8025819473923362,
+                "depth_ratio": 0.6786105290555065
+              },
+              "tket": {
+                "pairs": 58,
+                "speed": 30.04706813732389,
+                "cx_ratio": 0.7602810237014163,
+                "depth_ratio": 0.7973608189076329
+              }
+            },
+            "7-10": {
+              "qiskit": {
+                "pairs": 18,
+                "speed": 1.764383755914127,
+                "cx_ratio": 0.9772789683158118,
+                "depth_ratio": 0.9144111264447856
+              },
+              "cirq": {
+                "pairs": 18,
+                "speed": 57.08757926429704,
+                "cx_ratio": 0.7662481010013636,
+                "depth_ratio": 0.5556671147176951
+              },
+              "tket": {
+                "pairs": 18,
+                "speed": 31.275182110238475,
+                "cx_ratio": 0.7384453809249303,
+                "depth_ratio": 0.7883627920405486
+              }
+            }
+          },
+          "by_topology": {
+            "all_to_all": {
+              "qiskit": {
+                "pairs": 41,
+                "speed": 5.313182777541049,
+                "cx_ratio": 1.027311937878016,
+                "depth_ratio": 0.9775834092422877
+              },
+              "cirq": {
+                "pairs": 41,
+                "speed": 50.38640420880531,
+                "cx_ratio": 0.9400143969343349,
+                "depth_ratio": 0.7901597583672932
+              },
+              "tket": {
+                "pairs": 41,
+                "speed": 27.01972635771599,
+                "cx_ratio": 0.8016314906509905,
+                "depth_ratio": 0.815100564805088
+              }
+            },
+            "linear": {
+              "qiskit": {
+                "pairs": 41,
+                "speed": 3.850052812291035,
+                "cx_ratio": 1.0152072537129335,
+                "depth_ratio": 0.9372478027535385
+              },
+              "cirq": {
+                "pairs": 41,
+                "speed": 57.75911349380365,
+                "cx_ratio": 0.6516793489606494,
+                "depth_ratio": 0.5055355304561311
+              },
+              "tket": {
+                "pairs": 41,
+                "speed": 32.96964240505185,
+                "cx_ratio": 0.6932675043063565,
+                "depth_ratio": 0.7648209308944101
+              }
+            }
+          }
+        }
+      },
+      "slow_cases": {
+        "primary": {
+          "qiskit": [
+            {
+              "case_id": "qasmbench__sat_n11__linear",
+              "compile_speed_ratio": 0.19017762542083083,
+              "qrust_ms": 71.679042,
+              "baseline_ms": 13.63175
+            },
+            {
+              "case_id": "qasmbench__dnn_n8__all_to_all",
+              "compile_speed_ratio": 0.26849751906764113,
+              "qrust_ms": 10.998083,
+              "baseline_ms": 2.952958
+            },
+            {
+              "case_id": "qasmbench__hhl_n7__linear",
+              "compile_speed_ratio": 0.27067573846583326,
+              "qrust_ms": 27.818958,
+              "baseline_ms": 7.529917
+            }
+          ],
+          "cirq": [
+            {
+              "case_id": "qasmbench__qrng_n4__all_to_all",
+              "compile_speed_ratio": 19.06068740712334,
+              "qrust_ms": 0.062583,
+              "baseline_ms": 1.192875
+            },
+            {
+              "case_id": "qasmbench__dnn_n8__all_to_all",
+              "compile_speed_ratio": 20.488335739964864,
+              "qrust_ms": 10.998083,
+              "baseline_ms": 225.332417
+            },
+            {
+              "case_id": "qasmbench__dnn_n2__all_to_all",
+              "compile_speed_ratio": 21.273535936334245,
+              "qrust_ms": 1.507875,
+              "baseline_ms": 32.077833
+            }
+          ],
+          "tket": [
+            {
+              "case_id": "qasmbench__sat_n11__linear",
+              "compile_speed_ratio": 27.024654333410314,
+              "qrust_ms": 71.679042,
+              "baseline_ms": 1937.101333
+            },
+            {
+              "case_id": "qasmbench__multiply_n13__linear",
+              "compile_speed_ratio": 42.45666934304912,
+              "qrust_ms": 10.658666,
+              "baseline_ms": 452.531458
+            },
+            {
+              "case_id": "qasmbench__hhl_n7__linear",
+              "compile_speed_ratio": 50.656221235892446,
+              "qrust_ms": 27.818958,
+              "baseline_ms": 1409.203291
+            }
+          ]
+        },
+        "light": {
+          "qiskit": [
+            {
+              "case_id": "qasmbench__sat_n11__linear",
+              "compile_speed_ratio": 0.19017762542083083,
+              "qrust_ms": 71.679042,
+              "baseline_ms": 13.63175
+            },
+            {
+              "case_id": "qasmbench__dnn_n8__all_to_all",
+              "compile_speed_ratio": 0.26849751906764113,
+              "qrust_ms": 10.998083,
+              "baseline_ms": 2.952958
+            },
+            {
+              "case_id": "qasmbench__hhl_n7__linear",
+              "compile_speed_ratio": 0.27067573846583326,
+              "qrust_ms": 27.818958,
+              "baseline_ms": 7.529917
+            }
+          ],
+          "cirq": [
+            {
+              "case_id": "qasmbench__dnn_n8__linear",
+              "compile_speed_ratio": 14.39501953014623,
+              "qrust_ms": 19.906917,
+              "baseline_ms": 286.560459
+            },
+            {
+              "case_id": "qasmbench__dnn_n8__all_to_all",
+              "compile_speed_ratio": 15.209268015162278,
+              "qrust_ms": 10.998083,
+              "baseline_ms": 167.272792
+            },
+            {
+              "case_id": "qasmbench__hhl_n7__linear",
+              "compile_speed_ratio": 19.22712500590425,
+              "qrust_ms": 27.818958,
+              "baseline_ms": 534.878583
+            }
+          ],
+          "tket": [
+            {
+              "case_id": "qasmbench__sat_n11__linear",
+              "compile_speed_ratio": 3.28412011979736,
+              "qrust_ms": 71.679042,
+              "baseline_ms": 235.402584
+            },
+            {
+              "case_id": "qasmbench__multiply_n13__linear",
+              "compile_speed_ratio": 4.344578955753,
+              "qrust_ms": 10.658666,
+              "baseline_ms": 46.307416
+            },
+            {
+              "case_id": "mqtbench__grover_n5__linear",
+              "compile_speed_ratio": 5.774894258232103,
+              "qrust_ms": 28.714292,
+              "baseline_ms": 165.822
+            }
+          ]
+        }
+      },
+      "slowest_absolute_qrust": [
+        {
+          "case_id": "qasmbench__sat_n11__linear",
+          "compile_ms": 71.679042,
+          "qiskit_ms": 13.63175
+        },
+        {
+          "case_id": "mqtbench__grover_n5__linear",
+          "compile_ms": 28.714292,
+          "qiskit_ms": 10.809209
+        },
+        {
+          "case_id": "qasmbench__hhl_n7__linear",
+          "compile_ms": 27.818958,
+          "qiskit_ms": 7.529917
+        },
+        {
+          "case_id": "qasmbench__dnn_n8__linear",
+          "compile_ms": 19.906917,
+          "qiskit_ms": 5.447458
+        },
+        {
+          "case_id": "qasmbench__basis_trotter_n4__linear",
+          "compile_ms": 17.267708,
+          "qiskit_ms": 9.068208
+        }
+      ]
+    }
+  }
+}

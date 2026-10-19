@@ -55,6 +55,14 @@ experiments/*
 !experiments/*.py
 !experiments/requirements.txt
 !experiments/requirements-comparison.txt
+!experiments/external_sources.json
+!experiments/external_sources/
+!experiments/external_sources/**
+!experiments/EXTERNAL_BENCHMARKS.md
+!experiments/EXTERNAL_BENCHMARK_METHODS.md
+!experiments/EXTERNAL_COMPILER_RECIPES.md
+!experiments/external_results/
+!experiments/external_results/**
 !experiments/fixtures/
 !experiments/fixtures/*.qasm
 !experiments/fixtures/manifest.json

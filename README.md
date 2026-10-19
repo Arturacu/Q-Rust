@@ -458,7 +458,14 @@ The library has zero `unsafe` blocks. The `try_*` variants of public APIs return
 
 ### Reproducing the cross-tool benchmarks
 
-The latest [QFT/W refinement](experiments/QFT_W_REFINEMENT.md) reports improved
+The [external benchmark study](experiments/EXTERNAL_BENCHMARKS.md) compares
+50 circuits from pinned QASMBench and MQT Bench sources across two topologies,
+six recipes and two sessions of seven trials. It retains input/adapter failures
+and independent output checks. Q-Rust accepts 82 of 100 cases; speed and quality
+comparisons are explicitly conditional on those successful cases. Methods,
+recipe settings, per-case results and compressed raw evidence are included.
+
+The earlier [QFT/W refinement](experiments/QFT_W_REFINEMENT.md) reports improved
 QFT routing/cancellation boundaries, W-state depth cleanup, independent
 correctness checks and the measured quality/runtime trade-offs. It retains
 all adverse cases and two separately planned before/after sessions.
