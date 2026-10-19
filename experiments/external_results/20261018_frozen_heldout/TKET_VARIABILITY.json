@@ -1,0 +1,506 @@
+{
+  "agreement": {
+    "by_tool": {
+      "cirq": {
+        "identical_artifact": 450
+      },
+      "qiskit": {
+        "identical_artifact": 450
+      },
+      "qrust": {
+        "identical_artifact": 420,
+        "same_nonsuccess_status": 30
+      },
+      "tket": {
+        "identical_artifact": 443,
+        "quality_changed": 7
+      }
+    },
+    "counts": {
+      "identical_artifact": 1763,
+      "quality_changed": 7,
+      "same_nonsuccess_status": 30
+    }
+  },
+  "all_tool_structural_median_agreement": {
+    "cirq": {
+      "cells_with_changed_structural_medians": 0,
+      "eligible_matched_cells": 90
+    },
+    "qiskit": {
+      "cells_with_changed_structural_medians": 0,
+      "eligible_matched_cells": 90
+    },
+    "qrust": {
+      "cells_with_changed_structural_medians": 0,
+      "eligible_matched_cells": 84
+    },
+    "tket": {
+      "cells_with_changed_structural_medians": 0,
+      "eligible_matched_cells": 90
+    }
+  },
+  "changed_case_structural_medians": [
+    {
+      "case_id": "mqt_holdout__bmw_quark_copula_n16_s11__linear",
+      "session_01": {
+        "cx_count": 1020,
+        "depth": 411,
+        "gate_count": 1200,
+        "two_q_depth": 363
+      },
+      "session_02": {
+        "cx_count": 1020,
+        "depth": 411,
+        "gate_count": 1200,
+        "two_q_depth": 363
+      }
+    },
+    {
+      "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+      "session_01": {
+        "cx_count": 1020,
+        "depth": 411,
+        "gate_count": 1200,
+        "two_q_depth": 363
+      },
+      "session_02": {
+        "cx_count": 1020,
+        "depth": 411,
+        "gate_count": 1200,
+        "two_q_depth": 363
+      }
+    },
+    {
+      "case_id": "mqt_holdout__qaoa_n16_s11__linear",
+      "session_01": {
+        "cx_count": 1066,
+        "depth": 464,
+        "gate_count": 1238,
+        "two_q_depth": 412
+      },
+      "session_02": {
+        "cx_count": 1066,
+        "depth": 464,
+        "gate_count": 1238,
+        "two_q_depth": 412
+      }
+    }
+  ],
+  "changed_trials": [
+    {
+      "case_id": "mqt_holdout__bmw_quark_copula_n16_s11__linear",
+      "session_01": {
+        "artifact_sha256": "de0bf038a424d038b380b83d64ffc3e6f42f200f9a4717acef8d7426cbd6f05c",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s11__linear",
+        "compile_ns": 3469279375,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s11__linear__tket__0",
+        "max_input_residual": 3.087487242332064e-14,
+        "metrics": {
+          "cx_count": 1020,
+          "depth": 411,
+          "gate_count": 1200,
+          "two_q_depth": 363
+        },
+        "output_sha256": "8b471bd12fd41b0d5cae7423faa04cac18fd042a038b49be019361843b96dd2b",
+        "seed": 20261019,
+        "seed_used": false,
+        "session": 1,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 0,
+        "validation_passed": true
+      },
+      "session_02": {
+        "artifact_sha256": "df4dfaf36fdff6a4e33e068bf54ff1ad1acff3f16f4a942cbf5b5011538ab8a2",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s11__linear",
+        "compile_ns": 2377553959,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s11__linear__tket__0",
+        "max_input_residual": 3.123738199661811e-14,
+        "metrics": {
+          "cx_count": 874,
+          "depth": 368,
+          "gate_count": 1054,
+          "two_q_depth": 316
+        },
+        "output_sha256": "9ed3e56be607fcd31b1ebe54dadc830157d197cb98523b0a149dca0da8bb91e2",
+        "seed": 20261019,
+        "seed_used": false,
+        "session": 2,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 0,
+        "validation_passed": true
+      },
+      "trial_zero_based": 0
+    },
+    {
+      "case_id": "mqt_holdout__bmw_quark_copula_n16_s11__linear",
+      "session_01": {
+        "artifact_sha256": "c67626baaa7ca570399016ca8a8999db955f7b6a81c3ec9f5d367b83acc80160",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s11__linear",
+        "compile_ns": 3879471708,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s11__linear__tket__3",
+        "max_input_residual": 3.074204884672672e-14,
+        "metrics": {
+          "cx_count": 669,
+          "depth": 252,
+          "gate_count": 849,
+          "two_q_depth": 213
+        },
+        "output_sha256": "0d1e9648cafbbd5f00a2cfc60167e1732c84c2eeb879d5eb3e37966fc5f61c61",
+        "seed": 20261022,
+        "seed_used": false,
+        "session": 1,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 3,
+        "validation_passed": true
+      },
+      "session_02": {
+        "artifact_sha256": "de0bf038a424d038b380b83d64ffc3e6f42f200f9a4717acef8d7426cbd6f05c",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s11__linear",
+        "compile_ns": 3442377292,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s11__linear__tket__3",
+        "max_input_residual": 3.087487242332064e-14,
+        "metrics": {
+          "cx_count": 1020,
+          "depth": 411,
+          "gate_count": 1200,
+          "two_q_depth": 363
+        },
+        "output_sha256": "8b471bd12fd41b0d5cae7423faa04cac18fd042a038b49be019361843b96dd2b",
+        "seed": 20261022,
+        "seed_used": false,
+        "session": 2,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 3,
+        "validation_passed": true
+      },
+      "trial_zero_based": 3
+    },
+    {
+      "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+      "session_01": {
+        "artifact_sha256": "e02bb39841904e906cbcda80199f91a517e84f3c22c2c2a7c8fda28df4f9c495",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+        "compile_ns": 2320129083,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s29__linear__tket__1",
+        "max_input_residual": 3.234374529898326e-14,
+        "metrics": {
+          "cx_count": 874,
+          "depth": 368,
+          "gate_count": 1054,
+          "two_q_depth": 316
+        },
+        "output_sha256": "24dd4d3973ff4f57a44309a3ba7bdbaba037db9de5d996ed534e18a69114fad9",
+        "seed": 20261020,
+        "seed_used": false,
+        "session": 1,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 1,
+        "validation_passed": true
+      },
+      "session_02": {
+        "artifact_sha256": "7913872337fe7353f5131db59569cbaec5e41e74f4eee13863307de4c55d3d79",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+        "compile_ns": 3409742250,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s29__linear__tket__1",
+        "max_input_residual": 3.240599225843308e-14,
+        "metrics": {
+          "cx_count": 1020,
+          "depth": 411,
+          "gate_count": 1200,
+          "two_q_depth": 363
+        },
+        "output_sha256": "9d6dae30a7615d25d517d91a3976652c8bcc2204b12d22dcf14d95707b427c36",
+        "seed": 20261020,
+        "seed_used": false,
+        "session": 2,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 1,
+        "validation_passed": true
+      },
+      "trial_zero_based": 1
+    },
+    {
+      "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+      "session_01": {
+        "artifact_sha256": "7913872337fe7353f5131db59569cbaec5e41e74f4eee13863307de4c55d3d79",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+        "compile_ns": 3390422042,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s29__linear__tket__2",
+        "max_input_residual": 3.240599225843308e-14,
+        "metrics": {
+          "cx_count": 1020,
+          "depth": 411,
+          "gate_count": 1200,
+          "two_q_depth": 363
+        },
+        "output_sha256": "9d6dae30a7615d25d517d91a3976652c8bcc2204b12d22dcf14d95707b427c36",
+        "seed": 20261021,
+        "seed_used": false,
+        "session": 1,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 2,
+        "validation_passed": true
+      },
+      "session_02": {
+        "artifact_sha256": "e02bb39841904e906cbcda80199f91a517e84f3c22c2c2a7c8fda28df4f9c495",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+        "compile_ns": 2363752125,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s29__linear__tket__2",
+        "max_input_residual": 3.234374529898326e-14,
+        "metrics": {
+          "cx_count": 874,
+          "depth": 368,
+          "gate_count": 1054,
+          "two_q_depth": 316
+        },
+        "output_sha256": "24dd4d3973ff4f57a44309a3ba7bdbaba037db9de5d996ed534e18a69114fad9",
+        "seed": 20261021,
+        "seed_used": false,
+        "session": 2,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 2,
+        "validation_passed": true
+      },
+      "trial_zero_based": 2
+    },
+    {
+      "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+      "session_01": {
+        "artifact_sha256": "f1cc6ae5ca7d01db765bc4a3284512f2f8504b7424e01ad8932b2bd0599c5c0c",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+        "compile_ns": 3846927542,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s29__linear__tket__3",
+        "max_input_residual": 3.234390202216807e-14,
+        "metrics": {
+          "cx_count": 669,
+          "depth": 252,
+          "gate_count": 849,
+          "two_q_depth": 213
+        },
+        "output_sha256": "5063dcd090444e6d5ba37eb8414de28659362a2b10d95bb0415604e93303bb2e",
+        "seed": 20261022,
+        "seed_used": false,
+        "session": 1,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 3,
+        "validation_passed": true
+      },
+      "session_02": {
+        "artifact_sha256": "7913872337fe7353f5131db59569cbaec5e41e74f4eee13863307de4c55d3d79",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+        "compile_ns": 3415550333,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s29__linear__tket__3",
+        "max_input_residual": 3.240599225843308e-14,
+        "metrics": {
+          "cx_count": 1020,
+          "depth": 411,
+          "gate_count": 1200,
+          "two_q_depth": 363
+        },
+        "output_sha256": "9d6dae30a7615d25d517d91a3976652c8bcc2204b12d22dcf14d95707b427c36",
+        "seed": 20261022,
+        "seed_used": false,
+        "session": 2,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 3,
+        "validation_passed": true
+      },
+      "trial_zero_based": 3
+    },
+    {
+      "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+      "session_01": {
+        "artifact_sha256": "7913872337fe7353f5131db59569cbaec5e41e74f4eee13863307de4c55d3d79",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+        "compile_ns": 3387658417,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s29__linear__tket__4",
+        "max_input_residual": 3.240599225843308e-14,
+        "metrics": {
+          "cx_count": 1020,
+          "depth": 411,
+          "gate_count": 1200,
+          "two_q_depth": 363
+        },
+        "output_sha256": "9d6dae30a7615d25d517d91a3976652c8bcc2204b12d22dcf14d95707b427c36",
+        "seed": 20261023,
+        "seed_used": false,
+        "session": 1,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 4,
+        "validation_passed": true
+      },
+      "session_02": {
+        "artifact_sha256": "e02bb39841904e906cbcda80199f91a517e84f3c22c2c2a7c8fda28df4f9c495",
+        "case_id": "mqt_holdout__bmw_quark_copula_n16_s29__linear",
+        "compile_ns": 2311727291,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__bmw_quark_copula_n16_s29__linear__tket__4",
+        "max_input_residual": 3.234374529898326e-14,
+        "metrics": {
+          "cx_count": 874,
+          "depth": 368,
+          "gate_count": 1054,
+          "two_q_depth": 316
+        },
+        "output_sha256": "24dd4d3973ff4f57a44309a3ba7bdbaba037db9de5d996ed534e18a69114fad9",
+        "seed": 20261023,
+        "seed_used": false,
+        "session": 2,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 4,
+        "validation_passed": true
+      },
+      "trial_zero_based": 4
+    },
+    {
+      "case_id": "mqt_holdout__qaoa_n16_s11__linear",
+      "session_01": {
+        "artifact_sha256": "f62b36c9f34069c04e8975f67451866427851e724dfbe8ec51009ecdbec41648",
+        "case_id": "mqt_holdout__qaoa_n16_s11__linear",
+        "compile_ns": 2771720958,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__qaoa_n16_s11__linear__tket__4",
+        "max_input_residual": 5.554960341141545e-15,
+        "metrics": {
+          "cx_count": 1175,
+          "depth": 566,
+          "gate_count": 1347,
+          "two_q_depth": 507
+        },
+        "output_sha256": "597d34a7df81d913e269d9bf9060ae44f5d728b94686cba2e171f8e02a3db00b",
+        "seed": 20261023,
+        "seed_used": false,
+        "session": 1,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 4,
+        "validation_passed": true
+      },
+      "session_02": {
+        "artifact_sha256": "32846d9adb0ee4706c69aae8c23abb49d4761eeaa96cf187a7c785f6e9c8ad11",
+        "case_id": "mqt_holdout__qaoa_n16_s11__linear",
+        "compile_ns": 2644894125,
+        "evidence_class": "sampled_isometry",
+        "id": "mqt_holdout__qaoa_n16_s11__linear__tket__4",
+        "max_input_residual": 5.7305271607204566e-15,
+        "metrics": {
+          "cx_count": 1066,
+          "depth": 464,
+          "gate_count": 1238,
+          "two_q_depth": 412
+        },
+        "output_sha256": "1aa8584e65998a1811d27563fe2a4e1ec703cd081317d533e4ec2843cdabc367",
+        "seed": 20261023,
+        "seed_used": false,
+        "session": 2,
+        "status": "compiled",
+        "tool": "tket",
+        "trial": 4,
+        "validation_passed": true
+      },
+      "trial_zero_based": 4
+    }
+  ],
+  "derivation": "Read-only comparison of the existing validated rows and cells. No compiler calls or ablations were performed for this note.",
+  "evidence_files": [
+    {
+      "path": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/heldout/campaign/analysis.json",
+      "relative_to_working": "qrust_frozen_holdout_20261018/heldout/campaign/analysis.json",
+      "sha256": "e1ac43759543da6eddf500db999624ab7ed327ae5acd5cd2fab46a971e56661f"
+    },
+    {
+      "path": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/heldout/campaign/session_01/validated.jsonl",
+      "relative_to_working": "qrust_frozen_holdout_20261018/heldout/campaign/session_01/validated.jsonl",
+      "sha256": "47471c6990b915714cdb88b11140b29c82a1f423eeb40ce68aef8ec4deb27a63"
+    },
+    {
+      "path": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/heldout/campaign/session_01/cells.json",
+      "relative_to_working": "qrust_frozen_holdout_20261018/heldout/campaign/session_01/cells.json",
+      "sha256": "fe83309df601a746326026e4a77a16f37f74bca581f344b2c2abfb771b6f396e"
+    },
+    {
+      "path": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/heldout/campaign/session_02/validated.jsonl",
+      "relative_to_working": "qrust_frozen_holdout_20261018/heldout/campaign/session_02/validated.jsonl",
+      "sha256": "a24b85aa9cadd0aec42b0bd6b46471fe0663c6b6f66fc46e4ac9445af2218aac"
+    },
+    {
+      "path": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/heldout/campaign/session_02/cells.json",
+      "relative_to_working": "qrust_frozen_holdout_20261018/heldout/campaign/session_02/cells.json",
+      "sha256": "cc310b160dd7f19345f1b78dbb84124d1f8635251faa468890426ace598b7765"
+    }
+  ],
+  "frozen_seed_policy": "Five trial seeds master_seed+trial, reused across sessions; Qiskit consumes the seed, other recipes are deterministic. Parameter seeds 11/29 construct circuits and are distinct from compiler trial seeds.",
+  "interpretation": "The frozen deterministic expectation for non-Qiskit recipes is contradicted by seven TKET structural-output changes. Requested-seed consumption and internal output repeatability are different properties.",
+  "protocol": {
+    "path": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/heldout/campaign/protocol.json",
+    "relative_to_working": "qrust_frozen_holdout_20261018/heldout/campaign/protocol.json",
+    "sha256": "0df4e083af1e0fc5df62ef92e25abb408156ed6189cd728c2663a871f2577297"
+  },
+  "schema": "qrust_tket_variability_note_v1",
+  "source_only_hypothesis": {
+    "causal_status": "Not isolated or established. No trace proves that these requests reached a timeout, and no controlled placement-budget ablation was performed.",
+    "sources": [
+      {
+        "excerpts": [
+          {
+            "end_line": 104,
+            "start_line": 91,
+            "text": "91: class GraphPlacement(Placement):\n92:     \"\"\"\n93:     The GraphPlacement class, contains methods for getting maps between Circuit Qubits and Architecture Nodes and for relabelling Circuit Qubits.\n94:     \"\"\"\n95: \n96:     def __init__(self, arc: pytket._tket.architecture.Architecture, maximum_matches: int = 1000, timeout: int = 1000, maximum_pattern_gates: int = 100, maximum_pattern_depth: int = 100) -> None:\n97:         \"\"\"\n98:         The constructor for a GraphPlacement object. The Architecture object describes the connectivity between qubits. To find a qubit to node assignment, this method constructs a pattern graph where vertices are Circuit qubits and edges mean a pair of qubits have an interaction in the circuit, and then tries to find a weighted subgraph monomorphsim to the architecture connectivity, or target, graph. Edges in the pattern graph are weighted by the circuit depth at which the interaction between a pair of qubit occurs. The number of edges added to the pattern graph is effected by the maximum_pattern_gates and maximum_pattern_depth arguments. If no subgraph monomorphism can be found, lower edge weights are removed from the pattern graph, are more edges are added to the target graph. Edges added to the pattern graph are weighted lower to reflect what the distance between the Nodes they  are added between was on the original target graph. \n99: \n100:         :param arc: An Architecture object.\n101:         :param maximum_matches: The total number of weighted subgraph monomorphisms that can be found before matches are returned.\n102:         :param timeout: Total time in milliseconds before stopping search for monomorphisms.\n103:         :param maximum_pattern_gates: The upper bound on the number of circuit gates used to construct the pattern graph for finding subgraph monomorphisms.\n104:         :param maximum_pattern_depth: The upper bound on the circuit depth gates are added to the pattern graph to for finding subgraph monomorphisms."
+          }
+        ],
+        "path": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/lib/python3.12/site-packages/pytket/_tket/placement.pyi",
+        "relative_to_working": "qrust_comparison_env/lib/python3.12/site-packages/pytket/_tket/placement.pyi",
+        "sha256": "824d27df8d5996dfa1c50a8e95f1f091bf1dbb4602e07b8db0f0a37c6cd14f25"
+      },
+      {
+        "excerpts": [
+          {
+            "end_line": 488,
+            "start_line": 481,
+            "text": "481: def DefaultMappingPass(arc: pytket._tket.architecture.Architecture, delay_measures: bool = True) -> BasePass:\n482:     \"\"\"\n483:     Construct a pass to relabel :py:class:`~.Circuit` Qubits to :py:class:`~.Architecture` Nodes, and then route to the connectivity graph of the given :py:class:`~.Architecture`. Edge direction is ignored. Placement used is GraphPlacement.\n484: \n485:     :param arc: The Architecture used for connectivity information.\n486:     :param delay_measures: Whether to commute measurements to the end of the circuit, defaulting to true.\n487:     :return: a pass to perform the remapping\n488:     \"\"\""
+          }
+        ],
+        "path": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/lib/python3.12/site-packages/pytket/_tket/passes.pyi",
+        "relative_to_working": "qrust_comparison_env/lib/python3.12/site-packages/pytket/_tket/passes.pyi",
+        "sha256": "f9d288a35b77522e5cc3dd93c139663323e3546ae6f833bad2f910e9a57d148d"
+      },
+      {
+        "excerpts": [
+          {
+            "end_line": 149,
+            "start_line": 137,
+            "text": "137:     unit = CompilationUnit(circuit.copy())\n138:     passes = [FullPeepholeOptimise(allow_swaps=True, target_2qb_gate=OpType.CX)]\n139:     if topology != \"all_to_all\":\n140:         architecture = Architecture(edges)\n141:         # The TKET compilation manual recommends SynthesiseTket after routing:\n142:         # its light optimizations remove routing redundancies while preserving\n143:         # connectivity. FullPeepholeOptimise is intentionally kept before mapping.\n144:         passes.extend([\n145:             DefaultMappingPass(architecture), DecomposeSwapsToCXs(architecture),\n146:             SynthesiseTket(),\n147:         ])\n148:     passes.append(AutoRebase({OpType.CX, OpType.U3}))\n149:     SequencePass(passes).apply(unit)"
+          }
+        ],
+        "path": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/comparison_qiskit_tket.py",
+        "relative_to_working": "qrust_pr_publish/experiments/comparison_qiskit_tket.py",
+        "sha256": "9fa37aaa09208ed2178d17a2c2fdb1e1a52b98a5e75ec5c11a0a9abbbb855d7a"
+      }
+    ],
+    "statement": "Wall-clock-bounded GraphPlacement is a plausible contributor to TKET output variation. The installed API documents a default 1000 ms monomorphism search timeout, DefaultMappingPass uses GraphPlacement, and the frozen adapter calls DefaultMappingPass on constrained targets."
+  }
+}

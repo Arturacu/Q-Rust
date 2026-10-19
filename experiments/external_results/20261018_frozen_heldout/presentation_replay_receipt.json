@@ -1,0 +1,87 @@
+{
+  "passed": true,
+  "records": [
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/figures/tradeoffs.png",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/figure_replay/tradeoffs.png",
+      "sha256": "4d5ccbc7e01195170f0f78cb802dd9b5af928e7f6758bc1a70844e94a1b58beb"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/figures/tradeoffs.svg",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/figure_replay/tradeoffs.svg",
+      "sha256": "57e801ced06a7e5af08ab83a0c214fb83a1ee3b6f484c862a1131bce51fa667f"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/figures/data.json",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/figure_replay/data.json",
+      "sha256": "c67803802097b49d570aed368940f5d47c0dab23ca02641d532dba97424106bf"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/report/FROZEN_HELDOUT_STUDY.md",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/FROZEN_HELDOUT_STUDY.md",
+      "sha256": "68b0078b111de9e669d4901bc51c44f9cbcbc5ea45d0a7d979c9184549b0b4d3"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish/experiments/FROZEN_HELDOUT_STUDY.md",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/FROZEN_HELDOUT_STUDY.md",
+      "sha256": "68b0078b111de9e669d4901bc51c44f9cbcbc5ea45d0a7d979c9184549b0b4d3"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/TKET_VARIABILITY.json",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/TKET_VARIABILITY.json",
+      "sha256": "dd88381783e73f9be9a37d386d9ab1463c6775dba5e9c3695df7db7c153c75a8"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/cat_ghz_findings.md",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/cat_ghz_findings.md",
+      "sha256": "79357511dda211b62b170f844970c631b503bd431c3fd4806d62bbfe3f9c7504"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/dense_findings.md",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/dense_findings.md",
+      "sha256": "ce8b30d360a5caba6ddc92065ac2c6ee5d2d872dacc5e12b3edf5c57418d95f1"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/dense_source_notes.md",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/dense_source_notes.md",
+      "sha256": "bb6e23c2e9faba5ad9ad1ae3e66f5597ceac5f821ad7bc52d01e08f6e5a5f809"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/failure_ledger.json",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/failure_ledger.json",
+      "sha256": "ac31e7a8b838ca98b1cc552fc5723f3ce9b6804c0a9293df0d2f796bf4ac04ce"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/input_dialect.md",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/input_dialect.md",
+      "sha256": "d2b8face795c1cd563a5084bd82477484e1bdaeab260a28d181789327ec07de9"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/report_metrics.json",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/report_metrics.json",
+      "sha256": "1fc8d5ccd76b415e88e638511646fbc2e5806d934332f33868da5080e3909e28"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/tket_variability.md",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/tket_variability.md",
+      "sha256": "395550765320f9b146f59e33b767ef079b4c65f817b96545eeda8a538ae3fa0e"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/tradeoffs.png",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/tradeoffs.png",
+      "sha256": "4d5ccbc7e01195170f0f78cb802dd9b5af928e7f6758bc1a70844e94a1b58beb"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/tradeoffs.svg",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/tradeoffs.svg",
+      "sha256": "57e801ced06a7e5af08ab83a0c214fb83a1ee3b6f484c862a1131bce51fa667f"
+    },
+    {
+      "reference": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/extracted/working/qrust_frozen_holdout_20261018/report_exports/tradeoffs_data.json",
+      "replay": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_archive_audit_20261018_final/report_replay/exports/tradeoffs_data.json",
+      "sha256": "c67803802097b49d570aed368940f5d47c0dab23ca02641d532dba97424106bf"
+    }
+  ],
+  "schema": 1,
+  "scope": "Final archived report, all exports, figure data, PNG and SVG replay byte-identically in the pinned environment."
+}

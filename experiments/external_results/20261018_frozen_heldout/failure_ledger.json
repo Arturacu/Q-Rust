@@ -1,0 +1,1485 @@
+{
+  "cat_unsupported_or_errors": [
+    {
+      "case_id": "cat22_square",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(1.5707963267948966, -1.6200591536994635, 3.141592653589793); residual=0.0348332",
+      "structural_metrics_only": {
+        "cx_count": 61,
+        "depth": 119,
+        "gate_count": 196,
+        "two_q_depth": 61
+      },
+      "tool": "cirq",
+      "variant": "identity_mapper"
+    },
+    {
+      "case_id": "cat22_square",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(2.356194490192345, -1.5707963267948966, 0.0); residual=0.551799",
+      "structural_metrics_only": {
+        "cx_count": 25,
+        "depth": 29,
+        "gate_count": 32,
+        "two_q_depth": 25
+      },
+      "tool": "qiskit",
+      "variant": "sabre_layout"
+    },
+    {
+      "case_id": "cat22_square",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(2.356194490192345, -1.5707963267948966, 0.0); residual=0.551799",
+      "structural_metrics_only": {
+        "cx_count": 69,
+        "depth": 76,
+        "gate_count": 106,
+        "two_q_depth": 57
+      },
+      "tool": "qiskit",
+      "variant": "trivial_layout"
+    },
+    {
+      "case_id": "cat22_heavy-hex",
+      "classification": "diagnostic_error",
+      "correctness_qualified": false,
+      "error": "IndexError: list index out of range",
+      "structural_metrics_only": null,
+      "tool": "cirq",
+      "variant": "identity_mapper"
+    },
+    {
+      "case_id": "cat22_heavy-hex",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(2.356194490192345, -1.5707963267948966, 0.0); residual=0.551799",
+      "structural_metrics_only": {
+        "cx_count": 75,
+        "depth": 79,
+        "gate_count": 94,
+        "two_q_depth": 69
+      },
+      "tool": "qiskit",
+      "variant": "sabre_layout"
+    },
+    {
+      "case_id": "cat22_heavy-hex",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(2.356194490192345, -1.5707963267948966, 0.0); residual=0.551799",
+      "structural_metrics_only": {
+        "cx_count": 150,
+        "depth": 136,
+        "gate_count": 187,
+        "two_q_depth": 117
+      },
+      "tool": "qiskit",
+      "variant": "trivial_layout"
+    },
+    {
+      "case_id": "ghz23_square",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(1.5707963267948966, -1.6200591536994635, 3.141592653589793); residual=0.0348332",
+      "structural_metrics_only": {
+        "cx_count": 62,
+        "depth": 121,
+        "gate_count": 199,
+        "two_q_depth": 62
+      },
+      "tool": "cirq",
+      "variant": "identity_mapper"
+    },
+    {
+      "case_id": "ghz23_square",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(2.356194490192345, -1.5707963267948966, 0.0); residual=0.551799",
+      "structural_metrics_only": {
+        "cx_count": 29,
+        "depth": 27,
+        "gate_count": 36,
+        "two_q_depth": 23
+      },
+      "tool": "qiskit",
+      "variant": "sabre_layout"
+    },
+    {
+      "case_id": "ghz23_square",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(2.356194490192345, -1.5707963267948966, 0.0); residual=0.551799",
+      "structural_metrics_only": {
+        "cx_count": 71,
+        "depth": 81,
+        "gate_count": 114,
+        "two_q_depth": 59
+      },
+      "tool": "qiskit",
+      "variant": "trivial_layout"
+    },
+    {
+      "case_id": "ghz23_heavy-hex",
+      "classification": "diagnostic_error",
+      "correctness_qualified": false,
+      "error": "IndexError: list index out of range",
+      "structural_metrics_only": null,
+      "tool": "cirq",
+      "variant": "identity_mapper"
+    },
+    {
+      "case_id": "ghz23_heavy-hex",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(2.356194490192345, -1.5707963267948966, 0.0); residual=0.551799",
+      "structural_metrics_only": {
+        "cx_count": 60,
+        "depth": 58,
+        "gate_count": 73,
+        "two_q_depth": 51
+      },
+      "tool": "qiskit",
+      "variant": "sabre_layout"
+    },
+    {
+      "case_id": "ghz23_heavy-hex",
+      "classification": "unsupported_local_clifford_recognition",
+      "correctness_qualified": false,
+      "error": "Non-Clifford local gate: u3(2.356194490192345, -1.5707963267948966, 0.0); residual=0.551799",
+      "structural_metrics_only": {
+        "cx_count": 158,
+        "depth": 144,
+        "gate_count": 201,
+        "two_q_depth": 122
+      },
+      "tool": "qiskit",
+      "variant": "trivial_layout"
+    }
+  ],
+  "dense_qualified_without_reference": [],
+  "dense_unqualified_cells": [
+    {
+      "case_id": "clifford20_heavy-hex",
+      "outcomes": {
+        "timeout": 4
+      },
+      "recipe": "cirq_frozen",
+      "track": "sdk_ablation_v2"
+    },
+    {
+      "case_id": "clifford20_heavy-hex",
+      "outcomes": {
+        "unverified_output": 4
+      },
+      "recipe": "cirq_one_pass",
+      "track": "sdk_ablation_v2"
+    },
+    {
+      "case_id": "clifford20_heavy-hex",
+      "outcomes": {
+        "timeout": 4
+      },
+      "recipe": "cirq_original",
+      "track": "sdk_ablation_v2"
+    },
+    {
+      "case_id": "clifford20_heavy-hex",
+      "outcomes": {
+        "unverified_output": 4
+      },
+      "recipe": "qiskit_original",
+      "track": "sdk_ablation_v2"
+    },
+    {
+      "case_id": "clifford20_heavy-hex",
+      "outcomes": {
+        "unverified_output": 4
+      },
+      "recipe": "qiskit_profiled",
+      "track": "sdk_ablation_v2"
+    },
+    {
+      "case_id": "clifford20_square",
+      "outcomes": {
+        "unverified_output": 4
+      },
+      "recipe": "cirq_frozen",
+      "track": "sdk_ablation_v2"
+    },
+    {
+      "case_id": "clifford20_square",
+      "outcomes": {
+        "unverified_output": 4
+      },
+      "recipe": "cirq_one_pass",
+      "track": "sdk_ablation_v2"
+    },
+    {
+      "case_id": "clifford20_square",
+      "outcomes": {
+        "unverified_output": 4
+      },
+      "recipe": "cirq_original",
+      "track": "sdk_ablation_v2"
+    },
+    {
+      "case_id": "clifford20_square",
+      "outcomes": {
+        "unverified_output": 4
+      },
+      "recipe": "qiskit_original",
+      "track": "sdk_ablation_v2"
+    },
+    {
+      "case_id": "clifford20_square",
+      "outcomes": {
+        "unverified_output": 4
+      },
+      "recipe": "qiskit_profiled",
+      "track": "sdk_ablation_v2"
+    }
+  ],
+  "excluded_cells": [
+    {
+      "case_id": "mqt_holdout__randomcircuit_n10__all_to_all",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n10",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 10,
+      "passed_trials": 0,
+      "physical_width": 10,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 1,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "all_to_all",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n10__grid",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n10",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 10,
+      "passed_trials": 0,
+      "physical_width": 10,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 1,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "grid",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n10__linear",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n10",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 10,
+      "passed_trials": 0,
+      "physical_width": 10,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 1,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "linear",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n16__all_to_all",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n16",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 16,
+      "passed_trials": 0,
+      "physical_width": 16,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 1,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "all_to_all",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n16__grid",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n16",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 16,
+      "passed_trials": 0,
+      "physical_width": 16,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 1,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "grid",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n16__linear",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n16",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 16,
+      "passed_trials": 0,
+      "physical_width": 16,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 1,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "linear",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n10__all_to_all",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__all_to_all__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n10",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 10,
+      "passed_trials": 0,
+      "physical_width": 10,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 2,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "all_to_all",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n10__grid",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__grid__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n10",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 10,
+      "passed_trials": 0,
+      "physical_width": 10,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 2,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "grid",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n10__linear",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n10__linear__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n10",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 10,
+      "passed_trials": 0,
+      "physical_width": 10,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 2,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "linear",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n16__all_to_all",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__all_to_all__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n16",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 16,
+      "passed_trials": 0,
+      "physical_width": 16,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 2,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "all_to_all",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n16__grid",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__grid__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n16",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 16,
+      "passed_trials": 0,
+      "physical_width": 16,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 2,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "grid",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    },
+    {
+      "case_id": "mqt_holdout__randomcircuit_n16__linear",
+      "coarse_family": "general_random",
+      "eligible": false,
+      "evidence_counts": {
+        "missing": 5
+      },
+      "exclusion_reasons": [
+        "5 trials failed eligibility checks",
+        "Initial or replacement warmup failed compilation/independent validation"
+      ],
+      "expected_trials": 5,
+      "failed_trials": [
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__1",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 1,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__2",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 2,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__3",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 3,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__4",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 4,
+          "validation": {}
+        },
+        {
+          "error": "Unknown gate: sxdg",
+          "id": "mqt_holdout__randomcircuit_n16__linear__qrust__0",
+          "reasons": [
+            "compilation did not succeed",
+            "independent validation absent or failed",
+            "missing or invalid compile_ns",
+            "missing or invalid parse_ns",
+            "missing or invalid common metrics"
+          ],
+          "status": "error",
+          "trial": 0,
+          "validation": {}
+        }
+      ],
+      "family": "randomcircuit",
+      "fixture": "mqt_holdout__randomcircuit_n16",
+      "holdout_class": "untouched_generator_family",
+      "medians": null,
+      "n_logical": 16,
+      "passed_trials": 0,
+      "physical_width": 16,
+      "ranges": null,
+      "received_trials": 5,
+      "session": 2,
+      "status_counts": {
+        "error": 5
+      },
+      "tool": "qrust",
+      "topology": "linear",
+      "warmup_outcomes": {
+        "error": 1
+      }
+    }
+  ],
+  "protocol_sha256": "0df4e083af1e0fc5df62ef92e25abb408156ed6189cd728c2663a871f2577297",
+  "source_exclusions": []
+}

@@ -1,0 +1,35 @@
+{
+  "added_presentation_history_files": [
+    "working/qrust_frozen_holdout_20261018/completion_attempt_01.json",
+    "working/qrust_frozen_holdout_20261018/render_report_03.json",
+    "working/qrust_frozen_holdout_20261018/render_report_03.log",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/FROZEN_HELDOUT_STUDY.md",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/TKET_VARIABILITY.json",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/cat_ghz_findings.md",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/dense_findings.md",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/dense_source_notes.md",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/failure_ledger.json",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/input_dialect.md",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/report_metrics.json",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/tket_variability.md",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/tradeoffs.png",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/tradeoffs.svg",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/exports/tradeoffs_data.json",
+    "working/qrust_frozen_holdout_20261018/report_attempt_02/render_report.py"
+  ],
+  "changed_presentation_or_completion_files": [
+    "evidence_index.json",
+    "report/FROZEN_HELDOUT_STUDY.md",
+    "working/qrust_frozen_holdout_20261018/completion.json",
+    "working/qrust_frozen_holdout_20261018/report_exports/report_metrics.json",
+    "working/qrust_frozen_holdout_20261018/reporting/render_report.py"
+  ],
+  "final_archive_sha256": "a0672991aeb43970a0ac9d5c8ef2423dd8433ffe6b6a968386e47867cc1a4399",
+  "final_manifest_sha256": "9d8f39a43dae4bde7178364da011c6bb754ba6d94f0bdbe4e555a1a35326f564",
+  "old_manifest_sha256": "8ceb60a37f801a30973bfe9744978f9c431483418af711f63c232c80cce73021",
+  "passed": true,
+  "replayed_archive_sha256": "264fc43caa0957cfacb45e27688dcdd977e592a06fad842ef642ba31daff7b98",
+  "schema": 1,
+  "scope": "The final archive revises one report sentence to distinguish overall tails from grouped summaries. All computational inputs, frozen source and helpers, raw measurements, validation records, analysis and figures are byte-identical to the first extracted archive used by the held-out replay. Only the listed report/completion bookkeeping files changed; additions retain the earlier presentation.",
+  "unchanged_payload_files": 685
+}

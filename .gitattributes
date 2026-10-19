@@ -2,3 +2,7 @@
 experiments/external_results/20261018_clifford/** linguist-generated=true
 experiments/external_results/20261018_clifford_quality/** linguist-generated=true
 experiments/external_results/20261018_compile_overhead/** linguist-generated=true
+experiments/external_results/20261018_frozen_heldout/** linguist-generated=true
+# Preserve the byte-exact CSV and plotting-library exports.
+experiments/external_results/20261018_frozen_heldout/*.csv whitespace=cr-at-eol
+experiments/external_results/20261018_frozen_heldout/tradeoffs.svg whitespace=-blank-at-eol
