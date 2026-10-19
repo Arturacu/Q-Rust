@@ -1,0 +1,19 @@
+{
+  "analysis_sha256": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed",
+  "exporter_sha256": "1c8034d0fbf0a9e913301fb82403820e1c2694715ae886908e7f2a36c52eee8f",
+  "outputs": {
+    "adjacent_table.md": "6ac342c988ceefe84e62aadacdf0b9f0adcde39f2242c08d7017e50bf5dd178f",
+    "comparisons.csv": "67327d108f0c7765d043c5e177c3ac06750a507399723eea6526d0c6c2a9bdc0",
+    "outcomes.json": "8d672ddb9954f751cf02794b9c4c205f7d546957c78602a9f958f30e2a97ec19",
+    "quality_retention.csv": "66e6960b3df9ac35674785e92928c1768b81de66f6ca62b5392b58b5df6229a8",
+    "retention_table.md": "9c102d12e2fd2db258f7a50d2ed15c78078d6ceb63fff8f465f7986215e4828c",
+    "sdk_table.md": "281a0023516cdcb708d87f369533d12c70f4e2413c4e7159d8e2f7b36055a4e7",
+    "stage_table.md": "ef1c717685bedbd4a830ab118fcdc666740de60b818155e2224f873f4398eced"
+  },
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "schema": 1,
+  "validation_inputs": {
+    "validation_summary.json": "b51db3ea0de387826fb99e9b1e55bf52a054e137f49a57be5ee0e5f21c598871",
+    "warmup_validation_summary.json": "c3c8c76caab79112e2ac3abbe02beef31052de56d898dc86a175c9f35fd201a7"
+  }
+}

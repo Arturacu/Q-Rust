@@ -1,0 +1,24 @@
+test_archive_roundtrip_binds_every_payload (test_archive_primitives.PackagingTests.test_archive_roundtrip_binds_every_payload) ... ok
+test_command_sanitization_omits_only_local_policy_pairs (test_archive_primitives.PackagingTests.test_command_sanitization_omits_only_local_policy_pairs) ... ok
+test_command_without_policy_is_unchanged (test_archive_primitives.PackagingTests.test_command_without_policy_is_unchanged) ... ok
+test_completion_cannot_select_an_abandoned_campaign (test_archive_primitives.PackagingTests.test_completion_cannot_select_an_abandoned_campaign) ... ok
+test_copy_rejects_symlink_and_existing_destination (test_archive_primitives.PackagingTests.test_copy_rejects_symlink_and_existing_destination) ... ok
+test_evidence_trees_explicit_and_nonoverlapping (test_archive_primitives.PackagingTests.test_evidence_trees_explicit_and_nonoverlapping) ... ok
+test_malformed_policy_receipt_fails_closed (test_archive_primitives.PackagingTests.test_malformed_policy_receipt_fails_closed) ... ok
+test_reserved_and_overlapping_evidence_rejected (test_archive_primitives.PackagingTests.test_reserved_and_overlapping_evidence_rejected) ... ok
+test_text_audit_covers_receipts_rows_logs_and_qasm (test_archive_primitives.PackagingTests.test_text_audit_covers_receipts_rows_logs_and_qasm) ... ok
+test_active_timing_is_rejected (test_package_study.CompletionTests.test_active_timing_is_rejected) ... ok
+test_changed_frozen_binary_is_rejected (test_package_study.CompletionTests.test_changed_frozen_binary_is_rejected) ... ok
+test_changed_raw_result_is_rejected (test_package_study.CompletionTests.test_changed_raw_result_is_rejected) ... ok
+test_incomplete_or_unsafe_receipt_is_rejected (test_package_study.CompletionTests.test_incomplete_or_unsafe_receipt_is_rejected) ... ok
+test_packaging_outputs_must_be_disjoint_after_normalization (test_package_study.CompletionTests.test_packaging_outputs_must_be_disjoint_after_normalization) ... ok
+test_packaging_symlink_alias_cannot_enter_study (test_package_study.CompletionTests.test_packaging_symlink_alias_cannot_enter_study) ... ok
+test_only_verifier_clock_is_excluded (test_replay_heldout.ReplayTests.test_only_verifier_clock_is_excluded) ... ok
+test_replay_cannot_mutate_extracted_evidence_tree (test_replay_heldout.ReplayTests.test_replay_cannot_mutate_extracted_evidence_tree) ... ok
+test_summary_hash_exclusion_requires_actual_binding (test_replay_heldout.ReplayTests.test_summary_hash_exclusion_requires_actual_binding) ... ok
+test_validation_verdict_and_metrics_remain_bound (test_replay_heldout.ReplayTests.test_validation_verdict_and_metrics_remain_bound) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.046s
+
+OK

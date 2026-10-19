@@ -1,0 +1,56 @@
+{
+  "analysis_sha256": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed",
+  "archive_payload_files_unchanged_after_replay": 861,
+  "archive_sha256": "32f6c3011dcf8e63590f7948c94f0d8138b1af375f9283f18a147919be49978b",
+  "formal_correctness": {
+    "cases_per_recipe_per_session": 54,
+    "full_numerical_checks": 2160,
+    "max_residual": 6.3488762467508525e-12,
+    "residual_threshold": 1e-07,
+    "sampled_checks": 4320,
+    "timed_outputs_passed": 5400,
+    "timing_sessions": 2,
+    "unique_artifacts": 532,
+    "warmups_passed": 1080
+  },
+  "historical_files_unchanged": 1956,
+  "independent_analysis": {
+    "cell_medians_and_retention_counts_recomputed": true,
+    "metric_point_estimates_recomputed": 1980,
+    "passed": true,
+    "receipt_sha256": "a7bb72fbf0adb0dfa546558b94c0faf5630e01334912ae4993d8691b93d875d0"
+  },
+  "original_completed_artifacts_unchanged": 508,
+  "passed": true,
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "regression_evidence": {
+    "archive_replay_contract_tests_passed": 19,
+    "copied_rust_workspace_ignored": 4,
+    "copied_rust_workspace_passed": 502,
+    "final_adapter_revision_dedicated_passed": 4,
+    "method_regressions_passed": 45,
+    "plot_regressions_passed": 13,
+    "postflight_negative_controls_passed": 8,
+    "scope": "Counts identify recorded suites, not a sum of distinct tests; logs and frozen receipts are retained.",
+    "source_reference_controls_passed": 12,
+    "variability_regressions_passed": 6
+  },
+  "report_sha256": "6b2c8a6882d225060de0ee430a8acab821e719f33c3ae6f6bf5c54f69e69a9d0",
+  "reporting_replay": {
+    "byte_identical_outputs": 16,
+    "passed": true,
+    "receipt_sha256": "0795e248f3fb5637b4cdaba3c1497b07b07bcb097c7a207a26de9545b119799d"
+  },
+  "saved_output_replay": {
+    "cell_tables_and_analysis_byte_identical": true,
+    "no_compiler_execution": true,
+    "passed": true,
+    "receipt_sha256": "913efae8735867011240a6337dc7c3f025a0cd6b7ec514a2685063c7591bd3ec"
+  },
+  "schema": 1,
+  "scope_limits": [
+    "Larger circuits use sampled numerical checks, not proofs.",
+    "Same-binary pipeline controls do not measure binary size, memory savings or language causality.",
+    "18 selected instances on one host and ideal graphs do not establish general optimality or equal SDK search budgets."
+  ]
+}

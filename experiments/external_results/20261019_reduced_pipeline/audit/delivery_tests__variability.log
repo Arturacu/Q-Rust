@@ -1,0 +1,11 @@
+test_cell_quality_requires_both_cells_eligible (test_audit_variability.VariabilityTests.test_cell_quality_requires_both_cells_eligible) ... ok
+test_changed_verdict_precedes_artifact_match (test_audit_variability.VariabilityTests.test_changed_verdict_precedes_artifact_match) ... ok
+test_clock_differences_are_not_artifact_changes (test_audit_variability.VariabilityTests.test_clock_differences_are_not_artifact_changes) ... ok
+test_failures_never_count_as_identical_success (test_audit_variability.VariabilityTests.test_failures_never_count_as_identical_success) ... ok
+test_identity_mismatch_and_duplicates_fail_closed (test_audit_variability.VariabilityTests.test_identity_mismatch_and_duplicates_fail_closed) ... ok
+test_quality_and_artifact_changes_are_distinct (test_audit_variability.VariabilityTests.test_quality_and_artifact_changes_are_distinct) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.000s
+
+OK

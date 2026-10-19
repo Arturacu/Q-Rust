@@ -1,0 +1,51 @@
+{
+  "archived_payload_files_unchanged": 861,
+  "finalizer_sha256": "5e7e7aaf3f0ff143eaf995edd2ee7985ddf3d022275049adc8960ceb4ef71102",
+  "historical_files_unchanged": 1956,
+  "passed": true,
+  "report_and_readme_links": [
+    {
+      "document": "experiments/REDUCED_PIPELINE_STUDY.md",
+      "sha256": "57a6704b26d2c19294f3c2dbb3f72229bd3f23612c4d63d2fbb1ecbc0ced653d",
+      "target": "./external_results/20261019_reduced_pipeline/ladder_tradeoffs.png"
+    },
+    {
+      "document": "experiments/REDUCED_PIPELINE_STUDY.md",
+      "sha256": "66e6960b3df9ac35674785e92928c1768b81de66f6ca62b5392b58b5df6229a8",
+      "target": "./external_results/20261019_reduced_pipeline/quality_retention.csv"
+    },
+    {
+      "document": "experiments/REDUCED_PIPELINE_STUDY.md",
+      "sha256": "5db544f565b985093a29b463b5fcfe5b0f0a79cebbe8ea975c26f421e172d24c",
+      "target": "./external_results/20261019_reduced_pipeline/stage_interpretation.json"
+    },
+    {
+      "document": "experiments/REDUCED_PIPELINE_STUDY.md",
+      "sha256": "4c261542f86b3078d66a2c0602ae748dcb4b17ce32ad7c900b892db469de2ad7",
+      "target": "./external_results/20261019_reduced_pipeline/README.md"
+    },
+    {
+      "document": "experiments/REDUCED_PIPELINE_STUDY.md",
+      "sha256": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed",
+      "target": "./external_results/20261019_reduced_pipeline/ladder_analysis.json"
+    },
+    {
+      "document": "experiments/REDUCED_PIPELINE_STUDY.md",
+      "sha256": "67327d108f0c7765d043c5e177c3ac06750a507399723eea6526d0c6c2a9bdc0",
+      "target": "./external_results/20261019_reduced_pipeline/comparisons.csv"
+    },
+    {
+      "document": "experiments/REDUCED_PIPELINE_STUDY.md",
+      "sha256": "69843d89602f80a2ec53529fc77217a36a659992466945d286e5a8f05005fd94",
+      "target": "./external_results/20261019_reduced_pipeline/verification_summary.json"
+    },
+    {
+      "document": "experiments/external_results/20261019_reduced_pipeline/README.md",
+      "sha256": "6b2c8a6882d225060de0ee430a8acab821e719f33c3ae6f6bf5c54f69e69a9d0",
+      "target": "../../REDUCED_PIPELINE_STUDY.md"
+    }
+  ],
+  "report_sha256": "6b2c8a6882d225060de0ee430a8acab821e719f33c3ae6f6bf5c54f69e69a9d0",
+  "schema": 1,
+  "verification_summary_sha256": "69843d89602f80a2ec53529fc77217a36a659992466945d286e5a8f05005fd94"
+}

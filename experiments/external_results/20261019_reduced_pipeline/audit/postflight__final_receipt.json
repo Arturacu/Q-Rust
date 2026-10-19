@@ -1,0 +1,148 @@
+{
+  "completion": "validate, analyze and separate variability audit exited0; no helper/recipe/corpus edits and no recompilation in postflight",
+  "files": {
+    "corpus_work/campaign/analysis.json": {
+      "bytes": 8626928,
+      "sha256": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed"
+    },
+    "corpus_work/campaign/validation_summary.json": {
+      "bytes": 1220,
+      "sha256": "b51db3ea0de387826fb99e9b1e55bf52a054e137f49a57be5ee0e5f21c598871"
+    },
+    "corpus_work/campaign/warmup_validation_summary.json": {
+      "bytes": 986,
+      "sha256": "c3c8c76caab79112e2ac3abbe02beef31052de56d898dc86a175c9f35fd201a7"
+    },
+    "postflight/analyze_receipt.json": {
+      "bytes": 2418,
+      "sha256": "b1692111cd2392ec950b7de0771d5a89851cbb7ca2a382cf19830cd0f53adc8b"
+    },
+    "postflight/handoff.json": {
+      "bytes": 464672,
+      "sha256": "55f3b94c2c7145c158eed35d877bc304c565e10f571a478576ef3506b4ce8554"
+    },
+    "postflight/validate_receipt.json": {
+      "bytes": 2420,
+      "sha256": "4021c3293ff20504537de298f8518866d26a532c7b99acca1c42e733a73ef8ce"
+    },
+    "postflight/variability_receipt.json": {
+      "bytes": 977,
+      "sha256": "e10ce17dd0e3e5ce38ec9c6a66614baa77296a9333e4a5fa278a0890e1db33e5"
+    },
+    "reporting/variability.json": {
+      "bytes": 2333,
+      "sha256": "49e9631bf07dd56ba146fc5d8500be40c5d976cf5cf9dfb50e97eaf0765c1ff0"
+    }
+  },
+  "post_run_frozen_verification": {
+    "passed": true,
+    "scope": "Unchanged source/harness, public source/environment/binary, all installed files, clone source inventory/binary and nested receipts, preparation evidence, exact plan/corpus/schedules; frozen verify() read-only",
+    "verified_utc": "2026-10-19T07:03:37.053368+00:00"
+  },
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "raw_status_counts": {
+    "timed/compiled": 5400,
+    "warmup/compiled": 1080
+  },
+  "replacement_warmup_count": 0,
+  "rss_caveat": "Coarse sampled worker RSS includes known idle workers for aggregate; not exact peak and does not include child processes.",
+  "sampled_all_worker_rss_max_bytes": 350437376,
+  "sampled_worker_rss_max_bytes": 206159872,
+  "session_execution": [
+    {
+      "controller_receipt": {
+        "command": [
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/corpus_work/ladder_study.py",
+          "time",
+          "--repo",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish",
+          "--study",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/corpus_work/campaign",
+          "--binary",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/compiler_work/comparison_runner_ladder",
+          "--public-binary",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/comparison_runner_final",
+          "--plan",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/corpus_work/protocol_plan.json",
+          "--compiler-freeze",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/compiler_freeze.json",
+          "--clone-freeze",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/compiler_work/clone_freeze.json",
+          "--clone-root",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/compiler_work/source",
+          "--legacy-helper",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/heldout",
+          "--corpus",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/corpus_work/corpus_v2/manifest.json",
+          "--compiler-commit",
+          "105587df2425cac5a6a859c65e99b86d0cc89d2a",
+          "--session",
+          "1"
+        ],
+        "controller_sha256": "aa16dfbd19b5e354dddbc5b323250173b9d1f735b1f868ca03da30673d44e5e4",
+        "execution_plan_sha256": "d9af396b75f6ca230b0b920895e543b9f7e99190bad1b09cccf441122d5c841e",
+        "exit_code": 0,
+        "finished_utc": "2026-10-19T06:48:27.721730+00:00",
+        "log_sha256": "4468a6a28275a4ca4d3155786fdeb284f2ef40630bc60c1dc404da20ec58a0f5",
+        "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+        "session": 1,
+        "started_utc": "2026-10-19T06:38:04.531981+00:00"
+      },
+      "session": 1,
+      "session_finished_utc": "2026-10-19T06:48:27Z",
+      "session_record_start_to_finish_seconds": 620.0,
+      "session_started_utc": "2026-10-19T06:38:07Z"
+    },
+    {
+      "controller_receipt": {
+        "command": [
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_comparison_env/bin/python",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/corpus_work/ladder_study.py",
+          "time",
+          "--repo",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_pr_publish",
+          "--study",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/corpus_work/campaign",
+          "--binary",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/compiler_work/comparison_runner_ladder",
+          "--public-binary",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_compile_overhead_20261018/comparison_runner_final",
+          "--plan",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/corpus_work/protocol_plan.json",
+          "--compiler-freeze",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/compiler_freeze.json",
+          "--clone-freeze",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/compiler_work/clone_freeze.json",
+          "--clone-root",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/compiler_work/source",
+          "--legacy-helper",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_frozen_holdout_20261018/heldout",
+          "--corpus",
+          "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_ladder_20261019/corpus_work/corpus_v2/manifest.json",
+          "--compiler-commit",
+          "105587df2425cac5a6a859c65e99b86d0cc89d2a",
+          "--session",
+          "2"
+        ],
+        "controller_sha256": "aa16dfbd19b5e354dddbc5b323250173b9d1f735b1f868ca03da30673d44e5e4",
+        "execution_plan_sha256": "d9af396b75f6ca230b0b920895e543b9f7e99190bad1b09cccf441122d5c841e",
+        "exit_code": 0,
+        "finished_utc": "2026-10-19T06:58:53.230950+00:00",
+        "log_sha256": "aec954b306685ceddb806985c205dd9d4ba7ca1fdeefdd2a38fce174dee8f000",
+        "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+        "session": 2,
+        "started_utc": "2026-10-19T06:48:27.722704+00:00"
+      },
+      "session": 2,
+      "session_finished_utc": "2026-10-19T06:58:53Z",
+      "session_record_start_to_finish_seconds": 623.0,
+      "session_started_utc": "2026-10-19T06:48:30Z"
+    }
+  ],
+  "startup_errors": {
+    "1": {},
+    "2": {}
+  },
+  "worker_restart_required_rows": 0
+}

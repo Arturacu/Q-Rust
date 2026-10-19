@@ -1,0 +1,16 @@
+{
+  "input_sha256": {
+    "analysis.json": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed",
+    "plot_ladder.py": "eb12325ebca9f21c35f2bac7adfb0873175c2208e64da907dfcd191cc5065f35",
+    "protocol.json": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9"
+  },
+  "matplotlib_version": "3.11.2",
+  "outputs": {
+    "ladder_tradeoffs.png": "57a6704b26d2c19294f3c2dbb3f72229bd3f23612c4d63d2fbb1ecbc0ced653d",
+    "ladder_tradeoffs.svg": "5af39578d77ca27d467d15814af9e4cfbaf01d90dbdbcc46ba0769454c423ce7",
+    "ladder_tradeoffs_data.json": "4bbfc930bf85282e4083364164c4a47dafd873e1d61ede1d59776ed2b75fd460"
+  },
+  "renderer_sha256": "eb12325ebca9f21c35f2bac7adfb0873175c2208e64da907dfcd191cc5065f35",
+  "schema": 1,
+  "synthetic": false
+}

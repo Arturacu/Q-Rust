@@ -1,0 +1,263 @@
+{
+  "all_outputs_byte_identical": true,
+  "archived_inputs_unchanged": true,
+  "archived_source_root": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019",
+  "commands": [
+    {
+      "argv": [
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/../qrust_comparison_env/bin/python",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/reporting/export_tables.py",
+        "--campaign",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/campaign",
+        "--output",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/tables"
+      ],
+      "cwd": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019",
+      "elapsed_s": 0.09357523918151855,
+      "env_overrides": {
+        "MPLCONFIGDIR": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/matplotlib_cache",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "job": "tables",
+      "log": "logs/tables.log",
+      "log_sha256": "e96fc7ee3a5db83a88f1613e6943cf9a3faf35fea7a8bc82c2fa4fac30ad2a88",
+      "returncode": 0,
+      "source_sha256": "1c8034d0fbf0a9e913301fb82403820e1c2694715ae886908e7f2a36c52eee8f",
+      "started_unix": 1792393985.71523
+    },
+    {
+      "argv": [
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/../qrust_comparison_env/bin/python",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/reporting/plot_ladder.py",
+        "--analysis",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/campaign/analysis.json",
+        "--protocol",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/campaign/protocol.json",
+        "--output-dir",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/exports",
+        "--postflight-authorized"
+      ],
+      "cwd": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019",
+      "elapsed_s": 7.938855886459351,
+      "env_overrides": {
+        "MPLCONFIGDIR": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/matplotlib_cache",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "job": "plots",
+      "log": "logs/plots.log",
+      "log_sha256": "3685c80fa640a32254034ddc6bfab976cc13e7acda6c2f73e148ead2f930e34c",
+      "returncode": 0,
+      "source_sha256": "eb12325ebca9f21c35f2bac7adfb0873175c2208e64da907dfcd191cc5065f35",
+      "started_unix": 1792393985.809193
+    },
+    {
+      "argv": [
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/../qrust_comparison_env/bin/python",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/reporting/render_report.py",
+        "--campaign",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/campaign",
+        "--tables",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/tables",
+        "--template",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/reporting/report_template_v2.md",
+        "--report",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/report_v2.md",
+        "--receipt",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/report_render_receipt_v2.json"
+      ],
+      "cwd": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019",
+      "elapsed_s": 0.06958127021789551,
+      "env_overrides": {
+        "MPLCONFIGDIR": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/matplotlib_cache",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "job": "report_v2",
+      "log": "logs/report_v2.log",
+      "log_sha256": "964cfcf1828f356bd63776dd1eace85126f45230ef1bae805c334c02fa34cdc1",
+      "returncode": 0,
+      "source_sha256": "a913131b62b7ed7eb5a4956807122729d2e5d7588812518ad303e90e4a325aae",
+      "started_unix": 1792393993.748941
+    },
+    {
+      "argv": [
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/../qrust_comparison_env/bin/python",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/reporting/interpret_stage_results.py",
+        "--campaign",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/campaign",
+        "--output",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/stage_interpretation.json"
+      ],
+      "cwd": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019",
+      "elapsed_s": 0.09894800186157227,
+      "env_overrides": {
+        "MPLCONFIGDIR": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/matplotlib_cache",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "job": "stage_interpretation",
+      "log": "logs/stage_interpretation.log",
+      "log_sha256": "d23aa060727c96bd2d47d530167b24cf34904aee5619239a249c6786df4732db",
+      "returncode": 0,
+      "source_sha256": "6d4c584a91e23b4498fd3cb73c7b11cf5bf442c8fc0c52ab29058af74342d725",
+      "started_unix": 1792393993.818979
+    },
+    {
+      "argv": [
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/../qrust_comparison_env/bin/python",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/reporting/audit_variability.py",
+        "--campaign",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_archive_audit_20261019/extracted/working/qrust_reduced_ladder_20261019/corpus_work/campaign",
+        "--output",
+        "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/variability.json"
+      ],
+      "cwd": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019",
+      "elapsed_s": 0.4310750961303711,
+      "env_overrides": {
+        "MPLCONFIGDIR": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/matplotlib_cache",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "job": "variability",
+      "log": "logs/variability.log",
+      "log_sha256": "f9bdb54b24e35b9d0107c5a4c8e3315b61e3f97f68ffbcb694d3c989373595b3",
+      "returncode": 0,
+      "source_sha256": "c3b59113b09c5517d02a734e12ff7892fc3b36db2f0c368a09ccde133557282a",
+      "started_unix": 1792393993.918487
+    }
+  ],
+  "comparisons": [
+    {
+      "archived_bytes": 1562,
+      "archived_sha256": "6ac342c988ceefe84e62aadacdf0b9f0adcde39f2242c08d7017e50bf5dd178f",
+      "byte_identical": true,
+      "path": "tables/adjacent_table.md",
+      "replayed_bytes": 1562,
+      "replayed_sha256": "6ac342c988ceefe84e62aadacdf0b9f0adcde39f2242c08d7017e50bf5dd178f"
+    },
+    {
+      "archived_bytes": 561621,
+      "archived_sha256": "67327d108f0c7765d043c5e177c3ac06750a507399723eea6526d0c6c2a9bdc0",
+      "byte_identical": true,
+      "path": "tables/comparisons.csv",
+      "replayed_bytes": 561621,
+      "replayed_sha256": "67327d108f0c7765d043c5e177c3ac06750a507399723eea6526d0c6c2a9bdc0"
+    },
+    {
+      "archived_bytes": 1180,
+      "archived_sha256": "d1d1bcd5fb5ed1b2bedf62ff134f4a8ef58b8dad8d7f8f047b6c3e244d37ebed",
+      "byte_identical": true,
+      "path": "tables/export_receipt.json",
+      "replayed_bytes": 1180,
+      "replayed_sha256": "d1d1bcd5fb5ed1b2bedf62ff134f4a8ef58b8dad8d7f8f047b6c3e244d37ebed"
+    },
+    {
+      "archived_bytes": 3723,
+      "archived_sha256": "8d672ddb9954f751cf02794b9c4c205f7d546957c78602a9f958f30e2a97ec19",
+      "byte_identical": true,
+      "path": "tables/outcomes.json",
+      "replayed_bytes": 3723,
+      "replayed_sha256": "8d672ddb9954f751cf02794b9c4c205f7d546957c78602a9f958f30e2a97ec19"
+    },
+    {
+      "archived_bytes": 7334,
+      "archived_sha256": "66e6960b3df9ac35674785e92928c1768b81de66f6ca62b5392b58b5df6229a8",
+      "byte_identical": true,
+      "path": "tables/quality_retention.csv",
+      "replayed_bytes": 7334,
+      "replayed_sha256": "66e6960b3df9ac35674785e92928c1768b81de66f6ca62b5392b58b5df6229a8"
+    },
+    {
+      "archived_bytes": 1920,
+      "archived_sha256": "9c102d12e2fd2db258f7a50d2ed15c78078d6ceb63fff8f465f7986215e4828c",
+      "byte_identical": true,
+      "path": "tables/retention_table.md",
+      "replayed_bytes": 1920,
+      "replayed_sha256": "9c102d12e2fd2db258f7a50d2ed15c78078d6ceb63fff8f465f7986215e4828c"
+    },
+    {
+      "archived_bytes": 973,
+      "archived_sha256": "281a0023516cdcb708d87f369533d12c70f4e2413c4e7159d8e2f7b36055a4e7",
+      "byte_identical": true,
+      "path": "tables/sdk_table.md",
+      "replayed_bytes": 973,
+      "replayed_sha256": "281a0023516cdcb708d87f369533d12c70f4e2413c4e7159d8e2f7b36055a4e7"
+    },
+    {
+      "archived_bytes": 1828,
+      "archived_sha256": "ef1c717685bedbd4a830ab118fcdc666740de60b818155e2224f873f4398eced",
+      "byte_identical": true,
+      "path": "tables/stage_table.md",
+      "replayed_bytes": 1828,
+      "replayed_sha256": "ef1c717685bedbd4a830ab118fcdc666740de60b818155e2224f873f4398eced"
+    },
+    {
+      "archived_bytes": 417929,
+      "archived_sha256": "57a6704b26d2c19294f3c2dbb3f72229bd3f23612c4d63d2fbb1ecbc0ced653d",
+      "byte_identical": true,
+      "path": "exports/ladder_tradeoffs.png",
+      "replayed_bytes": 417929,
+      "replayed_sha256": "57a6704b26d2c19294f3c2dbb3f72229bd3f23612c4d63d2fbb1ecbc0ced653d"
+    },
+    {
+      "archived_bytes": 110286,
+      "archived_sha256": "5af39578d77ca27d467d15814af9e4cfbaf01d90dbdbcc46ba0769454c423ce7",
+      "byte_identical": true,
+      "path": "exports/ladder_tradeoffs.svg",
+      "replayed_bytes": 110286,
+      "replayed_sha256": "5af39578d77ca27d467d15814af9e4cfbaf01d90dbdbcc46ba0769454c423ce7"
+    },
+    {
+      "archived_bytes": 54383,
+      "archived_sha256": "4bbfc930bf85282e4083364164c4a47dafd873e1d61ede1d59776ed2b75fd460",
+      "byte_identical": true,
+      "path": "exports/ladder_tradeoffs_data.json",
+      "replayed_bytes": 54383,
+      "replayed_sha256": "4bbfc930bf85282e4083364164c4a47dafd873e1d61ede1d59776ed2b75fd460"
+    },
+    {
+      "archived_bytes": 768,
+      "archived_sha256": "dea6213a4e4e0fc8f1a8580325cfe308e9fc35f7edd1de03bb24d73d7b1cdc15",
+      "byte_identical": true,
+      "path": "exports/render_receipt.json",
+      "replayed_bytes": 768,
+      "replayed_sha256": "dea6213a4e4e0fc8f1a8580325cfe308e9fc35f7edd1de03bb24d73d7b1cdc15"
+    },
+    {
+      "archived_bytes": 24462,
+      "archived_sha256": "6b2c8a6882d225060de0ee430a8acab821e719f33c3ae6f6bf5c54f69e69a9d0",
+      "byte_identical": true,
+      "path": "report_v2.md",
+      "replayed_bytes": 24462,
+      "replayed_sha256": "6b2c8a6882d225060de0ee430a8acab821e719f33c3ae6f6bf5c54f69e69a9d0"
+    },
+    {
+      "archived_bytes": 467,
+      "archived_sha256": "9f0e372f3a884f354becbf2d5b60a5f9af67075c9bc55320cc2edf833d221d9f",
+      "byte_identical": true,
+      "path": "report_render_receipt_v2.json",
+      "replayed_bytes": 467,
+      "replayed_sha256": "9f0e372f3a884f354becbf2d5b60a5f9af67075c9bc55320cc2edf833d221d9f"
+    },
+    {
+      "archived_bytes": 1327115,
+      "archived_sha256": "5db544f565b985093a29b463b5fcfe5b0f0a79cebbe8ea975c26f421e172d24c",
+      "byte_identical": true,
+      "path": "stage_interpretation.json",
+      "replayed_bytes": 1327115,
+      "replayed_sha256": "5db544f565b985093a29b463b5fcfe5b0f0a79cebbe8ea975c26f421e172d24c"
+    },
+    {
+      "archived_bytes": 2333,
+      "archived_sha256": "49e9631bf07dd56ba146fc5d8500be40c5d976cf5cf9dfb50e97eaf0765c1ff0",
+      "byte_identical": true,
+      "path": "variability.json",
+      "replayed_bytes": 2333,
+      "replayed_sha256": "49e9631bf07dd56ba146fc5d8500be40c5d976cf5cf9dfb50e97eaf0765c1ff0"
+    }
+  ],
+  "output_root": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019",
+  "python": "/Users/arturoacuaviva/.codex/.chatgpt-projects/g-p-6ad0605450c4819191e61e3e6b91677b/working/qrust_reduced_exports_replay_20261019/../qrust_comparison_env/bin/python",
+  "replay_source_sha256": "56f1a03aba4dffd11a375616e9054732128bb6c6ab575cb973f122c77c2127af",
+  "schema": "qrust_reduced_archived_exports_replay_v1",
+  "scope": "Saved-output reporting replay only; no compiler invocation or numerical validation repeated.",
+  "source_files_checked": 92,
+  "template_sha256": "90bb5c4466c77af61864aef7cdeb2e6282003d263a07b1673807d933b7144fe6"
+}

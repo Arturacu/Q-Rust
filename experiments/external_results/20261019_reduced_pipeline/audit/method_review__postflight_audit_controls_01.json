@@ -1,0 +1,21 @@
+{
+  "log": "test_changed_qasm_map_and_width_are_bound (__main__.PostflightControls.test_changed_qasm_map_and_width_are_bound) ... ok\ntest_failed_verdict_remains_failed_and_is_not_reclassified (__main__.PostflightControls.test_failed_verdict_remains_failed_and_is_not_reclassified) ... ok\ntest_numerical_budget_overrun_rejected (__main__.PostflightControls.test_numerical_budget_overrun_rejected) ... ok\ntest_passing_verdict_cannot_weaken_contract (__main__.PostflightControls.test_passing_verdict_cannot_weaken_contract) ... ok\ntest_retention_zeros_and_exact_percent_boundary (__main__.PostflightControls.test_retention_zeros_and_exact_percent_boundary) ... ok\ntest_schedule_and_metadata_mutations_rejected (__main__.PostflightControls.test_schedule_and_metadata_mutations_rejected) ... ok\ntest_valid_synthetic_row_and_complete_contract (__main__.PostflightControls.test_valid_synthetic_row_and_complete_contract) ... ok\ntest_validation_cannot_retime_or_rewrite_raw_envelope (__main__.PostflightControls.test_validation_cannot_retime_or_rewrite_raw_envelope) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.002s\n\nOK\n",
+  "passed": true,
+  "schema": "qrust_postflight_audit_negative_controls_v1",
+  "source_sha256": {
+    "independent_audit.py": "394c83cb1ee1f640af494ac929525aea5e34202bb7233eb6e3f66cacc34a4c12",
+    "postflight_audit_v2.py": "bc6196244603ca46c2c9bfaba06d16b4e4d1276a628eec501207c202f3ff0e4f",
+    "test_postflight_audit_v2.py": "32c32b41617b9b32aaac0bafa6d480471277e193bd77b0a864895a937d56569a"
+  },
+  "test_count": 8,
+  "test_names": [
+    "__main__.PostflightControls.test_changed_qasm_map_and_width_are_bound",
+    "__main__.PostflightControls.test_failed_verdict_remains_failed_and_is_not_reclassified",
+    "__main__.PostflightControls.test_numerical_budget_overrun_rejected",
+    "__main__.PostflightControls.test_passing_verdict_cannot_weaken_contract",
+    "__main__.PostflightControls.test_retention_zeros_and_exact_percent_boundary",
+    "__main__.PostflightControls.test_schedule_and_metadata_mutations_rejected",
+    "__main__.PostflightControls.test_valid_synthetic_row_and_complete_contract",
+    "__main__.PostflightControls.test_validation_cannot_retime_or_rewrite_raw_envelope"
+  ]
+}

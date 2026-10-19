@@ -1,0 +1,73 @@
+{
+  "descriptive_extraction": {
+    "adjacent_mean_recomputations": "Every adjacent metric/session geometric mean recomputed from saved cell medians matches frozen summary within relative tolerance1e-12.",
+    "primary_quality_identical_across_sessions": true,
+    "scope": "Postflight same-cohort descriptive extraction; no compiler reruns, fitting, threshold changes, or new inferential claims."
+  },
+  "files": [
+    {
+      "bytes": 17493,
+      "path": "plot_ladder.py",
+      "sha256": "eb12325ebca9f21c35f2bac7adfb0873175c2208e64da907dfcd191cc5065f35"
+    },
+    {
+      "bytes": 768,
+      "path": "exports/render_receipt.json",
+      "sha256": "dea6213a4e4e0fc8f1a8580325cfe308e9fc35f7edd1de03bb24d73d7b1cdc15"
+    },
+    {
+      "bytes": 417929,
+      "path": "exports/ladder_tradeoffs.png",
+      "sha256": "57a6704b26d2c19294f3c2dbb3f72229bd3f23612c4d63d2fbb1ecbc0ced653d"
+    },
+    {
+      "bytes": 110286,
+      "path": "exports/ladder_tradeoffs.svg",
+      "sha256": "5af39578d77ca27d467d15814af9e4cfbaf01d90dbdbcc46ba0769454c423ce7"
+    },
+    {
+      "bytes": 54383,
+      "path": "exports/ladder_tradeoffs_data.json",
+      "sha256": "4bbfc930bf85282e4083364164c4a47dafd873e1d61ede1d59776ed2b75fd460"
+    },
+    {
+      "bytes": 1326,
+      "path": "formal_render_attempt1.log",
+      "sha256": "205bb57e95d71fe74113406ca971e025cf6d60618ad032782b6c8aa6904e3d60"
+    },
+    {
+      "bytes": 4961,
+      "path": "interpret_stage_results.py",
+      "sha256": "6d4c584a91e23b4498fd3cb73c7b11cf5bf442c8fc0c52ab29058af74342d725"
+    },
+    {
+      "bytes": 1327115,
+      "path": "stage_interpretation.json",
+      "sha256": "5db544f565b985093a29b463b5fcfe5b0f0a79cebbe8ea975c26f421e172d24c"
+    },
+    {
+      "bytes": 188,
+      "path": "stage_interpretation_attempt1.log",
+      "sha256": "2825c156a462f5579969713211f995c02b755efbcc61da74d8c9d337a1879f1a"
+    }
+  ],
+  "formal_render": {
+    "analysis_sha256": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed",
+    "attempt": 1,
+    "frozen_renderer_unchanged": true,
+    "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+    "status": "passed"
+  },
+  "schema": "qrust_ladder_postflight_plot_review_v1",
+  "visual_review": {
+    "artifact": "exports/ladder_tradeoffs.png",
+    "observations": [
+      "All six session/metric panels are present.",
+      "Recipe annotations, axis directions, cohort denominator and source notes are legible.",
+      "Per-panel denominators and global footer do not overlap.",
+      "Primary cohort is54of54 cases; every plotted metric is positive for all54 with no zero exclusions."
+    ],
+    "qualification": "Marginal fixture-cluster bootstrap intervals are not joint confidence regions. Plot does not identify a Pareto frontier or an optimum.",
+    "status": "passed"
+  }
+}

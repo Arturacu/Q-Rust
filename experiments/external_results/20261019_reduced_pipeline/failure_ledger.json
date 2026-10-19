@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "scope": "Formal campaign outcomes and retained preparation, development and audit limitations; no previous evidence is replaced.",
+  "formal_campaign": {
+    "selected_instances": 18,
+    "source_exclusions": 0,
+    "cases": 54,
+    "timed_outputs": 5400,
+    "warmups": 1080,
+    "passed": 6480,
+    "compile_failures": 0,
+    "unsupported_checks": 0,
+    "incorrect_outputs": 0,
+    "startup_failures": 0,
+    "replacement_warmups": 0
+  },
+  "retained_attempts": [
+    {
+      "area": "initial source preparation",
+      "outcome": "Interrupted dense QFT-14 source-reference evaluation; original raw inputs and 17 completed normalized pairs retained.",
+      "resolution": "Version 2 uses independently controlled exact definition expansion for reference evaluation only; original selected input bytes preserved.",
+      "evidence": "corpus_work/preparation_attempt_1; corpus_work/corpus; corpus_work/corpus_v2; corpus_work/preparation_final_receipt.json"
+    },
+    {
+      "area": "source preparation version 2 inventory",
+      "outcome": "Interrupted redundant JSONL container hashing before revised source-reference checks.",
+      "resolution": "One hash per container; pre-correction helper and transcript preserved. No compiler observations.",
+      "evidence": "corpus_work/preparation_attempt_1; corpus_work/preparation_final_receipt.json"
+    },
+    {
+      "area": "development attempt 1",
+      "independent_passes": 144,
+      "output_width_contract_failures": 144,
+      "barrier_parser_unsupported": 24,
+      "exact_parity_passes": 104,
+      "resolution": "Separate version 2 uses physical width equal to logical width, matching the frozen held-out contract. No padding, oracle changes or circuit changes.",
+      "evidence": "compiler_work/development_outcome_correction.json; compiler_work/development_admission_receipt.json"
+    },
+    {
+      "area": "development attempt 2",
+      "independent_passes": 288,
+      "barrier_parser_unsupported": 24,
+      "exact_parity_passes": 104,
+      "resolution": "Barrier outcomes remain unsupported. Separate Rust barrier tests do not convert them to independent passes.",
+      "evidence": "compiler_work/development_admission_receipt.json"
+    },
+    {
+      "area": "independent postflight analysis audit attempt 1",
+      "outcome": "Audit helper assumed one session-label schema; timed and warmup receipts intentionally use different string/integer forms.",
+      "resolution": "Versioned audit v2 checks each exact schema; all computational evidence unchanged. Eight negative controls pass.",
+      "evidence": "method_review/postflight_audit_v1.py; method_review/postflight_analysis_01.json; method_review/postflight_audit_v2.py; method_review/postflight_analysis_02.json; method_review/postflight_audit_controls_01.json"
+    }
+  ],
+  "limits": [
+    "Full numerical checks at six qubits; sampled checks at ten and fourteen qubits.",
+    "Correctness of all formal outputs does not imply global formal verification or benchmark optimality.",
+    "All earlier diagnostic/build/plot attempts remain in the complete archive, including non-failing revisions."
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "files": [
+    {
+      "bytes": 17493,
+      "path": "plot_ladder.py",
+      "sha256": "eb12325ebca9f21c35f2bac7adfb0873175c2208e64da907dfcd191cc5065f35"
+    },
+    {
+      "bytes": 9936,
+      "path": "test_plot_ladder.py",
+      "sha256": "d325e51672daadc46ef9e6f6b0381c284070d3178f3c0dfe62a882e3bbe8e4a4"
+    },
+    {
+      "bytes": 2773,
+      "path": "plot_tests_attempt1.log",
+      "sha256": "2ddf5ca8e8b633bf903d35eb5325f8b5b36514845dc4fe71ca8c3b93cb16bfaa"
+    },
+    {
+      "bytes": 2773,
+      "path": "plot_tests_attempt2.log",
+      "sha256": "eb07476e2214580f16d6e7134bec099fad87ff4eb7bb56bdb5ceabeb632b709b"
+    },
+    {
+      "bytes": 35124,
+      "path": "synthetic_qa_inputs/analysis.json",
+      "sha256": "96d49fde5c47eaf4d68ca2fe56678282815f79220ac212e781093a599aa22c30"
+    },
+    {
+      "bytes": 356,
+      "path": "synthetic_qa_inputs/protocol.json",
+      "sha256": "f96351b429f00a60ed3ff63c039d6701194ed28d4d24fe9b74dc17cc2e8e8a06"
+    },
+    {
+      "bytes": 1325,
+      "path": "synthetic_qa_attempt1.log",
+      "sha256": "43e838d6f7f71c7973bfd9299dc201a3f804e9e651e6c509923538bc02520284"
+    },
+    {
+      "bytes": 1325,
+      "path": "synthetic_qa_attempt2.log",
+      "sha256": "381db5e93a769b97e0f2ce8da12b28538cca45085eb8b732226f3b9653c15959"
+    },
+    {
+      "bytes": 420008,
+      "path": "synthetic_qa_attempt1/ladder_tradeoffs.png",
+      "sha256": "6c934985a1153750b2205061e334991851b00169a432b377f2af2111cb4b0f85"
+    },
+    {
+      "bytes": 113841,
+      "path": "synthetic_qa_attempt1/ladder_tradeoffs.svg",
+      "sha256": "b809f34504ad49825e9f74b4539c59a8adee36d97cf30db73807145f2b470f39"
+    },
+    {
+      "bytes": 47209,
+      "path": "synthetic_qa_attempt1/ladder_tradeoffs_data.json",
+      "sha256": "61f9a6af92014955d61062fe6f5805a8b469528743f196836dd9027e48c836cd"
+    },
+    {
+      "bytes": 767,
+      "path": "synthetic_qa_attempt1/render_receipt.json",
+      "sha256": "ca1f24e9ebae059a5c16a4e92388184188c89b56b4a270f7e53881f2d43cc719"
+    },
+    {
+      "bytes": 420089,
+      "path": "synthetic_qa_attempt2/ladder_tradeoffs.png",
+      "sha256": "5cde2cf9a6dbe79ca1dd15b0ccb7daf1f5f32169ff7ceed4311e0c3748555856"
+    },
+    {
+      "bytes": 113882,
+      "path": "synthetic_qa_attempt2/ladder_tradeoffs.svg",
+      "sha256": "65b297c7d931db942807bcbe5fd34c899ee79ba749ae7867785e095859b7a8a7"
+    },
+    {
+      "bytes": 47209,
+      "path": "synthetic_qa_attempt2/ladder_tradeoffs_data.json",
+      "sha256": "7d028d3795825a82e4f09dcc70edc06babdd7df3c34e3ab7097b7b4a29283454"
+    },
+    {
+      "bytes": 767,
+      "path": "synthetic_qa_attempt2/render_receipt.json",
+      "sha256": "c3361ad198e55b444919d09e2bf695b5f34522fc9bcc821cd6b78ac162ded464"
+    }
+  ],
+  "formal_guard": "Formal CLI requires explicit --postflight-authorized; all inputs are hash-bound; output directory must be fresh.",
+  "limitations": [
+    "Positive ratio subsets can differ across metrics; per-panel counts and exact zero categories are retained.",
+    "Marginal fixture-cluster intervals are not a joint confidence region.",
+    "One experimental binary measures executed pipeline differences; no executable size or memory inference."
+  ],
+  "schema": "qrust_ladder_plot_preflight_v1",
+  "scope": "Synthetic schema, evidence-accounting tests and visual QA only; no formal outcomes read or rendered.",
+  "test_result": {
+    "attempt": 2,
+    "log": "plot_tests_attempt2.log",
+    "passed": 13,
+    "seconds": 7.449,
+    "tests": 13
+  },
+  "visual_qa": {
+    "artifact": "synthetic_qa_attempt2/ladder_tradeoffs.png",
+    "prior_attempt": "synthetic_qa_attempt1 retained; footer/label spacing refined without data changes.",
+    "result": "Reviewed: six panels, R0\u2013R6 labels, source and finite-ratio denominators, and footer are legible; no panel-footnote/footer overlap."
+  }
+}

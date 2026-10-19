@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "stage": "after_both_timing_sessions",
+  "checks": [
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "32ed43",
+        "wall_time_seconds": 2.659471,
+        "exit_code": 0,
+        "original_token_count": 49,
+        "output": "{\"action\": \"check\", \"compiler_freeze_sha256\": \"cf307196284eb233947bcc5fcdebbdbf0e55948a35c47a44d2f8ce90b9d83be2\", \"source_and_recipe_files\": 140, \"installed_files\": 10706, \"distributions\": 35}\n"
+      }
+    },
+    {
+      "status": "fulfilled",
+      "value": {
+        "chunk_id": "ae77c0",
+        "wall_time_seconds": 1.992611167,
+        "exit_code": 0,
+        "original_token_count": 33,
+        "output": "{\"action\": \"check\", \"preserved_files\": 1956, \"manifest_sha256\": \"8238a0be02a92f4de5fe4ca8e23a073bd956062fe28ec5a2374693372aa74a81\"}\n"
+      }
+    }
+  ]
+}

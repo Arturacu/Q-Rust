@@ -1,0 +1,16 @@
+{
+  "both_sessions_completed": true,
+  "finished_utc": "2026-10-19T06:58:53.232208+00:00",
+  "independent_validation_executed_by_this_controller": false,
+  "protocol_sha256": "50b54e651176fbe06a68c41d2501a1c71f3db7956424b1834b4c2080c5ab87f9",
+  "receipts": [
+    {
+      "path": "timing_session_1_receipt.json",
+      "sha256": "5e4594299da69bc90acac5aa54f7b9b4df5aac9dd1091a32af26c5d95fdded68"
+    },
+    {
+      "path": "timing_session_2_receipt.json",
+      "sha256": "911b443d3af532b0854cc84295b7580a032ab0121da9a3ffdfc0da5400272d35"
+    }
+  ]
+}

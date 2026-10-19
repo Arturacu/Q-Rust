@@ -1,0 +1,95 @@
+{
+  "bindings": {
+    "qrust_pr_publish/experiments/REDUCED_PIPELINE_STUDY.md": "6b2c8a6882d225060de0ee430a8acab821e719f33c3ae6f6bf5c54f69e69a9d0",
+    "qrust_reduced_ladder_20261019/compiler_work/development_admission_receipt.json": "b3b20afead600ab8da0fedc981d432e077ca480e59d8cfa10063ad12a5eacb39",
+    "qrust_reduced_ladder_20261019/compiler_work/source/src/transpiler/block_synthesis.rs": "406e7fa04f9afadf06e5f4151868b1f8fc604750089ca8cbfba2b299b16424ab",
+    "qrust_reduced_ladder_20261019/compiler_work/source/src/transpiler/mod.rs": "fb106e9047fd72b9b358f5c747a9c196a98bae7dd2247a86535d30afff38fa05",
+    "qrust_reduced_ladder_20261019/compiler_work/source/src/transpiler/routing.rs": "2df63cf169bd2365506d842a30a74b66e5588449ef7ff63a96c1a0445326fc45",
+    "qrust_reduced_ladder_20261019/corpus_work/campaign/analysis.json": "ca2f492c96a8d1e3e4977b2bd1a655c713af9a8e9d66cfcf6e617b68e94d14ed",
+    "qrust_reduced_ladder_20261019/corpus_work/campaign/session_01/cells.json": "a35dd30e4ddd849c9c0e28d4a7229ebcf5591c05af88e6622405e09f7675f215",
+    "qrust_reduced_ladder_20261019/corpus_work/campaign/session_02/cells.json": "bce1ce26232e2df879f1cdd9e4321de245acdf00659e5e5a575ed8ca7c95a8a7",
+    "qrust_reduced_ladder_20261019/corpus_work/campaign/validation_summary.json": "b51db3ea0de387826fb99e9b1e55bf52a054e137f49a57be5ee0e5f21c598871",
+    "qrust_reduced_ladder_20261019/corpus_work/campaign/warmup_validation_summary.json": "c3c8c76caab79112e2ac3abbe02beef31052de56d898dc86a175c9f35fd201a7",
+    "qrust_reduced_ladder_20261019/corpus_work/preparation_final_receipt.json": "f339e011a7c2a9af497c5d4e71b10ec591852ee97946dfb2c6011be154cda9ba",
+    "qrust_reduced_ladder_20261019/method_review/final_report_audit_v1.py": "7cb47f58e31156bb113dbfaccf43aee9a6850831c80750a879bf44988cf1c58d",
+    "qrust_reduced_ladder_20261019/method_review/postflight_analysis_02.json": "a7bb72fbf0adb0dfa546558b94c0faf5630e01334912ae4993d8691b93d875d0",
+    "qrust_reduced_ladder_20261019/method_review/postflight_audit_controls_01.json": "336361c1aab6e015a5b39dea42d08a9dbb0d611f67a221bb650f5d6e7515e119",
+    "qrust_reduced_ladder_20261019/reporting/report_render_receipt_v2.json": "9f0e372f3a884f354becbf2d5b60a5f9af67075c9bc55320cc2edf833d221d9f",
+    "qrust_reduced_ladder_20261019/reporting/report_template_v2.md": "90bb5c4466c77af61864aef7cdeb2e6282003d263a07b1673807d933b7144fe6",
+    "qrust_reduced_ladder_20261019/reporting/stage_interpretation.json": "5db544f565b985093a29b463b5fcfe5b0f0a79cebbe8ea975c26f421e172d24c",
+    "qrust_reduced_ladder_20261019/reporting/tables/export_receipt.json": "d1d1bcd5fb5ed1b2bedf62ff134f4a8ef58b8dad8d7f8f047b6c3e244d37ebed",
+    "qrust_reduced_ladder_20261019/reporting/variability.json": "49e9631bf07dd56ba146fc5d8500be40c5d976cf5cf9dfb50e97eaf0765c1ff0"
+  },
+  "computational_evidence_edits": false,
+  "delivery_conditions": [
+    "Finish populating the result directory and verify every report link before commit/delivery.",
+    "Bind completed fresh-archive replay and final 1956-file historical-preservation verification in the delivery verification summary; this content review does not claim those pending delivery checks ran."
+  ],
+  "links": [
+    {
+      "exists_at_review": false,
+      "sha256": null,
+      "target": "./external_results/20261019_reduced_pipeline/ladder_tradeoffs.png"
+    },
+    {
+      "exists_at_review": false,
+      "sha256": null,
+      "target": "./external_results/20261019_reduced_pipeline/quality_retention.csv"
+    },
+    {
+      "exists_at_review": false,
+      "sha256": null,
+      "target": "./external_results/20261019_reduced_pipeline/stage_interpretation.json"
+    },
+    {
+      "exists_at_review": false,
+      "sha256": null,
+      "target": "./external_results/20261019_reduced_pipeline/README.md"
+    },
+    {
+      "exists_at_review": false,
+      "sha256": null,
+      "target": "./external_results/20261019_reduced_pipeline/ladder_analysis.json"
+    },
+    {
+      "exists_at_review": false,
+      "sha256": null,
+      "target": "./external_results/20261019_reduced_pipeline/comparisons.csv"
+    },
+    {
+      "exists_at_review": false,
+      "sha256": null,
+      "target": "./external_results/20261019_reduced_pipeline/verification_summary.json"
+    }
+  ],
+  "remaining_scientific_limits": [
+    "Sequential grouped interventions cannot isolate constituent passes or all interactions; fixed per-route budget does not fix total continuation work.",
+    "Only six-qubit cases have full numerical isometry evidence; larger checks use eight fixed inputs, including seeded Haar states, and are sampled evidence.",
+    "18 selected instances and one parameter seed are not a representative population or hardware workload; lexical nonoverlap is not semantic independence.",
+    "One warm-process host, selected SDK recipes, shared normalized frontend and ideal graphs do not establish Rust causality, memory savings, optimality or universal superiority.",
+    "The point estimates and retention were independently recomputed; confidence intervals retain the frozen prescribed bootstrap and were not independently regenerated by this review.",
+    "R5 has adverse tails despite small aggregate overhead; no new recipe/default was selected and independently confirmed after observing this corpus."
+  ],
+  "report_content_passed": true,
+  "report_edits_by_this_reviewer": false,
+  "report_sha256": "6b2c8a6882d225060de0ee430a8acab821e719f33c3ae6f6bf5c54f69e69a9d0",
+  "review_corrections_applied": [
+    "Unqualified minimal R0 wording replaced by reduced baseline R0.",
+    "Formal response metadata statement narrowed explicitly to Q-Rust."
+  ],
+  "review_scope": "Read-only adversarial review of report v2 and its template against frozen evidence; new receipt only.",
+  "schema": "qrust_final_report_independent_review_v1",
+  "template_sha256": "90bb5c4466c77af61864aef7cdeb2e6282003d263a07b1673807d933b7144fe6",
+  "validated_claims": [
+    "18 fixtures, 54 cases, 5400 timed requests and 1080 initial warmups; no formal exclusions or failures; all ten recipes qualify in both sessions.",
+    "R0/R5 speed and quality summaries, every generated table and the conditional adjacent-group point estimates agree with independently audited medians and frozen analysis.",
+    "Topology-specific percentages and placement effects match the strata; complete graphs tie for R5/R6 and sparse-only retention is 17/36, 21/36, 23/36 at 0/5/10 percent.",
+    "All four adverse-case rows and QFT/VQE compile medians match saved cells; R6 worsens CX/depth/two-qubit depth on 7/8/9 cases and any metric on 10 distinct cases.",
+    "Qiskit timing intervals span parity at both recorded endpoints; the approximately 6.2x QFT-line adverse runtime is consistent with the saved medians.",
+    "R0..R6 group definitions, common controls, identity-placement limits, retained continuations and experiment-only timing boundary match reviewed frozen source.",
+    "Routing pruning/SWAP cost and local synthesis acceptance explain absence of a monotonic guarantee; report correctly does not claim per-case internal causal traces.",
+    "Selection seed/options, MQT source pin, known-family/new-generator classification, lexical inventory counts and source-preparation corrections agree with preserved evidence.",
+    "Development attempt counts remain 144 pass/144 width-contract/24 unsupported then 288 pass/24 unsupported; parity is 104 each, distinct from semantic verification.",
+    "Unique artifact counts and residuals agree with validation receipts; corresponding cross-session artifact/map identity is independently confirmed for all 2700 pairs."
+  ]
+}
